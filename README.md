@@ -77,6 +77,7 @@ Reinicia Claude Desktop por completo. Deberías ver el ícono de herramientas
 | `simular_perdida_alimentador` | Análisis de contingencia N-1: abre un elemento y recalcula |
 | `listar_elementos` | Lista buses, líneas, transformadores, cargas, generadores actuales |
 | `generar_diagrama_unifilar` | Genera un diagrama unifilar HTML con símbolos de ingeniería (barras, transformadores, cargas) |
+| `calcular_arc_flash` | Estima energía incidente de arco eléctrico (método de Lee simplificado — solo aprendizaje) |
 
 ## 5. Ejemplo de uso conversacional con Claude
 
@@ -151,6 +152,17 @@ circuito (pérdidas, convergencia, conteo de elementos).
   desbalance fino (común en BT monofásico/bifásico) se pueden extender las
   herramientas con parámetros de secuencia cero (R0/X0) y matrices de
   impedancia — no está incluido en esta versión inicial.
+- **⚠ `calcular_arc_flash` es un método simplificado (Lee/IEEE 1584-2002),
+  NO el modelo empírico completo de IEEE 1584-2018.** Las tablas de
+  regresión del modelo completo son parte de un estándar protegido por
+  IEEE y no están implementadas aquí. El método de Lee es útil para
+  aprender la física y estimar órdenes de magnitud, pero tiende a ser
+  conservador (sobreestima) para equipos en gabinete cerrado, y el tiempo
+  de despeje se da como dato de entrada (no se calcula desde curvas TCC
+  reales de protecciones, que este MCP tampoco modela todavía). **Nunca
+  usar estos resultados para determinar EPP en una instalación real** —
+  para eso se necesita un estudio normado (ETAP u otro software validado)
+  revisado por un ingeniero eléctrico calificado.
 
 ## 7. Historial de cambios
 

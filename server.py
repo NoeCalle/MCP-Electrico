@@ -236,11 +236,21 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict:
     """
     dss.run_command(f"Solve Mode=FaultStudy")
     dss.Circuit.SetActiveBus(bus_falla)
-    corrientes = dss.Bus.Isc()
+    # dss.Bus.Isc() devuelve pares [real, imaginario] intercalados por
+    # fase (NO magnitud/ángulo) — hay que calcular la magnitud del
+    # fasor explícitamente, o se reporta la parte real como si fuera
+    # la corriente total, lo cual subestima o distorsiona el resultado.
+    raw = dss.Bus.Isc()
+    partes_reales = raw[0::2]
+    partes_imaginarias = raw[1::2]
+    magnitudes = [
+        (re ** 2 + im ** 2) ** 0.5
+        for re, im in zip(partes_reales, partes_imaginarias)
+    ]
 
     return {
         "bus": bus_falla,
-        "corriente_falla_amperios": [round(c, 2) for c in corrientes[0::2]],
+        "corriente_falla_amperios": [round(m, 2) for m in magnitudes],
     }
 
 
@@ -586,6 +596,78 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
         "generadores_dibujados": n_gens,
         "transformadores_dibujados": n_trafos,
         "topologia_radial_pura": es_radial_puro,
+    }
+
+
+@mcp.tool()
+def calcular_arc_flash(
+    voltaje_kv: float,
+    corriente_falla_ka: float,
+    tiempo_despeje_s: float,
+    distancia_trabajo_mm: float = 455,
+) -> dict:
+    """
+    Estima la energía incidente de arco eléctrico (arc flash) usando el
+    método simplificado de Lee (ecuación adoptada por IEEE 1584-2002
+    para configuraciones al aire libre, tensiones >15kV, o parámetros
+    fuera del rango del modelo empírico completo de IEEE 1584-2018).
+
+    ADVERTENCIA IMPORTANTE: este es un método simplificado para fines
+    de aprendizaje y estimación de orden de magnitud. NO reemplaza un
+    estudio de arc flash normado (IEEE 1584-2018 completo, hecho en
+    ETAP u otro software validado) para determinar EPP real en un
+    proyecto. El método de Lee tiende a ser conservador (sobreestima)
+    para equipos en gabinete cerrado comparado con el modelo empírico
+    completo. Los resultados de esta herramienta NUNCA deben usarse
+    para seleccionar equipo de protección personal en una instalación
+    real sin validación de un ingeniero eléctrico calificado.
+
+    Args:
+        voltaje_kv: Tensión del sistema en kV
+        corriente_falla_ka: Corriente de falla franca trifásica en kA
+                             (obtenida de ejecutar_cortocircuito)
+        tiempo_despeje_s: Tiempo de despeje de la protección en segundos
+                          (dato de entrada — este MCP no modela curvas
+                          TCC de interruptores/fusibles todavía)
+        distancia_trabajo_mm: Distancia de trabajo en mm (típico: 455mm
+                               / 18in para tableros BT, mayor para MT)
+    """
+    IE_J = 2.142e6 * voltaje_kv * corriente_falla_ka * tiempo_despeje_s / (distancia_trabajo_mm ** 2)
+    IE_cal = IE_J / 4.184
+
+    # Frontera de arco: distancia donde la energía incidente cae a
+    # 5.02 J/cm² (≈1.2 cal/cm², umbral de quemadura de 2do grado curable)
+    IE_frontera_J = 5.02
+    frontera_mm = (2.142e6 * voltaje_kv * corriente_falla_ka * tiempo_despeje_s / IE_frontera_J) ** 0.5
+
+    # Categorías de PPE aproximadas (NFPA 70E) — umbrales de referencia,
+    # verificar contra la edición vigente de la norma para uso real.
+    if IE_cal < 1.2:
+        categoria = "Sin requerimiento mínimo (por debajo del umbral de 1.2 cal/cm²)"
+    elif IE_cal < 4:
+        categoria = "Categoría 1 (~4 cal/cm²)"
+    elif IE_cal < 8:
+        categoria = "Categoría 2 (~8 cal/cm²)"
+    elif IE_cal < 25:
+        categoria = "Categoría 3 (~25 cal/cm²)"
+    elif IE_cal < 40:
+        categoria = "Categoría 4 (~40 cal/cm²)"
+    else:
+        categoria = "Por encima de 40 cal/cm² — requiere controles remotos, no solo EPP"
+
+    return {
+        "energia_incidente_cal_cm2": round(IE_cal, 2),
+        "energia_incidente_J_cm2": round(IE_J, 2),
+        "frontera_arco_mm": round(frontera_mm, 1),
+        "frontera_arco_in": round(frontera_mm / 25.4, 1),
+        "categoria_ppe_aproximada": categoria,
+        "metodo": "Lee simplificado (IEEE 1584-2002) — NO usar para EPP real, solo aprendizaje",
+        "parametros_entrada": {
+            "voltaje_kv": voltaje_kv,
+            "corriente_falla_ka": corriente_falla_ka,
+            "tiempo_despeje_s": tiempo_despeje_s,
+            "distancia_trabajo_mm": distancia_trabajo_mm,
+        },
     }
 
 

@@ -151,4 +151,44 @@ completa; solo el *dibujo* se simplifica a un árbol.
   librería externa de gráficos). `networkx` se mantiene para el cálculo
   del árbol de expansión.
 
+## [0.5.0] - Arc flash simplificado + corrección de bug en cortocircuito
+
+### Bug corregido: `ejecutar_cortocircuito` reportaba la parte real, no la magnitud
+
+`dss.Bus.Isc()` devuelve pares `[real, imaginario]` intercalados por
+fase — **no** `[magnitud, ángulo]` como se asumió al construir la
+herramienta originalmente. El código tomaba `corrientes[0::2]` (las
+partes reales) y las presentaba como si fueran la corriente de falla,
+lo que podía mostrar valores negativos o muy distintos entre fases para
+una falla trifásica simétrica (que en realidad está balanceada). Se
+corrigió calculando la magnitud real del fasor:
+`sqrt(real² + imaginario²)` por fase. Verificado: para una falla
+trifásica balanceada, las tres fases ahora reportan la misma magnitud,
+como corresponde físicamente.
+
+### Herramienta nueva: `calcular_arc_flash`
+
+Estima energía incidente de arco eléctrico usando el método de Lee
+(ecuación adoptada por IEEE 1584-2002 para configuraciones al aire
+libre / fuera del rango del modelo empírico de 1584-2018). Devuelve
+energía incidente (J/cm² y cal/cm²), frontera de arco, y categoría de
+EPP aproximada según NFPA 70E.
+
+**Advertencia deliberada en el código y la documentación**: este NO es
+el modelo empírico completo de IEEE 1584-2018 (cuyas tablas de
+regresión son parte de un estándar protegido por IEEE, no reproducidas
+aquí). Es un método simplificado para aprendizaje — nunca debe usarse
+para determinar EPP real sin un estudio normado validado por un
+ingeniero calificado. El tiempo de despeje se da como dato de entrada;
+este MCP todavía no modela curvas TCC de protecciones reales.
+
+### Caso de estudio nuevo
+
+- `examples/arc_flash_campus.py` — compara energía incidente en dos
+  tableros del campus con distintos tiempos de despeje asumidos (0.2s
+  vs 0.5s), mostrando cómo el tiempo de despeje escala directamente la
+  energía incidente y por qué la coordinación de protecciones rápida
+  reduce el riesgo de arco eléctrico.
+
+
 
