@@ -6,7 +6,6 @@ Permite a Claude modelar y simular redes de distribución MT/BT
 
 import opendssdirect as dss
 import networkx as nx
-import plotly.graph_objects as go
 
 # Compatibilidad: en versiones recientes del SDK de MCP, la clase se llama
 # MCPServer y vive en mcp.server.mcpserver; en versiones más antiguas se
@@ -311,110 +310,112 @@ def obtener_netlist() -> str:
 @mcp.tool()
 def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
     """
-    Genera un diagrama unifilar interactivo (archivo HTML) del circuito
-    actualmente cargado. Dibuja buses (coloreados por voltaje pu),
-    transformadores (líneas punteadas), líneas/cables, cargas (cuadrados,
-    resaltados si son críticas) y generadores (diamantes) como elementos
-    visuales distintos. Incluye un panel lateral con el resumen del
-    circuito (convergencia, pérdidas). Requiere haber corrido
-    ejecutar_flujo_potencia() antes para que los voltajes sean
-    significativos.
+    Genera un diagrama unifilar (archivo HTML) del circuito actualmente
+    cargado, usando convenciones de dibujo de ingeniería eléctrica:
+    buses como barras horizontales, transformadores como símbolo de dos
+    círculos superpuestos, cargas como triángulos (rojos si son
+    críticas), generadores como círculo con "G", e interruptores como
+    pequeños rectángulos en cada derivación. El layout se calcula
+    automáticamente para la topología actual (no está fijado a un caso
+    particular). Pensado para redes radiales/arbóreas; si la red tiene
+    anillos, se dibuja un árbol de expansión desde la fuente y se nota
+    en el resultado.
+
+    Requiere haber corrido ejecutar_flujo_potencia() antes para que los
+    voltajes mostrados sean significativos.
 
     Args:
         ruta_salida: Ruta del archivo HTML a generar
     """
-    G = nx.Graph()
+    buses_info = {}
     for bus in dss.Circuit.AllBusNames():
         dss.Circuit.SetActiveBus(bus)
         kvbase = dss.Bus.kVBase()
         vpu_fases = dss.Bus.puVmagAngle()[0::2]
         vpu = sum(vpu_fases) / len(vpu_fases) if vpu_fases else 0.0
-        G.add_node(bus, tipo="bus", kvbase=kvbase, vpu=vpu)
+        buses_info[bus] = {"kvbase": kvbase, "vpu": vpu}
 
-    for name in dss.Lines.AllNames():
-        dss.Lines.Name(name)
-        b1 = dss.Lines.Bus1().split(".")[0]
-        b2 = dss.Lines.Bus2().split(".")[0]
-        G.add_edge(b1, b2, tipo="Línea", nombre=name)
-
-    for name in dss.Transformers.AllNames():
-        dss.Transformers.Name(name)
-        buses_trafo = dss.CktElement.BusNames()
-        b1 = buses_trafo[0].split(".")[0]
-        b2 = buses_trafo[1].split(".")[0]
-        G.add_edge(b1, b2, tipo="Transformador", nombre=name)
-
-    if len([n for n, d in G.nodes(data=True) if d.get("tipo") == "bus"]) == 0:
+    if not buses_info:
         return {"error": "El circuito no tiene buses definidos. Crea un circuito primero."}
 
-    # --- Layout jerárquico de los buses (BFS desde la fuente) ---
+    # --- Grafo de conexiones (líneas y transformadores) ---
+    G = nx.Graph()
+    G.add_nodes_from(buses_info.keys())
+    tipo_conexion, nombre_conexion, conexion_abierta = {}, {}, {}
+    for name in dss.Lines.AllNames():
+        dss.Lines.Name(name)
+        b1, b2 = dss.Lines.Bus1().split(".")[0], dss.Lines.Bus2().split(".")[0]
+        abierta = dss.CktElement.IsOpen(1, 0)
+        G.add_edge(b1, b2)
+        tipo_conexion[(b1, b2)] = tipo_conexion[(b2, b1)] = "Línea"
+        nombre_conexion[(b1, b2)] = nombre_conexion[(b2, b1)] = name
+        conexion_abierta[(b1, b2)] = conexion_abierta[(b2, b1)] = abierta
+    for name in dss.Transformers.AllNames():
+        dss.Transformers.Name(name)
+        bs = dss.CktElement.BusNames()
+        b1, b2 = bs[0].split(".")[0], bs[1].split(".")[0]
+        abierta = dss.CktElement.IsOpen(1, 0)
+        G.add_edge(b1, b2)
+        tipo_conexion[(b1, b2)] = tipo_conexion[(b2, b1)] = "Transformador"
+        nombre_conexion[(b1, b2)] = nombre_conexion[(b2, b1)] = name
+        conexion_abierta[(b1, b2)] = conexion_abierta[(b2, b1)] = abierta
+
     nodos_fuente = [b for b in G.nodes if "source" in b.lower()]
     raiz = nodos_fuente[0] if nodos_fuente else list(G.nodes)[0]
-    niveles = nx.single_source_shortest_path_length(G, raiz)
 
-    por_nivel = {}
-    for nodo, nivel in niveles.items():
-        por_nivel.setdefault(nivel, []).append(nodo)
+    # Árbol de expansión desde la raíz. Si la red tiene anillos, esto
+    # simplifica el dibujo a un árbol (la conexión "extra" del anillo no
+    # se dibuja), aunque el cálculo eléctrico sí consideró el anillo
+    # completo. Se reporta en el resultado si esto ocurrió.
+    arbol = nx.bfs_tree(G, raiz)
+    es_radial_puro = nx.is_tree(G)
+    buses_desconectados = [b for b in buses_info if b not in arbol.nodes]
 
-    pos = {}
-    for nivel, nodos_del_nivel in por_nivel.items():
-        n = len(nodos_del_nivel)
-        for i, nodo in enumerate(nodos_del_nivel):
-            pos[nodo] = ((i - (n - 1) / 2) * 2.6, -nivel * 1.6)
-
-    for nodo in list(G.nodes):
-        if nodo not in pos:
-            pos[nodo] = (5.0, -len(por_nivel) * 1.6)
-
-    # --- Nodos "hoja": cargas y generadores colgando de su bus ---
-    # Se agregan como nodos del grafo (tipo distinto) para que el layout
-    # y el hover funcionen igual que con los buses, pero se dibujan con
-    # marcador y color diferentes.
+    # --- Cargas y generadores por bus ---
     hojas_por_bus = {}
     for name in dss.Loads.AllNames():
         dss.Loads.Name(name)
         bus = dss.CktElement.BusNames()[0].split(".")[0]
-        hojas_por_bus.setdefault(bus, []).append(
-            ("carga", name, dss.Loads.kW(), dss.Loads.kvar(), name in _cargas_criticas)
-        )
+        hojas_por_bus.setdefault(bus, []).append({
+            "tipo": "carga", "nombre": name,
+            "kw": dss.Loads.kW(), "kvar": dss.Loads.kvar(),
+            "critica": name in _cargas_criticas,
+        })
     for name in dss.Generators.AllNames():
         dss.Generators.Name(name)
         bus = dss.CktElement.BusNames()[0].split(".")[0]
-        hojas_por_bus.setdefault(bus, []).append(
-            ("generador", name, dss.Generators.kW(), 0.0, False)
-        )
+        hojas_por_bus.setdefault(bus, []).append({
+            "tipo": "generador", "nombre": name, "kw": dss.Generators.kW(),
+        })
 
-    for bus, hojas in hojas_por_bus.items():
-        bx, by = pos[bus]
-        n = len(hojas)
-        for i, (tipo_hoja, nombre_hoja, kw, kvar, es_critica) in enumerate(hojas):
-            offset_x = (i - (n - 1) / 2) * 1.1
-            nodo_id = f"{tipo_hoja}::{nombre_hoja}"
-            pos[nodo_id] = (bx + offset_x, by - 1.0)
-            G.add_node(
-                nodo_id, tipo=tipo_hoja, nombre=nombre_hoja,
-                kw=kw, kvar=kvar, critica=es_critica,
-            )
-            G.add_edge(bus, nodo_id, tipo="Acometida", nombre=nombre_hoja)
+    # --- Layout: recorrido post-orden del árbol asignando posiciones X ---
+    LEAF_W, TIER_H = 100, 175
+    pos_bus, span_bus, pos_hoja = {}, {}, {}
+    cursor = [70]
 
-    # --- Trazas de conexiones (edges) ---
-    edge_traces = []
-    for u, v, data in G.edges(data=True):
-        x0, y0 = pos[u]
-        x1, y1 = pos[v]
-        if data["tipo"] == "Transformador":
-            estilo = dict(color="#c98a55", width=3, dash="dot")
-        elif data["tipo"] == "Acometida":
-            estilo = dict(color="#3a4a6b", width=1.5, dash="dash")
-        else:
-            estilo = dict(color="#5b6b8c", width=2.5)
-        edge_traces.append(
-            go.Scatter(
-                x=[x0, x1], y=[y0, y1], mode="lines", line=estilo,
-                hoverinfo="text", text=f"{data['tipo']}: {data['nombre']}",
-                showlegend=False,
-            )
-        )
+    def layout(bus, profundidad):
+        hijos = list(arbol.successors(bus)) if bus in arbol else []
+        hojas = hojas_por_bus.get(bus, [])
+        xs = [layout(h, profundidad + 1) for h in hijos]
+        for i, hoja in enumerate(hojas):
+            x = cursor[0]
+            cursor[0] += LEAF_W
+            pos_hoja[(bus, i)] = x
+            xs.append(x)
+        if not xs:
+            x = cursor[0]
+            cursor[0] += LEAF_W
+            xs = [x]
+        bus_x = sum(xs) / len(xs)
+        pos_bus[bus] = (bus_x, 70 + profundidad * TIER_H)
+        span_bus[bus] = (min(xs), max(xs))
+        return bus_x
+
+    layout(raiz, 0)
+
+    profundidad_max = max((nx.shortest_path_length(arbol, raiz, b) for b in arbol.nodes), default=0)
+    ancho = max(cursor[0] + 60, 760)
+    alto = 70 + profundidad_max * TIER_H + 250
 
     def color_por_voltaje(vpu, kvbase):
         if kvbase == 0:
@@ -425,138 +426,151 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
             return "#e8c547"
         return "#e6584f"
 
-    # --- Trazas de nodos, separadas por tipo para poder variar el marcador ---
-    def trazar_grupo(tipo_filtro, symbol, size, color_fn, hover_fn, label_fn):
-        xs, ys, colors, texts, hovers = [], [], [], [], []
-        for nodo, data in G.nodes(data=True):
-            if data.get("tipo") != tipo_filtro:
-                continue
-            x, y = pos[nodo]
-            xs.append(x)
-            ys.append(y)
-            colors.append(color_fn(data))
-            texts.append(label_fn(nodo, data))
-            hovers.append(hover_fn(nodo, data))
-        return go.Scatter(
-            x=xs, y=ys, mode="markers+text",
-            marker=dict(size=size, symbol=symbol, color=colors,
-                        line=dict(width=2, color="#1a2436")),
-            text=texts, textposition="bottom center",
-            textfont=dict(color="#e7ecf5", size=10.5),
-            hoverinfo="text", hovertext=hovers, showlegend=False,
+    # --- Construcción del SVG ---
+    partes = []
+
+    def esc(s):
+        return str(s).replace("&", "&amp;").replace("<", "&lt;")
+
+    for bus, (bx, by) in pos_bus.items():
+        x0, x1 = span_bus[bus]
+        x0, x1 = x0 - 35, x1 + 35
+        info = buses_info[bus]
+        color = color_por_voltaje(info["vpu"], info["kvbase"])
+        vtxt = "SIN TENSIÓN" if info["kvbase"] == 0 else f'{info["vpu"]:.4f} pu'
+        partes.append(
+            f'<line x1="{x0:.0f}" y1="{by:.0f}" x2="{x1:.0f}" y2="{by:.0f}" '
+            f'stroke="{color}" stroke-width="4" stroke-linecap="round"/>'
+        )
+        partes.append(
+            f'<text x="{x0:.0f}" y="{by-14:.0f}" class="lbl-bus">{esc(bus)}</text>'
+        )
+        partes.append(
+            f'<text x="{x0:.0f}" y="{by+18:.0f}" class="lbl-kv" fill="{color}">'
+            f'{info["kvbase"]:.3f} kV · {vtxt}</text>'
         )
 
-    traza_buses = trazar_grupo(
-        "bus", "circle", 30,
-        lambda d: color_por_voltaje(d["vpu"], d["kvbase"]),
-        lambda n, d: f"<b>{n}</b><br>kV base: {d['kvbase']:.3f}<br>V: {d['vpu']:.4f} pu",
-        lambda n, d: n,
-    )
-    traza_cargas = trazar_grupo(
-        "carga", "square", 18,
-        lambda d: "#e6584f" if d["critica"] else "#c98a55",
-        lambda n, d: f"<b>{d['nombre']}</b> (carga{' crítica' if d['critica'] else ''})<br>{d['kw']:.1f} kW / {d['kvar']:.1f} kVAR",
-        lambda n, d: f"{d['kw']:.0f}kW" + (" ⚠" if d["critica"] else ""),
-    )
-    traza_generadores = trazar_grupo(
-        "generador", "diamond", 20,
-        lambda d: "#4a9de8",
-        lambda n, d: f"<b>{d['nombre']}</b> (generador/respaldo)<br>{d['kw']:.1f} kW",
-        lambda n, d: f"{d['nombre']}",
-    )
+        # Conexiones hacia hijos (transformador o línea)
+        for hijo in (list(arbol.successors(bus)) if bus in arbol else []):
+            hx, hy = pos_bus[hijo]
+            tipo = tipo_conexion.get((bus, hijo), "Línea")
+            nombre = nombre_conexion.get((bus, hijo), "")
+            abierta = conexion_abierta.get((bus, hijo), False)
+            color_wire = "#e6584f" if abierta else "#5b6b8c"
+            partes.append(f'<line x1="{hx:.0f}" y1="{by:.0f}" x2="{hx:.0f}" y2="{by+30:.0f}" stroke="{color_wire}" stroke-width="1.8" fill="none"/>')
+            if abierta:
+                # Interruptor abierto: gap visible con las dos hojas separadas
+                partes.append(f'<line x1="{hx-9:.0f}" y1="{by+30:.0f}" x2="{hx-2:.0f}" y2="{by+34:.0f}" stroke="#e6584f" stroke-width="2"/>')
+                partes.append(f'<line x1="{hx+2:.0f}" y1="{by+36:.0f}" x2="{hx+9:.0f}" y2="{by+40:.0f}" stroke="#e6584f" stroke-width="2"/>')
+                partes.append(f'<text x="{hx+16:.0f}" y="{by+40:.0f}" class="lbl-elem" fill="#e6584f">ABIERTO</text>')
+            else:
+                partes.append(
+                    f'<rect x="{hx-9:.0f}" y="{by+30:.0f}" width="18" height="10" '
+                    f'fill="none" stroke="#c9d3e3" stroke-width="1.5"/>'
+                )
+            if tipo == "Transformador":
+                c1y, c2y = by + 62, by + 94
+                col_trafo = "#7a5a44" if abierta else "#c98a55"
+                partes.append(f'<circle cx="{hx:.0f}" cy="{c1y:.0f}" r="20" fill="none" stroke="{col_trafo}" stroke-width="1.8"/>')
+                partes.append(f'<circle cx="{hx:.0f}" cy="{c2y:.0f}" r="20" fill="none" stroke="{col_trafo}" stroke-width="1.8"/>')
+                partes.append(f'<line x1="{hx:.0f}" y1="{c2y+20:.0f}" x2="{hx:.0f}" y2="{hy:.0f}" stroke="{color_wire}" stroke-width="1.8" fill="none"/>')
+                partes.append(f'<text x="{hx+28:.0f}" y="{c1y+4:.0f}" class="lbl-elem">{esc(nombre)}</text>')
+            else:
+                partes.append(f'<line x1="{hx:.0f}" y1="{by+40:.0f}" x2="{hx:.0f}" y2="{hy:.0f}" stroke="{color_wire}" stroke-width="1.8" fill="none"/>')
+                partes.append(f'<text x="{hx+16:.0f}" y="{(by+hy)/2:.0f}" class="lbl-elem">{esc(nombre)}</text>')
 
-    fig = go.Figure(data=edge_traces + [traza_buses, traza_cargas, traza_generadores])
-    fig.update_layout(
-        paper_bgcolor="#0b1220",
-        plot_bgcolor="#0b1220",
-        xaxis=dict(visible=False),
-        yaxis=dict(visible=False),
-        margin=dict(l=10, r=10, t=10, b=10),
-        font=dict(family="monospace"),
-        height=560,
-    )
+        # Cargas y generadores colgando de este bus
+        for i, hoja in enumerate(hojas_por_bus.get(bus, [])):
+            hx = pos_hoja[(bus, i)]
+            y0 = by + 30
+            if hoja["tipo"] == "carga":
+                critica = hoja["critica"]
+                col = "#e6584f" if critica else "#c98a55"
+                partes.append(f'<line x1="{hx:.0f}" y1="{by:.0f}" x2="{hx:.0f}" y2="{y0:.0f}" stroke="{col}" stroke-width="1.8"/>')
+                partes.append(f'<rect x="{hx-8:.0f}" y="{y0:.0f}" width="16" height="8" fill="none" stroke="{col}" stroke-width="1.3"/>')
+                partes.append(f'<line x1="{hx:.0f}" y1="{y0+8:.0f}" x2="{hx:.0f}" y2="{y0+35:.0f}" stroke="{col}" stroke-width="1.8"/>')
+                partes.append(
+                    f'<polygon points="{hx-10:.0f},{y0+35:.0f} {hx+10:.0f},{y0+35:.0f} {hx:.0f},{y0+53:.0f}" '
+                    f'fill="none" stroke="{col}" stroke-width="1.8"/>'
+                )
+                marca = " ⚠" if critica else ""
+                partes.append(f'<text x="{hx:.0f}" y="{y0+70:.0f}" text-anchor="middle" class="lbl-elem" fill="{col}">{esc(hoja["nombre"])}</text>')
+                partes.append(f'<text x="{hx:.0f}" y="{y0+82:.0f}" text-anchor="middle" class="lbl-elem" fill="{col}">{hoja["kw"]:.0f} kW{marca}</text>')
+            else:
+                cy = y0 + 30
+                partes.append(f'<line x1="{hx:.0f}" y1="{by:.0f}" x2="{hx:.0f}" y2="{y0:.0f}" stroke="#4a9de8" stroke-width="1.8" stroke-dasharray="3,3"/>')
+                partes.append(f'<circle cx="{hx:.0f}" cy="{cy:.0f}" r="20" fill="none" stroke="#4a9de8" stroke-width="1.8"/>')
+                partes.append(f'<text x="{hx:.0f}" y="{cy+5:.0f}" text-anchor="middle" class="lbl-bus" fill="#4a9de8" font-size="13">G</text>')
+                partes.append(f'<text x="{hx:.0f}" y="{cy+38:.0f}" text-anchor="middle" class="lbl-elem" fill="#4a9de8">{esc(hoja["nombre"])}</text>')
+                partes.append(f'<text x="{hx:.0f}" y="{cy+50:.0f}" text-anchor="middle" class="lbl-elem" fill="#4a9de8">{hoja["kw"]:.0f} kW</text>')
 
-    # --- Resumen del circuito para el panel lateral ---
+    # Buses desconectados del árbol (ej. tras abrir un elemento en una
+    # contingencia): se dibujan aparte, en rojo, sin conexiones.
+    for i, bus in enumerate(buses_desconectados):
+        bx, by = ancho - 140, 70 + i * 60
+        partes.append(f'<line x1="{bx-35:.0f}" y1="{by:.0f}" x2="{bx+35:.0f}" y2="{by:.0f}" stroke="#e6584f" stroke-width="4" stroke-linecap="round"/>')
+        partes.append(f'<text x="{bx-35:.0f}" y="{by-10:.0f}" class="lbl-bus">{esc(bus)}</text>')
+        partes.append(f'<text x="{bx-35:.0f}" y="{by+18:.0f}" class="lbl-kv" fill="#e6584f">SIN CONEXIÓN A LA FUENTE</text>')
+
     convergio = dss.Solution.Converged()
     perdidas_kw, perdidas_kvar = dss.Circuit.Losses()
     perdidas_kw, perdidas_kvar = perdidas_kw / 1000, perdidas_kvar / 1000
-    n_buses = len([n for n, d in G.nodes(data=True) if d.get("tipo") == "bus"])
     n_cargas = len(dss.Loads.AllNames())
-    n_trafos = len(dss.Transformers.AllNames())
-    n_gens = len(dss.Generators.AllNames())
     n_criticas = len(_cargas_criticas)
+    n_gens = len(dss.Generators.AllNames())
+    n_trafos = len(dss.Transformers.AllNames())
 
-    plot_div = fig.to_html(full_html=False, include_plotlyjs="cdn")
+    resumen = (
+        f"Convergencia: {'SÍ' if convergio else 'NO'} · Pérdidas: {perdidas_kw:.3f} kW · "
+        f"{len(buses_info)} buses · {n_trafos} transformadores · "
+        f"{n_cargas} cargas ({n_criticas} críticas) · {n_gens} generadores"
+    )
+    if not es_radial_puro:
+        resumen += " · ⚠ red con anillo(s): se dibuja un árbol de expansión desde la fuente"
+
+    svg_contenido = "\n      ".join(partes)
 
     html = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8">
-<title>Diagrama unifilar — {dss.Circuit.Name()}</title>
+<title>Diagrama unifilar — {esc(dss.Circuit.Name())}</title>
 <style>
-  :root {{
-    --bg:#0b1220; --panel:#121b2e; --border:#22314d;
-    --ink:#e7ecf5; --ink-dim:#8fa0bd; --copper:#d97a3f;
-    --ok:#4fd1a5; --warn:#e8c547; --bad:#e6584f;
-  }}
+  :root {{ --bg:#0b1220; --panel:#121b2e; --border:#22314d; --ink:#e7ecf5;
+    --ink-dim:#8fa0bd; --copper:#d97a3f; --mono:'JetBrains Mono',Consolas,monospace; }}
   * {{ box-sizing:border-box; }}
   body {{ margin:0; background:var(--bg); color:var(--ink);
-    font-family:-apple-system,Inter,sans-serif; padding:28px 22px; }}
-  .wrap {{ max-width:1180px; margin:0 auto; }}
-  header {{ display:flex; justify-content:space-between; align-items:flex-end;
-    border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:20px;
-    flex-wrap:wrap; gap:10px; }}
-  .eyebrow {{ font-family:monospace; font-size:11px; letter-spacing:.12em;
-    color:var(--copper); text-transform:uppercase; margin-bottom:4px; }}
-  h1 {{ font-size:22px; margin:0; font-weight:600; }}
-  .grid {{ display:grid; grid-template-columns:1fr 300px; gap:18px; }}
-  @media (max-width:900px) {{ .grid {{ grid-template-columns:1fr; }} }}
+    font-family:-apple-system,sans-serif; padding:28px 22px; }}
+  .wrap {{ max-width:{ancho+40}px; margin:0 auto; }}
+  .eyebrow {{ font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+    color:var(--copper); text-transform:uppercase; margin-bottom:6px; }}
+  h1 {{ font-size:20px; margin:0 0 16px; font-weight:600; }}
   .panel {{ background:var(--panel); border:1px solid var(--border);
-    border-radius:10px; padding:16px; }}
-  .panel-title {{ font-family:monospace; font-size:10.5px; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--ink-dim); margin-bottom:10px; }}
-  .stat-row {{ display:flex; justify-content:space-between; padding:8px 0;
-    border-bottom:1px solid var(--border); font-size:13px; }}
-  .stat-row:last-child {{ border-bottom:none; }}
-  .stat-value {{ font-family:monospace; font-weight:600; }}
-  .ok {{ color:var(--ok); }} .bad {{ color:var(--bad); }}
-  .legend {{ display:flex; flex-direction:column; gap:8px; margin-top:14px;
-    font-family:monospace; font-size:11px; color:var(--ink-dim); }}
-  .legend span {{ display:flex; align-items:center; gap:8px; }}
-  .sw {{ width:12px; height:12px; border-radius:3px; display:inline-block; flex-shrink:0; }}
-  .sw.circle {{ border-radius:50%; }}
-  .sw.diamond {{ transform:rotate(45deg); }}
+    border-radius:10px; padding:20px; overflow-x:auto; }}
+  svg {{ display:block; }}
+  text {{ font-family:var(--mono); }}
+  .lbl-bus {{ font-size:12px; fill:var(--ink); font-weight:600; }}
+  .lbl-kv {{ font-size:10.5px; }}
+  .lbl-elem {{ font-size:9.5px; fill:var(--ink-dim); }}
+  .wire {{ stroke:#5b6b8c; stroke-width:1.8; fill:none; }}
+  .footer {{ margin-top:14px; font-family:var(--mono); font-size:11.5px;
+    color:var(--ink-dim); }}
+  .legend {{ display:flex; flex-wrap:wrap; gap:16px; margin-top:12px;
+    font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); }}
 </style></head>
 <body><div class="wrap">
-  <header>
-    <div>
-      <div class="eyebrow">OpenDSS MCP · diagrama generado dinámicamente</div>
-      <h1>{dss.Circuit.Name()}</h1>
-    </div>
-  </header>
-  <div class="grid">
-    <div class="panel">{plot_div}</div>
-    <div>
-      <div class="panel">
-        <div class="panel-title">Resumen del circuito</div>
-        <div class="stat-row"><span>Convergencia</span>
-          <span class="stat-value {'ok' if convergio else 'bad'}">{'SÍ' if convergio else 'NO'}</span></div>
-        <div class="stat-row"><span>Pérdidas activas</span>
-          <span class="stat-value">{perdidas_kw:.3f} kW</span></div>
-        <div class="stat-row"><span>Pérdidas reactivas</span>
-          <span class="stat-value">{perdidas_kvar:.3f} kVAR</span></div>
-        <div class="stat-row"><span>Buses</span><span class="stat-value">{n_buses}</span></div>
-        <div class="stat-row"><span>Transformadores</span><span class="stat-value">{n_trafos}</span></div>
-        <div class="stat-row"><span>Cargas</span><span class="stat-value">{n_cargas}</span></div>
-        <div class="stat-row"><span>Cargas críticas</span><span class="stat-value">{n_criticas}</span></div>
-        <div class="stat-row"><span>Generadores</span><span class="stat-value">{n_gens}</span></div>
-        <div class="legend">
-          <span><i class="sw circle" style="background:#4fd1a5"></i>Bus — voltaje normal</span>
-          <span><i class="sw circle" style="background:#e8c547"></i>Bus — marginal</span>
-          <span><i class="sw circle" style="background:#e6584f"></i>Bus — fuera de rango / aislado</span>
-          <span><i class="sw" style="background:#c98a55"></i>Carga</span>
-          <span><i class="sw" style="background:#e6584f"></i>Carga crítica</span>
-          <span><i class="sw diamond" style="background:#4a9de8"></i>Generador / respaldo</span>
-        </div>
-      </div>
+  <div class="eyebrow">OpenDSS MCP · diagrama generado dinámicamente</div>
+  <h1>{esc(dss.Circuit.Name())}</h1>
+  <div class="panel">
+    <svg viewBox="0 0 {ancho:.0f} {alto:.0f}" width="{ancho:.0f}" xmlns="http://www.w3.org/2000/svg">
+      {svg_contenido}
+    </svg>
+    <div class="footer">{esc(resumen)}</div>
+    <div class="legend">
+      <span>— Barra (bus)</span>
+      <span>▭ Interruptor</span>
+      <span>◎◎ Transformador</span>
+      <span>▽ Carga</span>
+      <span style="color:#e6584f">▽ Carga crítica</span>
+      <span style="color:#4a9de8">◯G Generador/respaldo</span>
     </div>
   </div>
 </div></body></html>"""
@@ -566,10 +580,12 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
 
     return {
         "archivo_generado": ruta_salida,
-        "buses_dibujados": n_buses,
+        "buses_dibujados": len(buses_info),
+        "buses_desconectados": buses_desconectados,
         "cargas_dibujadas": n_cargas,
         "generadores_dibujados": n_gens,
-        "conexiones_dibujadas": len([e for e in G.edges(data=True) if e[2]["tipo"] != "Acometida"]),
+        "transformadores_dibujados": n_trafos,
+        "topologia_radial_pura": es_radial_puro,
     }
 
 

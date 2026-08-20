@@ -60,7 +60,7 @@ def main():
     server.ejecutar_flujo_potencia()
     resultado = server.generar_diagrama_unifilar("diagrama_normal.html")
     print(f"Diagrama generado: {resultado['archivo_generado']}")
-    print(f"  Buses: {resultado['buses_dibujados']}, Conexiones: {resultado['conexiones_dibujadas']}")
+    print(f"  Buses: {resultado['buses_dibujados']}, Transformadores: {resultado['transformadores_dibujados']}")
 
     print("\n--- Escenario 2: contingencia N-1 (alimentador a quirófanos abierto) ---")
     dss.run_command("Open Line.alimentador_quirofanos term=1")

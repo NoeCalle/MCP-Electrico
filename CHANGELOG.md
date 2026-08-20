@@ -105,3 +105,50 @@ sobre el estilo y garantiza que funcione igual sin importar el entorno.
   cargas propias, y un generador de respaldo dedicado al tablero más
   crítico. Incluye contingencia N-1 sobre un transformador.
 
+## [0.4.0] - Diagrama con símbolos de ingeniería eléctrica
+
+### Cambio de tecnología: Plotly → SVG generado a mano
+
+`generar_diagrama_unifilar` se reescribió completamente. Antes usaba
+Plotly (nodos tipo grafo de red social: círculos y líneas genéricas).
+Ahora genera SVG con convenciones reales de diagrama unifilar:
+
+- **Buses**: barras horizontales gruesas (no círculos), coloreadas por
+  voltaje pu, con el ancho de la barra ajustado automáticamente al
+  número de elementos conectados.
+- **Transformadores**: símbolo estándar de dos círculos superpuestos.
+- **Interruptores**: rectángulo pequeño en cada derivación. Si el
+  elemento está abierto (`dss.CktElement.IsOpen`), se dibuja con un gap
+  visible y la etiqueta "ABIERTO" en rojo — así una contingencia N-1 se
+  ve directamente en el diagrama, en el punto exacto donde se abrió el
+  circuito, en vez de solo mover el bus afectado a un panel aparte.
+- **Cargas**: triángulo colgando del bus (rojo + ⚠ si es crítica).
+- **Generadores**: círculo con "G", conexión punteada (respaldo).
+
+### Layout genérico (no hardcodeado a un caso)
+
+El posicionamiento se calcula con un recorrido post-orden del árbol de
+buses (vía `networkx.bfs_tree` desde el bus fuente): cada bus reserva
+tanto espacio horizontal como necesiten sus hijos (transformadores aguas
+abajo) y sus cargas/generadores propios. Funciona para cualquier
+topología radial, sin importar cuántos niveles o ramas tenga.
+
+**Limitación conocida**: si la red tiene anillos (mallada), el layout
+dibuja un árbol de expansión desde la fuente — el resultado incluye
+`topologia_radial_pura: false` como aviso cuando esto ocurre. El cálculo
+eléctrico (flujo de potencia, cortocircuito) sí considera la red
+completa; solo el *dibujo* se simplifica a un árbol.
+
+### Cambios en el contrato de retorno
+
+`generar_diagrama_unifilar` ahora devuelve `transformadores_dibujados` y
+`topologia_radial_pura` en vez de `conexiones_dibujadas`. Se actualizó
+`examples/visualizar_hospital.py` para reflejar esto.
+
+### Dependencia removida
+
+- `plotly` — ya no se usa (el SVG se genera directamente con Python, sin
+  librería externa de gráficos). `networkx` se mantiene para el cálculo
+  del árbol de expansión.
+
+

@@ -76,7 +76,7 @@ Reinicia Claude Desktop por completo. Deberías ver el ícono de herramientas
 | `ejecutar_cortocircuito` | Calcula corriente de falla trifásica en un bus |
 | `simular_perdida_alimentador` | Análisis de contingencia N-1: abre un elemento y recalcula |
 | `listar_elementos` | Lista buses, líneas, transformadores, cargas, generadores actuales |
-| `generar_diagrama_unifilar` | Genera un HTML interactivo del circuito, coloreado por voltaje |
+| `generar_diagrama_unifilar` | Genera un diagrama unifilar HTML con símbolos de ingeniería (barras, transformadores, cargas) |
 
 ## 5. Ejemplo de uso conversacional con Claude
 
@@ -99,7 +99,7 @@ O para visualizar la red:
 ## 5.1 Ejemplo de visualización
 
 `examples/visualizar_hospital.py` construye el mismo modelo del hospital y
-genera dos diagramas HTML interactivos: uno en condición normal y otro en
+genera dos diagramas HTML: uno en condición normal y otro en
 contingencia N-1, para comparar visualmente el efecto de perder el
 alimentador a quirófanos.
 
@@ -107,9 +107,14 @@ alimentador a quirófanos.
 python3 examples/visualizar_hospital.py
 ```
 
-Cada bus se colorea según su voltaje en por-unidad (verde: 0.95–1.05 pu,
-amarillo: 0.90–1.10 pu, rojo: fuera de rango o sin tensión). Pasa el mouse
-sobre un bus o línea para ver el detalle.
+Cada bus se dibuja como una barra horizontal coloreada según su voltaje
+en por-unidad (verde: 0.95–1.05 pu, amarillo: 0.90–1.10 pu, rojo: fuera
+de rango o sin tensión). Transformadores, cargas (rojo si son críticas)
+y generadores se dibujan con símbolos propios — no es un grafo genérico,
+sino un diagrama unifilar con convenciones reales de ingeniería
+eléctrica. Si simulaste una contingencia N-1 antes de generar el
+diagrama, el interruptor correspondiente se ve abierto (con gap y
+etiqueta "ABIERTO") en el punto exacto de la red donde ocurrió.
 
 ## 5.2 Caso de estudio: campus con múltiples tableros
 
