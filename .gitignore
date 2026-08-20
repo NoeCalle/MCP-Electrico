@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# Archivos temporales que OpenDSS puede generar al correr simulaciones
+temp_export/
+*.dbl
+*.log
