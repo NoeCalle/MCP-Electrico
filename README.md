@@ -111,6 +111,25 @@ Cada bus se colorea según su voltaje en por-unidad (verde: 0.95–1.05 pu,
 amarillo: 0.90–1.10 pu, rojo: fuera de rango o sin tensión). Pasa el mouse
 sobre un bus o línea para ver el detalle.
 
+## 5.2 Caso de estudio: campus con múltiples tableros
+
+`examples/campus_hospitalario.py` modela algo más cercano a un hospital
+real: una sola acometida MT alimentando tres transformadores
+independientes (quirófanos, hospitalización, administración), cada uno
+con varias cargas propias, más un generador de respaldo dedicado al
+tablero más crítico. También corre un análisis N-1 sobre uno de los
+transformadores (no solo sobre líneas).
+
+```bash
+python3 examples/campus_hospitalario.py
+```
+
+El diagrama generado (`diagrama_campus.html`) ya distingue visualmente:
+buses (círculos, color por voltaje), transformadores (líneas punteadas
+cobrizas), cargas (cuadrados — rojos si son críticas), y generadores
+(diamantes azules), además de un panel lateral con el resumen del
+circuito (pérdidas, convergencia, conteo de elementos).
+
 ## 6. Notas técnicas importantes
 
 - **Bases de tensión (`VoltageBases`)**: OpenDSS requiere que se declaren

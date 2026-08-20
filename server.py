@@ -46,6 +46,11 @@ def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
     return f"Circuito '{nombre}' creado a {kv_base} kV, {frecuencia} Hz"
 
 
+# Registro interno de nombres de carga marcados como "críticos" al
+# agregarlos. OpenDSS no tiene un atributo nativo para esto, así que lo
+# rastreamos aparte para poder resaltarlos en el diagrama unifilar.
+_cargas_criticas: set = set()
+
 # Registro interno de niveles de tensión presentes en la red, requerido
 # por OpenDSS (comando CalcVoltageBases) para resolver correctamente los
 # valores en por-unidad en cada bus.
@@ -160,6 +165,10 @@ def agregar_carga(
         f"New Load.{nombre} Bus1={bus} Phases={fases} kV={kv} "
         f"kW={kw} kvar={kvar}"
     )
+    if critica:
+        _cargas_criticas.add(nombre)
+    else:
+        _cargas_criticas.discard(nombre)
     etiqueta = " [CRÍTICA]" if critica else ""
     return f"Carga '{nombre}' agregada en {bus}: {kw} kW, {kvar} kVAR{etiqueta}"
 
@@ -303,10 +312,13 @@ def obtener_netlist() -> str:
 def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
     """
     Genera un diagrama unifilar interactivo (archivo HTML) del circuito
-    actualmente cargado, coloreando cada bus según su voltaje en
-    por-unidad (verde: normal, amarillo: marginal, rojo: fuera de rango
-    o sin tensión). Requiere haber corrido ejecutar_flujo_potencia()
-    antes para que los voltajes mostrados sean significativos.
+    actualmente cargado. Dibuja buses (coloreados por voltaje pu),
+    transformadores (líneas punteadas), líneas/cables, cargas (cuadrados,
+    resaltados si son críticas) y generadores (diamantes) como elementos
+    visuales distintos. Incluye un panel lateral con el resumen del
+    circuito (convergencia, pérdidas). Requiere haber corrido
+    ejecutar_flujo_potencia() antes para que los voltajes sean
+    significativos.
 
     Args:
         ruta_salida: Ruta del archivo HTML a generar
@@ -317,7 +329,7 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
         kvbase = dss.Bus.kVBase()
         vpu_fases = dss.Bus.puVmagAngle()[0::2]
         vpu = sum(vpu_fases) / len(vpu_fases) if vpu_fases else 0.0
-        G.add_node(bus, kvbase=kvbase, vpu=vpu)
+        G.add_node(bus, tipo="bus", kvbase=kvbase, vpu=vpu)
 
     for name in dss.Lines.AllNames():
         dss.Lines.Name(name)
@@ -332,11 +344,10 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
         b2 = buses_trafo[1].split(".")[0]
         G.add_edge(b1, b2, tipo="Transformador", nombre=name)
 
-    if len(G.nodes) == 0:
+    if len([n for n, d in G.nodes(data=True) if d.get("tipo") == "bus"]) == 0:
         return {"error": "El circuito no tiene buses definidos. Crea un circuito primero."}
 
-    # Layout jerárquico: BFS desde el bus con la fuente de tensión, apropiado
-    # para redes de distribución (predominantemente radiales).
+    # --- Layout jerárquico de los buses (BFS desde la fuente) ---
     nodos_fuente = [b for b in G.nodes if "source" in b.lower()]
     raiz = nodos_fuente[0] if nodos_fuente else list(G.nodes)[0]
     niveles = nx.single_source_shortest_path_length(G, raiz)
@@ -349,21 +360,54 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
     for nivel, nodos_del_nivel in por_nivel.items():
         n = len(nodos_del_nivel)
         for i, nodo in enumerate(nodos_del_nivel):
-            pos[nodo] = ((i - (n - 1) / 2) * 2.0, -nivel)
+            pos[nodo] = ((i - (n - 1) / 2) * 2.6, -nivel * 1.6)
 
-    # Buses desconectados de la fuente (ej. tras una contingencia) se
-    # ubican aparte en vez de fallar.
-    for nodo in G.nodes:
+    for nodo in list(G.nodes):
         if nodo not in pos:
-            pos[nodo] = (5.0, -len(por_nivel))
+            pos[nodo] = (5.0, -len(por_nivel) * 1.6)
 
+    # --- Nodos "hoja": cargas y generadores colgando de su bus ---
+    # Se agregan como nodos del grafo (tipo distinto) para que el layout
+    # y el hover funcionen igual que con los buses, pero se dibujan con
+    # marcador y color diferentes.
+    hojas_por_bus = {}
+    for name in dss.Loads.AllNames():
+        dss.Loads.Name(name)
+        bus = dss.CktElement.BusNames()[0].split(".")[0]
+        hojas_por_bus.setdefault(bus, []).append(
+            ("carga", name, dss.Loads.kW(), dss.Loads.kvar(), name in _cargas_criticas)
+        )
+    for name in dss.Generators.AllNames():
+        dss.Generators.Name(name)
+        bus = dss.CktElement.BusNames()[0].split(".")[0]
+        hojas_por_bus.setdefault(bus, []).append(
+            ("generador", name, dss.Generators.kW(), 0.0, False)
+        )
+
+    for bus, hojas in hojas_por_bus.items():
+        bx, by = pos[bus]
+        n = len(hojas)
+        for i, (tipo_hoja, nombre_hoja, kw, kvar, es_critica) in enumerate(hojas):
+            offset_x = (i - (n - 1) / 2) * 1.1
+            nodo_id = f"{tipo_hoja}::{nombre_hoja}"
+            pos[nodo_id] = (bx + offset_x, by - 1.0)
+            G.add_node(
+                nodo_id, tipo=tipo_hoja, nombre=nombre_hoja,
+                kw=kw, kvar=kvar, critica=es_critica,
+            )
+            G.add_edge(bus, nodo_id, tipo="Acometida", nombre=nombre_hoja)
+
+    # --- Trazas de conexiones (edges) ---
     edge_traces = []
     for u, v, data in G.edges(data=True):
         x0, y0 = pos[u]
         x1, y1 = pos[v]
-        estilo = dict(color="#8a97ab", width=2)
         if data["tipo"] == "Transformador":
-            estilo = dict(color="#5b6b8c", width=3, dash="dot")
+            estilo = dict(color="#c98a55", width=3, dash="dot")
+        elif data["tipo"] == "Acometida":
+            estilo = dict(color="#3a4a6b", width=1.5, dash="dash")
+        else:
+            estilo = dict(color="#5b6b8c", width=2.5)
         edge_traces.append(
             go.Scatter(
                 x=[x0, x1], y=[y0, y1], mode="lines", line=estilo,
@@ -381,41 +425,151 @@ def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
             return "#e8c547"
         return "#e6584f"
 
-    node_x, node_y, node_color, node_text, node_hover = [], [], [], [], []
-    for nodo, data in G.nodes(data=True):
-        x, y = pos[nodo]
-        node_x.append(x)
-        node_y.append(y)
-        node_color.append(color_por_voltaje(data["vpu"], data["kvbase"]))
-        node_text.append(nodo)
-        node_hover.append(
-            f"<b>{nodo}</b><br>kV base: {data['kvbase']:.3f}<br>V: {data['vpu']:.4f} pu"
+    # --- Trazas de nodos, separadas por tipo para poder variar el marcador ---
+    def trazar_grupo(tipo_filtro, symbol, size, color_fn, hover_fn, label_fn):
+        xs, ys, colors, texts, hovers = [], [], [], [], []
+        for nodo, data in G.nodes(data=True):
+            if data.get("tipo") != tipo_filtro:
+                continue
+            x, y = pos[nodo]
+            xs.append(x)
+            ys.append(y)
+            colors.append(color_fn(data))
+            texts.append(label_fn(nodo, data))
+            hovers.append(hover_fn(nodo, data))
+        return go.Scatter(
+            x=xs, y=ys, mode="markers+text",
+            marker=dict(size=size, symbol=symbol, color=colors,
+                        line=dict(width=2, color="#1a2436")),
+            text=texts, textposition="bottom center",
+            textfont=dict(color="#e7ecf5", size=10.5),
+            hoverinfo="text", hovertext=hovers, showlegend=False,
         )
 
-    node_trace = go.Scatter(
-        x=node_x, y=node_y, mode="markers+text",
-        marker=dict(size=32, color=node_color, line=dict(width=2, color="#1a2436")),
-        text=node_text, textposition="bottom center",
-        textfont=dict(color="#e7ecf5", size=11),
-        hoverinfo="text", hovertext=node_hover, showlegend=False,
+    traza_buses = trazar_grupo(
+        "bus", "circle", 30,
+        lambda d: color_por_voltaje(d["vpu"], d["kvbase"]),
+        lambda n, d: f"<b>{n}</b><br>kV base: {d['kvbase']:.3f}<br>V: {d['vpu']:.4f} pu",
+        lambda n, d: n,
+    )
+    traza_cargas = trazar_grupo(
+        "carga", "square", 18,
+        lambda d: "#e6584f" if d["critica"] else "#c98a55",
+        lambda n, d: f"<b>{d['nombre']}</b> (carga{' crítica' if d['critica'] else ''})<br>{d['kw']:.1f} kW / {d['kvar']:.1f} kVAR",
+        lambda n, d: f"{d['kw']:.0f}kW" + (" ⚠" if d["critica"] else ""),
+    )
+    traza_generadores = trazar_grupo(
+        "generador", "diamond", 20,
+        lambda d: "#4a9de8",
+        lambda n, d: f"<b>{d['nombre']}</b> (generador/respaldo)<br>{d['kw']:.1f} kW",
+        lambda n, d: f"{d['nombre']}",
     )
 
-    fig = go.Figure(data=edge_traces + [node_trace])
+    fig = go.Figure(data=edge_traces + [traza_buses, traza_cargas, traza_generadores])
     fig.update_layout(
-        title=dict(text="Diagrama unifilar — circuito activo", font=dict(color="#e7ecf5", size=16)),
         paper_bgcolor="#0b1220",
         plot_bgcolor="#0b1220",
         xaxis=dict(visible=False),
         yaxis=dict(visible=False),
-        margin=dict(l=20, r=20, t=50, b=20),
+        margin=dict(l=10, r=10, t=10, b=10),
         font=dict(family="monospace"),
+        height=560,
     )
-    fig.write_html(ruta_salida, include_plotlyjs="cdn")
+
+    # --- Resumen del circuito para el panel lateral ---
+    convergio = dss.Solution.Converged()
+    perdidas_kw, perdidas_kvar = dss.Circuit.Losses()
+    perdidas_kw, perdidas_kvar = perdidas_kw / 1000, perdidas_kvar / 1000
+    n_buses = len([n for n, d in G.nodes(data=True) if d.get("tipo") == "bus"])
+    n_cargas = len(dss.Loads.AllNames())
+    n_trafos = len(dss.Transformers.AllNames())
+    n_gens = len(dss.Generators.AllNames())
+    n_criticas = len(_cargas_criticas)
+
+    plot_div = fig.to_html(full_html=False, include_plotlyjs="cdn")
+
+    html = f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<title>Diagrama unifilar — {dss.Circuit.Name()}</title>
+<style>
+  :root {{
+    --bg:#0b1220; --panel:#121b2e; --border:#22314d;
+    --ink:#e7ecf5; --ink-dim:#8fa0bd; --copper:#d97a3f;
+    --ok:#4fd1a5; --warn:#e8c547; --bad:#e6584f;
+  }}
+  * {{ box-sizing:border-box; }}
+  body {{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,Inter,sans-serif; padding:28px 22px; }}
+  .wrap {{ max-width:1180px; margin:0 auto; }}
+  header {{ display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:1px solid var(--border); padding-bottom:16px; margin-bottom:20px;
+    flex-wrap:wrap; gap:10px; }}
+  .eyebrow {{ font-family:monospace; font-size:11px; letter-spacing:.12em;
+    color:var(--copper); text-transform:uppercase; margin-bottom:4px; }}
+  h1 {{ font-size:22px; margin:0; font-weight:600; }}
+  .grid {{ display:grid; grid-template-columns:1fr 300px; gap:18px; }}
+  @media (max-width:900px) {{ .grid {{ grid-template-columns:1fr; }} }}
+  .panel {{ background:var(--panel); border:1px solid var(--border);
+    border-radius:10px; padding:16px; }}
+  .panel-title {{ font-family:monospace; font-size:10.5px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--ink-dim); margin-bottom:10px; }}
+  .stat-row {{ display:flex; justify-content:space-between; padding:8px 0;
+    border-bottom:1px solid var(--border); font-size:13px; }}
+  .stat-row:last-child {{ border-bottom:none; }}
+  .stat-value {{ font-family:monospace; font-weight:600; }}
+  .ok {{ color:var(--ok); }} .bad {{ color:var(--bad); }}
+  .legend {{ display:flex; flex-direction:column; gap:8px; margin-top:14px;
+    font-family:monospace; font-size:11px; color:var(--ink-dim); }}
+  .legend span {{ display:flex; align-items:center; gap:8px; }}
+  .sw {{ width:12px; height:12px; border-radius:3px; display:inline-block; flex-shrink:0; }}
+  .sw.circle {{ border-radius:50%; }}
+  .sw.diamond {{ transform:rotate(45deg); }}
+</style></head>
+<body><div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">OpenDSS MCP · diagrama generado dinámicamente</div>
+      <h1>{dss.Circuit.Name()}</h1>
+    </div>
+  </header>
+  <div class="grid">
+    <div class="panel">{plot_div}</div>
+    <div>
+      <div class="panel">
+        <div class="panel-title">Resumen del circuito</div>
+        <div class="stat-row"><span>Convergencia</span>
+          <span class="stat-value {'ok' if convergio else 'bad'}">{'SÍ' if convergio else 'NO'}</span></div>
+        <div class="stat-row"><span>Pérdidas activas</span>
+          <span class="stat-value">{perdidas_kw:.3f} kW</span></div>
+        <div class="stat-row"><span>Pérdidas reactivas</span>
+          <span class="stat-value">{perdidas_kvar:.3f} kVAR</span></div>
+        <div class="stat-row"><span>Buses</span><span class="stat-value">{n_buses}</span></div>
+        <div class="stat-row"><span>Transformadores</span><span class="stat-value">{n_trafos}</span></div>
+        <div class="stat-row"><span>Cargas</span><span class="stat-value">{n_cargas}</span></div>
+        <div class="stat-row"><span>Cargas críticas</span><span class="stat-value">{n_criticas}</span></div>
+        <div class="stat-row"><span>Generadores</span><span class="stat-value">{n_gens}</span></div>
+        <div class="legend">
+          <span><i class="sw circle" style="background:#4fd1a5"></i>Bus — voltaje normal</span>
+          <span><i class="sw circle" style="background:#e8c547"></i>Bus — marginal</span>
+          <span><i class="sw circle" style="background:#e6584f"></i>Bus — fuera de rango / aislado</span>
+          <span><i class="sw" style="background:#c98a55"></i>Carga</span>
+          <span><i class="sw" style="background:#e6584f"></i>Carga crítica</span>
+          <span><i class="sw diamond" style="background:#4a9de8"></i>Generador / respaldo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>"""
+
+    with open(ruta_salida, "w", encoding="utf-8") as f:
+        f.write(html)
 
     return {
         "archivo_generado": ruta_salida,
-        "buses_dibujados": len(G.nodes),
-        "conexiones_dibujadas": len(G.edges),
+        "buses_dibujados": n_buses,
+        "cargas_dibujadas": n_cargas,
+        "generadores_dibujados": n_gens,
+        "conexiones_dibujadas": len([e for e in G.edges(data=True) if e[2]["tipo"] != "Acometida"]),
     }
 
 

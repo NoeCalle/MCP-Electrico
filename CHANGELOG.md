@@ -77,3 +77,31 @@ sobre el estilo y garantiza que funcione igual sin importar el entorno.
 ### Nueva dependencia
 
 - `networkx`, `plotly` — agregadas a `requirements.txt`
+
+## [0.3.0] - Diagrama enriquecido y caso multi-tablero
+
+### Cambios en `generar_diagrama_unifilar`
+
+- Las cargas y generadores ahora se dibujan como nodos propios (antes
+  solo se veían los buses y las líneas/transformadores entre ellos).
+  Cargas: cuadrados (rojos si están marcadas como críticas). Generadores:
+  diamantes azules.
+- Nuevo registro interno `_cargas_criticas` en `agregar_carga`: OpenDSS
+  no tiene un atributo nativo para "carga crítica", así que se rastrea
+  aparte para poder resaltarla visualmente.
+- El HTML generado ahora incluye un panel lateral con el resumen del
+  circuito (convergencia, pérdidas activas/reactivas, conteo de buses,
+  transformadores, cargas, cargas críticas y generadores) y una leyenda
+  de colores/símbolos — antes era solo el grafo, sin contexto.
+- `simular_perdida_alimentador` se probó también sobre un transformador
+  completo (no solo líneas) — funciona igual, sin cambios de código
+  necesarios.
+
+### Caso de estudio nuevo
+
+- `examples/campus_hospitalario.py` — red más realista con una sola
+  acometida MT alimentando tres transformadores independientes
+  (quirófanos, hospitalización, administración), cada uno con varias
+  cargas propias, y un generador de respaldo dedicado al tablero más
+  crítico. Incluye contingencia N-1 sobre un transformador.
+
