@@ -1,2 +1,4 @@
 mcp
 opendssdirect.py
+networkx
+plotly

@@ -76,6 +76,7 @@ Reinicia Claude Desktop por completo. Deberías ver el ícono de herramientas
 | `ejecutar_cortocircuito` | Calcula corriente de falla trifásica en un bus |
 | `simular_perdida_alimentador` | Análisis de contingencia N-1: abre un elemento y recalcula |
 | `listar_elementos` | Lista buses, líneas, transformadores, cargas, generadores actuales |
+| `generar_diagrama_unifilar` | Genera un HTML interactivo del circuito, coloreado por voltaje |
 
 ## 5. Ejemplo de uso conversacional con Claude
 
@@ -90,6 +91,25 @@ O para análisis de contingencia:
 
 > "Simula qué pasa si se pierde la línea principal de BT. ¿El hospital
 > queda sin servicio en el tablero de quirófanos?"
+
+O para visualizar la red:
+
+> "Genera el diagrama unifilar del circuito actual y ábrelo en el navegador."
+
+## 5.1 Ejemplo de visualización
+
+`examples/visualizar_hospital.py` construye el mismo modelo del hospital y
+genera dos diagramas HTML interactivos: uno en condición normal y otro en
+contingencia N-1, para comparar visualmente el efecto de perder el
+alimentador a quirófanos.
+
+```bash
+python3 examples/visualizar_hospital.py
+```
+
+Cada bus se colorea según su voltaje en por-unidad (verde: 0.95–1.05 pu,
+amarillo: 0.90–1.10 pu, rojo: fuera de rango o sin tensión). Pasa el mouse
+sobre un bus o línea para ver el detalle.
 
 ## 6. Notas técnicas importantes
 

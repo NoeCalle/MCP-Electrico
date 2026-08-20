@@ -8,3 +8,8 @@ venv/
 temp_export/
 *.dbl
 *.log
+
+# Diagramas HTML generados por generar_diagrama_unifilar() — son salida
+# de ejecución, no código fuente. Los ejemplos en examples/ los regeneran
+# cada vez que se corren.
+diagrama_*.html

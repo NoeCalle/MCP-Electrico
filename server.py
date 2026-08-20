@@ -5,6 +5,8 @@ Permite a Claude modelar y simular redes de distribución MT/BT
 """
 
 import opendssdirect as dss
+import networkx as nx
+import plotly.graph_objects as go
 
 # Compatibilidad: en versiones recientes del SDK de MCP, la clase se llama
 # MCPServer y vive en mcp.server.mcpserver; en versiones más antiguas se
@@ -295,6 +297,126 @@ def obtener_netlist() -> str:
     """
     dss.run_command("Save Circuit Dir=temp_export")
     return "Circuito exportado. Usa 'exportar_reporte' para obtener el resumen en texto."
+
+
+@mcp.tool()
+def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
+    """
+    Genera un diagrama unifilar interactivo (archivo HTML) del circuito
+    actualmente cargado, coloreando cada bus según su voltaje en
+    por-unidad (verde: normal, amarillo: marginal, rojo: fuera de rango
+    o sin tensión). Requiere haber corrido ejecutar_flujo_potencia()
+    antes para que los voltajes mostrados sean significativos.
+
+    Args:
+        ruta_salida: Ruta del archivo HTML a generar
+    """
+    G = nx.Graph()
+    for bus in dss.Circuit.AllBusNames():
+        dss.Circuit.SetActiveBus(bus)
+        kvbase = dss.Bus.kVBase()
+        vpu_fases = dss.Bus.puVmagAngle()[0::2]
+        vpu = sum(vpu_fases) / len(vpu_fases) if vpu_fases else 0.0
+        G.add_node(bus, kvbase=kvbase, vpu=vpu)
+
+    for name in dss.Lines.AllNames():
+        dss.Lines.Name(name)
+        b1 = dss.Lines.Bus1().split(".")[0]
+        b2 = dss.Lines.Bus2().split(".")[0]
+        G.add_edge(b1, b2, tipo="Línea", nombre=name)
+
+    for name in dss.Transformers.AllNames():
+        dss.Transformers.Name(name)
+        buses_trafo = dss.CktElement.BusNames()
+        b1 = buses_trafo[0].split(".")[0]
+        b2 = buses_trafo[1].split(".")[0]
+        G.add_edge(b1, b2, tipo="Transformador", nombre=name)
+
+    if len(G.nodes) == 0:
+        return {"error": "El circuito no tiene buses definidos. Crea un circuito primero."}
+
+    # Layout jerárquico: BFS desde el bus con la fuente de tensión, apropiado
+    # para redes de distribución (predominantemente radiales).
+    nodos_fuente = [b for b in G.nodes if "source" in b.lower()]
+    raiz = nodos_fuente[0] if nodos_fuente else list(G.nodes)[0]
+    niveles = nx.single_source_shortest_path_length(G, raiz)
+
+    por_nivel = {}
+    for nodo, nivel in niveles.items():
+        por_nivel.setdefault(nivel, []).append(nodo)
+
+    pos = {}
+    for nivel, nodos_del_nivel in por_nivel.items():
+        n = len(nodos_del_nivel)
+        for i, nodo in enumerate(nodos_del_nivel):
+            pos[nodo] = ((i - (n - 1) / 2) * 2.0, -nivel)
+
+    # Buses desconectados de la fuente (ej. tras una contingencia) se
+    # ubican aparte en vez de fallar.
+    for nodo in G.nodes:
+        if nodo not in pos:
+            pos[nodo] = (5.0, -len(por_nivel))
+
+    edge_traces = []
+    for u, v, data in G.edges(data=True):
+        x0, y0 = pos[u]
+        x1, y1 = pos[v]
+        estilo = dict(color="#8a97ab", width=2)
+        if data["tipo"] == "Transformador":
+            estilo = dict(color="#5b6b8c", width=3, dash="dot")
+        edge_traces.append(
+            go.Scatter(
+                x=[x0, x1], y=[y0, y1], mode="lines", line=estilo,
+                hoverinfo="text", text=f"{data['tipo']}: {data['nombre']}",
+                showlegend=False,
+            )
+        )
+
+    def color_por_voltaje(vpu, kvbase):
+        if kvbase == 0:
+            return "#e6584f"
+        if 0.95 <= vpu <= 1.05:
+            return "#4fd1a5"
+        if 0.90 <= vpu <= 1.10:
+            return "#e8c547"
+        return "#e6584f"
+
+    node_x, node_y, node_color, node_text, node_hover = [], [], [], [], []
+    for nodo, data in G.nodes(data=True):
+        x, y = pos[nodo]
+        node_x.append(x)
+        node_y.append(y)
+        node_color.append(color_por_voltaje(data["vpu"], data["kvbase"]))
+        node_text.append(nodo)
+        node_hover.append(
+            f"<b>{nodo}</b><br>kV base: {data['kvbase']:.3f}<br>V: {data['vpu']:.4f} pu"
+        )
+
+    node_trace = go.Scatter(
+        x=node_x, y=node_y, mode="markers+text",
+        marker=dict(size=32, color=node_color, line=dict(width=2, color="#1a2436")),
+        text=node_text, textposition="bottom center",
+        textfont=dict(color="#e7ecf5", size=11),
+        hoverinfo="text", hovertext=node_hover, showlegend=False,
+    )
+
+    fig = go.Figure(data=edge_traces + [node_trace])
+    fig.update_layout(
+        title=dict(text="Diagrama unifilar — circuito activo", font=dict(color="#e7ecf5", size=16)),
+        paper_bgcolor="#0b1220",
+        plot_bgcolor="#0b1220",
+        xaxis=dict(visible=False),
+        yaxis=dict(visible=False),
+        margin=dict(l=20, r=20, t=50, b=20),
+        font=dict(family="monospace"),
+    )
+    fig.write_html(ruta_salida, include_plotlyjs="cdn")
+
+    return {
+        "archivo_generado": ruta_salida,
+        "buses_dibujados": len(G.nodes),
+        "conexiones_dibujadas": len(G.edges),
+    }
 
 
 if __name__ == "__main__":

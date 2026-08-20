@@ -47,3 +47,33 @@ y modos de análisis de OpenDSS todavía no están expuestos como
 herramientas MCP (LoadShape, PVSystem, Storage, Capacitor, RegControl,
 modos Daily/Yearly/Harmonic, SAIDI/SAIFI formal, reconfiguración de red,
 visualización de topología).
+
+## [0.2.0] - Visualización de topología
+
+### Herramientas agregadas
+
+- `generar_diagrama_unifilar` — construye un grafo con NetworkX a partir
+  de la topología activa en OpenDSS (buses, líneas, transformadores) y lo
+  renderiza como HTML interactivo con Plotly. Layout jerárquico por
+  profundidad BFS desde el bus fuente (apropiado para redes radiales).
+  Cada bus se colorea según su voltaje en pu: verde (0.95–1.05),
+  amarillo (0.90–1.10), rojo (fuera de rango o sin tensión / aislado).
+
+### Motivación
+
+OpenDSS tiene comandos de graficado nativos (`Plot Circuit`, `Plot
+Profile`) pero dependen de ventanas gráficas del motor que no funcionan
+de forma confiable en un flujo headless controlado vía
+OpenDSSDirect.py/MCP. Generar el HTML nosotros mismos da control total
+sobre el estilo y garantiza que funcione igual sin importar el entorno.
+
+### Caso de estudio de referencia
+
+- `examples/visualizar_hospital.py` — genera `diagrama_normal.html` y
+  `diagrama_contingencia.html` a partir del mismo modelo de
+  `hospital_basico.py`, mostrando visualmente cómo el bus de quirófanos
+  queda sin tensión (rojo) al perderse su alimentador.
+
+### Nueva dependencia
+
+- `networkx`, `plotly` — agregadas a `requirements.txt`
