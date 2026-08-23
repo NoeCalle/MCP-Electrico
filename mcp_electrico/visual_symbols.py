@@ -50,28 +50,23 @@ def breaker(
 ) -> str:
     """Interruptor unifilar sin caja exterior.
 
-    MCCB/ACB comparten el contacto eléctrico y se distinguen mediante una
-    pequeña sigla, como ocurre habitualmente en unifilares.
+    MCCB/ACB comparten el contacto eléctrico y se distinguen por el rótulo
+    técnico externo del alimentador.
     """
     color = color or (OPEN if abierto else INK)
     t = tipo.lower()
     top = y - 11
     bottom = y + 11
-    blade_y = top + 3 if abierto else bottom - 2
-    note = ""
-    if t in {"mccb", "acb"}:
-        note = (
-            f'<text x="{_n(x+16)}" y="{_n(y+3)}" class="sym-protection" '
-            f'stroke="none">{escape(t.upper())}</text>'
-        )
+    blade_x = x + 8 if abierto else x
+    blade_y = y - 4 if abierto else top
     return (
         f'<g data-symbol="breaker" data-protection="{escape(t)}" '
         f'data-state="{"open" if abierto else "closed"}" {_stroke(color, 1.9)}>'
         f'<circle cx="{_n(x)}" cy="{_n(top)}" r="2.2" fill="{color}" stroke="none"/>'
         f'<circle cx="{_n(x)}" cy="{_n(bottom)}" r="2.2" fill="{color}" stroke="none"/>'
         f'<line x1="{_n(x)}" y1="{_n(bottom)}" '
-        f'x2="{_n(x + (8 if abierto else 0))}" y2="{_n(blade_y)}"/>'
-        f'{note}</g>'
+        f'x2="{_n(blade_x)}" y2="{_n(blade_y)}"/>'
+        '</g>'
     )
 
 
