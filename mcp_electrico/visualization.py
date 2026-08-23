@@ -1,8 +1,9 @@
 """Render de diagramas unifilares técnicos para el modelo OpenDSS activo.
 
-NetworkX se usa únicamente para ordenar la topología. El dibujo final sigue
-reglas de unifilar: fuente, barras, alimentadores ortogonales, interruptores y
-símbolos eléctricos consistentes.
+NetworkX se usa para interpretar y ordenar la topología. El render final aplica
+reglas de representación eléctrica: barras solo cuando corresponden a una
+barra física, protecciones en cabecera, alimentadores ortogonales, simbología
+consistente y etiquetas de ingeniería.
 """
 
 from __future__ import annotations
@@ -10,10 +11,11 @@ from __future__ import annotations
 from html import escape
 from math import sqrt
 from pathlib import Path
+import re
 from typing import Any
 
 import networkx as nx
-import opendssdirect as dss
+from opendssdirect import dss
 
 from .core import listar_cargas_criticas
 from . import visual_state
@@ -21,11 +23,11 @@ from . import visual_symbols as sym
 
 
 PAGE_MARGIN = 38
-HEADER_H = 76
-SOURCE_H = 126
-TIER_H = 270
-BRANCH_W = 190
-LEGEND_W = 250
+HEADER_H = 72
+NET_TOP = 105
+TIER_H = 300
+BRANCH_W = 215
+LEGEND_W = 220
 
 
 def _bus_sin_nodos(bus: str) -> str:
@@ -87,36 +89,32 @@ def _generator_info(nombre: str) -> dict[str, float | None]:
     return result
 
 
-def _label_lines(x: float, y: float, lines: list[str], anchor: str = "start", cls: str = "label") -> str:
-    tspans = []
-    for i, line in enumerate(lines):
-        dy = 0 if i == 0 else 15
-        tspans.append(
-            f'<tspan x="{x:.1f}" dy="{dy}">{escape(str(line))}</tspan>'
-        )
-    return (
-        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" class="{cls}">'
-        + "".join(tspans)
-        + "</text>"
-    )
+def _engineering_name(name: str) -> str:
+    text = name.strip()
+    text = re.sub(r"_(\d+)$", r"-\1", text)
+    text = text.replace("_", " ")
+    return text.upper()
 
 
-def _wire(x1: float, y1: float, x2: float, y2: float, color: str = sym.INK, width: float = 2.0, dash: str = "") -> str:
-    dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
-    return (
-        f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" '
-        f'stroke="{color}" stroke-width="{width}" fill="none"{dash_attr}/>'
-    )
+def _format_voltage(kv: float) -> str:
+    if kv <= 0:
+        return "—"
+    if kv < 1:
+        return f"{kv * 1000:.0f} V"
+    if abs(kv - round(kv)) < 1e-6:
+        return f"{kv:.0f} kV"
+    return f"{kv:.3g} kV"
 
 
-def _voltage_color(energizado: bool, vpu: float) -> str:
-    if not energizado:
-        return sym.DEENERGIZED
-    if 0.95 <= vpu <= 1.05:
-        return sym.BLUE
-    if 0.90 <= vpu <= 1.10:
-        return sym.WARN
-    return sym.OPEN
+def _connection_code(primary: str | None, secondary: str | None) -> str:
+    def one(value: str | None) -> str:
+        if value == "delta":
+            return "Δ"
+        if value == "wye":
+            return "Y"
+        return "?"
+
+    return f"{one(primary)}/{one(secondary)}"
 
 
 def _collect_model() -> dict[str, Any]:
@@ -173,7 +171,6 @@ def _collect_model() -> dict[str, Any]:
         if root in energized
         else {root}
     )
-
     component = set(nx.node_connected_component(total, root)) if root in total else {root}
     tree = nx.bfs_tree(total.subgraph(component).copy(), root)
 
@@ -192,6 +189,7 @@ def _collect_model() -> dict[str, Any]:
                 "kvar": float(dss.Loads.kvar()),
                 "critica": nombre in criticas,
                 "tipo_visual": visual_state.get_load_type(nombre),
+                "etiqueta": visual_state.get_load_label(nombre),
             }
         )
 
@@ -208,6 +206,13 @@ def _collect_model() -> dict[str, Any]:
         generator_index[nombre.lower()] = info
         generator_index[f"generator.{nombre}".lower()] = info
 
+    snapshot = visual_state.snapshot()
+    alternate_generators: set[str] = set()
+    for feeder in snapshot["alimentadores"].values():
+        alternate = feeder.get("fuente_alterna")
+        if alternate:
+            alternate_generators.add(alternate.split(".")[-1].lower())
+
     return {
         "buses": buses,
         "info_bus": info_bus,
@@ -220,101 +225,306 @@ def _collect_model() -> dict[str, Any]:
         "loads_by_bus": loads_by_bus,
         "generators_by_bus": generators_by_bus,
         "generator_index": generator_index,
-        "criticas": criticas,
+        "alternate_generators": alternate_generators,
     }
 
 
+def _is_physical_bus(
+    bus: str,
+    model: dict[str, Any],
+    tree: nx.DiGraph,
+    diagram_root: str,
+) -> bool:
+    cfg = visual_state.get_bus(bus)
+    if cfg["rol"] == "barra":
+        return True
+    if cfg["rol"] == "conexion":
+        return False
+    if bus == diagram_root:
+        return True
+
+    children = list(tree.successors(bus)) if bus in tree else []
+    loads = model["loads_by_bus"].get(bus, [])
+    generators = [
+        g
+        for g in model["generators_by_bus"].get(bus, [])
+        if g["nombre"].lower() not in model["alternate_generators"]
+    ]
+
+    if len(children) >= 2:
+        return True
+    if len(loads) + len(generators) >= 2:
+        return True
+    if children and (loads or generators):
+        return True
+
+    parents = list(tree.predecessors(bus)) if bus in tree else []
+    if parents:
+        incoming = model["connections"].get((parents[0], bus), {})
+        if incoming.get("tipo") == "Transformador":
+            return True
+    return False
+
+
+def _bus_label(bus: str) -> str:
+    cfg = visual_state.get_bus(bus)
+    return cfg["etiqueta"] or _engineering_name(bus)
+
+
+def _load_label(load: dict[str, Any]) -> str:
+    return load.get("etiqueta") or _engineering_name(str(load["nombre"]))
+
+
+def _load_symbol_name(tipo_visual: str) -> str:
+    return {
+        "tablero": "panel",
+        "motor": "motor",
+        "carga": "load",
+    }.get(tipo_visual, "panel")
+
+
+def _child_sort_key(parent: str, child: str, connections: dict) -> tuple[str, str]:
+    dato = connections.get((parent, child), {})
+    annotation = visual_state.get_feeder(dato.get("full_name", ""))
+    etiqueta = str(annotation.get("etiqueta") or "").strip()
+    return (etiqueta or "~", _engineering_name(child))
+
+
+def _voltage_color(energized: bool, vpu: float) -> str:
+    if not energized:
+        return sym.DEENERGIZED
+    if 0.95 <= vpu <= 1.05:
+        return sym.BLUE
+    if 0.90 <= vpu <= 1.10:
+        return sym.WARN
+    return sym.OPEN
+
+
+class _Mapper:
+    def __init__(self, orientation: str, canonical_width: float, canonical_height: float):
+        self.orientation = orientation
+        self.canonical_width = canonical_width
+        self.canonical_height = canonical_height
+        if orientation == "vertical":
+            self.width = canonical_width
+            self.height = canonical_height
+        else:
+            self.width = PAGE_MARGIN + (canonical_height - 82) + 90
+            self.height = HEADER_H + 70 + (canonical_width - PAGE_MARGIN) + 55
+
+    def p(self, x: float, y: float) -> tuple[float, float]:
+        if self.orientation == "vertical":
+            return x, y
+        return PAGE_MARGIN + (y - 82), HEADER_H + 70 + (x - PAGE_MARGIN)
+
+    def wire(
+        self,
+        x1: float,
+        y1: float,
+        x2: float,
+        y2: float,
+        color: str = sym.INK,
+        width: float = 1.7,
+        dash: str = "",
+    ) -> str:
+        ax, ay = self.p(x1, y1)
+        bx, by = self.p(x2, y2)
+        dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
+        return (
+            f'<line x1="{ax:.1f}" y1="{ay:.1f}" x2="{bx:.1f}" y2="{by:.1f}" '
+            f'stroke="{color}" stroke-width="{width}" fill="none" '
+            f'stroke-linecap="round"{dash_attr}/>'
+        )
+
+    def label(
+        self,
+        x: float,
+        y: float,
+        lines: list[str],
+        anchor: str = "start",
+        cls: str = "label",
+    ) -> str:
+        px, py = self.p(x, y)
+        tspans = []
+        for i, line in enumerate(lines):
+            dy = 0 if i == 0 else 14
+            tspans.append(
+                f'<tspan x="{px:.1f}" dy="{dy}">{escape(str(line))}</tspan>'
+            )
+        return (
+            f'<text x="{px:.1f}" y="{py:.1f}" text-anchor="{anchor}" '
+            f'class="{cls}">{"".join(tspans)}</text>'
+        )
+
+    def source(self, x: float, y: float, color: str = sym.INK) -> str:
+        px, py = self.p(x, y)
+        return sym.source(px, py, color)
+
+    def protection(
+        self,
+        x: float,
+        y: float,
+        kind: str,
+        opened: bool,
+        color: str,
+    ) -> str:
+        px, py = self.p(x, y)
+        return sym.protection(px, py, kind, opened, color)
+
+    def transformer(self, x: float, y: float, color: str) -> str:
+        px, py = self.p(x, y)
+        return sym.transformer(px, py, color, self.orientation)
+
+    def busbar(
+        self,
+        x1: float,
+        x2: float,
+        y: float,
+        color: str,
+        width: float,
+    ) -> str:
+        if self.orientation == "vertical":
+            return sym.busbar(x1, x2, y, color, width)
+        px, py1 = self.p(x1, y)
+        _, py2 = self.p(x2, y)
+        return sym.busbar_vertical(px, py1, py2, color, width)
+
+    def symbol(self, name: str, x: float, y: float, color: str) -> str:
+        px, py = self.p(x, y)
+        return getattr(sym, name)(px, py, color)
+
+    def junction(self, x: float, y: float, color: str) -> str:
+        px, py = self.p(x, y)
+        return sym.junction(px, py, color)
+
+
+def _feeder_detail(annotation: dict, fallback_name: str, mode: str) -> list[str]:
+    lines: list[str] = []
+    protection = annotation.get("proteccion") or "breaker"
+    current = annotation.get("corriente_nominal_a")
+    breaking = annotation.get("capacidad_ruptura_ka")
+    if protection != "breaker" or current or breaking:
+        text = protection.upper() if protection != "breaker" else "CB"
+        if current:
+            text += f" {current:g} A"
+        if breaking:
+            text += f" · {breaking:g} kA"
+        lines.append(text)
+    conductor = annotation.get("conductor") or ""
+    if conductor:
+        lines.append(conductor)
+    if mode == "diagnostico":
+        lines.append(fallback_name)
+    return lines
+
+
 def _legend(x: float, y: float) -> str:
-    rows: list[tuple[str, str]] = [
-        (sym.source(x + 28, y + 40), "Fuente / Red"),
-        (sym.breaker(x + 28, y + 86), "Interruptor"),
-        (sym.transformer(x + 28, y + 135), "Transformador"),
-        (sym.busbar(x + 7, x + 49, y + 184), "Barra"),
-        (sym.panel(x + 28, y + 230), "Tablero"),
-        (sym.motor(x + 28, y + 282), "Motor"),
-        (sym.ats(x + 28, y + 335), "ATS"),
-        (sym.ups(x + 28, y + 390), "UPS"),
-        (sym.generator(x + 28, y + 447), "Grupo electrógeno"),
-        (sym.ground(x + 28, y + 487), "Tierra"),
+    rows = [
+        (sym.source(x + 25, y + 34), "Fuente / Red"),
+        (sym.breaker(x + 25, y + 76), "Interruptor"),
+        (sym.fuse(x + 25, y + 116), "Fusible"),
+        (sym.isolator(x + 25, y + 156), "Seccionador"),
+        (sym.transformer(x + 25, y + 202), "Transformador"),
+        (sym.busbar(x + 7, x + 43, y + 244, width=4.5), "Barra"),
+        (sym.panel(x + 25, y + 288), "Tablero"),
+        (sym.motor(x + 25, y + 334), "Motor"),
+        (sym.ats(x + 25, y + 382), "ATS"),
+        (sym.ups(x + 25, y + 430), "UPS"),
+        (sym.generator(x + 25, y + 478), "Grupo electrógeno"),
     ]
     out = [
-        f'<g data-panel="legend">',
-        f'<rect x="{x:.1f}" y="{y:.1f}" width="220" height="548" rx="8" fill="#fff" stroke="{sym.BLUE}" stroke-width="1.4"/>',
-        f'<text x="{x+110:.1f}" y="{y+22:.1f}" text-anchor="middle" class="legend-title">Simbología</text>',
+        '<g data-panel="legend">',
+        f'<rect x="{x:.1f}" y="{y:.1f}" width="198" height="510" rx="5" '
+        f'fill="#fff" stroke="#d1d5db" stroke-width="1"/>',
+        f'<text x="{x+99:.1f}" y="{y+20:.1f}" text-anchor="middle" '
+        f'class="legend-title">SIMBOLOGÍA</text>',
     ]
-    text_y = [44, 90, 140, 188, 235, 287, 340, 395, 452, 501]
-    for i, ((symbol_svg, label), ty) in enumerate(zip(rows, text_y)):
+    text_y = [38, 80, 120, 160, 206, 248, 292, 338, 386, 434, 482]
+    for (symbol_svg, label), ty in zip(rows, text_y):
         out.append(symbol_svg)
-        out.append(f'<text x="{x+66:.1f}" y="{y+ty:.1f}" class="legend-text">{escape(label)}</text>')
-        if i < len(rows) - 1:
-            sep_y = y + (65 + i * 51)
-            out.append(_wire(x + 8, sep_y, x + 212, sep_y, "#d1d5db", 0.8, "3,3"))
+        out.append(
+            f'<text x="{x+55:.1f}" y="{y+ty:.1f}" class="legend-text">'
+            f'{escape(label)}</text>'
+        )
     return "".join(out) + "</g>"
 
 
 def _rules_panel(x: float, y: float) -> str:
     rules = [
-        "Flujo de energía vertical",
-        "Una línea por alimentador",
-        "Barras claramente visibles",
-        "Símbolos eléctricos consistentes",
-        "Etiquetado técnico básico",
+        "Flujo jerárquico",
+        "Barras solo donde son físicas",
+        "Protección en cabecera",
+        "Derivaciones ortogonales",
+        "Datos técnicos selectivos",
     ]
     out = [
-        f'<g data-panel="rules">',
-        f'<rect x="{x:.1f}" y="{y:.1f}" width="220" height="184" rx="8" fill="#fff" stroke="{sym.BLUE}" stroke-width="1.4"/>',
-        f'<text x="{x+110:.1f}" y="{y+22:.1f}" text-anchor="middle" class="legend-title">Reglas visuales</text>',
+        '<g data-panel="rules">',
+        f'<rect x="{x:.1f}" y="{y:.1f}" width="198" height="150" rx="5" '
+        f'fill="#fff" stroke="#d1d5db" stroke-width="1"/>',
+        f'<text x="{x+99:.1f}" y="{y+20:.1f}" text-anchor="middle" '
+        f'class="legend-title">REGLAS</text>',
     ]
-    for i, rule in enumerate(rules, 1):
-        yy = y + 48 + (i - 1) * 27
-        out.append(f'<circle cx="{x+20:.1f}" cy="{yy-4:.1f}" r="10" fill="{sym.BLUE}"/>')
-        out.append(f'<text x="{x+20:.1f}" y="{yy:.1f}" text-anchor="middle" class="rule-num">{i}</text>')
-        out.append(f'<text x="{x+39:.1f}" y="{yy:.1f}" class="rule-text">{escape(rule)}</text>')
+    for i, rule in enumerate(rules):
+        yy = y + 45 + i * 20
+        out.append(
+            f'<text x="{x+14:.1f}" y="{yy:.1f}" class="rule-text">'
+            f'• {escape(rule)}</text>'
+        )
     return "".join(out) + "</g>"
 
 
 def _svg_document(width: float, height: float, body: str, circuit_name: str) -> str:
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width:.0f} {height:.0f}" width="{width:.0f}" height="{height:.0f}" role="img" aria-label="Diagrama unifilar {escape(circuit_name)}">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width:.0f} {height:.0f}" width="{width:.0f}" height="{height:.0f}" role="img" aria-label="Diagrama unifilar {escape(circuit_name)}">
 <style>
 text {{ font-family: Arial, Helvetica, sans-serif; fill:{sym.INK}; }}
-.title {{ font-size:22px; font-weight:700; fill:{sym.BLUE}; }}
-.subtitle {{ font-size:11px; font-weight:600; letter-spacing:1.2px; fill:{sym.DIM}; }}
-.bus-name {{ font-size:12px; font-weight:700; }}
-.bus-state {{ font-size:10px; font-weight:600; }}
-.label {{ font-size:11px; font-weight:600; }}
-.label-dim {{ font-size:10px; fill:{sym.DIM}; }}
-.feeder-tag {{ font-size:11px; font-weight:700; }}
-.status-open {{ font-size:10px; font-weight:700; fill:{sym.OPEN}; }}
-.critical {{ font-size:9px; font-weight:700; fill:{sym.OPEN}; }}
-.sym-main {{ font-size:14px; font-weight:700; }}
-.sym-small {{ font-size:9px; font-weight:600; }}
-.sym-note {{ font-size:10px; font-weight:700; fill:{sym.DIM}; stroke:none; }}
-.legend-title {{ font-size:13px; font-weight:700; fill:{sym.BLUE}; }}
-.legend-text {{ font-size:10px; }}
-.rule-num {{ font-size:9px; font-weight:700; fill:#fff; }}
-.rule-text {{ font-size:9.5px; }}
+.title {{ font-size:20px; font-weight:700; }}
+.subtitle {{ font-size:9.5px; font-weight:600; letter-spacing:1px; fill:{sym.DIM}; }}
+.bus-name {{ font-size:11px; font-weight:700; }}
+.bus-state {{ font-size:9.5px; font-weight:600; }}
+.label {{ font-size:10.5px; font-weight:600; }}
+.label-strong {{ font-size:11px; font-weight:700; }}
+.label-dim {{ font-size:9px; fill:{sym.DIM}; }}
+.feeder-tag {{ font-size:10.5px; font-weight:700; }}
+.status-open {{ font-size:9px; font-weight:700; fill:{sym.OPEN}; }}
+.critical {{ font-size:8.5px; font-weight:700; fill:{sym.OPEN}; }}
+.sym-main {{ font-size:13px; font-weight:700; }}
+.sym-small {{ font-size:8px; font-weight:700; }}
+.sym-protection {{ font-size:7.5px; font-weight:700; fill:{sym.DIM}; }}
+.legend-title {{ font-size:11px; font-weight:700; }}
+.legend-text {{ font-size:9px; }}
+.rule-text {{ font-size:8.5px; fill:{sym.DIM}; }}
 </style>
 <rect width="100%" height="100%" fill="#ffffff"/>
 {body}
-</svg>'''
+</svg>"""
 
 
 def generar_diagrama_unifilar(
     ruta_salida: str = "diagrama_red.html",
-    mostrar_leyenda: bool = True,
+    mostrar_leyenda: bool = False,
     titulo: str | None = None,
+    modo: str = "ingenieria",
+    orientacion: str = "vertical",
+    mostrar_marca: bool = False,
+    mostrar_reglas: bool = False,
 ) -> dict[str, Any]:
-    """Genera un unifilar técnico en SVG y, opcionalmente, un wrapper HTML.
+    """Genera un unifilar técnico SVG/HTML.
 
-    Reglas principales:
-    - flujo vertical de fuente a cargas;
-    - barras horizontales;
-    - alimentadores ortogonales con interruptor en cabecera;
-    - simbología diferenciada para transformadores, tableros, motores,
-      generadores, ATS y UPS;
-    - dispositivos ATS/UPS pueden anotarse visualmente sin alterar el cálculo
-      OpenDSS mediante ``configurar_alimentador_unifilar``.
+    ``modo``:
+    - ``ingenieria``: prioriza rótulos técnicos y omite nombres internos;
+    - ``diagnostico``: añade nombres OpenDSS y valores pu.
+
+    ``orientacion`` admite ``vertical`` y ``horizontal``. La disposición
+    vertical es la referencia principal; la horizontal transpone la jerarquía
+    para redes profundas.
     """
+    mode = modo.strip().lower()
+    if mode not in {"ingenieria", "diagnostico"}:
+        raise ValueError("modo debe ser 'ingenieria' o 'diagnostico'.")
+    orientation = orientacion.strip().lower()
+    if orientation not in {"vertical", "horizontal"}:
+        raise ValueError("orientacion debe ser 'vertical' u 'horizontal'.")
+
     model = _collect_model()
     buses = model["buses"]
     if not buses:
@@ -329,9 +539,6 @@ def generar_diagrama_unifilar(
     generators_by_bus = model["generators_by_bus"]
     generator_index = model["generator_index"]
 
-    # Si la fuente tiene un único transformador y ninguna carga local, se
-    # representa como en un unifilar típico: RED -> CB -> TR -> barra BT,
-    # sin dibujar una barra MT artificial entre medio.
     root_children = list(tree.successors(root)) if root in tree else []
     hidden_root_edge: tuple[str, str] | None = None
     diagram_root = root
@@ -342,75 +549,113 @@ def generar_diagrama_unifilar(
             hidden_root_edge = (root, child)
             diagram_root = child
 
-    # Árbol de layout re-enraizado en la barra que realmente se dibujará.
-    # Cuando ocultamos la barra de fuente, retiramos sourcebus del grafo visual
-    # para que no reaparezca aguas abajo del transformador.
     layout_graph = model["total"].copy()
     if hidden_root_edge and root in layout_graph:
         layout_graph.remove_node(root)
     layout_tree = nx.bfs_tree(layout_graph, diagram_root)
 
-    leaf_cursor = [PAGE_MARGIN + 60]
+    physical = {
+        bus: _is_physical_bus(bus, model, layout_tree, diagram_root)
+        for bus in layout_tree.nodes
+    }
+
+    leaf_cursor = [PAGE_MARGIN + 75]
     pos_bus: dict[str, tuple[float, float]] = {}
     span_bus: dict[str, tuple[float, float]] = {}
     pos_load: dict[tuple[str, int], float] = {}
     pos_gen: dict[tuple[str, int], float] = {}
 
-    base_y = HEADER_H + SOURCE_H + (70 if hidden_root_edge else 30)
+    base_y = 300 if hidden_root_edge else 225
 
     def layout(bus: str, depth: int) -> float:
-        child_xs = [layout(c, depth + 1) for c in sorted(layout_tree.successors(bus))]
-        load_xs: list[float] = []
-        for i, _ in enumerate(sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])):
+        children = sorted(
+            layout_tree.successors(bus),
+            key=lambda c: _child_sort_key(bus, c, connections),
+        )
+        child_xs = [layout(child, depth + 1) for child in children]
+        loads = sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])
+        gens = sorted(
+            [
+                g for g in generators_by_bus.get(bus, [])
+                if g["nombre"].lower() not in model["alternate_generators"]
+            ],
+            key=lambda x: x["nombre"],
+        )
+
+        own_xs: list[float] = []
+        if physical.get(bus, False):
+            for i, _ in enumerate(loads):
+                x = leaf_cursor[0]
+                leaf_cursor[0] += BRANCH_W
+                pos_load[(bus, i)] = x
+                own_xs.append(x)
+            for i, _ in enumerate(gens):
+                x = leaf_cursor[0]
+                leaf_cursor[0] += BRANCH_W
+                pos_gen[(bus, i)] = x
+                own_xs.append(x)
+        elif (loads or gens) and not children:
             x = leaf_cursor[0]
             leaf_cursor[0] += BRANCH_W
-            pos_load[(bus, i)] = x
-            load_xs.append(x)
-        gen_xs: list[float] = []
-        for i, _ in enumerate(sorted(generators_by_bus.get(bus, []), key=lambda x: x["nombre"])):
-            x = leaf_cursor[0]
-            leaf_cursor[0] += BRANCH_W
-            pos_gen[(bus, i)] = x
-            gen_xs.append(x)
-        xs = child_xs + load_xs + gen_xs
+            for i, _ in enumerate(loads):
+                pos_load[(bus, i)] = x
+            for i, _ in enumerate(gens):
+                pos_gen[(bus, i)] = x
+            own_xs.append(x)
+
+        xs = child_xs + own_xs
         if not xs:
             x = leaf_cursor[0]
             leaf_cursor[0] += BRANCH_W
             xs = [x]
-        center = sum(xs) / len(xs)
+        center = (min(xs) + max(xs)) / 2
         pos_bus[bus] = (center, base_y + depth * TIER_H)
         span_bus[bus] = (min(xs), max(xs))
         return center
 
     layout(diagram_root, 0)
 
-    # Topología fuera del componente principal: se agrega en una columna de
-    # aviso, sin fingir continuidad eléctrica.
     outside = [b for b in buses if b not in pos_bus and b != root]
-    for i, bus in enumerate(outside):
-        x = leaf_cursor[0]
-        leaf_cursor[0] += BRANCH_W
-        pos_bus[bus] = (x, base_y + i * 90)
-        span_bus[bus] = (x, x)
+    canonical_width = max(860, leaf_cursor[0] + PAGE_MARGIN)
+    max_depth = max(
+        (nx.shortest_path_length(layout_tree, diagram_root, b) for b in layout_tree.nodes),
+        default=0,
+    )
+    canonical_height = max(690, base_y + max_depth * TIER_H + 190)
+    mapper = _Mapper(orientation, canonical_width, canonical_height)
 
-    diagram_width = max(920, leaf_cursor[0] + PAGE_MARGIN)
     legend_extra = LEGEND_W if mostrar_leyenda else 0
-    canvas_width = diagram_width + legend_extra
-    max_depth = max((nx.shortest_path_length(layout_tree, diagram_root, b) for b in layout_tree.nodes), default=0)
-    canvas_height = max(760, base_y + max_depth * TIER_H + 260)
+    canvas_width = mapper.width + legend_extra
+    canvas_height = max(mapper.height, 690 if mostrar_leyenda else mapper.height)
 
     body: list[str] = []
-    main_title = titulo or "Diagrama unifilar"
-    body.append(f'<text x="{PAGE_MARGIN}" y="38" class="title">{escape(main_title)}</text>')
-    body.append(_wire(PAGE_MARGIN, 52, min(diagram_width - 30, PAGE_MARGIN + 520), 52, sym.BLUE, 3.0))
-    body.append(f'<text x="{PAGE_MARGIN}" y="69" class="subtitle">MCP ELÉCTRICO · OPENDSS · REPRESENTACIÓN TÉCNICA</text>')
+    main_title = titulo or "DIAGRAMA UNIFILAR"
+    body.append(
+        f'<text x="{PAGE_MARGIN}" y="34" class="title">{escape(main_title)}</text>'
+    )
+    body.append(
+        f'<line x1="{PAGE_MARGIN}" y1="48" x2="{min(mapper.width-28, PAGE_MARGIN+470):.1f}" '
+        f'y2="48" stroke="{sym.INK}" stroke-width="1.2"/>'
+    )
+    if mostrar_marca:
+        body.append(
+            f'<text x="{PAGE_MARGIN}" y="64" class="subtitle">'
+            f'MCP ELÉCTRICO · OPENDSS</text>'
+        )
 
-    # Fuente.
     sx = pos_bus[diagram_root][0]
-    sy = HEADER_H + 36
+    sy = NET_TOP
     source_nom = info_bus[root]["kv_nominal"]
-    body.append(sym.source(sx, sy))
-    body.append(_label_lines(sx + 38, sy - 4, [f"RED / FUENTE {source_nom:.3g} kV"], cls="label"))
+    body.append(mapper.source(sx, sy))
+    source_label_y = sy - 3 if orientation == "vertical" else sy + 34
+    body.append(
+        mapper.label(
+            sx + 35 if orientation == "vertical" else sx,
+            source_label_y,
+            [f"RED {_format_voltage(source_nom)}"],
+            cls="label-strong",
+        )
+    )
 
     used_alt_generators: set[str] = set()
     feeder_counter = [1]
@@ -423,182 +668,352 @@ def generar_diagrama_unifilar(
         feeder_counter[0] += 1
         return tag
 
-    # Tramo fuente -> primera barra, con transformador si se ocultó root.
-    if hidden_root_edge:
-        dato = connections[hidden_root_edge]
-        open_state = bool(dato["abierta"])
-        line_color = sym.OPEN if open_state else sym.INK
-        breaker_y = sy + 58
-        trafo_y = sy + 125
-        bus_y = pos_bus[diagram_root][1]
-        body.append(_wire(sx, sy + 22, sx, breaker_y - 12, line_color))
-        body.append(sym.breaker(sx, breaker_y, open_state))
-        if open_state:
-            body.append(f'<text x="{sx+18:.1f}" y="{breaker_y+4:.1f}" class="status-open">ABIERTO</text>')
-        body.append(_wire(sx, breaker_y + 12, sx, trafo_y - 31, line_color))
-        body.append(
-            sym.transformer(
-                sx,
-                trafo_y,
-                line_color,
-                dato.get("conexion_primario"),
-                dato.get("conexion_secundario"),
+    def render_transformer_label(x: float, y: float, dato: dict) -> None:
+        lines = [_engineering_name(str(dato["nombre"]))]
+        if dato.get("kva"):
+            lines.append(f'{dato["kva"]:.0f} kVA')
+        if dato.get("kv_primario") and dato.get("kv_secundario"):
+            lines.append(
+                f'{dato["kv_primario"]:g}/{dato["kv_secundario"]:g} kV'
+            )
+        lines.append(
+            _connection_code(
+                dato.get("conexion_primario"), dato.get("conexion_secundario")
             )
         )
-        kv1, kv2, kva = dato.get("kv_primario"), dato.get("kv_secundario"), dato.get("kva")
-        details = [str(dato["nombre"])]
-        if kva:
-            details.append(f"{kva:.0f} kVA")
-        if kv1 and kv2:
-            details.append(f"{kv1:g}/{kv2:g} kV")
-        body.append(_label_lines(sx + 45, trafo_y - 10, details, cls="label"))
-        body.append(_wire(sx, trafo_y + 31, sx, bus_y, line_color))
+        body.append(mapper.label(x + 38, y - 8, lines, cls="label"))
+
+    if hidden_root_edge:
+        dato = connections[hidden_root_edge]
+        opened = bool(dato["abierta"])
+        line_color = sym.OPEN if opened else sym.INK
+        breaker_y = sy + 52
+        trafo_y = sy + 112
+        bus_y = pos_bus[diagram_root][1]
+        body.append(mapper.wire(sx, sy + 20, sx, breaker_y - 13, line_color, 1.8))
+        body.append(mapper.protection(sx, breaker_y, "breaker", opened, line_color))
+        body.append(
+            mapper.label(sx + 16, breaker_y - 4, ["CB-MT"], cls="label-dim")
+        )
+        if opened:
+            body.append(
+                mapper.label(sx + 18, breaker_y + 13, ["ABIERTO"], cls="status-open")
+            )
+        body.append(mapper.wire(sx, breaker_y + 13, sx, trafo_y - 16, line_color))
+        body.append(mapper.transformer(sx, trafo_y, line_color))
+        render_transformer_label(sx, trafo_y, dato)
+        body.append(mapper.wire(sx, trafo_y + 16, sx, bus_y, line_color, 1.8))
     else:
         root_y = pos_bus[root][1]
-        breaker_y = sy + 60
-        body.append(_wire(sx, sy + 22, sx, breaker_y - 12))
-        body.append(sym.breaker(sx, breaker_y, False))
-        body.append(_wire(sx, breaker_y + 12, sx, root_y))
+        breaker_y = sy + 55
+        body.append(mapper.wire(sx, sy + 20, sx, breaker_y - 13))
+        body.append(mapper.protection(sx, breaker_y, "breaker", False, sym.INK))
+        body.append(mapper.wire(sx, breaker_y + 13, sx, root_y))
 
-    # Barras y derivaciones.
     for bus in sorted(pos_bus, key=lambda b: (pos_bus[b][1], pos_bus[b][0])):
         if bus == root and hidden_root_edge:
             continue
+        if not physical.get(bus, False):
+            continue
         bx, by = pos_bus[bus]
         x_min, x_max = span_bus[bus]
-        bar_left = min(x_min - 58, bx - 90)
-        bar_right = max(x_max + 58, bx + 90)
+        bar_left = min(x_min - 50, bx - 85)
+        bar_right = max(x_max + 50, bx + 85)
         energized = bus in energized_buses
         bar_color = sym.INK if energized else sym.DEENERGIZED
-        body.append(sym.busbar(bar_left, bar_right, by, bar_color))
+        thickness = 6.0 if bus == diagram_root else 4.2
+        body.append(mapper.busbar(bar_left, bar_right, by, bar_color, thickness))
+
+        label = _bus_label(bus)
+        if mode == "diagnostico":
+            state = (
+                f'{_format_voltage(info_bus[bus]["kv_nominal"])} · '
+                f'{info_bus[bus]["vpu"]:.3f} pu'
+                if energized
+                else "SIN TENSIÓN"
+            )
+        else:
+            state = (
+                _format_voltage(info_bus[bus]["kv_nominal"])
+                if energized
+                else "SIN TENSIÓN"
+            )
         vcolor = _voltage_color(energized, info_bus[bus]["vpu"])
-        state = f'{info_bus[bus]["kv_nominal"]:.3f} kV · {info_bus[bus]["vpu"]:.3f} pu' if energized else "DESENERGIZADA"
-        body.append(f'<text x="{bar_right+12:.1f}" y="{by-7:.1f}" class="bus-name">{escape(bus.upper())}</text>')
-        body.append(f'<text x="{bar_right+12:.1f}" y="{by+10:.1f}" class="bus-state" fill="{vcolor}">{escape(state)}</text>')
+        lx, ly = mapper.p(bar_right + 10, by - 6)
+        body.append(
+            f'<text x="{lx:.1f}" y="{ly:.1f}" class="bus-name">{escape(label)}</text>'
+        )
+        sx2, sy2 = mapper.p(bar_right + 10, by + 10)
+        body.append(
+            f'<text x="{sx2:.1f}" y="{sy2:.1f}" class="bus-state" '
+            f'fill="{vcolor}">{escape(state)}</text>'
+        )
 
-        # Hacia buses hijos.
-        if bus in layout_tree:
-            for child in sorted(layout_tree.successors(bus), key=lambda c: pos_bus[c][0]):
-                cx, cy = pos_bus[child]
-                dato = connections[(bus, child)]
-                annotation = visual_state.get_feeder(dato["full_name"])
-                tag = next_tag(annotation)
-                open_state = bool(dato["abierta"])
-                path_color = sym.OPEN if open_state else (sym.INK if child in energized_buses else sym.DEENERGIZED)
-                breaker_y = by + 48
-                body.append(_wire(cx, by, cx, breaker_y - 12, path_color))
-                body.append(sym.breaker(cx, breaker_y, open_state, path_color))
-                body.append(f'<text x="{cx-18:.1f}" y="{breaker_y-18:.1f}" class="feeder-tag" text-anchor="end">{escape(tag)}</text>')
-                if open_state:
-                    body.append(f'<text x="{cx+18:.1f}" y="{breaker_y+4:.1f}" class="status-open">ABIERTO</text>')
+    for bus in sorted(pos_bus, key=lambda b: (pos_bus[b][1], pos_bus[b][0])):
+        if bus not in layout_tree:
+            continue
+        bx, by = pos_bus[bus]
+        parent_bar = physical.get(bus, False)
 
-                current_y = breaker_y + 12
-                if dato["tipo"] == "Transformador":
-                    tr_y = by + 120
-                    body.append(_wire(cx, current_y, cx, tr_y - 31, path_color))
+        for child in sorted(
+            layout_tree.successors(bus),
+            key=lambda c: _child_sort_key(bus, c, connections),
+        ):
+            cx, cy = pos_bus[child]
+            dato = connections[(bus, child)]
+            annotation = visual_state.get_feeder(dato["full_name"])
+            opened = bool(dato["abierta"])
+            path_color = (
+                sym.OPEN
+                if opened
+                else (sym.INK if child in energized_buses else sym.DEENERGIZED)
+            )
+            tag = next_tag(annotation)
+            current_y = by
+
+            if parent_bar:
+                breaker_y = by + 42
+                body.append(mapper.wire(cx, by, cx, breaker_y - 13, path_color))
+                body.append(
+                    mapper.protection(
+                        cx,
+                        breaker_y,
+                        annotation.get("proteccion") or "breaker",
+                        opened,
+                        path_color,
+                    )
+                )
+                body.append(
+                    mapper.label(
+                        cx - 15, breaker_y - 17, [tag], anchor="end", cls="feeder-tag"
+                    )
+                )
+                detail = _feeder_detail(annotation, str(dato["nombre"]), mode)
+                if detail:
                     body.append(
-                        sym.transformer(
-                            cx,
-                            tr_y,
-                            path_color,
-                            dato.get("conexion_primario"),
-                            dato.get("conexion_secundario"),
+                        mapper.label(cx + 24, breaker_y - 10, detail, cls="label-dim")
+                    )
+                if opened:
+                    body.append(
+                        mapper.label(
+                            cx + 18, breaker_y + 14, ["ABIERTO"], cls="status-open"
                         )
                     )
-                    details = [str(dato["nombre"])]
-                    if dato.get("kva"):
-                        details.append(f'{dato["kva"]:.0f} kVA')
-                    if dato.get("kv_primario") and dato.get("kv_secundario"):
-                        details.append(f'{dato["kv_primario"]:g}/{dato["kv_secundario"]:g} kV')
-                    body.append(_label_lines(cx + 45, tr_y - 10, details, cls="label"))
-                    current_y = tr_y + 31
-                else:
-                    devices = list(annotation.get("dispositivos") or [])
-                    if devices:
-                        available = max(90.0, cy - current_y - 45)
-                        step = min(82.0, available / (len(devices) + 1))
-                        for dev in devices:
-                            dy = current_y + step
-                            body.append(_wire(cx, current_y, cx, dy - 24, path_color))
-                            if dev == "ats":
-                                body.append(sym.ats(cx, dy, path_color))
-                                alt = annotation.get("fuente_alterna")
-                                if alt:
-                                    gen = generator_index.get(str(alt).lower())
-                                    if gen:
-                                        gx = cx + 120
-                                        body.append(_wire(gx - 23, dy, cx + 26, dy, path_color))
-                                        body.append(sym.generator(gx, dy, path_color))
-                                        body.append(sym.ground(gx, dy + 23, path_color))
-                                        glines = [str(gen["nombre"])]
-                                        if gen.get("kw") is not None:
-                                            glines.append(f'{gen["kw"]:.0f} kW')
-                                        body.append(_label_lines(gx + 36, dy - 4, glines, cls="label"))
-                                        used_alt_generators.add(str(gen["nombre"]).lower())
-                            elif dev == "ups":
-                                body.append(sym.ups(cx, dy, path_color))
-                            current_y = dy + 24
-                    body.append(f'<text x="{cx+15:.1f}" y="{(current_y+cy)/2:.1f}" class="label-dim">{escape(str(dato["nombre"]))}</text>')
-                body.append(_wire(cx, current_y, cx, cy, path_color))
+                current_y = breaker_y + 13
+            else:
+                if mode == "diagnostico":
+                    body.append(mapper.junction(bx, by, path_color))
 
-        # Cargas terminales.
+            if dato["tipo"] == "Transformador":
+                tr_y = current_y + 55
+                body.append(mapper.wire(cx, current_y, cx, tr_y - 16, path_color))
+                body.append(mapper.transformer(cx, tr_y, path_color))
+                render_transformer_label(cx, tr_y, dato)
+                current_y = tr_y + 16
+
+            devices = list(annotation.get("dispositivos") or [])
+            for device in devices:
+                if device == "ats":
+                    ats_y = current_y + 70
+                    alt = annotation.get("fuente_alterna")
+                    if alt:
+                        body.append(
+                            mapper.wire(cx, current_y, cx, ats_y - 35, path_color)
+                        )
+                        body.append(
+                            mapper.wire(cx, ats_y - 35, cx - 14, ats_y - 35, path_color)
+                        )
+                        body.append(
+                            mapper.wire(
+                                cx - 14, ats_y - 35, cx - 14, ats_y - 14, path_color
+                            )
+                        )
+                    else:
+                        body.append(
+                            mapper.wire(cx, current_y, cx, ats_y - 21, path_color)
+                        )
+                    body.append(mapper.symbol("ats", cx, ats_y, path_color))
+
+                    if alt:
+                        gen = generator_index.get(str(alt).lower())
+                        if gen:
+                            gx, gy = cx + 105, ats_y - 35
+                            body.append(mapper.symbol("generator", gx, gy, path_color))
+                            body.append(mapper.symbol("ground", gx, gy + 23, path_color))
+                            knee_x = cx + 58
+                            body.append(
+                                mapper.wire(gx - 22, gy, knee_x, gy, path_color)
+                            )
+                            body.append(
+                                mapper.wire(
+                                    knee_x, gy, knee_x, ats_y - 14, path_color
+                                )
+                            )
+                            body.append(
+                                mapper.wire(
+                                    knee_x,
+                                    ats_y - 14,
+                                    cx + 14,
+                                    ats_y - 14,
+                                    path_color,
+                                )
+                            )
+                            glines = [_engineering_name(str(gen["nombre"]))]
+                            if gen.get("kw") is not None:
+                                glines.append(f'{gen["kw"]:.0f} kW')
+                            body.append(
+                                mapper.label(gx + 30, gy - 4, glines, cls="label")
+                            )
+                            used_alt_generators.add(str(gen["nombre"]).lower())
+                    current_y = ats_y + 21
+                elif device == "ups":
+                    ups_y = current_y + 58
+                    body.append(mapper.wire(cx, current_y, cx, ups_y - 19, path_color))
+                    body.append(mapper.symbol("ups", cx, ups_y, path_color))
+                    current_y = ups_y + 19
+
+            child_is_bar = physical.get(child, False)
+            child_loads = sorted(loads_by_bus.get(child, []), key=lambda x: x["nombre"])
+            child_gens = sorted(
+                [
+                    g for g in generators_by_bus.get(child, [])
+                    if g["nombre"].lower() not in model["alternate_generators"]
+                ],
+                key=lambda x: x["nombre"],
+            )
+
+            if child_is_bar:
+                body.append(mapper.wire(cx, current_y, cx, cy, path_color, 1.7))
+            elif len(child_loads) == 1 and not child_gens and not list(layout_tree.successors(child)):
+                target_y = cy - 24
+                body.append(mapper.wire(cx, current_y, cx, target_y, path_color, 1.7))
+            elif len(child_gens) == 1 and not child_loads and not list(layout_tree.successors(child)):
+                target_y = cy - 24
+                body.append(mapper.wire(cx, current_y, cx, target_y, path_color, 1.7))
+            else:
+                body.append(mapper.wire(cx, current_y, cx, cy, path_color, 1.7))
+                if mode == "diagnostico" or len(list(layout_tree.successors(child))) > 1:
+                    body.append(mapper.junction(cx, cy, path_color))
+
+    for bus, (bx, by) in pos_bus.items():
+        if physical.get(bus, False):
+            continue
+        energized = bus in energized_buses
+        color = sym.INK if energized else sym.DEENERGIZED
+        loads = sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])
+        gens = sorted(
+            [
+                g for g in generators_by_bus.get(bus, [])
+                if g["nombre"].lower() not in model["alternate_generators"]
+            ],
+            key=lambda x: x["nombre"],
+        )
+        if len(loads) == 1 and not gens and not list(layout_tree.successors(bus)):
+            load = loads[0]
+            body.append(mapper.symbol(_load_symbol_name(load["tipo_visual"]), bx, by, color))
+            lines = [_load_label(load), f'{load["kw"]:.0f} kW']
+            body.append(mapper.label(bx, by + 48, lines, anchor="middle", cls="label"))
+            if load["critica"]:
+                body.append(
+                    mapper.label(
+                        bx, by + 81, ["CARGA CRÍTICA"], anchor="middle", cls="critical"
+                    )
+                )
+        elif len(gens) == 1 and not loads and not list(layout_tree.successors(bus)):
+            gen = gens[0]
+            if gen["nombre"].lower() not in used_alt_generators:
+                body.append(mapper.symbol("generator", bx, by, color))
+                body.append(mapper.symbol("ground", bx, by + 23, color))
+                lines = [_engineering_name(str(gen["nombre"]))]
+                if gen.get("kw") is not None:
+                    lines.append(f'{gen["kw"]:.0f} kW')
+                body.append(
+                    mapper.label(bx, by + 56, lines, anchor="middle", cls="label")
+                )
+
+    for bus, (bx, by) in pos_bus.items():
+        if not physical.get(bus, False):
+            continue
+        energized = bus in energized_buses
+        color = sym.INK if energized else sym.DEENERGIZED
         loads = sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])
         for i, load in enumerate(loads):
             x = pos_load[(bus, i)]
-            breaker_y = by + 48
-            symbol_y = by + 128
-            color = sym.INK if energized else sym.DEENERGIZED
+            breaker_y = by + 42
+            symbol_y = by + 116
             tag = f"C-{circuit_counter[0]:02d}"
             circuit_counter[0] += 1
-            body.append(_wire(x, by, x, breaker_y - 12, color))
-            body.append(sym.breaker(x, breaker_y, False, color))
-            body.append(f'<text x="{x-18:.1f}" y="{breaker_y-18:.1f}" class="feeder-tag" text-anchor="end">{tag}</text>')
-            body.append(_wire(x, breaker_y + 12, x, symbol_y - 25, color))
-            tipo = load["tipo_visual"]
-            if tipo == "motor":
-                body.append(sym.motor(x, symbol_y, color))
-            elif tipo == "carga":
-                body.append(sym.load(x, symbol_y, color))
-            else:
-                body.append(sym.panel(x, symbol_y, color))
-            lines = [str(load["nombre"]).upper(), f'{load["kw"]:.0f} kW']
-            body.append(_label_lines(x, symbol_y + 52, lines, anchor="middle", cls="label"))
+            body.append(mapper.wire(x, by, x, breaker_y - 13, color))
+            body.append(mapper.protection(x, breaker_y, "mccb", False, color))
+            body.append(
+                mapper.label(
+                    x - 15, breaker_y - 17, [tag], anchor="end", cls="feeder-tag"
+                )
+            )
+            body.append(mapper.wire(x, breaker_y + 13, x, symbol_y - 24, color))
+            body.append(mapper.symbol(_load_symbol_name(load["tipo_visual"]), x, symbol_y, color))
+            body.append(
+                mapper.label(
+                    x,
+                    symbol_y + 48,
+                    [_load_label(load), f'{load["kw"]:.0f} kW'],
+                    anchor="middle",
+                    cls="label",
+                )
+            )
             if load["critica"]:
-                body.append(f'<text x="{x:.1f}" y="{symbol_y+87:.1f}" text-anchor="middle" class="critical">CARGA CRÍTICA</text>')
+                body.append(
+                    mapper.label(
+                        x,
+                        symbol_y + 81,
+                        ["CARGA CRÍTICA"],
+                        anchor="middle",
+                        cls="critical",
+                    )
+                )
 
-        # Generadores que no se usaron como fuente alterna de un ATS.
-        generators = sorted(generators_by_bus.get(bus, []), key=lambda x: x["nombre"])
-        for i, gen in enumerate(generators):
-            if str(gen["nombre"]).lower() in used_alt_generators:
+        gens = sorted(
+            [
+                g for g in generators_by_bus.get(bus, [])
+                if g["nombre"].lower() not in model["alternate_generators"]
+            ],
+            key=lambda x: x["nombre"],
+        )
+        for i, gen in enumerate(gens):
+            if gen["nombre"].lower() in used_alt_generators:
                 continue
             x = pos_gen[(bus, i)]
-            breaker_y = by + 48
-            symbol_y = by + 128
-            color = sym.INK if energized else sym.DEENERGIZED
-            body.append(_wire(x, by, x, breaker_y - 12, color))
-            body.append(sym.breaker(x, breaker_y, False, color))
-            body.append(_wire(x, breaker_y + 12, x, symbol_y - 23, color))
-            body.append(sym.generator(x, symbol_y, color))
-            body.append(sym.ground(x, symbol_y + 23, color))
-            lines = [str(gen["nombre"]).upper()]
+            breaker_y = by + 42
+            symbol_y = by + 116
+            body.append(mapper.wire(x, by, x, breaker_y - 13, color))
+            body.append(mapper.protection(x, breaker_y, "breaker", False, color))
+            body.append(mapper.wire(x, breaker_y + 13, x, symbol_y - 24, color))
+            body.append(mapper.symbol("generator", x, symbol_y, color))
+            body.append(mapper.symbol("ground", x, symbol_y + 23, color))
+            lines = [_engineering_name(str(gen["nombre"]))]
             if gen.get("kw") is not None:
                 lines.append(f'{gen["kw"]:.0f} kW')
-            body.append(_label_lines(x, symbol_y + 62, lines, anchor="middle", cls="label"))
+            body.append(
+                mapper.label(
+                    x, symbol_y + 56, lines, anchor="middle", cls="label"
+                )
+            )
 
-    if outside:
-        ox = diagram_width - 200
-        oy = 100
-        body.append(f'<text x="{ox:.1f}" y="{oy:.1f}" class="status-open">COMPONENTE SIN CONEXIÓN A LA FUENTE</text>')
-        for i, bus in enumerate(outside):
-            body.append(f'<text x="{ox:.1f}" y="{oy+20+i*16:.1f}" class="label-dim">• {escape(bus)}</text>')
+    if outside and mode == "diagnostico":
+        body.append(
+            f'<text x="{PAGE_MARGIN}" y="{canvas_height-24:.1f}" class="status-open">'
+            f'Buses fuera del componente principal: {escape(", ".join(outside))}</text>'
+        )
 
-    # Leyenda separada del dibujo para no contaminar el unifilar.
     if mostrar_leyenda:
-        lx = diagram_width + 12
+        lx = mapper.width + 10
         body.append(_legend(lx, 18))
-        body.append(_rules_panel(lx, 578))
+        if mostrar_reglas:
+            body.append(_rules_panel(lx, 538))
 
-    svg_text = _svg_document(canvas_width, canvas_height, "".join(body), dss.Circuit.Name())
+    svg_text = _svg_document(
+        canvas_width, canvas_height, "".join(body), dss.Circuit.Name()
+    )
 
     salida = Path(ruta_salida).expanduser()
     salida.parent.mkdir(parents=True, exist_ok=True)
@@ -612,24 +1027,34 @@ def generar_diagrama_unifilar(
     svg_path.write_text(svg_text, encoding="utf-8")
 
     if html_path is not None:
-        html = f'''<!DOCTYPE html>
+        html = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><title>Unifilar — {escape(dss.Circuit.Name())}</title>
 <style>html,body{{margin:0;background:#eef2f7}}.sheet{{max-width:{canvas_width:.0f}px;margin:24px auto;background:#fff;box-shadow:0 4px 24px #0002}}svg{{display:block;width:100%;height:auto}}</style>
-</head><body><div class="sheet">{svg_text}</div></body></html>'''
+</head><body><div class="sheet">{svg_text}</div></body></html>"""
         html_path.write_text(html, encoding="utf-8")
 
+    barras = [b for b, value in physical.items() if value]
+    ocultos = [b for b, value in physical.items() if not value]
     desconectados = sorted(set(buses) - set(energized_buses))
     is_radial = nx.is_tree(model["total"]) if model["total"].number_of_nodes() else True
+
     return {
         "archivo_generado": str(html_path or svg_path),
         "archivo_svg": str(svg_path),
         "archivo_html": str(html_path) if html_path else None,
-        "buses_dibujados": len(buses),
+        "buses_modelo": len(buses),
+        "barras_fisicas_dibujadas": barras,
+        "buses_logicos_no_dibujados_como_barra": ocultos,
         "buses_desconectados": desconectados,
         "cargas_dibujadas": len(dss.Loads.AllNames()),
         "generadores_dibujados": len(dss.Generators.AllNames()),
         "transformadores_dibujados": len(dss.Transformers.AllNames()),
         "topologia_radial_pura": is_radial,
-        "estilo": "unifilar_tecnico_svg_v1",
-        "nota": "ATS/UPS configurados como anotaciones visuales no modifican el cálculo OpenDSS.",
+        "modo": mode,
+        "orientacion": orientation,
+        "estilo": "unifilar_tecnico_svg_v2",
+        "nota": (
+            "ATS/UPS y metadatos de protección/conductor son anotaciones "
+            "visuales; no modifican el cálculo OpenDSS."
+        ),
     }
