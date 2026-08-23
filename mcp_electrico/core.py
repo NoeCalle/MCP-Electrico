@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import opendssdirect as dss
+from opendssdirect import dss
 
 
 _cargas_criticas: set[str] = set()
@@ -22,8 +22,8 @@ def _recalcular_bases_de_tension() -> None:
     if not _voltage_bases:
         return
     niveles = ",".join(str(v) for v in sorted(_voltage_bases, reverse=True))
-    dss.run_command(f"Set VoltageBases=[{niveles}]")
-    dss.run_command("CalcVoltageBases")
+    dss(f"Set VoltageBases=[{niveles}]")
+    dss("CalcVoltageBases")
 
 
 def _elemento_existe(nombre_elemento: str) -> bool:
@@ -80,8 +80,8 @@ def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
     if frecuencia <= 0:
         raise ValueError("frecuencia debe ser mayor que cero.")
 
-    dss.run_command("Clear")
-    dss.run_command(
+    dss("Clear")
+    dss(
         f"New Circuit.{nombre} basekv={kv_base} Frequency={frecuencia}"
     )
 
@@ -106,7 +106,7 @@ def agregar_linea(
     if fases not in (1, 2, 3):
         raise ValueError("fases debe ser 1, 2 o 3.")
 
-    dss.run_command(
+    dss(
         f"New Line.{nombre} Bus1={bus1} Bus2={bus2} Length={longitud_km} "
         f"Units=km Phases={fases} R1={r1_ohm_km} X1={x1_ohm_km}"
     )
@@ -130,7 +130,7 @@ def agregar_transformador(
     if conexion_primario.lower() not in conexiones or conexion_secundario.lower() not in conexiones:
         raise ValueError("Las conexiones admitidas son 'delta' y 'wye'.")
 
-    dss.run_command(
+    dss(
         f"New Transformer.{nombre} Phases=3 Windings=2 "
         f"wdg=1 bus={bus_primario} conn={conexion_primario} "
         f"kv={kv_primario} kva={kva} "
@@ -159,7 +159,7 @@ def agregar_carga(
     if fases not in (1, 2, 3):
         raise ValueError("fases debe ser 1, 2 o 3.")
 
-    dss.run_command(
+    dss(
         f"New Load.{nombre} Bus1={bus} Phases={fases} kV={kv} "
         f"kW={kw} kvar={kvar}"
     )
@@ -182,7 +182,7 @@ def agregar_generador_respaldo(
     """
     if kw <= 0 or kv <= 0:
         raise ValueError("kw y kv deben ser mayores que cero.")
-    dss.run_command(
+    dss(
         f"New Generator.{nombre} Bus1={bus} Phases={fases} kV={kv} kW={kw}"
     )
     return f"Generador de respaldo '{nombre}' agregado en {bus}: {kw} kW"
@@ -190,7 +190,7 @@ def agregar_generador_respaldo(
 
 def ejecutar_flujo_potencia() -> dict[str, Any]:
     _recalcular_bases_de_tension()
-    dss.run_command("Solve")
+    dss("Solve")
 
     voltajes: dict[str, dict[str, Any]] = {}
     for bus in dss.Circuit.AllBusNames():
@@ -215,7 +215,7 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict[str, Any]:
     if bus_falla.lower() not in {b.lower() for b in dss.Circuit.AllBusNames()}:
         raise ValueError(f"Bus no encontrado en el circuito: {bus_falla}")
 
-    dss.run_command("Solve Mode=FaultStudy")
+    dss("Solve Mode=FaultStudy")
     dss.Circuit.SetActiveBus(bus_falla)
     raw = dss.Bus.Isc()
     reales = raw[0::2]
@@ -233,8 +233,8 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict[str, Any]:
 def abrir_elemento(nombre_elemento: str) -> dict[str, Any]:
     if not _elemento_existe(nombre_elemento):
         raise ValueError(f"Elemento no encontrado en el circuito: {nombre_elemento}")
-    dss.run_command(f"Open {nombre_elemento} term=1")
-    dss.run_command("Solve")
+    dss(f"Open {nombre_elemento} term=1")
+    dss("Solve")
     return {
         "elemento": nombre_elemento,
         "abierto": _estado_elemento_abierto(nombre_elemento),
@@ -245,8 +245,8 @@ def abrir_elemento(nombre_elemento: str) -> dict[str, Any]:
 def cerrar_elemento(nombre_elemento: str) -> dict[str, Any]:
     if not _elemento_existe(nombre_elemento):
         raise ValueError(f"Elemento no encontrado en el circuito: {nombre_elemento}")
-    dss.run_command(f"Close {nombre_elemento} term=1")
-    dss.run_command("Solve")
+    dss(f"Close {nombre_elemento} term=1")
+    dss("Solve")
     return {
         "elemento": nombre_elemento,
         "abierto": _estado_elemento_abierto(nombre_elemento),
@@ -269,8 +269,8 @@ def simular_perdida_alimentador(
 
     estaba_abierto = _estado_elemento_abierto(nombre_elemento)
 
-    dss.run_command(f"Open {nombre_elemento} term=1")
-    dss.run_command("Solve")
+    dss(f"Open {nombre_elemento} term=1")
+    dss("Solve")
 
     convergio_contingencia = bool(dss.Solution.Converged())
     perdidas_kw, _ = dss.Circuit.Losses()
@@ -294,10 +294,10 @@ def simular_perdida_alimentador(
 
     if restaurar:
         if estaba_abierto:
-            dss.run_command(f"Open {nombre_elemento} term=1")
+            dss(f"Open {nombre_elemento} term=1")
         else:
-            dss.run_command(f"Close {nombre_elemento} term=1")
-        dss.run_command("Solve")
+            dss(f"Close {nombre_elemento} term=1")
+        dss("Solve")
         resultado["estado_final_elemento"] = (
             "abierto" if estaba_abierto else "cerrado"
         )
@@ -348,7 +348,7 @@ def obtener_netlist(directorio: str = "temp_export") -> dict[str, Any]:
             indice += 1
 
     destino.mkdir(parents=True, exist_ok=True)
-    comando = dss.run_command(f'Save Circuit Dir="{destino}"')
+    comando = dss(f'Save Circuit Dir="{destino}"')
 
     archivos = []
     for archivo in sorted(
