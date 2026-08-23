@@ -78,8 +78,7 @@ def agregar_carga(
     critica: bool = False,
     tipo_visual: str = "tablero",
 ) -> str:
-    """
-    Agrega una carga y permite escoger su símbolo en el unifilar.
+    """Agrega una carga y permite escoger su símbolo en el unifilar.
 
     ``tipo_visual`` admite ``tablero`` (default), ``motor`` o ``carga``.
     La elección es únicamente gráfica y no cambia el modelo OpenDSS.
@@ -96,25 +95,51 @@ def configurar_tipo_carga_unifilar(nombre_carga: str, tipo_visual: str) -> dict:
 
 
 @mcp.tool()
+def configurar_etiqueta_carga_unifilar(nombre_carga: str, etiqueta: str) -> dict:
+    """Define un rótulo de ingeniería para una carga sin renombrarla en OpenDSS."""
+    return visual_state.set_load_label(nombre_carga, etiqueta)
+
+
+@mcp.tool()
+def configurar_bus_unifilar(
+    nombre_bus: str,
+    rol: str = "auto",
+    etiqueta: str = "",
+) -> dict:
+    """Configura si un bus se dibuja como barra física o conexión lógica.
+
+    ``rol`` admite ``auto``, ``barra`` o ``conexion``.
+    """
+    return visual_state.configure_bus(nombre_bus, rol, etiqueta)
+
+
+@mcp.tool()
 def configurar_alimentador_unifilar(
     nombre_elemento: str,
     etiqueta: str = "",
     dispositivos: list[str] | None = None,
     fuente_alterna: str | None = None,
+    proteccion: str = "breaker",
+    conductor: str = "",
+    corriente_nominal_a: float | None = None,
+    capacidad_ruptura_ka: float | None = None,
 ) -> dict:
-    """
-    Configura la representación gráfica de un alimentador.
+    """Configura la representación gráfica de un alimentador.
 
-    ``dispositivos`` admite ``ats`` y ``ups`` y se dibuja en ese orden.
-    ``fuente_alterna`` puede referenciar un ``Generator`` existente para que
-    aparezca entrando lateralmente al ATS. Estas anotaciones NO alteran el
-    cálculo eléctrico de OpenDSS.
+    ``dispositivos`` admite ``ats`` y ``ups``.
+    ``proteccion`` admite ``breaker``, ``mccb``, ``acb``, ``fuse`` o
+    ``isolator``. Los datos de conductor/protección son metadatos visuales y
+    NO alteran el cálculo eléctrico de OpenDSS.
     """
     return visual_state.configure_feeder(
         nombre_elemento,
         etiqueta=etiqueta,
         dispositivos=dispositivos,
         fuente_alterna=fuente_alterna,
+        proteccion=proteccion,
+        conductor=conductor,
+        corriente_nominal_a=corriente_nominal_a,
+        capacidad_ruptura_ka=capacidad_ruptura_ka,
     )
 
 
@@ -128,8 +153,7 @@ def obtener_configuracion_unifilar() -> dict:
 def agregar_generador_respaldo(
     nombre: str, bus: str, kw: float, kv: float, fases: int = 3
 ) -> str:
-    """
-    Agrega un grupo electrógeno/modelo Generator de OpenDSS.
+    """Agrega un grupo electrógeno/modelo Generator de OpenDSS.
 
     No representa una UPS basada en inversor; ese modelo queda fuera del
     alcance actual para evitar atribuirle un comportamiento de falla incorrecto.
@@ -165,14 +189,7 @@ def cerrar_elemento(nombre_elemento: str) -> dict:
 def simular_perdida_alimentador(
     nombre_elemento: str, restaurar: bool = True
 ) -> dict:
-    """
-    Simula una contingencia N-1.
-
-    Con restaurar=True (por defecto), devuelve resultados de la contingencia
-    pero restaura y resuelve el estado original antes de terminar.
-    Con restaurar=False, deja el elemento abierto y la contingencia activa
-    para inspeccionarla o generar un diagrama unifilar.
-    """
+    """Simula una contingencia N-1."""
     return core.simular_perdida_alimentador(nombre_elemento, restaurar)
 
 
@@ -184,28 +201,35 @@ def listar_elementos() -> dict:
 
 @mcp.tool()
 def obtener_netlist(directorio: str = "temp_export") -> dict:
-    """
-    Exporta el circuito y devuelve todos los archivos DSS y su contenido.
-
-    A diferencia de versiones anteriores, esta herramienta sí retorna el
-    netlist generado, no solo un mensaje indicando que se guardó.
-    """
+    """Exporta el circuito y devuelve todos los archivos DSS y su contenido."""
     return core.obtener_netlist(directorio)
 
 
 @mcp.tool()
 def generar_diagrama_unifilar(
     ruta_salida: str = "diagrama_red.html",
-    mostrar_leyenda: bool = True,
+    mostrar_leyenda: bool = False,
     titulo: str | None = None,
+    modo: str = "ingenieria",
+    orientacion: str = "vertical",
+    mostrar_marca: bool = False,
+    mostrar_reglas: bool = False,
 ) -> dict:
-    """
-    Genera un unifilar técnico SVG del estado actualmente resuelto.
+    """Genera un unifilar técnico SVG/HTML del estado actualmente resuelto.
 
-    Usa barras, interruptores y simbología diferenciada en vez de un grafo
-    genérico. Si la salida es HTML, también genera un SVG vectorial compañero.
+    Por defecto usa modo de ingeniería, sin leyenda ni branding. Para depurar
+    el modelo puede usarse ``modo="diagnostico"``. ``orientacion`` admite
+    ``vertical`` y ``horizontal``.
     """
-    return _generar_unifilar(ruta_salida, mostrar_leyenda, titulo)
+    return _generar_unifilar(
+        ruta_salida=ruta_salida,
+        mostrar_leyenda=mostrar_leyenda,
+        titulo=titulo,
+        modo=modo,
+        orientacion=orientacion,
+        mostrar_marca=mostrar_marca,
+        mostrar_reglas=mostrar_reglas,
+    )
 
 
 @mcp.tool()
@@ -215,11 +239,7 @@ def estimar_arc_flash_lee(
     tiempo_despeje_s: float,
     distancia_trabajo_mm: float = 455,
 ) -> dict:
-    """
-    Estimación educativa de energía incidente mediante el método de Lee.
-
-    No implementa IEEE 1584-2018 completo y no asigna categorías PPE.
-    """
+    """Estimación educativa de energía incidente mediante el método de Lee."""
     return core.estimar_arc_flash_lee(
         voltaje_kv, corriente_falla_ka, tiempo_despeje_s, distancia_trabajo_mm
     )
@@ -232,12 +252,7 @@ def calcular_arc_flash(
     tiempo_despeje_s: float,
     distancia_trabajo_mm: float = 455,
 ) -> dict:
-    """
-    Alias compatible con la API v0.5.
-
-    Ejecuta la misma estimación educativa de Lee y ya no convierte el
-    resultado numérico en una categoría PPE.
-    """
+    """Alias compatible con la API v0.5."""
     return core.calcular_arc_flash(
         voltaje_kv, corriente_falla_ka, tiempo_despeje_s, distancia_trabajo_mm
     )
