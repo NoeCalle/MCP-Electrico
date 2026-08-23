@@ -84,25 +84,37 @@ def test_workspace_genera_html_autocontenido_y_svg(tmp_path: Path):
     assert "M-01 · BOMBA" in html
 
 
-def test_error_de_render_no_invalida_estado_electrico(tmp_path: Path, monkeypatch):
+def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
+    tmp_path: Path, monkeypatch
+):
     _build_case()
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
     workspace.configure(str(tmp_path / "workspace.html"), auto_regenerar=False)
+    real_renderer = workspace.generar_diagrama_unifilar
 
     def fail_renderer(*args, **kwargs):
         raise RuntimeError("fallo visual controlado")
 
     monkeypatch.setattr(workspace, "generar_diagrama_unifilar", fail_renderer)
-    # Rehabilitamos solo para probar safe_regenerate sin regenerar en configure.
     workspace.configure(str(tmp_path / "workspace.html"), auto_regenerar=True)
-    result = workspace.safe_regenerate()
-    status = workspace_state.status()
+    failed = workspace.safe_regenerate()
+    failed_status = workspace_state.status()
 
-    assert result["ok"] is False
-    assert status["state"] == "SOLVED"
-    assert status["results_current"] is True
-    assert "fallo visual controlado" in status["workspace_error"]
+    assert failed["ok"] is False
+    assert failed_status["state"] == "SOLVED"
+    assert failed_status["results_current"] is True
+    assert "fallo visual controlado" in failed_status["workspace_error"]
+
+    monkeypatch.setattr(workspace, "generar_diagrama_unifilar", real_renderer)
+    recovered = workspace.safe_regenerate()
+    recovered_status = workspace_state.status()
+    html = Path(recovered["archivo_html"]).read_text(encoding="utf-8")
+
+    assert recovered["ok"] is True
+    assert recovered_status["state"] == "SOLVED"
+    assert recovered_status["workspace_error"] is None
+    assert "fallo visual controlado" not in html
 
 
 def test_snapshot_distingue_modelo_y_metadatos_visuales():
