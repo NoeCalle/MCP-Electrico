@@ -1,173 +1,267 @@
-# OpenDSS MCP Server
+# MCP Eléctrico — OpenDSS
 
-Servidor MCP que permite a Claude modelar y simular redes eléctricas de
-distribución MT/BT (hospitales, edificios, instalaciones críticas) usando
-[OpenDSS](https://www.epri.com/pages/sa/opendss) a través de la librería
+Servidor MCP para modelar, simular e inspeccionar redes eléctricas MT/BT con
+[OpenDSS](https://www.epri.com/pages/sa/opendss) mediante
 `OpenDSSDirect.py`.
+
+El objetivo del proyecto es ofrecer a un cliente MCP herramientas eléctricas
+de alto nivel —crear circuitos, agregar elementos, resolver flujo de potencia,
+cortocircuito y contingencias— sin darle acceso directo e irrestricto al
+intérprete de OpenDSS.
+
+> **Estado:** proyecto educativo / experimental. No sustituye un estudio
+> eléctrico profesional ni software validado para diseño, coordinación de
+> protecciones o seguridad de arco eléctrico.
 
 ## 1. Instalación
 
 Requisitos: Python 3.10 o superior.
 
 ```bash
-cd opendss-mcp
-python3 -m venv venv
-source venv/bin/activate        # En Windows: venv\Scripts\activate
+git clone https://github.com/NoeCalle/MCP-Electrico.git
+cd MCP-Electrico
+
+python -m venv venv
+```
+
+Windows:
+
+```powershell
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Verifica que todo importa correctamente:
+Linux/macOS:
 
 ```bash
-python3 -c "import opendssdirect; import mcp; print('OK')"
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## 2. Probar el servidor de forma aislada (opcional pero recomendado)
-
-Antes de conectarlo a Claude, puedes probar la lógica directamente con el
-caso de estudio incluido:
+Verificación rápida:
 
 ```bash
-python3 examples/hospital_basico.py
+python -c "import opendssdirect; import mcp; import networkx; print('OK')"
 ```
 
-Si ves `"convergio": true` y voltajes en por-unidad cercanos a 1.0, el
-servidor está funcionando correctamente. El script modela un hospital con
-acometida en MT, transformador de distribución, tablero de quirófanos
-(carga crítica) y análisis de contingencia N-1 — ver el código en
-`examples/hospital_basico.py` para el detalle completo.
+## 2. Probar sin un cliente MCP
 
-## 3. Conectar a Claude Desktop
+Los ejemplos importan directamente las funciones de `server.py`:
 
-Abre (o crea) el archivo de configuración de Claude Desktop:
+```bash
+python examples/hospital_basico.py
+python examples/visualizar_hospital.py
+python examples/campus_hospitalario.py
+python examples/arc_flash_campus.py
+```
 
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+Para ejecutar la suite de regresión:
 
-Agrega esta entrada (ajusta la ruta absoluta a donde guardaste el proyecto):
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+También existe un workflow de GitHub Actions que ejecuta `pytest` en cada PR
+y en los pushes a `main`.
+
+## 3. Conectar a un cliente MCP
+
+Ejemplo para Claude Desktop en Windows:
 
 ```json
 {
   "mcpServers": {
     "opendss": {
-      "command": "/ruta/absoluta/a/opendss-mcp/venv/bin/python3",
-      "args": ["/ruta/absoluta/a/opendss-mcp/server.py"]
+      "command": "C:\\ruta\\MCP-Electrico\\venv\\Scripts\\python.exe",
+      "args": ["C:\\ruta\\MCP-Electrico\\server.py"]
     }
   }
 }
 ```
 
-En Windows, la ruta al ejecutable de Python del venv normalmente es
-`...\opendss-mcp\venv\Scripts\python.exe`.
-
-Reinicia Claude Desktop por completo. Deberías ver el ícono de herramientas
-(🔨) con "opendss" listado como servidor conectado.
+En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
+`server.py`.
 
 ## 4. Herramientas disponibles
 
-| Herramienta | Qué hace |
+| Herramienta | Función |
 |---|---|
-| `crear_circuito` | Inicia un circuito nuevo con tensión y frecuencia base |
-| `agregar_linea` | Agrega un tramo de línea/cable entre dos buses |
-| `agregar_transformador` | Agrega un transformador MT/BT |
-| `agregar_carga` | Agrega una carga (tablero, quirófano, etc.), con flag de "crítica" |
-| `agregar_generador_respaldo` | Agrega grupo electrógeno o fuente UPS |
-| `ejecutar_flujo_potencia` | Corre el power flow: voltajes por bus y pérdidas |
-| `ejecutar_cortocircuito` | Calcula corriente de falla trifásica en un bus |
-| `simular_perdida_alimentador` | Análisis de contingencia N-1: abre un elemento y recalcula |
-| `listar_elementos` | Lista buses, líneas, transformadores, cargas, generadores actuales |
-| `generar_diagrama_unifilar` | Genera un diagrama unifilar HTML con símbolos de ingeniería (barras, transformadores, cargas) |
-| `calcular_arc_flash` | Estima energía incidente de arco eléctrico (método de Lee simplificado — solo aprendizaje) |
+| `crear_circuito` | Inicia un circuito y limpia el estado auxiliar previo |
+| `agregar_linea` | Agrega línea/cable con R1/X1 |
+| `agregar_transformador` | Agrega transformador trifásico de dos devanados |
+| `agregar_carga` | Agrega carga y permite marcarla como crítica |
+| `agregar_generador_respaldo` | Agrega un grupo electrógeno mediante `Generator` de OpenDSS |
+| `ejecutar_flujo_potencia` | Resuelve voltajes por bus y pérdidas |
+| `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
+| `abrir_elemento` | Abre un elemento y deja el modelo resuelto en ese estado |
+| `cerrar_elemento` | Cierra un elemento y vuelve a resolver |
+| `simular_perdida_alimentador` | Ejecuta una contingencia N-1 con restauración opcional |
+| `listar_elementos` | Lista buses y elementos principales |
+| `obtener_netlist` | Exporta y devuelve los archivos DSS con su contenido |
+| `generar_diagrama_unifilar` | Genera un unifilar SVG del estado actualmente resuelto |
+| `estimar_arc_flash_lee` | Estimación educativa de energía incidente por Lee |
+| `calcular_arc_flash` | Alias compatible con versiones anteriores |
 
-## 5. Ejemplo de uso conversacional con Claude
+## 5. Contingencias N-1: estado coherente
 
-Una vez conectado, puedes pedirle a Claude cosas como:
+`simular_perdida_alimentador()` ahora distingue dos formas de trabajo.
 
-> "Modela un hospital con una acometida de 13.2 kV, un transformador de
-> 500 kVA a 0.4 kV, un tablero de quirófanos con 50 kW críticos y un
-> tablero de iluminación con 20 kW. Corre el flujo de potencia y dime si
-> los voltajes están dentro de rango normal (±5%)."
+### Resultado temporal y restauración automática
 
-O para análisis de contingencia:
-
-> "Simula qué pasa si se pierde la línea principal de BT. ¿El hospital
-> queda sin servicio en el tablero de quirófanos?"
-
-O para visualizar la red:
-
-> "Genera el diagrama unifilar del circuito actual y ábrelo en el navegador."
-
-## 5.1 Ejemplo de visualización
-
-`examples/visualizar_hospital.py` construye el mismo modelo del hospital y
-genera dos diagramas HTML: uno en condición normal y otro en
-contingencia N-1, para comparar visualmente el efecto de perder el
-alimentador a quirófanos.
-
-```bash
-python3 examples/visualizar_hospital.py
+```python
+resultado = simular_perdida_alimentador(
+    "Line.alimentador_quirofanos",
+    restaurar=True,
+)
 ```
 
-Cada bus se dibuja como una barra horizontal coloreada según su voltaje
-en por-unidad (verde: 0.95–1.05 pu, amarillo: 0.90–1.10 pu, rojo: fuera
-de rango o sin tensión). Transformadores, cargas (rojo si son críticas)
-y generadores se dibujan con símbolos propios — no es un grafo genérico,
-sino un diagrama unifilar con convenciones reales de ingeniería
-eléctrica. Si simulaste una contingencia N-1 antes de generar el
-diagrama, el interruptor correspondiente se ve abierto (con gap y
-etiqueta "ABIERTO") en el punto exacto de la red donde ocurrió.
+El elemento se abre, OpenDSS resuelve la contingencia, se capturan los
+resultados y luego se restaura **el estado original** del elemento. Después de
+restaurarlo, OpenDSS ejecuta `Solve` otra vez.
 
-## 5.2 Caso de estudio: campus con múltiples tableros
+Así se evita el estado inconsistente de versiones anteriores, donde la
+topología podía quedar cerrada mientras los resultados eléctricos todavía
+correspondían al elemento abierto.
 
-`examples/campus_hospitalario.py` modela algo más cercano a un hospital
-real: una sola acometida MT alimentando tres transformadores
-independientes (quirófanos, hospitalización, administración), cada uno
-con varias cargas propias, más un generador de respaldo dedicado al
-tablero más crítico. También corre un análisis N-1 sobre uno de los
-transformadores (no solo sobre líneas).
+### Mantener la contingencia activa
 
-```bash
-python3 examples/campus_hospitalario.py
+```python
+resultado = simular_perdida_alimentador(
+    "Line.alimentador_quirofanos",
+    restaurar=False,
+)
+
+generar_diagrama_unifilar("contingencia.html")
 ```
 
-El diagrama generado (`diagrama_campus.html`) ya distingue visualmente:
-buses (círculos, color por voltaje), transformadores (líneas punteadas
-cobrizas), cargas (cuadrados — rojos si son críticas), y generadores
-(diamantes azules), además de un panel lateral con el resumen del
-circuito (pérdidas, convergencia, conteo de elementos).
+En este caso el elemento permanece abierto y el circuito permanece resuelto
+en contingencia. El unifilar puede mostrar el interruptor abierto y marcar los
+buses que ya no tienen camino eléctrico hacia la fuente.
 
-## 6. Notas técnicas importantes
+Para volver a operación normal:
 
-- **Bases de tensión (`VoltageBases`)**: OpenDSS requiere que se declaren
-  explícitamente los niveles de tensión de la red (`Set VoltageBases=[...]`
-  + `CalcVoltageBases`) para calcular correctamente los valores en
-  por-unidad. El servidor lo hace automáticamente cada vez que agregas un
-  transformador — no necesitas preocuparte por esto en el uso normal.
-- **Persistencia**: el modelo vive en memoria mientras el proceso del
-  servidor MCP esté corriendo. Si cierras Claude Desktop, se pierde. Para
-  guardar un modelo, puedes pedirle a Claude que use `obtener_netlist()` y
-  exportar el script `.dss` resultante.
-- **Limitación actual**: el servidor asume redes trifásicas balanceadas por
-  simplicidad en varios parámetros por defecto (R1/X1). Para modelar
-  desbalance fino (común en BT monofásico/bifásico) se pueden extender las
-  herramientas con parámetros de secuencia cero (R0/X0) y matrices de
-  impedancia — no está incluido en esta versión inicial.
-- **⚠ `calcular_arc_flash` es un método simplificado (Lee/IEEE 1584-2002),
-  NO el modelo empírico completo de IEEE 1584-2018.** Las tablas de
-  regresión del modelo completo son parte de un estándar protegido por
-  IEEE y no están implementadas aquí. El método de Lee es útil para
-  aprender la física y estimar órdenes de magnitud, pero tiende a ser
-  conservador (sobreestima) para equipos en gabinete cerrado, y el tiempo
-  de despeje se da como dato de entrada (no se calcula desde curvas TCC
-  reales de protecciones, que este MCP tampoco modela todavía). **Nunca
-  usar estos resultados para determinar EPP en una instalación real** —
-  para eso se necesita un estudio normado (ETAP u otro software validado)
-  revisado por un ingeniero eléctrico calificado.
+```python
+cerrar_elemento("Line.alimentador_quirofanos")
+```
 
-## 7. Historial de cambios
+## 6. Cargas críticas
 
-Ver [CHANGELOG.md](CHANGELOG.md) para el detalle de qué herramientas se
-agregaron en cada versión, correcciones aplicadas, y qué elementos de
-OpenDSS todavía no están cubiertos (LoadShape, PVSystem, Storage,
-Capacitor, análisis horario, armónicos, visualización de topología, etc.).
-Este proyecto se extiende de forma incremental, un caso de estudio a la vez.
+Las cargas marcadas con `critica=True` se conservan como metadato del modelo.
+
+Durante una contingencia se devuelve, para cada carga crítica:
+
+- bus de conexión;
+- voltajes en pu;
+- indicador de si conserva tensión;
+- lista de cargas críticas sin tensión.
+
+El umbral interno usado para distinguir una barra esencialmente
+desenergizada de una barra con tensión **no es un criterio de cumplimiento de
+calidad de servicio**.
+
+Al crear un circuito nuevo, este registro se limpia junto con OpenDSS para no
+arrastrar metadatos de un modelo anterior.
+
+## 7. Exportación DSS
+
+`obtener_netlist()` ya no devuelve solamente un mensaje de “exportado”.
+
+```python
+resultado = obtener_netlist("mi_exportacion")
+```
+
+Devuelve:
+
+- directorio de exportación;
+- nombre del `Master.dss` cuando exista;
+- número de archivos;
+- nombre, ruta y contenido de cada archivo `.dss`.
+
+Esto permite que el cliente MCP inspeccione o persista el modelo realmente
+generado por OpenDSS.
+
+## 8. Arc Flash: alcance y seguridad
+
+`estimar_arc_flash_lee()` implementa únicamente la ecuación simplificada de
+Lee para fines de aprendizaje y estimación de orden de magnitud.
+
+La herramienta devuelve:
+
+- energía incidente en J/cm²;
+- energía incidente en cal/cm²;
+- frontera de arco estimada.
+
+**No implementa el modelo empírico completo de IEEE 1584-2018.**
+
+Además, el servidor **no convierte la energía incidente calculada en una
+“categoría PPE”**. La selección de EPP requiere aplicar el método y la edición
+vigentes de la norma de seguridad correspondiente; no debe inferirse
+automáticamente de esta herramienta.
+
+`calcular_arc_flash()` se mantiene como alias para no romper clientes que ya
+usaban la API v0.5, pero ahora devuelve la misma salida segura de
+`estimar_arc_flash_lee()`.
+
+## 9. Cortocircuito
+
+`dss.Bus.Isc()` entrega componentes reales e imaginarias intercaladas. El
+servidor calcula explícitamente la magnitud de cada fasor:
+
+```text
+|I| = sqrt(Re(I)^2 + Im(I)^2)
+```
+
+Esto evita reportar como corriente de falla únicamente la parte real del
+fasor.
+
+## 10. Generadores y UPS
+
+`agregar_generador_respaldo()` representa un **grupo electrógeno** mediante el
+objeto `Generator` de OpenDSS.
+
+Una UPS basada en electrónica de potencia no se presenta como equivalente a
+un generador síncrono. Su contribución a falla, controles y límites del
+inversor requieren un modelo específico y quedan pendientes para una versión
+posterior.
+
+## 11. Arquitectura
+
+La lógica dejó de estar concentrada en un único archivo:
+
+```text
+MCP-Electrico/
+├── server.py
+├── mcp_electrico/
+│   ├── __init__.py
+│   ├── core.py
+│   └── visualization.py
+├── examples/
+├── tests/
+├── requirements.txt
+└── requirements-dev.txt
+```
+
+- `server.py`: transporte MCP y contratos públicos de las herramientas.
+- `mcp_electrico/core.py`: lógica eléctrica y estado del modelo.
+- `mcp_electrico/visualization.py`: construcción del unifilar SVG.
+- `tests/`: regresiones numéricas y de estado.
+
+Esta separación permite probar el motor eléctrico sin arrancar MCP.
+
+## 12. Limitaciones actuales
+
+La versión actual todavía simplifica varios aspectos:
+
+- varios elementos usan parámetros de secuencia positiva R1/X1;
+- no hay modelado detallado de R0/X0 o matrices de impedancia;
+- no hay curvas TCC ni coordinación de protecciones;
+- no hay modelo específico de UPS/inversores;
+- no hay `LoadShape`, PV, Storage, capacitores, armónicos ni simulación anual;
+- el unifilar prioriza redes radiales; en redes malladas usa un árbol de
+  expansión para el dibujo;
+- Arc Flash es solo una estimación educativa por Lee.
+
+El siguiente salto de madurez debe centrarse en **casos de validación con
+resultados de referencia**, antes de ampliar agresivamente el número de
+herramientas.

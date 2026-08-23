@@ -1,28 +1,21 @@
 """
-Ejemplo: visualización del circuito hospitalario en dos escenarios.
+Ejemplo: visualización del circuito hospitalario en condición normal y N-1.
 
-Reutiliza el mismo modelo de examples/hospital_basico.py, pero en vez de
-solo imprimir resultados en texto, genera dos diagramas HTML interactivos:
+Genera:
+  - diagrama_normal.html
+  - diagrama_contingencia.html
 
-  - diagrama_normal.html       : ambos alimentadores energizados
-  - diagrama_contingencia.html : alimentador a quirófanos abierto (N-1)
-
-Abre los archivos generados en tu navegador. Cada bus se colorea según su
-voltaje en por-unidad (verde: normal, amarillo: marginal, rojo: fuera de
-rango o sin tensión), y al pasar el mouse sobre un bus o una línea se
-muestra el detalle.
-
-Uso:
-    python3 examples/visualizar_hospital.py
+La contingencia se mantiene activa con restaurar=False para que el unifilar
+pueda representar el elemento abierto y los buses sin camino a la fuente.
+Luego se restaura mediante cerrar_elemento(), que también vuelve a resolver.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import server
-import opendssdirect as dss
 
 
 def construir_modelo():
@@ -44,11 +37,23 @@ def construir_modelo():
         x1_ohm_km=0.3,
     )
     server.agregar_carga(
-        nombre="quirofanos", bus="tablero_quirofanos", kw=50, kvar=20, critica=True
+        nombre="quirofanos",
+        bus="tablero_quirofanos",
+        kw=50,
+        kvar=20,
+        critica=True,
     )
-    server.agregar_carga(nombre="iluminacion_general", bus="tablero_general", kw=20, kvar=5)
+    server.agregar_carga(
+        nombre="iluminacion_general",
+        bus="tablero_general",
+        kw=20,
+        kvar=5,
+    )
     server.agregar_generador_respaldo(
-        nombre="grupo_electrogeno", bus="tablero_general", kw=100, kv=0.4
+        nombre="grupo_electrogeno",
+        bus="tablero_general",
+        kw=100,
+        kv=0.4,
     )
 
 
@@ -58,21 +63,21 @@ def main():
 
     print("\n--- Escenario 1: condición normal ---")
     server.ejecutar_flujo_potencia()
-    resultado = server.generar_diagrama_unifilar("diagrama_normal.html")
-    print(f"Diagrama generado: {resultado['archivo_generado']}")
-    print(f"  Buses: {resultado['buses_dibujados']}, Transformadores: {resultado['transformadores_dibujados']}")
+    normal = server.generar_diagrama_unifilar("diagrama_normal.html")
+    print(f"Diagrama generado: {normal['archivo_generado']}")
 
-    print("\n--- Escenario 2: contingencia N-1 (alimentador a quirófanos abierto) ---")
-    dss.run_command("Open Line.alimentador_quirofanos term=1")
-    dss.run_command("Solve")
-    resultado_cont = server.generar_diagrama_unifilar("diagrama_contingencia.html")
-    print(f"Diagrama generado: {resultado_cont['archivo_generado']}")
-    print("  (el bus tablero_quirofanos debería verse en rojo, sin tensión)")
+    print("\n--- Escenario 2: contingencia N-1 ---")
+    contingencia = server.simular_perdida_alimentador(
+        "Line.alimentador_quirofanos",
+        restaurar=False,
+    )
+    print(contingencia)
+    cont = server.generar_diagrama_unifilar("diagrama_contingencia.html")
+    print(f"Diagrama generado: {cont['archivo_generado']}")
+    print(f"Buses desconectados: {cont['buses_desconectados']}")
 
-    # Restaurar el elemento para dejar el modelo en un estado limpio
-    dss.run_command("Close Line.alimentador_quirofanos term=1")
-
-    print("\nListo. Abre diagrama_normal.html y diagrama_contingencia.html en tu navegador.")
+    server.cerrar_elemento("Line.alimentador_quirofanos")
+    print("\nModelo restaurado y resuelto.")
 
 
 if __name__ == "__main__":
