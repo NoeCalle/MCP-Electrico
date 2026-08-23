@@ -60,7 +60,7 @@ def test_cambio_visual_no_invalida_solucion():
     assert status["visual_revision"] == 1
 
 
-def test_workspace_genera_html_autocontenido_y_svg(tmp_path: Path):
+def test_workspace_genera_html_autocontenido_svg_e_inspector(tmp_path: Path):
     _build_case()
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
@@ -78,10 +78,39 @@ def test_workspace_genera_html_autocontenido_y_svg(tmp_path: Path):
     assert "Imprimir / PDF" in html
     assert "Descargar SVG" in html
     assert 'id="workspace-snapshot"' in html
+    assert 'id="workspace-catalog"' in html
+    assert 'id="elementSelect"' in html
+    assert 'id="inspectorBody"' in html
     assert '"schema_version":1' in html
     assert "F-01" in html
     assert "3x70 mm2 Cu XLPE" in html
     assert "M-01 · BOMBA" in html
+    assert 'data-element-id="Line.f1"' in html
+    assert 'data-element-id="Load.bomba"' in html
+    assert "<script src=" not in html
+    assert '<link rel="stylesheet"' not in html
+
+
+def test_catalogo_interactivo_usa_ids_estables():
+    _build_case()
+    snap = workspace_state.snapshot()
+    catalog = workspace._element_catalog(snap)
+    by_id = {item["id"]: item for item in catalog}
+
+    assert by_id["Line.f1"]["label"] == "F-01"
+    assert by_id["Transformer.tr1"]["label"] == "TR1"
+    assert by_id["Load.bomba"]["label"] == "M-01 · BOMBA"
+    assert by_id["Bus.tgbt"]["kind"] == "bus"
+
+
+def test_filas_de_datos_reutilizan_mismos_ids_del_catalogo():
+    _build_case()
+    snap = workspace_state.snapshot()
+    rows = workspace._data_rows(snap)
+
+    assert 'data-element-id="Line.f1"' in rows
+    assert 'data-element-id="Transformer.tr1"' in rows
+    assert 'data-element-id="Load.bomba"' in rows
 
 
 def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
