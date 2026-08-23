@@ -30,7 +30,8 @@ _runtime: dict[str, Any] = {
     "visual_revision": 0,
     "last_action": None,
     "last_update": None,
-    "error": None,
+    "electrical_error": None,
+    "workspace_error": None,
     "studies": {},
 }
 
@@ -64,7 +65,8 @@ def reset_for_circuit(action: str = "crear_circuito") -> dict[str, Any]:
             "visual_revision": 0,
             "last_action": action,
             "last_update": _now(),
-            "error": None,
+            "electrical_error": None,
+            "workspace_error": None,
             "studies": {},
         }
     )
@@ -80,7 +82,7 @@ def mark_model_changed(action: str) -> dict[str, Any]:
     _runtime["state"] = STATE_MODIFIED
     _runtime["last_action"] = action
     _runtime["last_update"] = _now()
-    _runtime["error"] = None
+    _runtime["electrical_error"] = None
     return status()
 
 
@@ -90,7 +92,6 @@ def mark_visual_changed(action: str) -> dict[str, Any]:
     _runtime["visual_revision"] += 1
     _runtime["last_action"] = action
     _runtime["last_update"] = _now()
-    _runtime["error"] = None
     return status()
 
 
@@ -111,7 +112,7 @@ def record_solution(
     _runtime["state"] = STATE_SOLVED if converged else STATE_ERROR
     _runtime["last_action"] = action
     _runtime["last_update"] = _now()
-    _runtime["error"] = None if converged else "La solución eléctrica no convergió."
+    _runtime["electrical_error"] = None if converged else "La solución eléctrica no convergió."
     return status()
 
 
@@ -128,13 +129,25 @@ def record_study(name: str, result: dict[str, Any], action: str | None = None) -
     return status()
 
 
-def record_error(message: str, action: str = "workspace_error") -> dict[str, Any]:
+def record_electrical_error(message: str, action: str = "electrical_error") -> dict[str, Any]:
     _ensure_circuit_sync()
     _runtime["state"] = STATE_ERROR
-    _runtime["error"] = str(message)
+    _runtime["electrical_error"] = str(message)
     _runtime["last_action"] = action
     _runtime["last_update"] = _now()
     return status()
+
+
+def record_workspace_error(message: str) -> dict[str, Any]:
+    """Registra un fallo de UI sin alterar la validez del estado eléctrico."""
+    _ensure_circuit_sync()
+    _runtime["workspace_error"] = str(message)
+    _runtime["last_update"] = _now()
+    return status()
+
+
+def clear_workspace_error() -> None:
+    _runtime["workspace_error"] = None
 
 
 def status() -> dict[str, Any]:
