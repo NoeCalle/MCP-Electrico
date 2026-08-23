@@ -50,14 +50,6 @@ def _bus_info(bus: str) -> dict[str, Any]:
     }
 
 
-def _conn_text(code: Any) -> str:
-    try:
-        return "delta" if int(code) == 1 else "wye"
-    except Exception:
-        text = str(code).lower()
-        return "delta" if "delta" in text else "wye"
-
-
 def _transformer_info(nombre: str) -> dict[str, Any]:
     result = {
         "kva": None,
@@ -71,10 +63,14 @@ def _transformer_info(nombre: str) -> dict[str, Any]:
         dss.Transformers.Wdg(1)
         result["kva"] = float(dss.Transformers.kVA())
         result["kv_primario"] = float(dss.Transformers.kV())
-        result["conexion_primario"] = _conn_text(dss.Transformers.Conn())
+        result["conexion_primario"] = (
+            "delta" if bool(dss.Transformers.IsDelta()) else "wye"
+        )
         dss.Transformers.Wdg(2)
         result["kv_secundario"] = float(dss.Transformers.kV())
-        result["conexion_secundario"] = _conn_text(dss.Transformers.Conn())
+        result["conexion_secundario"] = (
+            "delta" if bool(dss.Transformers.IsDelta()) else "wye"
+        )
     except Exception:
         pass
     return result
@@ -418,6 +414,7 @@ def generar_diagrama_unifilar(
 
     used_alt_generators: set[str] = set()
     feeder_counter = [1]
+    circuit_counter = [1]
 
     def next_tag(annotation: dict) -> str:
         if annotation.get("etiqueta"):
@@ -551,8 +548,8 @@ def generar_diagrama_unifilar(
             breaker_y = by + 48
             symbol_y = by + 128
             color = sym.INK if energized else sym.DEENERGIZED
-            tag = f"F-{feeder_counter[0]:02d}"
-            feeder_counter[0] += 1
+            tag = f"C-{circuit_counter[0]:02d}"
+            circuit_counter[0] += 1
             body.append(_wire(x, by, x, breaker_y - 12, color))
             body.append(sym.breaker(x, breaker_y, False, color))
             body.append(f'<text x="{x-18:.1f}" y="{breaker_y-18:.1f}" class="feeder-tag" text-anchor="end">{tag}</text>')
