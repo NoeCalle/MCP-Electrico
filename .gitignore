@@ -13,3 +13,10 @@ temp_export/
 # de ejecución, no código fuente. Los ejemplos en examples/ los regeneran
 # cada vez que se corren.
 diagrama_*.html
+unifilar_tecnico.html
+unifilar_tecnico.svg
+
+# Workspace persistente y su SVG compañero. Son artefactos regenerables del
+# circuito activo y no deben versionarse como código fuente.
+workspace*.html
+workspace*_unifilar.svg
