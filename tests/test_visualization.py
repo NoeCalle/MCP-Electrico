@@ -56,6 +56,20 @@ def test_unifilar_usa_simbolos_tecnicos_y_genera_svg(tmp_path: Path):
     assert result["estilo"] == "unifilar_tecnico_svg_v1"
 
 
+def test_transformador_de_cabecera_no_se_duplica_al_ocultar_sourcebus(tmp_path: Path):
+    _build_visual_case()
+    result = generar_diagrama_unifilar(
+        str(tmp_path / "sin_leyenda.svg"), mostrar_leyenda=False
+    )
+    svg = Path(result["archivo_svg"]).read_text(encoding="utf-8")
+
+    # El caso tiene un único transformador físico. La barra sourcebus se
+    # omite visualmente para producir RED -> CB -> TR -> barra BT, por lo que
+    # el transformador no debe reaparecer como una rama aguas abajo.
+    assert svg.count('data-symbol="transformer"') == 1
+    assert "SOURCEBUS" not in svg
+
+
 def test_configuracion_visual_no_modifica_modelo_electrico():
     _build_visual_case()
     elementos_antes = core.listar_elementos()
