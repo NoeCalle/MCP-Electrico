@@ -51,7 +51,7 @@ def _state_label(state: str) -> tuple[str, str]:
         workspace_state.STATE_EMPTY: ("SIN MODELO", "neutral"),
         workspace_state.STATE_MODIFIED: ("MODELO MODIFICADO", "warning"),
         workspace_state.STATE_SOLVED: ("RESUELTO", "ok"),
-        workspace_state.STATE_ERROR: ("ERROR", "error"),
+        workspace_state.STATE_ERROR: ("ERROR ELÉCTRICO", "error"),
     }
     return mapping.get(state, (state, "neutral"))
 
@@ -112,17 +112,23 @@ def _render_html(snapshot: dict[str, Any], svg: str) -> str:
     losses = pf_result.get("perdidas_totales_kw")
     title = _title(snapshot)
     serialized = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    stale_note = ""
+    notices: list[str] = []
     if status["state"] == workspace_state.STATE_MODIFIED:
-        stale_note = (
+        notices.append(
             '<div class="notice warning"><strong>Resultados desactualizados.</strong> '
             "El modelo cambió después de la última solución. Ejecute nuevamente el flujo de potencia antes de interpretar resultados eléctricos.</div>"
         )
     elif status["state"] == workspace_state.STATE_ERROR:
-        stale_note = (
-            '<div class="notice error"><strong>El workspace reporta un error.</strong> '
-            f"{escape(str(status.get('error') or 'Revise el último cálculo.'))}</div>"
+        notices.append(
+            '<div class="notice error"><strong>Error eléctrico.</strong> '
+            f"{escape(str(status.get('electrical_error') or 'Revise el último cálculo.'))}</div>"
         )
+    if status.get("workspace_error"):
+        notices.append(
+            '<div class="notice error"><strong>Error de visualización.</strong> '
+            f"{escape(str(status['workspace_error']))}. El estado eléctrico se conserva independiente de este fallo.</div>"
+        )
+    notices_html = "".join(notices)
 
     return f'''<!doctype html>
 <html lang="es">
@@ -131,7 +137,7 @@ def _render_html(snapshot: dict[str, Any], svg: str) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{escape(title)}</title>
 <style>
-:root {{ color-scheme: light; --ink:#111827; --muted:#6b7280; --line:#d1d5db; --panel:#f8fafc; --blue:#0b3a6e; --ok:#166534; --warn:#92400e; --err:#b91c1c; }}
+:root {{ color-scheme: light; --ink:#111827; --muted:#6b7280; --line:#d1d5db; --blue:#0b3a6e; --ok:#166534; --warn:#92400e; --err:#b91c1c; }}
 * {{ box-sizing:border-box; }}
 body {{ margin:0; font-family:Arial,Helvetica,sans-serif; color:var(--ink); background:#eef2f6; }}
 .shell {{ max-width:1500px; margin:0 auto; padding:20px; }}
@@ -174,7 +180,7 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
   <div><h1>{escape(title)}</h1><div class="meta">Circuito: {escape(str(snapshot['model'].get('circuit') or '—'))} · Revisión modelo: {status['model_revision']} · Revisión visual: {status['visual_revision']}</div></div>
   <div class="status {tone}">{escape(label)}</div>
 </header>
-{stale_note}
+{notices_html}
 <div class="summary">
   <div class="card"><div class="k">Buses</div><div class="v">{len(snapshot['model'].get('buses', []))}</div></div>
   <div class="card"><div class="k">Alimentadores</div><div class="v">{len(snapshot['model'].get('lines', []))}</div></div>
@@ -244,6 +250,7 @@ def regenerate() -> dict[str, Any]:
         svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300"><text x="400" y="150" text-anchor="middle" font-family="Arial" fill="#6b7280">Circuito vacío</text></svg>'
 
     path.write_text(_render_html(snapshot, svg), encoding="utf-8")
+    workspace_state.clear_workspace_error()
     _config["last_generation"] = str(path.resolve())
     return {
         "ok": True,
@@ -259,8 +266,8 @@ def safe_regenerate() -> dict[str, Any]:
         return {"ok": True, "skipped": True, "reason": "auto_regenerate desactivado"}
     try:
         return regenerate()
-    except Exception as exc:  # la UI no debe invalidar una operación eléctrica válida
-        workspace_state.record_error(str(exc), "regenerar_workspace")
+    except Exception as exc:
+        workspace_state.record_workspace_error(str(exc))
         return {"ok": False, "error": str(exc)}
 
 
