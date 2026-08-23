@@ -230,6 +230,9 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
 
 def regenerate() -> dict[str, Any]:
     """Regenera el workspace a partir del circuito y estado actuales."""
+    # Si una regeneración anterior falló, una nueva ejecución exitosa debe
+    # producir un HTML limpio, no volver a serializar el error ya recuperado.
+    workspace_state.clear_workspace_error()
     snapshot = workspace_state.snapshot()
     path: Path = _config["path"]
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -250,7 +253,6 @@ def regenerate() -> dict[str, Any]:
         svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300"><text x="400" y="150" text-anchor="middle" font-family="Arial" fill="#6b7280">Circuito vacío</text></svg>'
 
     path.write_text(_render_html(snapshot, svg), encoding="utf-8")
-    workspace_state.clear_workspace_error()
     _config["last_generation"] = str(path.resolve())
     return {
         "ok": True,
