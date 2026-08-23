@@ -39,12 +39,9 @@ def main() -> None:
     server.agregar_generador_respaldo("ge_01", "tcrit_01", 100, 0.48)
     server.configurar_alimentador_unifilar(
         "Line.f_critico",
-        etiqueta="F-03",
         dispositivos=["ats", "ups"],
         fuente_alterna="Generator.ge_01",
     )
-    server.configurar_alimentador_unifilar("Line.f_motor", etiqueta="F-01")
-    server.configurar_alimentador_unifilar("Line.f_alumbrado", etiqueta="F-02")
 
     server.ejecutar_flujo_potencia()
     resultado = server.generar_diagrama_unifilar(
