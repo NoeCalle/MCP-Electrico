@@ -25,7 +25,7 @@ from . import visual_symbols as sym
 PAGE_MARGIN = 38
 HEADER_H = 72
 NET_TOP = 105
-TIER_H = 235
+TIER_H = 300
 BRANCH_W = 215
 LEGEND_W = 220
 
@@ -281,6 +281,13 @@ def _load_symbol_name(tipo_visual: str) -> str:
         "motor": "motor",
         "carga": "load",
     }.get(tipo_visual, "panel")
+
+
+def _child_sort_key(parent: str, child: str, connections: dict) -> tuple[str, str]:
+    dato = connections.get((parent, child), {})
+    annotation = visual_state.get_feeder(dato.get("full_name", ""))
+    etiqueta = str(annotation.get("etiqueta") or "").strip()
+    return (etiqueta or "~", _engineering_name(child))
 
 
 def _voltage_color(energized: bool, vpu: float) -> str:
@@ -561,7 +568,10 @@ def generar_diagrama_unifilar(
     base_y = 300 if hidden_root_edge else 225
 
     def layout(bus: str, depth: int) -> float:
-        children = sorted(layout_tree.successors(bus))
+        children = sorted(
+            layout_tree.successors(bus),
+            key=lambda c: _child_sort_key(bus, c, connections),
+        )
         child_xs = [layout(child, depth + 1) for child in children]
         loads = sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])
         gens = sorted(
@@ -700,7 +710,6 @@ def generar_diagrama_unifilar(
         body.append(mapper.protection(sx, breaker_y, "breaker", False, sym.INK))
         body.append(mapper.wire(sx, breaker_y + 13, sx, root_y))
 
-    # Barras físicas primero.
     for bus in sorted(pos_bus, key=lambda b: (pos_bus[b][1], pos_bus[b][0])):
         if bus == root and hidden_root_edge:
             continue
@@ -740,14 +749,16 @@ def generar_diagrama_unifilar(
             f'fill="{vcolor}">{escape(state)}</text>'
         )
 
-    # Derivaciones entre buses.
     for bus in sorted(pos_bus, key=lambda b: (pos_bus[b][1], pos_bus[b][0])):
         if bus not in layout_tree:
             continue
         bx, by = pos_bus[bus]
         parent_bar = physical.get(bus, False)
 
-        for child in sorted(layout_tree.successors(bus), key=lambda c: pos_bus[c][0]):
+        for child in sorted(
+            layout_tree.successors(bus),
+            key=lambda c: _child_sort_key(bus, c, connections),
+        ):
             cx, cy = pos_bus[child]
             dato = connections[(bus, child)]
             annotation = visual_state.get_feeder(dato["full_name"])
@@ -780,7 +791,7 @@ def generar_diagrama_unifilar(
                 detail = _feeder_detail(annotation, str(dato["nombre"]), mode)
                 if detail:
                     body.append(
-                        mapper.label(cx + 17, breaker_y - 12, detail, cls="label-dim")
+                        mapper.label(cx + 24, breaker_y - 10, detail, cls="label-dim")
                     )
                 if opened:
                     body.append(
@@ -790,7 +801,6 @@ def generar_diagrama_unifilar(
                     )
                 current_y = breaker_y + 13
             else:
-                # Un bus lógico intermedio no inventa una nueva protección.
                 if mode == "diagnostico":
                     body.append(mapper.junction(bx, by, path_color))
 
@@ -807,7 +817,6 @@ def generar_diagrama_unifilar(
                     ats_y = current_y + 70
                     alt = annotation.get("fuente_alterna")
                     if alt:
-                        # Entrada normal a la izquierda del ATS.
                         body.append(
                             mapper.wire(cx, current_y, cx, ats_y - 35, path_color)
                         )
@@ -831,9 +840,22 @@ def generar_diagrama_unifilar(
                             gx, gy = cx + 105, ats_y - 35
                             body.append(mapper.symbol("generator", gx, gy, path_color))
                             body.append(mapper.symbol("ground", gx, gy + 23, path_color))
+                            knee_x = cx + 58
+                            body.append(
+                                mapper.wire(gx - 22, gy, knee_x, gy, path_color)
+                            )
                             body.append(
                                 mapper.wire(
-                                    gx - 22, gy, cx + 14, ats_y - 14, path_color
+                                    knee_x, gy, knee_x, ats_y - 14, path_color
+                                )
+                            )
+                            body.append(
+                                mapper.wire(
+                                    knee_x,
+                                    ats_y - 14,
+                                    cx + 14,
+                                    ats_y - 14,
+                                    path_color,
                                 )
                             )
                             glines = [_engineering_name(str(gen["nombre"]))]
@@ -873,8 +895,6 @@ def generar_diagrama_unifilar(
                 if mode == "diagnostico" or len(list(layout_tree.successors(child))) > 1:
                     body.append(mapper.junction(cx, cy, path_color))
 
-    # Cargas/generadores terminales de buses lógicos: se conectan directamente
-    # al alimentador, evitando barras y breakers ficticios.
     for bus, (bx, by) in pos_bus.items():
         if physical.get(bus, False):
             continue
@@ -911,7 +931,6 @@ def generar_diagrama_unifilar(
                     mapper.label(bx, by + 56, lines, anchor="middle", cls="label")
                 )
 
-    # Circuitos locales de barras físicas.
     for bus, (bx, by) in pos_bus.items():
         if not physical.get(bus, False):
             continue
