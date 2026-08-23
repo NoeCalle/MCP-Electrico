@@ -65,15 +65,30 @@ def transformer(
     conexion_secundario: str | None = None,
 ) -> str:
     r = 19
-    prim = "Δ" if (conexion_primario or "").lower() == "delta" else "Y"
-    sec = "Δ" if (conexion_secundario or "").lower() == "delta" else "Y"
+
+    def connection_note(connection: str | None) -> str | None:
+        if connection is None:
+            return None
+        return "Δ" if connection.lower() == "delta" else "Y"
+
+    prim = connection_note(conexion_primario)
+    sec = connection_note(conexion_secundario)
+    notes = ""
+    if prim:
+        notes += (
+            f'<text x="{_n(x+29)}" y="{_n(y-13)}" '
+            f'class="sym-note" stroke="none">{escape(prim)}</text>'
+        )
+    if sec:
+        notes += (
+            f'<text x="{_n(x+29)}" y="{_n(y+20)}" '
+            f'class="sym-note" stroke="none">{escape(sec)}</text>'
+        )
     return (
         f'<g data-symbol="transformer" {_stroke(color)}>'
         f'<circle cx="{_n(x)}" cy="{_n(y-12)}" r="{r}"/>'
         f'<circle cx="{_n(x)}" cy="{_n(y+12)}" r="{r}"/>'
-        f'<text x="{_n(x+29)}" y="{_n(y-13)}" class="sym-note">{escape(prim)}</text>'
-        f'<text x="{_n(x+29)}" y="{_n(y+20)}" class="sym-note">{escape(sec)}</text>'
-        '</g>'
+        f'{notes}</g>'
     )
 
 
@@ -103,8 +118,10 @@ def motor(x: float, y: float, color: str = INK) -> str:
     return (
         f'<g data-symbol="motor" {_stroke(color)}>'
         f'<circle cx="{_n(x)}" cy="{_n(y)}" r="22"/>'
-        f'<text x="{_n(x)}" y="{_n(y-2)}" class="sym-main" text-anchor="middle">M</text>'
-        f'<text x="{_n(x)}" y="{_n(y+12)}" class="sym-small" text-anchor="middle">3~</text>'
+        f'<text x="{_n(x)}" y="{_n(y-2)}" class="sym-main" '
+        f'text-anchor="middle" stroke="none">M</text>'
+        f'<text x="{_n(x)}" y="{_n(y+12)}" class="sym-small" '
+        f'text-anchor="middle" stroke="none">3~</text>'
         '</g>'
     )
 
@@ -127,7 +144,8 @@ def ats(x: float, y: float, color: str = INK) -> str:
         f'<circle cx="{_n(x)}" cy="{_n(y+11)}" r="2.3" fill="{color}" stroke="none"/>'
         f'<line x1="{_n(x-15)}" y1="{_n(y-10)}" x2="{_n(x)}" y2="{_n(y+11)}"/>'
         f'<line x1="{_n(x+15)}" y1="{_n(y-10)}" x2="{_n(x+3)}" y2="{_n(y+7)}" stroke-dasharray="3,3"/>'
-        f'<text x="{_n(x)}" y="{_n(y-25)}" class="sym-small" text-anchor="middle">ATS</text>'
+        f'<text x="{_n(x)}" y="{_n(y-25)}" class="sym-small" '
+        f'text-anchor="middle" stroke="none">ATS</text>'
         '</g>'
     )
 
@@ -141,7 +159,8 @@ def ups(x: float, y: float, color: str = INK) -> str:
         f'<path d="M {_n(x-19)} {_n(y-7)} C {_n(x-14)} {_n(y-15)}, {_n(x-8)} {_n(y+1)}, {_n(x-3)} {_n(y-7)}"/>'
         f'<line x1="{_n(x+5)}" y1="{_n(y+8)}" x2="{_n(x+19)}" y2="{_n(y+8)}"/>'
         f'<line x1="{_n(x+5)}" y1="{_n(y+13)}" x2="{_n(x+19)}" y2="{_n(y+13)}"/>'
-        f'<text x="{_n(x)}" y="{_n(y-25)}" class="sym-small" text-anchor="middle">UPS</text>'
+        f'<text x="{_n(x)}" y="{_n(y-25)}" class="sym-small" '
+        f'text-anchor="middle" stroke="none">UPS</text>'
         '</g>'
     )
 
@@ -150,8 +169,10 @@ def generator(x: float, y: float, color: str = INK) -> str:
     return (
         f'<g data-symbol="generator" {_stroke(color)}>'
         f'<circle cx="{_n(x)}" cy="{_n(y)}" r="23"/>'
-        f'<text x="{_n(x)}" y="{_n(y-3)}" class="sym-main" text-anchor="middle">G</text>'
-        f'<text x="{_n(x)}" y="{_n(y+12)}" class="sym-small" text-anchor="middle">3~</text>'
+        f'<text x="{_n(x)}" y="{_n(y-3)}" class="sym-main" '
+        f'text-anchor="middle" stroke="none">G</text>'
+        f'<text x="{_n(x)}" y="{_n(y+12)}" class="sym-small" '
+        f'text-anchor="middle" stroke="none">3~</text>'
         '</g>'
     )
 
