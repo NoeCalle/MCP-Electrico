@@ -18,3 +18,15 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run tests
         run: python -m pytest -q
+      - name: Generate technical single-line diagram
+        run: |
+          python examples/unifilar_tecnico.py
+          test -s unifilar_tecnico.svg
+          test -s unifilar_tecnico.html
+      - name: Upload technical single-line diagram
+        uses: actions/upload-artifact@v4
+        with:
+          name: unifilar-tecnico
+          path: |
+            unifilar_tecnico.svg
+            unifilar_tecnico.html

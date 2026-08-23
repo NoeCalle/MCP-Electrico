@@ -7,7 +7,7 @@ arrancar el transporte MCP. Este archivo expone wrappers estables como tools.
 
 from __future__ import annotations
 
-from mcp_electrico import core
+from mcp_electrico import core, visual_state
 from mcp_electrico.visualization import generar_diagrama_unifilar as _generar_unifilar
 
 try:
@@ -22,7 +22,9 @@ mcp = _MCPServerClass("opendss-mcp")
 @mcp.tool()
 def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
     """Crea un circuito nuevo y limpia cualquier modelo/estado auxiliar previo."""
-    return core.crear_circuito(nombre, kv_base, frecuencia)
+    resultado = core.crear_circuito(nombre, kv_base, frecuencia)
+    visual_state.reset()
+    return resultado
 
 
 @mcp.tool()
@@ -74,9 +76,52 @@ def agregar_carga(
     fases: int = 3,
     kv: float = 0.22,
     critica: bool = False,
+    tipo_visual: str = "tablero",
 ) -> str:
-    """Agrega una carga y opcionalmente la marca como crítica para contingencias."""
-    return core.agregar_carga(nombre, bus, kw, kvar, fases, kv, critica)
+    """
+    Agrega una carga y permite escoger su símbolo en el unifilar.
+
+    ``tipo_visual`` admite ``tablero`` (default), ``motor`` o ``carga``.
+    La elección es únicamente gráfica y no cambia el modelo OpenDSS.
+    """
+    resultado = core.agregar_carga(nombre, bus, kw, kvar, fases, kv, critica)
+    visual_state.set_load_type(nombre, tipo_visual)
+    return resultado
+
+
+@mcp.tool()
+def configurar_tipo_carga_unifilar(nombre_carga: str, tipo_visual: str) -> dict:
+    """Cambia el símbolo de una carga existente: tablero, motor o carga genérica."""
+    return visual_state.set_load_type(nombre_carga, tipo_visual)
+
+
+@mcp.tool()
+def configurar_alimentador_unifilar(
+    nombre_elemento: str,
+    etiqueta: str = "",
+    dispositivos: list[str] | None = None,
+    fuente_alterna: str | None = None,
+) -> dict:
+    """
+    Configura la representación gráfica de un alimentador.
+
+    ``dispositivos`` admite ``ats`` y ``ups`` y se dibuja en ese orden.
+    ``fuente_alterna`` puede referenciar un ``Generator`` existente para que
+    aparezca entrando lateralmente al ATS. Estas anotaciones NO alteran el
+    cálculo eléctrico de OpenDSS.
+    """
+    return visual_state.configure_feeder(
+        nombre_elemento,
+        etiqueta=etiqueta,
+        dispositivos=dispositivos,
+        fuente_alterna=fuente_alterna,
+    )
+
+
+@mcp.tool()
+def obtener_configuracion_unifilar() -> dict:
+    """Devuelve los metadatos de representación visual del circuito activo."""
+    return visual_state.snapshot()
 
 
 @mcp.tool()
@@ -149,14 +194,18 @@ def obtener_netlist(directorio: str = "temp_export") -> dict:
 
 
 @mcp.tool()
-def generar_diagrama_unifilar(ruta_salida: str = "diagrama_red.html") -> dict:
+def generar_diagrama_unifilar(
+    ruta_salida: str = "diagrama_red.html",
+    mostrar_leyenda: bool = True,
+    titulo: str | None = None,
+) -> dict:
     """
-    Genera un unifilar SVG del estado actualmente resuelto.
+    Genera un unifilar técnico SVG del estado actualmente resuelto.
 
-    Los elementos abiertos se muestran como abiertos y los buses sin camino
-    eléctrico hacia la fuente se identifican como desconectados.
+    Usa barras, interruptores y simbología diferenciada en vez de un grafo
+    genérico. Si la salida es HTML, también genera un SVG vectorial compañero.
     """
-    return _generar_unifilar(ruta_salida)
+    return _generar_unifilar(ruta_salida, mostrar_leyenda, titulo)
 
 
 @mcp.tool()

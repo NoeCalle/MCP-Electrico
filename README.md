@@ -6,8 +6,8 @@ Servidor MCP para modelar, simular e inspeccionar redes eléctricas MT/BT con
 
 El objetivo del proyecto es ofrecer a un cliente MCP herramientas eléctricas
 de alto nivel —crear circuitos, agregar elementos, resolver flujo de potencia,
-cortocircuito y contingencias— sin darle acceso directo e irrestricto al
-intérprete de OpenDSS.
+cortocircuito, contingencias y generar diagramas unifilares— sin darle acceso
+directo e irrestricto al intérprete de OpenDSS.
 
 > **Estado:** proyecto educativo / experimental. No sustituye un estudio
 > eléctrico profesional ni software validado para diseño, coordinación de
@@ -53,7 +53,12 @@ python examples/hospital_basico.py
 python examples/visualizar_hospital.py
 python examples/campus_hospitalario.py
 python examples/arc_flash_campus.py
+python examples/unifilar_tecnico.py
 ```
+
+El último ejemplo genera `unifilar_tecnico.svg` y `unifilar_tecnico.html`
+con fuente, interruptores, transformador, barras, alimentadores, motor,
+tableros, ATS, UPS, grupo electrógeno y tierra.
 
 Para ejecutar la suite de regresión:
 
@@ -62,8 +67,8 @@ pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-También existe un workflow de GitHub Actions que ejecuta `pytest` en cada PR
-y en los pushes a `main`.
+También existe un workflow de GitHub Actions que ejecuta `pytest`, genera el
+unifilar técnico de referencia y lo conserva como artefacto en cada PR.
 
 ## 3. Conectar a un cliente MCP
 
@@ -90,7 +95,10 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `crear_circuito` | Inicia un circuito y limpia el estado auxiliar previo |
 | `agregar_linea` | Agrega línea/cable con R1/X1 |
 | `agregar_transformador` | Agrega transformador trifásico de dos devanados |
-| `agregar_carga` | Agrega carga y permite marcarla como crítica |
+| `agregar_carga` | Agrega carga, criticidad y tipo visual opcional |
+| `configurar_tipo_carga_unifilar` | Elige símbolo de tablero, motor o carga genérica |
+| `configurar_alimentador_unifilar` | Añade etiqueta y anotaciones ATS/UPS a un alimentador |
+| `obtener_configuracion_unifilar` | Devuelve los metadatos visuales del circuito activo |
 | `agregar_generador_respaldo` | Agrega un grupo electrógeno mediante `Generator` de OpenDSS |
 | `ejecutar_flujo_potencia` | Resuelve voltajes por bus y pérdidas |
 | `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
@@ -99,13 +107,61 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `simular_perdida_alimentador` | Ejecuta una contingencia N-1 con restauración opcional |
 | `listar_elementos` | Lista buses y elementos principales |
 | `obtener_netlist` | Exporta y devuelve los archivos DSS con su contenido |
-| `generar_diagrama_unifilar` | Genera un unifilar SVG del estado actualmente resuelto |
+| `generar_diagrama_unifilar` | Genera un unifilar técnico SVG/HTML del estado resuelto |
 | `estimar_arc_flash_lee` | Estimación educativa de energía incidente por Lee |
 | `calcular_arc_flash` | Alias compatible con versiones anteriores |
 
+### 4.1 Unifilar técnico SVG
+
+La visualización ya no usa la estética de un grafo genérico. El renderer sigue
+reglas explícitas de diagrama unifilar:
+
+1. flujo principal de energía de arriba hacia abajo;
+2. barras representadas como líneas horizontales gruesas;
+3. una línea por alimentador y derivaciones ortogonales;
+4. interruptor en cabecera de cada alimentador;
+5. simbología consistente para fuente, transformador, tablero, motor, ATS,
+   UPS, generador y tierra;
+6. alimentadores principales `F-01`, `F-02`, etc. y circuitos secundarios
+   `C-01`, `C-02`, etc.;
+7. transformadores con potencia, relación de tensión y conexión Δ/Y cuando la
+   información está disponible en OpenDSS;
+8. buses con tensión nominal y valor en pu;
+9. elementos abiertos y barras desenergizadas diferenciados visualmente.
+
+Ejemplo:
+
+```python
+agregar_carga(
+    "motor_bomba",
+    "mcc_01",
+    kw=75,
+    kvar=30,
+    kv=0.48,
+    tipo_visual="motor",
+)
+
+configurar_alimentador_unifilar(
+    "Line.f_critico",
+    dispositivos=["ats", "ups"],
+    fuente_alterna="Generator.ge_01",
+)
+
+ejecutar_flujo_potencia()
+generar_diagrama_unifilar("hospital.html", titulo="Hospital — Diagrama unifilar")
+```
+
+Si la ruta termina en `.html`, se genera además un `.svg` vectorial compañero.
+La especificación visual completa está en `docs/UNIFILAR_TECNICO.md`.
+
+**ATS y UPS son, por ahora, anotaciones de representación.** Sirven para que el
+unifilar documente la arquitectura prevista sin afirmar que OpenDSS ya modela
+su electrónica interna, transferencia, autonomía o contribución de falla. Esas
+anotaciones no cambian impedancias ni resultados eléctricos.
+
 ## 5. Contingencias N-1: estado coherente
 
-`simular_perdida_alimentador()` ahora distingue dos formas de trabajo.
+`simular_perdida_alimentador()` distingue dos formas de trabajo.
 
 ### Resultado temporal y restauración automática
 
@@ -227,7 +283,7 @@ posterior.
 
 ## 11. Arquitectura
 
-La lógica dejó de estar concentrada en un único archivo:
+La lógica está separada por responsabilidad:
 
 ```text
 MCP-Electrico/
@@ -235,8 +291,13 @@ MCP-Electrico/
 ├── mcp_electrico/
 │   ├── __init__.py
 │   ├── core.py
-│   └── visualization.py
+│   ├── visualization.py
+│   ├── visual_state.py
+│   └── visual_symbols.py
+├── docs/
+│   └── UNIFILAR_TECNICO.md
 ├── examples/
+│   └── unifilar_tecnico.py
 ├── tests/
 ├── requirements.txt
 └── requirements-dev.txt
@@ -244,10 +305,14 @@ MCP-Electrico/
 
 - `server.py`: transporte MCP y contratos públicos de las herramientas.
 - `mcp_electrico/core.py`: lógica eléctrica y estado del modelo.
-- `mcp_electrico/visualization.py`: construcción del unifilar SVG.
-- `tests/`: regresiones numéricas y de estado.
+- `mcp_electrico/visualization.py`: topología, layout y render SVG.
+- `mcp_electrico/visual_symbols.py`: biblioteca vectorial de símbolos.
+- `mcp_electrico/visual_state.py`: metadatos de representación que no alteran
+  el cálculo eléctrico.
+- `tests/`: regresiones numéricas, de estado y de representación.
 
-Esta separación permite probar el motor eléctrico sin arrancar MCP.
+Esta separación permite probar el motor eléctrico sin arrancar MCP y evolucionar
+la simbología sin mezclarla con la lógica de cálculo.
 
 ## 12. Limitaciones actuales
 
@@ -256,10 +321,13 @@ La versión actual todavía simplifica varios aspectos:
 - varios elementos usan parámetros de secuencia positiva R1/X1;
 - no hay modelado detallado de R0/X0 o matrices de impedancia;
 - no hay curvas TCC ni coordinación de protecciones;
-- no hay modelo específico de UPS/inversores;
+- ATS/UPS pueden documentarse visualmente, pero todavía no tienen modelo
+  eléctrico detallado propio;
 - no hay `LoadShape`, PV, Storage, capacitores, armónicos ni simulación anual;
 - el unifilar prioriza redes radiales; en redes malladas usa un árbol de
   expansión para el dibujo;
+- el SVG es un unifilar técnico, no un plano CAD contractual ni una biblioteca
+  normativa completa de símbolos IEC/ANSI;
 - Arc Flash es solo una estimación educativa por Lee.
 
 El siguiente salto de madurez debe centrarse en **casos de validación con
