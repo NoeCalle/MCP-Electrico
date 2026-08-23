@@ -59,7 +59,7 @@ Para ejecutar la suite de regresión:
 
 ```bash
 pip install -r requirements-dev.txt
-pytest -q
+python -m pytest -q
 ```
 
 También existe un workflow de GitHub Actions que ejecuta `pytest` en cada PR
