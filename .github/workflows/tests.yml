@@ -23,10 +23,20 @@ jobs:
           python examples/unifilar_tecnico.py
           test -s unifilar_tecnico.svg
           test -s unifilar_tecnico.html
-      - name: Upload technical single-line diagram
+      - name: Generate persistent workspace
+        run: |
+          python examples/workspace_hospital.py
+          test -s workspace_hospital.html
+          test -s workspace_hospital_unifilar.svg
+          grep -q "RESUELTO" workspace_hospital.html
+          grep -q "Imprimir / PDF" workspace_hospital.html
+          grep -q "workspace-snapshot" workspace_hospital.html
+      - name: Upload visual artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: unifilar-tecnico
+          name: mcp-electrico-visuals
           path: |
             unifilar_tecnico.svg
             unifilar_tecnico.html
+            workspace_hospital.html
+            workspace_hospital_unifilar.svg
