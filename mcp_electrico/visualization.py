@@ -333,6 +333,9 @@ def generar_diagrama_unifilar(
     generators_by_bus = model["generators_by_bus"]
     generator_index = model["generator_index"]
 
+    # Si la fuente tiene un único transformador y ninguna carga local, se
+    # representa como en un unifilar típico: RED -> CB -> TR -> barra BT,
+    # sin dibujar una barra MT artificial entre medio.
     root_children = list(tree.successors(root)) if root in tree else []
     hidden_root_edge: tuple[str, str] | None = None
     diagram_root = root
@@ -343,7 +346,13 @@ def generar_diagrama_unifilar(
             hidden_root_edge = (root, child)
             diagram_root = child
 
-    layout_tree = nx.bfs_tree(model["total"], diagram_root)
+    # Árbol de layout re-enraizado en la barra que realmente se dibujará.
+    # Cuando ocultamos la barra de fuente, retiramos sourcebus del grafo visual
+    # para que no reaparezca aguas abajo del transformador.
+    layout_graph = model["total"].copy()
+    if hidden_root_edge and root in layout_graph:
+        layout_graph.remove_node(root)
+    layout_tree = nx.bfs_tree(layout_graph, diagram_root)
 
     leaf_cursor = [PAGE_MARGIN + 60]
     pos_bus: dict[str, tuple[float, float]] = {}
@@ -379,6 +388,8 @@ def generar_diagrama_unifilar(
 
     layout(diagram_root, 0)
 
+    # Topología fuera del componente principal: se agrega en una columna de
+    # aviso, sin fingir continuidad eléctrica.
     outside = [b for b in buses if b not in pos_bus and b != root]
     for i, bus in enumerate(outside):
         x = leaf_cursor[0]
@@ -398,6 +409,7 @@ def generar_diagrama_unifilar(
     body.append(_wire(PAGE_MARGIN, 52, min(diagram_width - 30, PAGE_MARGIN + 520), 52, sym.BLUE, 3.0))
     body.append(f'<text x="{PAGE_MARGIN}" y="69" class="subtitle">MCP ELÉCTRICO · OPENDSS · REPRESENTACIÓN TÉCNICA</text>')
 
+    # Fuente.
     sx = pos_bus[diagram_root][0]
     sy = HEADER_H + 36
     source_nom = info_bus[root]["kv_nominal"]
@@ -414,6 +426,7 @@ def generar_diagrama_unifilar(
         feeder_counter[0] += 1
         return tag
 
+    # Tramo fuente -> primera barra, con transformador si se ocultó root.
     if hidden_root_edge:
         dato = connections[hidden_root_edge]
         open_state = bool(dato["abierta"])
@@ -450,6 +463,7 @@ def generar_diagrama_unifilar(
         body.append(sym.breaker(sx, breaker_y, False))
         body.append(_wire(sx, breaker_y + 12, sx, root_y))
 
+    # Barras y derivaciones.
     for bus in sorted(pos_bus, key=lambda b: (pos_bus[b][1], pos_bus[b][0])):
         if bus == root and hidden_root_edge:
             continue
@@ -465,6 +479,7 @@ def generar_diagrama_unifilar(
         body.append(f'<text x="{bar_right+12:.1f}" y="{by-7:.1f}" class="bus-name">{escape(bus.upper())}</text>')
         body.append(f'<text x="{bar_right+12:.1f}" y="{by+10:.1f}" class="bus-state" fill="{vcolor}">{escape(state)}</text>')
 
+        # Hacia buses hijos.
         if bus in layout_tree:
             for child in sorted(layout_tree.successors(bus), key=lambda c: pos_bus[c][0]):
                 cx, cy = pos_bus[child]
@@ -529,6 +544,7 @@ def generar_diagrama_unifilar(
                     body.append(f'<text x="{cx+15:.1f}" y="{(current_y+cy)/2:.1f}" class="label-dim">{escape(str(dato["nombre"]))}</text>')
                 body.append(_wire(cx, current_y, cx, cy, path_color))
 
+        # Cargas terminales.
         loads = sorted(loads_by_bus.get(bus, []), key=lambda x: x["nombre"])
         for i, load in enumerate(loads):
             x = pos_load[(bus, i)]
@@ -553,6 +569,7 @@ def generar_diagrama_unifilar(
             if load["critica"]:
                 body.append(f'<text x="{x:.1f}" y="{symbol_y+87:.1f}" text-anchor="middle" class="critical">CARGA CRÍTICA</text>')
 
+        # Generadores que no se usaron como fuente alterna de un ATS.
         generators = sorted(generators_by_bus.get(bus, []), key=lambda x: x["nombre"])
         for i, gen in enumerate(generators):
             if str(gen["nombre"]).lower() in used_alt_generators:
@@ -578,6 +595,7 @@ def generar_diagrama_unifilar(
         for i, bus in enumerate(outside):
             body.append(f'<text x="{ox:.1f}" y="{oy+20+i*16:.1f}" class="label-dim">• {escape(bus)}</text>')
 
+    # Leyenda separada del dibujo para no contaminar el unifilar.
     if mostrar_leyenda:
         lx = diagram_width + 12
         body.append(_legend(lx, 18))
