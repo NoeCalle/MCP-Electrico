@@ -29,7 +29,6 @@ def test_resultado_se_invalida_al_cambiar_revision():
     _build_case()
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
-
     solved = workspace_state.status()
     assert solved["state"] == "SOLVED"
     assert solved["results_current"] is True
@@ -38,7 +37,6 @@ def test_resultado_se_invalida_al_cambiar_revision():
     core.agregar_carga("extra", "mcc", 5, 1, kv=0.48)
     workspace_state.mark_model_changed("agregar_extra")
     modified = workspace_state.status()
-
     assert modified["state"] == "MODIFIED"
     assert modified["results_current"] is False
     assert modified["studies"]["powerflow"]["valid"] is False
@@ -49,11 +47,9 @@ def test_cambio_visual_no_invalida_solucion():
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
     revision = workspace_state.status()["model_revision"]
-
     visual_state.set_load_label("bomba", "M-01 · BOMBA PRINCIPAL")
     workspace_state.mark_visual_changed("cambiar_etiqueta")
     status = workspace_state.status()
-
     assert status["model_revision"] == revision
     assert status["state"] == "SOLVED"
     assert status["results_current"] is True
@@ -65,13 +61,11 @@ def test_workspace_genera_html_autocontenido_svg_e_inspector(tmp_path: Path):
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
     workspace.configure(str(tmp_path / "workspace.html"), "Prueba Workspace", True)
-
     result = workspace.regenerate()
     html_path = Path(result["archivo_html"])
     svg_path = Path(result["archivo_svg"])
     assert html_path.exists()
     assert svg_path.exists()
-
     html = html_path.read_text(encoding="utf-8")
     assert "Prueba Workspace" in html
     assert "RESUELTO" in html
@@ -81,7 +75,7 @@ def test_workspace_genera_html_autocontenido_svg_e_inspector(tmp_path: Path):
     assert 'id="workspace-catalog"' in html
     assert 'id="elementSelect"' in html
     assert 'id="inspectorBody"' in html
-    assert '"schema_version":1' in html
+    assert '"schema_version":2' in html
     assert "F-01" in html
     assert "3x70 mm2 Cu XLPE" in html
     assert "M-01 · BOMBA" in html
@@ -96,7 +90,6 @@ def test_catalogo_interactivo_usa_ids_estables():
     snap = workspace_state.snapshot()
     catalog = workspace._element_catalog(snap)
     by_id = {item["id"]: item for item in catalog}
-
     assert by_id["Line.f1"]["label"] == "F-01"
     assert by_id["Transformer.tr1"]["label"] == "TR1"
     assert by_id["Load.bomba"]["label"] == "M-01 · BOMBA"
@@ -107,15 +100,12 @@ def test_filas_de_datos_reutilizan_mismos_ids_del_catalogo():
     _build_case()
     snap = workspace_state.snapshot()
     rows = workspace._data_rows(snap)
-
     assert 'data-element-id="Line.f1"' in rows
     assert 'data-element-id="Transformer.tr1"' in rows
     assert 'data-element-id="Load.bomba"' in rows
 
 
-def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
-    tmp_path: Path, monkeypatch
-):
+def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(tmp_path: Path, monkeypatch):
     _build_case()
     powerflow = core.ejecutar_flujo_potencia()
     workspace_state.record_solution(powerflow)
@@ -129,7 +119,6 @@ def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
     workspace.configure(str(tmp_path / "workspace.html"), auto_regenerar=True)
     failed = workspace.safe_regenerate()
     failed_status = workspace_state.status()
-
     assert failed["ok"] is False
     assert failed_status["state"] == "SOLVED"
     assert failed_status["results_current"] is True
@@ -139,7 +128,6 @@ def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
     recovered = workspace.safe_regenerate()
     recovered_status = workspace_state.status()
     html = Path(recovered["archivo_html"]).read_text(encoding="utf-8")
-
     assert recovered["ok"] is True
     assert recovered_status["state"] == "SOLVED"
     assert recovered_status["workspace_error"] is None
@@ -149,8 +137,7 @@ def test_error_de_render_no_invalida_estado_electrico_y_se_limpia_al_recuperar(
 def test_snapshot_distingue_modelo_y_metadatos_visuales():
     _build_case()
     snap = workspace_state.snapshot()
-
-    assert snap["schema_version"] == 1
+    assert snap["schema_version"] == 2
     assert snap["model"]["circuit"]
     assert snap["model"]["lines"][0]["id"].lower() == "line.f1"
     assert snap["model"]["lines"][0]["visual"]["etiqueta"] == "F-01"

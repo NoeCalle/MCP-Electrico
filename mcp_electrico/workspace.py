@@ -133,6 +133,8 @@ def _data_rows(snapshot: dict[str, Any]) -> str:
         wdgs = tr.get("windings", [])
         kv = " / ".join(f"{w.get('kv', 0):g} kV" for w in wdgs) or "—"
         kva = wdgs[0].get("kva") if wdgs else None
+        professional = tr.get("professional") or {}
+        group = professional.get("vector_group", {}).get("grupo_vectorial") or kv
         eid = _element_id("transformer", tr["name"])
         rows.append(
             f'<tr class="selectable-row" data-element-id="{escape(eid, quote=True)}">'
@@ -140,8 +142,8 @@ def _data_rows(snapshot: dict[str, Any]) -> str:
             "<td>Transformador</td>"
             f"<td>{escape(' → '.join(tr.get('buses', [])))}</td>"
             f"<td>{f'{kva:g} kVA' if kva is not None else '—'}</td>"
-            f"<td>{escape(kv)}</td>"
-            f"<td>{'ABIERTO' if tr['open'] else 'Cerrado'}</td>"
+            f"<td>{escape(str(group))}</td>"
+            f"<td>{'P2 trazable' if professional else ('ABIERTO' if tr['open'] else 'Cerrado')}</td>"
             "</tr>"
         )
     for load in model.get("loads", []):
@@ -368,13 +370,32 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
     return Object.entries(data).find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1] || null;
   }}
 
+  function sourceRows() {{
+    const s = model.source;
+    if (!s) return [];
+    const max = s.scenarios?.max;
+    const min = s.scenarios?.min;
+    const ref = s.provenance?.scc_max_mva?.reference;
+    return [
+      ['Fuente P2', s.mode],
+      ['Escenario activo', s.active_scenario],
+      ['Scc3 máxima', max ? `${{max.scc3_mva}} MVA` : 'NO DISPONIBLE'],
+      ['X/R máximo', max?.x_r],
+      ['Scc3 mínima', min ? `${{min.scc3_mva}} MVA` : 'NO DISPONIBLE'],
+      ['X/R mínimo', min?.x_r],
+      ['Secuencia cero', s.zero_sequence?.status || 'NOT_AVAILABLE'],
+      ['Procedencia', ref]
+    ];
+  }}
+
   function inspectorRows(meta, raw) {{
     if (!raw) return [['ID', meta.id]];
     if (meta.kind === 'bus') {{
       const pf = powerflowBus(raw.name);
       const role = raw.visual?.rol || 'auto';
       const volts = pf?.voltajes_pu?.length ? pf.voltajes_pu.map(v => `${{Number(v).toFixed(4)}} pu`).join(' · ') : null;
-      return [['Referencia MCP', meta.id],['Nombre OpenDSS', raw.name],['Rol visual', role],['Tensión base LN', pf ? `${{pf.kv_base}} kV` : null],['Voltajes', volts],['Resultado vigente', pf ? 'Sí' : 'No / no calculado']];
+      const base = [['Referencia MCP', meta.id],['Nombre OpenDSS', raw.name],['Rol visual', role],['Tensión base LN', pf ? `${{pf.kv_base}} kV` : null],['Voltajes', volts],['Resultado vigente', pf ? 'Sí' : 'No / no calculado']];
+      return raw.name.toLowerCase() === 'sourcebus' ? base.concat(sourceRows()) : base;
     }}
     if (meta.kind === 'line') {{
       const v = raw.visual || {{}};
@@ -387,7 +408,27 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
       const w = raw.windings || [];
       const w1 = w[0] || {{}}, w2 = w[1] || {{}};
       const conn = x => x === 'delta' ? 'Δ' : (x === 'wye' ? 'Y' : x || '—');
-      return [['Referencia MCP', meta.id],['Nombre OpenDSS', raw.name],['Buses', (raw.buses || []).join(' → ')],['Potencia', w1.kva != null ? `${{w1.kva}} kVA` : null],['Relación', w1.kv != null && w2.kv != null ? `${{w1.kv}} / ${{w2.kv}} kV` : null],['Conexión', `${{conn(w1.connection)}} / ${{conn(w2.connection)}}`],['Estado', raw.open ? 'ABIERTO' : 'Cerrado']];
+      const p = raw.professional;
+      const base = [['Referencia MCP', meta.id],['Nombre OpenDSS', raw.name],['Buses', (raw.buses || []).join(' → ')],['Potencia', w1.kva != null ? `${{w1.kva}} kVA` : null],['Relación', w1.kv != null && w2.kv != null ? `${{w1.kv}} / ${{w2.kv}} kV` : null],['Conexión', `${{conn(w1.connection)}} / ${{conn(w2.connection)}}`],['Estado', raw.open ? 'ABIERTO' : 'Cerrado']];
+      if (!p) return base.concat([['Datos P2','NO DISPONIBLE — transformador legado']]);
+      const t = p.tap || {{}};
+      const sc = p.short_circuit || {{}};
+      const losses = p.losses || {{}};
+      const ref = p.provenance?.uk_percent?.reference;
+      return base.concat([
+        ['Grupo vectorial', p.vector_group?.grupo_vectorial],
+        ['uk / %Z', sc.uk_percent != null ? `${{sc.uk_percent}} %` : 'NO DISPONIBLE'],
+        ['X/R efectivo', sc.x_r_effective],
+        ['R serie total', sc.r_percent_total != null ? `${{Number(sc.r_percent_total).toFixed(4)}} %` : null],
+        ['X serie', sc.x_percent != null ? `${{Number(sc.x_percent).toFixed(4)}} %` : null],
+        ['Pérdidas carga', sc.load_loss_kw != null ? `${{sc.load_loss_kw}} kW` : 'NO DISPONIBLE'],
+        ['Pérdidas vacío', losses.no_load_loss_kw != null ? `${{losses.no_load_loss_kw}} kW` : 'NO DISPONIBLE'],
+        ['I0', losses.i0_percent != null ? `${{losses.i0_percent}} %` : 'NO DISPONIBLE'],
+        ['Tap', t.enabled ? `${{t.side}} · pos ${{t.position}} · ${{t.step_percent}} %/paso` : 'Sin cambiador declarado'],
+        ['Procedencia', ref || 'dato_explicito_usuario'],
+        ['Pandapower', p.projection?.pandapower_ready ? 'Datos suficientes P2' : 'No compatible'],
+        ['Secuencia cero', p.projection?.zero_sequence_ready ? 'Disponible' : 'NO DISPONIBLE']
+      ]);
     }}
     if (meta.kind === 'load') {{
       return [['Referencia MCP', meta.id],['Nombre OpenDSS', raw.name],['Bus', raw.bus],['Tipo visual', raw.visual_type],['Potencia activa', `${{raw.kw}} kW`],['Potencia reactiva', `${{raw.kvar}} kvar`],['Carga crítica', raw.critical ? 'Sí' : 'No']];

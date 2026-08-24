@@ -37,11 +37,12 @@ _MODULES = {
     },
     "pandapower_power_flow": {
         "status": "EXPERIMENTAL",
-        "basis": "pandapower 3.5.x mediante puente explícito desde el modelo activo",
+        "basis": "pandapower 3.5.x mediante puente explícito desde el modelo activo + datos P2",
         "limitations": [
-            "Solo redes trifásicas balanceadas de un único nivel de tensión",
-            "Solo elementos Line + Load con fuente ideal en sourcebus",
-            "Transformadores, generadores, motores y redes desbalanceadas se rechazan en v1",
+            "Solo redes trifásicas balanceadas",
+            "Líneas y cargas trifásicas; transformadores solo con ficha P2 suficiente",
+            "No se traducen todavía generadores, motores ni redes desbalanceadas",
+            "La fuente P2 se conserva para estudios de falla; el flujo pandapower usa ext_grid ideal a 1 pu",
             "No existe todavía router automático ni cross-check entre motores",
         ],
     },

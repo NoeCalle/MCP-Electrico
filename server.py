@@ -15,6 +15,7 @@ from mcp_electrico import (
     conductor_tools,
     core,
     pandapower_engine,
+    professional_tools,
     studies,
     visual_state,
     workspace,
@@ -415,6 +416,7 @@ def calcular_arc_flash(
     )
 
 
+professional_tools.register(mcp, _refresh_after_model_change)
 conductor_tools.register(mcp, _refresh_after_model_change)
 
 

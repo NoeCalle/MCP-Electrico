@@ -1,25 +1,19 @@
-"""Puente experimental hacia pandapower.
+"""Puente explícito hacia pandapower, ampliado por P2.
 
-Esta primera integración NO implementa cross-check ni selección automática de
-motor. Lee el modelo eléctrico activo de OpenDSS como fuente de topología y
-datos, construye una red pandapower independiente y resuelve únicamente un
-alcance deliberadamente pequeño y explícito.
+No implementa cross-check ni selección automática de motor. Lee el modelo
+activo y los metadatos profesionales P2, construye una red pandapower nueva en
+memoria y la resuelve independientemente.
 
-Alcance v1:
+Alcance P2 v1:
 - sistema trifásico balanceado;
-- un solo nivel de tensión;
-- fuente ideal en ``sourcebus``;
-- elementos Line + Load;
-- flujo de potencia AC balanceado.
+- líneas y cargas trifásicas;
+- transformadores de dos devanados únicamente si tienen ficha P2 suficiente;
+- varios niveles de tensión solo cuando son resolubles mediante esos
+  transformadores;
+- flujo AC balanceado.
 
-Fuera de alcance v1:
-- transformadores;
-- generadores/motores;
-- redes desbalanceadas;
-- secuencia cero;
-- cortocircuito IEC 60909;
-- protecciones;
-- cross-check OpenDSS vs pandapower.
+No se sustituyen datos pandapower obligatorios por cero o valores típicos. Un
+transformador sin pérdidas en vacío o i0 explícitos se rechaza con PP012.
 """
 
 from __future__ import annotations
@@ -30,12 +24,12 @@ from typing import Any
 import pandapower as pp
 from opendssdirect import dss
 
-from . import visual_state
+from . import professional_data, visual_state
 
 
 ENGINE_NAME = "pandapower"
 MATURITY = "EXPERIMENTAL"
-SCOPE = "balanced_three_phase_single_voltage_line_load"
+SCOPE = "balanced_three_phase_line_load_p2_transformer_optional"
 _INTERNAL_FALLBACK_MAX_I_KA = 1_000.0
 
 
@@ -53,34 +47,39 @@ def _active_element_is_open(full_name: str) -> bool:
 
 
 def _collect_active_model() -> dict[str, Any]:
-    """Extrae únicamente los datos necesarios para el puente v1.
-
-    La extracción no ejecuta ``Solve`` y no consume resultados de flujo de
-    OpenDSS. OpenDSS actúa aquí como almacén del modelo actualmente editado.
-    """
+    """Extrae entradas sin ejecutar ``Solve`` ni leer resultados de OpenDSS."""
     circuit_name = str(dss.Circuit.Name() or "")
     if not circuit_name:
         return {
-            "circuit": "",
-            "buses": [],
-            "lines": [],
-            "loads": [],
-            "transformers": [],
-            "generators": [],
+            "circuit": "", "buses": [], "lines": [], "loads": [],
+            "transformers": [], "generators": [], "source": None,
         }
 
+    p2 = professional_data.snapshot()
+    p2_transformers = {
+        str(item["id"]).lower(): item for item in p2.get("transformers", [])
+    }
+    source = p2.get("source")
+
     buses: list[dict[str, Any]] = []
+    voltage_by_bus: dict[str, float] = {}
     for name in dss.Circuit.AllBusNames():
         dss.Circuit.SetActiveBus(name)
         kv_base_ln = float(dss.Bus.kVBase())
+        vn = kv_base_ln * sqrt(3.0) if kv_base_ln > 0 else None
         buses.append(
             {
                 "name": name,
                 "kv_base_ln": kv_base_ln,
-                "vn_kv_ll": kv_base_ln * sqrt(3.0) if kv_base_ln > 0 else None,
+                "vn_kv_ll": vn,
                 "nodes": [int(n) for n in dss.Bus.Nodes()],
             }
         )
+        if vn:
+            voltage_by_bus[name.lower()] = vn
+
+    if source:
+        voltage_by_bus["sourcebus"] = float(source["kv_ll"])
 
     lines: list[dict[str, Any]] = []
     for name in dss.Lines.AllNames():
@@ -107,6 +106,42 @@ def _collect_active_model() -> dict[str, Any]:
             }
         )
 
+    transformers: list[dict[str, Any]] = []
+    for name in dss.Transformers.AllNames():
+        full = f"Transformer.{name}"
+        record = p2_transformers.get(full.lower())
+        transformers.append(
+            {
+                "id": full,
+                "name": name,
+                "professional": record,
+                "open": _active_element_is_open(full),
+            }
+        )
+        if record:
+            voltage_by_bus[str(record["buses"]["hv"]).lower()] = float(record["rating"]["kv_hv"])
+            voltage_by_bus[str(record["buses"]["lv"]).lower()] = float(record["rating"]["kv_lv"])
+
+    # Propaga el nivel nominal a través de líneas, sin usar resultados de flujo.
+    for _ in range(max(1, len(lines) + 1)):
+        changed = False
+        for line in lines:
+            b1, b2 = line["bus1"].lower(), line["bus2"].lower()
+            if b1 in voltage_by_bus and b2 not in voltage_by_bus:
+                voltage_by_bus[b2] = voltage_by_bus[b1]
+                changed = True
+            elif b2 in voltage_by_bus and b1 not in voltage_by_bus:
+                voltage_by_bus[b1] = voltage_by_bus[b2]
+                changed = True
+        if not changed:
+            break
+
+    for bus in buses:
+        resolved = voltage_by_bus.get(str(bus["name"]).lower())
+        if resolved:
+            bus["vn_kv_ll"] = float(resolved)
+            bus["kv_base_ln"] = float(resolved) / sqrt(3.0)
+
     loads: list[dict[str, Any]] = []
     for name in dss.Loads.AllNames():
         dss.Loads.Name(name)
@@ -127,13 +162,26 @@ def _collect_active_model() -> dict[str, Any]:
         "buses": buses,
         "lines": lines,
         "loads": loads,
-        "transformers": [str(x) for x in dss.Transformers.AllNames()],
+        "transformers": transformers,
         "generators": [str(x) for x in dss.Generators.AllNames()],
+        "source": source,
     }
 
 
+def _transformer_ready(record: dict[str, Any] | None) -> tuple[bool, str | None]:
+    if not record:
+        return False, "No existe ficha profesional P2."
+    losses = record.get("losses", {})
+    if losses.get("no_load_loss_kw") is None or losses.get("i0_percent") is None:
+        return False, "Pandapower requiere pfe_kw e i0_percent explícitos; no se sustituyen por cero."
+    sc = record.get("short_circuit", {})
+    if sc.get("uk_percent") is None or sc.get("r_percent_total") is None:
+        return False, "Faltan uk_percent o la componente resistiva trazable."
+    return True, None
+
+
 def evaluar_compatibilidad() -> dict[str, Any]:
-    """Comprueba si el modelo activo entra exactamente en el alcance v1."""
+    """Comprueba si el modelo entra exactamente en el alcance pandapower P2 v1."""
     model = _collect_active_model()
     issues: list[dict[str, str]] = []
 
@@ -142,70 +190,42 @@ def evaluar_compatibilidad() -> dict[str, Any]:
 
     bus_names = {str(b["name"]).lower() for b in model["buses"]}
     if "sourcebus" not in bus_names:
-        issues.append(
-            {
-                "code": "PP002",
-                "message": "Pandapower v1 requiere una barra fuente llamada sourcebus.",
-            }
-        )
-
-    if model["transformers"]:
-        issues.append(
-            {
-                "code": "PP010",
-                "message": "Pandapower v1 todavía no traduce transformadores; se incorporarán con datos profesionales de P2.",
-            }
-        )
+        issues.append({"code": "PP002", "message": "Se requiere una barra fuente llamada sourcebus."})
 
     if model["generators"]:
-        issues.append(
-            {
-                "code": "PP011",
-                "message": "Pandapower v1 todavía no traduce generadores ni motores.",
-            }
-        )
+        issues.append({"code": "PP011", "message": "Esta versión todavía no traduce generadores ni motores."})
+
+    for transformer in model["transformers"]:
+        record = transformer.get("professional")
+        if record is None:
+            issues.append(
+                {
+                    "code": "PP010",
+                    "message": f"{transformer['id']} no tiene ficha profesional P2; no se adivinan %Z, pérdidas ni grupo vectorial.",
+                }
+            )
+            continue
+        ready, reason = _transformer_ready(record)
+        if not ready:
+            issues.append({"code": "PP012", "message": f"{transformer['id']}: {reason}"})
 
     for line in model["lines"]:
         if line["phases"] != 3:
-            issues.append(
-                {
-                    "code": "PP020",
-                    "message": f"{line['id']} tiene {line['phases']} fases; v1 solo admite líneas trifásicas balanceadas.",
-                }
-            )
+            issues.append({"code": "PP020", "message": f"{line['id']} tiene {line['phases']} fases; solo se admiten líneas trifásicas balanceadas."})
         if line["length_km"] <= 0:
-            issues.append(
-                {
-                    "code": "PP021",
-                    "message": f"{line['id']} tiene longitud no positiva.",
-                }
-            )
+            issues.append({"code": "PP021", "message": f"{line['id']} tiene longitud no positiva."})
 
     for load in model["loads"]:
         if load["phases"] != 3:
-            issues.append(
-                {
-                    "code": "PP030",
-                    "message": f"{load['id']} tiene {load['phases']} fases; v1 solo admite cargas trifásicas balanceadas.",
-                }
-            )
+            issues.append({"code": "PP030", "message": f"{load['id']} tiene {load['phases']} fases; solo se admiten cargas trifásicas balanceadas."})
 
-    valid_levels = [float(b["vn_kv_ll"]) for b in model["buses"] if b["vn_kv_ll"]]
-    rounded_levels = {round(v, 6) for v in valid_levels}
-    if len(rounded_levels) > 1:
-        issues.append(
-            {
-                "code": "PP040",
-                "message": "Pandapower v1 solo admite un nivel nominal de tensión por modelo.",
-            }
-        )
-    if not valid_levels and model["circuit"]:
-        issues.append(
-            {
-                "code": "PP041",
-                "message": "No se pudo determinar la tensión nominal de las barras.",
-            }
-        )
+    unresolved = [str(b["name"]) for b in model["buses"] if not b.get("vn_kv_ll")]
+    if unresolved:
+        issues.append({"code": "PP041", "message": "No se pudo resolver la tensión nominal de: " + ", ".join(unresolved)})
+
+    valid_levels = {round(float(b["vn_kv_ll"]), 6) for b in model["buses"] if b.get("vn_kv_ll")}
+    if len(valid_levels) > 1 and not model["transformers"]:
+        issues.append({"code": "PP040", "message": "Hay varios niveles nominales sin transformador P2 que los relacione."})
 
     return {
         "engine": ENGINE_NAME,
@@ -230,11 +250,7 @@ def _build_net(model: dict[str, Any]):
     bus_map: dict[str, int] = {}
 
     for bus in model["buses"]:
-        idx = pp.create_bus(
-            net,
-            vn_kv=float(bus["vn_kv_ll"]),
-            name=str(bus["name"]),
-        )
+        idx = pp.create_bus(net, vn_kv=float(bus["vn_kv_ll"]), name=str(bus["name"]))
         bus_map[str(bus["name"]).lower()] = int(idx)
 
     source_idx = bus_map["sourcebus"]
@@ -257,10 +273,44 @@ def _build_net(model: dict[str, Any]):
             name=str(line["name"]),
             in_service=not bool(line["open"]),
         )
-        line_meta[int(idx)] = {
-            "id": line["id"],
-            "rating_a": float(rating_a) if rating_valid else None,
-        }
+        line_meta[int(idx)] = {"id": line["id"], "rating_a": float(rating_a) if rating_valid else None}
+
+    trafo_meta: dict[int, dict[str, Any]] = {}
+    for transformer in model["transformers"]:
+        p = transformer["professional"]
+        sc = p["short_circuit"]
+        losses = p["losses"]
+        vg = p["vector_group"]
+        tap = p["tap"]
+        kwargs: dict[str, Any] = {}
+        if tap.get("enabled"):
+            kwargs.update(
+                tap_side=tap["side"],
+                tap_neutral=tap["neutral"],
+                tap_min=tap["min"],
+                tap_max=tap["max"],
+                tap_step_percent=tap["step_percent"],
+                tap_pos=tap["position"],
+                tap_changer_type="Ratio",
+            )
+        idx = pp.create_transformer_from_parameters(
+            net,
+            hv_bus=bus_map[str(p["buses"]["hv"]).lower()],
+            lv_bus=bus_map[str(p["buses"]["lv"]).lower()],
+            sn_mva=float(p["rating"]["kva"]) / 1000.0,
+            vn_hv_kv=float(p["rating"]["kv_hv"]),
+            vn_lv_kv=float(p["rating"]["kv_lv"]),
+            vkr_percent=float(sc["r_percent_total"]),
+            vk_percent=float(sc["uk_percent"]),
+            pfe_kw=float(losses["no_load_loss_kw"]),
+            i0_percent=float(losses["i0_percent"]),
+            shift_degree=float(vg["shift_degree"]),
+            vector_group=str(vg["vector_group_pandapower"]),
+            name=str(transformer["name"]),
+            in_service=not bool(transformer["open"]),
+            **kwargs,
+        )
+        trafo_meta[int(idx)] = {"id": transformer["id"]}
 
     for load in model["loads"]:
         pp.create_load(
@@ -272,14 +322,11 @@ def _build_net(model: dict[str, Any]):
             type="wye",
         )
 
-    return net, line_meta
+    return net, line_meta, trafo_meta
 
 
 def ejecutar_flujo() -> dict[str, Any]:
-    """Ejecuta flujo AC balanceado con pandapower dentro del alcance v1.
-
-    No ejecuta OpenDSS ``Solve`` y no compara ambos motores.
-    """
+    """Ejecuta flujo AC balanceado pandapower sin comparar contra OpenDSS."""
     model = _collect_active_model()
     compatibility = evaluar_compatibilidad()
     if not compatibility["compatible"]:
@@ -288,26 +335,14 @@ def ejecutar_flujo() -> dict[str, Any]:
             "ok": False,
             "convergio": False,
             "resultados": None,
-            "nota": "Modelo fuera del alcance experimental de pandapower v1; no se aplicaron aproximaciones silenciosas.",
+            "nota": "Modelo fuera del alcance explícito de pandapower; no se aplicaron aproximaciones silenciosas.",
         }
 
-    net, line_meta = _build_net(model)
+    net, line_meta, trafo_meta = _build_net(model)
     try:
-        pp.runpp(
-            net,
-            algorithm="nr",
-            calculate_voltage_angles=True,
-            init="auto",
-            check_connectivity=True,
-        )
+        pp.runpp(net, algorithm="nr", calculate_voltage_angles=True, init="auto", check_connectivity=True)
     except Exception as exc:
-        return {
-            **compatibility,
-            "ok": False,
-            "convergio": False,
-            "resultados": None,
-            "error": f"{type(exc).__name__}: {exc}",
-        }
+        return {**compatibility, "ok": False, "convergio": False, "resultados": None, "error": f"{type(exc).__name__}: {exc}"}
 
     buses = []
     for idx, row in net.bus.iterrows():
@@ -335,11 +370,30 @@ def ejecutar_flujo() -> dict[str, Any]:
                 "perdidas_kw": round(float(res["pl_mw"]) * 1000.0, 6),
                 "perdidas_kvar": round(float(res["ql_mvar"]) * 1000.0, 6),
                 "corriente_nominal_a": rating_a,
-                "cargabilidad_pct": (
-                    round(float(res["loading_percent"]), 3) if rating_a is not None else None
-                ),
+                "cargabilidad_pct": round(float(res["loading_percent"]), 3) if rating_a is not None else None,
             }
         )
+
+    transformers = []
+    for idx, row in net.trafo.iterrows():
+        res = net.res_trafo.loc[idx]
+        meta = trafo_meta[int(idx)]
+        transformers.append(
+            {
+                "id": meta["id"],
+                "name": str(row["name"]),
+                "loading_percent": round(float(res["loading_percent"]), 3),
+                "p_hv_kw": round(float(res["p_hv_mw"]) * 1000.0, 6),
+                "p_lv_kw": round(float(res["p_lv_mw"]) * 1000.0, 6),
+                "q_hv_kvar": round(float(res["q_hv_mvar"]) * 1000.0, 6),
+                "q_lv_kvar": round(float(res["q_lv_mvar"]) * 1000.0, 6),
+            }
+        )
+
+    line_loss_kw = float(net.res_line["pl_mw"].sum()) * 1000.0 if len(net.res_line) else 0.0
+    trafo_loss_kw = float(net.res_trafo["pl_mw"].sum()) * 1000.0 if len(net.res_trafo) else 0.0
+    line_loss_kvar = float(net.res_line["ql_mvar"].sum()) * 1000.0 if len(net.res_line) else 0.0
+    trafo_loss_kvar = float(net.res_trafo["ql_mvar"].sum()) * 1000.0 if len(net.res_trafo) else 0.0
 
     return {
         **compatibility,
@@ -348,16 +402,17 @@ def ejecutar_flujo() -> dict[str, Any]:
         "resultados": {
             "buses": buses,
             "lines": lines,
+            "transformers": transformers,
             "resumen": {
-                "perdidas_totales_kw": round(float(net.res_line["pl_mw"].sum()) * 1000.0, 6),
-                "perdidas_totales_kvar": round(float(net.res_line["ql_mvar"].sum()) * 1000.0, 6),
+                "perdidas_totales_kw": round(line_loss_kw + trafo_loss_kw, 6),
+                "perdidas_totales_kvar": round(line_loss_kvar + trafo_loss_kvar, 6),
             },
         },
         "assumptions": [
-            "Fuente ideal en sourcebus con 1.0 pu y 0 grados.",
             "Flujo AC trifásico balanceado.",
-            "La topología y parámetros de entrada se leen del modelo activo; no se consumen resultados de flujo OpenDSS.",
-            "La cargabilidad solo se expone cuando existe corriente_nominal_a explícita; el valor interno de respaldo de max_i_ka no se reporta como rating.",
+            "La barra sourcebus se representa como ext_grid a 1.0 pu para flujo; la Scc P2 se conserva para estudios que la requieran y no altera este flujo ideal.",
+            "La topología y parámetros se leen del modelo activo; no se consumen resultados de flujo OpenDSS.",
+            "La cargabilidad de línea solo se expone cuando existe corriente_nominal_a explícita.",
         ],
-        "nota": "Pandapower v1 es experimental y no habilita por sí solo emisión profesional.",
+        "nota": "Pandapower permanece EXPERIMENTAL; P2 amplía compatibilidad, no su madurez de validación.",
     }

@@ -1,9 +1,7 @@
-"""Registro modular de tools auxiliares del servidor MCP.
+"""Registro modular de tools de la biblioteca de conductores.
 
-Históricamente este módulo nació para la biblioteca de conductores. Mantiene
-esa API de registro y, mientras `server.py` migra a un registry dedicado,
-también registra las tools de gobernanza profesional sin incorporar lógica de
-cálculo aquí.
+La gobernanza y los datos profesionales P2 se registran por separado desde
+``server.py``. Este módulo no debe volver a registrar ``professional_tools``.
 """
 
 from __future__ import annotations
@@ -11,11 +9,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from . import conductor_library, professional_tools
+from . import conductor_library
 
 
 def register(mcp: Any, on_model_change: Callable[[str], None]) -> None:
-    """Registra tools de conductores y gobernanza sobre FastMCP."""
+    """Registra únicamente las tools de conductores sobre FastMCP."""
 
     def listar_conductores(nivel: str | None = None, familia: str | None = None) -> list[dict]:
         """Lista productos BT/MT trazables de la biblioteca técnica."""
@@ -34,7 +32,7 @@ def register(mcp: Any, on_model_change: Callable[[str], None]) -> None:
         """Asigna un conductor de catálogo a Line.* e invalida resultados previos.
 
         R1/X1 se actualizan únicamente cuando el fabricante publica ambos para
-        la formación elegida. La ampacidad sí puede aplicarse de forma
+        la formación elegida. La ampacidad puede aplicarse de forma
         independiente mediante NormAmps y metadatos del workspace.
         """
         result = conductor_library.aplicar_conductor(
@@ -54,4 +52,3 @@ def register(mcp: Any, on_model_change: Callable[[str], None]) -> None:
     mcp.tool()(obtener_conductor)
     mcp.tool()(aplicar_conductor)
     mcp.tool()(obtener_asignaciones_conductores)
-    professional_tools.register(mcp)
