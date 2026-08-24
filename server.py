@@ -1,14 +1,23 @@
 """
 Servidor MCP para OpenDSS.
 
-La lógica eléctrica vive en mcp_electrico.core. Este archivo orquesta las
-herramientas MCP y mantiene sincronizado el workspace HTML persistente sin
-mezclar esa responsabilidad con el motor OpenDSS.
+La lógica eléctrica vive en mcp_electrico.core y mcp_electrico.studies. Este
+archivo orquesta las herramientas MCP, registra revisiones y mantiene
+sincronizado el workspace HTML sin mezclar UI con el motor OpenDSS.
 """
 
 from __future__ import annotations
 
-from mcp_electrico import core, visual_state, workspace, workspace_state
+from pathlib import Path
+
+from mcp_electrico import (
+    core,
+    studies,
+    visual_state,
+    workspace,
+    workspace_state,
+    workspace_studies_view,
+)
 from mcp_electrico.visualization import generar_diagrama_unifilar as _generar_unifilar
 
 try:
@@ -20,22 +29,44 @@ except ImportError:
 mcp = _MCPServerClass("opendss-mcp")
 
 
+def _enhance_workspace_if_present() -> dict:
+    """Añade las vistas de estudios después de regenerar el HTML base."""
+    state = workspace.get_state()
+    path = Path(state["config"]["ruta_salida"]).expanduser()
+    if not path.exists():
+        return {"ok": True, "skipped": True, "reason": "workspace aún no generado"}
+    return workspace_studies_view.enhance_file(path, workspace_state.snapshot())
+
+
+def _regenerate_workspace() -> dict:
+    result = workspace.safe_regenerate()
+    if result.get("ok") and not result.get("skipped"):
+        result["study_views"] = _enhance_workspace_if_present()
+    return result
+
+
+def _record_flow(flow: dict, action: str) -> None:
+    """Registra solución base + métricas detalladas en la misma revisión."""
+    workspace_state.record_solution(flow["powerflow"], "powerflow", action=action)
+    workspace_state.record_study("flow", flow, action=f"{action}:detalle")
+
+
 def _refresh_after_model_change(action: str) -> None:
     workspace_state.mark_model_changed(action)
-    workspace.safe_regenerate()
+    _regenerate_workspace()
 
 
 def _refresh_after_visual_change(action: str) -> None:
     workspace_state.mark_visual_changed(action)
-    workspace.safe_regenerate()
+    _regenerate_workspace()
 
 
 def _refresh_after_solved_change(action: str) -> None:
     """Marca cambio persistente y deja una solución de flujo vigente."""
     workspace_state.mark_model_changed(action)
-    powerflow = core.ejecutar_flujo_potencia()
-    workspace_state.record_solution(powerflow, "powerflow", action=f"{action}:resolver")
-    workspace.safe_regenerate()
+    flow = studies.analizar_flujo_operacion()
+    _record_flow(flow, f"{action}:resolver")
+    _regenerate_workspace()
 
 
 @mcp.tool()
@@ -49,7 +80,9 @@ def configurar_workspace(
     El workspace es solo una vista del modelo. ChatGPT continúa siendo la
     interfaz conversacional y OpenDSS continúa siendo el motor de cálculo.
     """
-    return workspace.configure(ruta_salida, titulo, auto_regenerar)
+    result = workspace.configure(ruta_salida, titulo, auto_regenerar)
+    _enhance_workspace_if_present()
+    return result
 
 
 @mcp.tool()
@@ -60,8 +93,10 @@ def obtener_estado_workspace() -> dict:
 
 @mcp.tool()
 def regenerar_workspace() -> dict:
-    """Regenera manualmente el HTML y su SVG compañero."""
-    return workspace.regenerate()
+    """Regenera manualmente el HTML, SVG y vistas de estudios."""
+    result = workspace.regenerate()
+    result["study_views"] = _enhance_workspace_if_present()
+    return result
 
 
 @mcp.tool()
@@ -70,6 +105,7 @@ def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
     resultado = core.crear_circuito(nombre, kv_base, frecuencia)
     visual_state.reset()
     workspace.new_circuit("crear_circuito")
+    _enhance_workspace_if_present()
     return resultado
 
 
@@ -207,10 +243,40 @@ def agregar_generador_respaldo(
 
 @mcp.tool()
 def ejecutar_flujo_potencia() -> dict:
-    """Resuelve el flujo y deja el workspace en estado RESUELTO si converge."""
-    resultado = core.ejecutar_flujo_potencia()
-    workspace.solved(resultado, "powerflow", "ejecutar_flujo_potencia")
-    return resultado
+    """Resuelve flujo y actualiza también la vista detallada del workspace."""
+    flow = studies.analizar_flujo_operacion()
+    _record_flow(flow, "ejecutar_flujo_potencia")
+    _regenerate_workspace()
+    # Compatibilidad: esta tool conserva el payload histórico de powerflow.
+    return flow["powerflow"]
+
+
+@mcp.tool()
+def analizar_flujo_operacion() -> dict:
+    """Devuelve flujo detallado por alimentador y actualiza el workspace."""
+    flow = studies.analizar_flujo_operacion()
+    _record_flow(flow, "analizar_flujo_operacion")
+    _regenerate_workspace()
+    return flow
+
+
+@mcp.tool()
+def analizar_caida_tension(limite_pct: float = 3.0) -> dict:
+    """Analiza ΔV por alimentador con un límite configurable por el usuario.
+
+    El valor por defecto de 3 % NO se presenta como requisito normativo
+    universal. OpenDSS resuelve las tensiones y el MCP deriva la comparación
+    bus1→bus2 sobre la revisión vigente.
+    """
+    result = studies.analizar_caida_tension(limite_pct)
+    flow = result["flow"]
+    _record_flow(flow, "analizar_caida_tension:resolver")
+    voltage_result = {k: v for k, v in result.items() if k != "flow"}
+    workspace_state.record_study(
+        "voltage_drop", voltage_result, action="analizar_caida_tension"
+    )
+    _regenerate_workspace()
+    return voltage_result
 
 
 @mcp.tool()
@@ -223,13 +289,9 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict:
     """
     resultado = core.ejecutar_cortocircuito(bus_falla)
     workspace_state.record_study("short_circuit", resultado, "ejecutar_cortocircuito")
-    powerflow = core.ejecutar_flujo_potencia()
-    workspace_state.record_solution(
-        powerflow,
-        "powerflow",
-        "restaurar_flujo_tras_cortocircuito",
-    )
-    workspace.safe_regenerate()
+    flow = studies.analizar_flujo_operacion()
+    _record_flow(flow, "restaurar_flujo_tras_cortocircuito")
+    _regenerate_workspace()
     return resultado
 
 
@@ -259,21 +321,17 @@ def simular_perdida_alimentador(
         workspace_state.record_study(
             "contingency", resultado, f"contingencia:{nombre_elemento}"
         )
-        powerflow = core.ejecutar_flujo_potencia()
-        workspace_state.record_solution(
-            powerflow, "powerflow", "restaurar_tras_contingencia"
-        )
-        workspace.safe_regenerate()
+        flow = studies.analizar_flujo_operacion()
+        _record_flow(flow, "restaurar_tras_contingencia")
+        _regenerate_workspace()
     else:
         workspace_state.mark_model_changed(f"contingencia_activa:{nombre_elemento}")
         workspace_state.record_study(
             "contingency", resultado, f"contingencia:{nombre_elemento}"
         )
-        powerflow = core.ejecutar_flujo_potencia()
-        workspace_state.record_solution(
-            powerflow, "powerflow", "resolver_contingencia_activa"
-        )
-        workspace.safe_regenerate()
+        flow = studies.analizar_flujo_operacion()
+        _record_flow(flow, "resolver_contingencia_activa")
+        _regenerate_workspace()
     return resultado
 
 
