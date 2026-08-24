@@ -33,7 +33,7 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
     assert "terminar P2 antes de iniciar P3" in text
     assert "docs/ROADMAP_VISUAL.md" in text
     assert "docs/ENGINE_SELECTION.md" in text
-    assert "automatic_dispatch" in text
+    assert "no despacha automáticamente la ejecución" in text
     assert "cross-check" in text
     assert "P4 — Cortocircuito IEC 60909" in text
     assert "P5 — Protección del conductor y coordinación" in text
