@@ -49,45 +49,55 @@ Pendientes de consolidación:
 
 ## V2 — Acompañamiento visual de P2: datos profesionales
 
-Cuando P2 incorpore transformadores, fuente equivalente y datos profesionales, el workspace deberá mostrar como mínimo:
+**Estado: COMPLETA CON LIMITACIONES (V2/P2 v1).**
+
+El workspace implementa la trazabilidad visual necesaria para cerrar P2 v1. El inspector y la tabla distinguen información profesional estructurada de una mera anotación visual.
 
 ### Transformadores
+
+Implementado:
 
 - kVA/MVA nominal;
 - tensiones nominales;
 - grupo vectorial;
 - `%Z`;
-- X/R cuando exista;
+- X/R cuando existe;
 - taps y posición vigente;
-- pérdidas si forman parte del modelo;
-- fuente/procedencia de datos;
-- estado de completitud para el estudio solicitado.
+- pérdidas e I0 cuando forman parte de la ficha P2;
+- procedencia de datos;
+- estado de suficiencia de proyección pandapower y secuencia cero.
 
-El símbolo del transformador debe poder mostrar la relación de tensión y grupo vectorial sin saturar el unifilar. El detalle completo irá al inspector.
+El símbolo del transformador puede mantener resumida la relación de tensión/grupo; el detalle completo permanece en el inspector.
 
 ### Fuente / red equivalente
 
-El inspector de la fuente deberá poder mostrar:
+Implementado en el inspector de la fuente:
 
-- tensión nominal;
-- Scc/Icc máxima y mínima cuando existan;
-- X/R;
+- tensión nominal/modelo;
+- Scc máxima y mínima cuando existen;
+- X/R máximo/mínimo;
 - escenario activo;
+- estado de secuencia cero;
 - procedencia de los datos.
 
 ### Conductores BT/MT
 
-El inspector del alimentador deberá migrar desde texto libre hacia la ficha estructurada de conductor/cable:
+El inspector del alimentador ya distingue una asignación de biblioteca trazable de un simple texto visual y presenta:
 
 - familia y fabricante;
-- material y sección;
-- clase de tensión;
-- aislamiento;
-- pantalla en MT cuando corresponda;
-- R/X aplicados al modelo;
-- ampacidad disponible;
-- condición de instalación asociada;
-- fuente del dato.
+- nivel/clase disponible en catálogo;
+- sección y pantalla cuando corresponda;
+- Rdc20 cuando existe;
+- R1/X1 aplicados y R1/X1 activos del modelo;
+- ampacidad de catálogo;
+- condición/clave de instalación asociada;
+- procedencia.
+
+Se mantiene visible la advertencia de que la ampacidad publicada **no es `Iz` normativo P3**.
+
+### Limitación V2 deliberada
+
+El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se expone ya por tools MCP y por el eje E. Su representación gráfica se incorporará en las vistas específicas V3–V6 de cada estudio, donde existe contexto inequívoco para interpretarlo; V2 no inventa un “estudio activo” en el workspace.
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
