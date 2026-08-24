@@ -8,7 +8,7 @@ La firma y responsabilidad profesional siempre corresponden al ingeniero. El obj
 
 ## Principio rector
 
-OpenDSS se mantiene como motor numérico principal. El trabajo pendiente no consiste en reemplazar el solver, sino en profesionalizar la capa alrededor de él: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
+OpenDSS se mantiene como motor numérico principal y por defecto. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitas. El trabajo pendiente no consiste en reemplazar OpenDSS, sino en profesionalizar la capa alrededor de los motores: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
 
 ## Estados de madurez
 
@@ -58,6 +58,31 @@ Criterio de salida: `power_flow` y `voltage_drop` pueden pasar a `VALIDATED_WITH
 
 La evidencia P1 v1 y las limitaciones se documentan en `docs/BENCHMARKS_P1.md`. CI genera `benchmark_p1.json` como artefacto reproducible.
 
+## Fase P1.5 — Segundo motor experimental: pandapower
+
+Objetivo: incorporar pandapower de forma controlada como motor complementario sin introducir todavía selección automática de motor ni cross-check entre solvers.
+
+Primera entrega:
+
+- dependencia pandapower 3.5.x versionada;
+- módulo `pandapower_engine.py`;
+- tool explícita `ejecutar_flujo_pandapower()`;
+- flujo AC balanceado para redes trifásicas de un solo nivel de tensión con `Line + Load`;
+- rechazo determinístico de transformadores, generadores, motores y otras topologías fuera de alcance;
+- benchmark frente a la solución independiente P1, no frente a OpenDSS;
+- estado `pandapower_power_flow = EXPERIMENTAL`;
+- documentación de supuestos y códigos de compatibilidad.
+
+Decisiones deliberadas:
+
+- OpenDSS sigue siendo el motor por defecto;
+- no existe router automático en P1.5;
+- no existe cross-check OpenDSS/pandapower en P1.5;
+- pandapower no sustituye el estado de solución base del workspace;
+- la traducción de transformadores se pospone hasta disponer de datos profesionales en P2.
+
+Pandapower se considera especialmente relevante para la evolución posterior hacia IEC 60909 y protección industrial, pero esos módulos no se habilitan en P1.5.
+
 ## Fase P2 — Datos de entrada profesionales
 
 Objetivo: eliminar supuestos silenciosos de equipos principales.
@@ -70,6 +95,8 @@ Entregables:
 - R0/X0 o geometría cuando el estudio lo requiera;
 - metadatos de origen para cada dato crítico;
 - chequeos de coherencia de base kV, fases y conexiones.
+
+P2 deberá definir datos suficientes para proyectar de forma trazable transformadores y fuentes tanto a OpenDSS como, cuando corresponda, a pandapower.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
@@ -94,7 +121,8 @@ Objetivo: disponer de un estudio formal de cortocircuito conforme a una edición
 
 Entregables:
 
-- motor IEC 60909 desacoplado del solver de flujo;
+- integración o motor IEC 60909 desacoplado del solver de flujo, con versión y alcance explícitos;
+- evaluación de pandapower como backend normativo principal antes de implementar ecuaciones propias innecesariamente;
 - fallas 3F, 2F, 1F-T y 2F-T según alcance;
 - `Ik''`, `ip`, `Ib`, `Ik`, `Sk''` cuando correspondan;
 - factores de tensión y contribuciones de fuentes;
