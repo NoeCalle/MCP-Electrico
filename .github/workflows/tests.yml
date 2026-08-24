@@ -42,6 +42,26 @@ jobs:
           grep -q "Criterio configurable" workspace_hospital.html
           grep -q '"voltage_drop"' workspace_hospital.html
           grep -q '"flow"' workspace_hospital.html
+      - name: Validate workspace JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("workspace_hospital.html").read_text(encoding="utf-8")
+          scripts = []
+          for match in re.finditer(r'<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>', html, re.S):
+              if 'application/json' in match.group('attrs'):
+                  continue
+              path = Path(f"/tmp/workspace-script-{len(scripts)}.js")
+              path.write_text(match.group('body'), encoding="utf-8")
+              scripts.append(path)
+          if not scripts:
+              raise SystemExit("No se encontraron scripts ejecutables en el workspace")
+          print("\n".join(str(path) for path in scripts))
+          PY
+          for script in /tmp/workspace-script-*.js; do
+            node --check "$script"
+          done
       - name: Upload visual artifacts
         uses: actions/upload-artifact@v4
         with:
