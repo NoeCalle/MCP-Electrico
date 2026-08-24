@@ -1,0 +1,308 @@
+{
+  "schema_version": 1,
+  "catalog_name": "nexans_peru_v1",
+  "generated_for": "MCP Electrico",
+  "source_policy": "Solo datos publicados por fabricante. Los campos no publicados se dejan null.",
+  "conductors": [
+    {
+      "code": "NEXANS-N2XOH-0.6-1-CU-50",
+      "level": "BT",
+      "family": "N2XOH",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00002235-16",
+      "country_ref": "10013285",
+      "description": "N2XOH 0.6/1 kV Cu XLPE 1x50 mm2",
+      "material": "Cu",
+      "insulation": "XLPE",
+      "cores": 1,
+      "section_mm2": 50,
+      "voltage_uo_u_um_kv": [0.6, 1.0, 1.2],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.387,
+      "capacitance_pf_m": 589.0,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": null, "x60_ohm_km": null},
+        "trefoil": {"rac90_ohm_km": null, "x60_ohm_km": null}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 216, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 207, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_duct_20c": {"ampacity_a": 135, "formation": null, "medium": "buried_duct", "ground_c": 20}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-1", "IEC 60228", "IEC 60502-1"],
+      "source": {
+        "type": "manufacturer",
+        "confidence": "HIGH",
+        "url": "https://www.nexans.pe/es/products/Construcci%C3%B3n/Seguridad-frente-a-incendios/N2XOH-N229178/product~P00002235-16~.html",
+        "accessed_at": "2026-08-23"
+      }
+    },
+    {
+      "code": "NEXANS-N2XOH-0.6-1-CU-70",
+      "level": "BT",
+      "family": "N2XOH",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00002237-13",
+      "country_ref": "10044778",
+      "description": "N2XOH 0.6/1 kV Cu XLPE 1x70 mm2",
+      "material": "Cu",
+      "insulation": "XLPE",
+      "cores": 1,
+      "section_mm2": 70,
+      "voltage_uo_u_um_kv": [0.6, 1.0, 1.2],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.268,
+      "capacitance_pf_m": 641.0,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": null, "x60_ohm_km": null},
+        "trefoil": {"rac90_ohm_km": null, "x60_ohm_km": null}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 279, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 268, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_duct_20c": {"ampacity_a": 167, "formation": null, "medium": "buried_duct", "ground_c": 20}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-1", "IEC 60228", "IEC 60502-1"],
+      "source": {
+        "type": "manufacturer",
+        "confidence": "HIGH",
+        "url": "https://www.nexans.pe/es/products/Construcci%C3%B3n/Seguridad-frente-a-incendios/N2XOH-N229178/product~P00002237-13~.html",
+        "accessed_at": "2026-08-23"
+      }
+    },
+    {
+      "code": "NEXANS-N2XOH-0.6-1-CU-95",
+      "level": "BT",
+      "family": "N2XOH",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00000838-24",
+      "country_ref": "10007441",
+      "description": "N2XOH 0.6/1 kV Cu XLPE 1x95 mm2",
+      "material": "Cu",
+      "insulation": "XLPE",
+      "cores": 1,
+      "section_mm2": 95,
+      "voltage_uo_u_um_kv": [0.6, 1.0, 1.2],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.193,
+      "capacitance_pf_m": 744.0,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": null, "x60_ohm_km": null},
+        "trefoil": {"rac90_ohm_km": null, "x60_ohm_km": null}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 342, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 328, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_duct_20c": {"ampacity_a": 197, "formation": null, "medium": "buried_duct", "ground_c": 20}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-1", "IEC 60228", "IEC 60502-1"],
+      "source": {
+        "type": "manufacturer",
+        "confidence": "HIGH",
+        "url": "https://www.nexans.pe/es/products/Construcci%C3%B3n/Seguridad-frente-a-incendios/N2XOH-N229178/product~P00000838-24~.html",
+        "accessed_at": "2026-08-23"
+      }
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-70-PH16",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00033678-2",
+      "country_ref": "10049309",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x70 mm2 PH16",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 70,
+      "screen_section_mm2": 16,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.268,
+      "capacitance_pf_m": 160.0,
+      "screen_resistance_ohm_km": 1.15,
+      "screen_short_circuit_ka_0_5s": 2.9,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.3421, "x60_ohm_km": 0.2316},
+        "trefoil": {"rac90_ohm_km": 0.3422, "x60_ohm_km": 0.1619}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 356, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 296, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 246, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 239, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/es/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00033678-2~.html", "accessed_at": "2026-08-23"}
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-95-PH16",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00036663-2",
+      "country_ref": "10051008",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x95 mm2 PH16",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 95,
+      "screen_section_mm2": 16,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.193,
+      "capacitance_pf_m": 180.0,
+      "screen_resistance_ohm_km": 1.15,
+      "screen_short_circuit_ka_0_5s": 2.9,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.2466, "x60_ohm_km": 0.2243},
+        "trefoil": {"rac90_ohm_km": 0.2468, "x60_ohm_km": 0.1546}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 434, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 361, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 293, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 285, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/es/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00036663-2~.html", "accessed_at": "2026-08-23"}
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-120-PH12",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00004605-16",
+      "country_ref": "10031659",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x120 mm2 PH12",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 120,
+      "screen_section_mm2": 12,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.153,
+      "capacitance_pf_m": 196.0,
+      "screen_resistance_ohm_km": 1.5,
+      "screen_short_circuit_ka_0_5s": 2.2,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.1958, "x60_ohm_km": 0.2171},
+        "trefoil": {"rac90_ohm_km": 0.1960, "x60_ohm_km": 0.1474}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 500, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 417, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 332, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 323, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/es/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00004605-16~.html", "accessed_at": "2026-08-23"}
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-150-PH12",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00004611-8",
+      "country_ref": "10043440",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x150 mm2 PH12",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 150,
+      "screen_section_mm2": 12,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.124,
+      "capacitance_pf_m": 210.0,
+      "screen_resistance_ohm_km": 1.5,
+      "screen_short_circuit_ka_0_5s": 2.2,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.1589, "x60_ohm_km": 0.2128},
+        "trefoil": {"rac90_ohm_km": 0.1593, "x60_ohm_km": 0.1431}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 559, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 473, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 366, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 361, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/es/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00004611-8~.html", "accessed_at": "2026-08-23"}
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-185-PH12",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00004613-11",
+      "country_ref": "10038395",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x185 mm2 PH12",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 185,
+      "screen_section_mm2": 12,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.0991,
+      "capacitance_pf_m": 226.0,
+      "screen_resistance_ohm_km": 1.5,
+      "screen_short_circuit_ka_0_5s": 2.2,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.1274, "x60_ohm_km": 0.2077},
+        "trefoil": {"rac90_ohm_km": 0.1280, "x60_ohm_km": 0.1380}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 637, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 543, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 410, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 406, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/en/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00004613-11~.html", "accessed_at": "2026-08-23"}
+    },
+    {
+      "code": "NEXANS-N2XSY-18-30-CU-240-PH12",
+      "level": "MT",
+      "family": "N2XSY",
+      "manufacturer": "Nexans Peru / INDECO by Nexans",
+      "product_ref": "P00004614-20",
+      "country_ref": "10031662",
+      "description": "N2XSY 18/30 (36) kV Cu XLPE-TR 1x240 mm2 PH12",
+      "material": "Cu",
+      "insulation": "XLPE-TR",
+      "cores": 1,
+      "section_mm2": 240,
+      "screen_section_mm2": 12,
+      "voltage_uo_u_um_kv": [18.0, 30.0, 36.0],
+      "max_operating_temp_c": 90,
+      "max_short_circuit_temp_c": 250,
+      "rdc20_ohm_km": 0.0754,
+      "capacitance_pf_m": 248.0,
+      "screen_resistance_ohm_km": 1.5,
+      "screen_short_circuit_ka_0_5s": 2.2,
+      "impedance_by_formation": {
+        "flat": {"rac90_ohm_km": 0.0975, "x60_ohm_km": 0.2023},
+        "trefoil": {"rac90_ohm_km": 0.0983, "x60_ohm_km": 0.1326}
+      },
+      "installations": {
+        "air_flat_30c": {"ampacity_a": 745, "formation": "flat", "medium": "air", "ambient_c": 30},
+        "air_trefoil_30c": {"ampacity_a": 641, "formation": "trefoil", "medium": "air", "ambient_c": 30},
+        "buried_flat_20c": {"ampacity_a": 470, "formation": "flat", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true},
+        "buried_trefoil_20c": {"ampacity_a": 469, "formation": "trefoil", "medium": "buried", "ground_c": 20, "depth_m": 0.8, "soil_thermal_resistivity_km_w": 1.5, "screens_bonded_both_ends": true}
+      },
+      "standards": ["NTP-IEC 60228", "NTP-IEC 60502-2", "IEC 60228", "IEC 60502-2"],
+      "source": {"type": "manufacturer", "confidence": "HIGH", "url": "https://www.nexans.pe/en/products/Redes-de-Transmisi%C3%B3n-y-Distribuci%C3%B3n-de-Energ%C3%ADa/Cables-cubierta-PVC-para-Media-Tensi%C3%B3n/N2XSY-18-328492/product~P00004614-20~.html", "accessed_at": "2026-08-23"}
+    }
+  ]
+}
