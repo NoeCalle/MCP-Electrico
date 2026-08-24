@@ -9,14 +9,15 @@ def _modelo_linea():
     workspace_state.mark_model_changed("agregar_linea:f1")
 
 
-def test_matriz_no_presenta_ieee1584_como_implementado():
+def test_matriz_mantiene_ieee1584_no_implementado_y_refleja_p1():
     matrix = validation_status.get_validation_matrix()
     assert matrix["arc_flash_ieee1584"]["status"] == "NOT_IMPLEMENTED"
-    assert matrix["power_flow"]["status"] == "UNDER_VALIDATION"
+    assert matrix["power_flow"]["status"] == "VALIDATED_WITH_LIMITATIONS"
+    assert matrix["voltage_drop"]["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert matrix["conductor_library"]["status"] == "VALIDATED_WITH_LIMITATIONS"
 
 
-def test_qa_bloquea_emision_mientras_flujo_siga_en_validacion():
+def test_qa_habilita_power_flow_con_limitaciones_si_modelo_no_tiene_errores():
     _modelo_linea()
     conductor_library.aplicar_conductor(
         "Line.f1",
@@ -25,9 +26,13 @@ def test_qa_bloquea_emision_mientras_flujo_siga_en_validacion():
     )
     result = model_qa.auditar_modelo(["power_flow"])
 
-    assert result["summary"]["blockers"] >= 1
-    assert result["summary"]["apto_para_emision"] is False
-    assert any(f["code"] == "QA901" for f in result["findings"])
+    check = result["module_checks"][0]
+    assert check["status"] == "VALIDATED_WITH_LIMITATIONS"
+    assert check["acceptable_for_emission"] is True
+    assert result["summary"]["blockers"] == 0
+    assert result["summary"]["errors"] == 0
+    assert result["summary"]["apto_para_emision"] is True
+    assert not any(f["code"] == "QA901" for f in result["findings"])
 
 
 def test_qa_detecta_alimentador_sin_conductor_trazable():
