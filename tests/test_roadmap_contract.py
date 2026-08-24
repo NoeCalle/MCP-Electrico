@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFESSIONAL = ROOT / "docs" / "ROADMAP_PROFESIONAL.md"
 VISUAL = ROOT / "docs" / "ROADMAP_VISUAL.md"
 ENGINE = ROOT / "docs" / "ENGINE_SELECTION.md"
+P2_EXIT = ROOT / "docs" / "P2_EXIT_GATE.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -29,8 +30,10 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
     for heading in required_headings:
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
-    assert "P2 — Datos profesionales | **EN PROGRESO**" in text
-    assert "terminar P2 antes de iniciar P3" in text
+    assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
+    assert "P3 — Ampacidad normativa | **SIGUIENTE FASE**" in text
+    assert "evaluar_cierre_p2()" in text
+    assert "docs/P2_EXIT_GATE.md" in text
     assert "docs/ROADMAP_VISUAL.md" in text
     assert "docs/ENGINE_SELECTION.md" in text
     assert "no despacha automáticamente la ejecución" in text
@@ -47,6 +50,8 @@ def test_visual_roadmap_keeps_cross_phase_deliverables():
     for heading in required_visual_phases:
         assert heading in text, f"Falta del roadmap visual: {heading}"
 
+    assert "COMPLETA CON LIMITACIONES (V2/P2 v1)" in text
+    assert "no es `Iz` normativo P3" in text
     assert "panel TCC" in text
     assert "Arc Flash" in text
     assert "cortocircuito IEC 60909" in text
@@ -68,3 +73,14 @@ def test_engine_selection_doc_keeps_deterministic_safety_rules():
     assert "MODULE_NOT_READY" in text
     assert "professional_execution_ready" in text
     assert "Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`" in text
+
+
+def test_p2_exit_gate_preserves_scope_and_next_phase():
+    text = P2_EXIT.read_text(encoding="utf-8")
+
+    assert "COMPLETE_WITH_LIMITATIONS" in text
+    assert "estado de la fase del producto" in text
+    assert "estado del modelo activo" in text
+    assert "ampacidad de catálogo todavía no es `Iz` normativo" in text
+    assert "IEC 60909 sigue perteneciendo a P4" in text
+    assert "P3 — ampacidad normativa" in text
