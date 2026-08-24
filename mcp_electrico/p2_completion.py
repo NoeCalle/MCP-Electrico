@@ -18,7 +18,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import conductor_library, professional_data, study_readiness, workspace_state, zero_sequence
+from . import professional_data, workspace_state
 
 PHASE_COMPLETE = "COMPLETE_WITH_LIMITATIONS"
 PHASE_INCOMPLETE = "INCOMPLETE"
@@ -79,6 +79,13 @@ P2_V1_CAPABILITIES: tuple[dict[str, Any], ...] = (
         "evidence": "runtime_safety + reset de estados P2",
         "scope": "sin reutilizar estado profesional o Z0 obsoleta al recrear/cambiar escenario",
     },
+    {
+        "id": "P2C08",
+        "name": "model_coherence_gate",
+        "status": "DONE",
+        "evidence": "p2_completion.evaluar_modelo_actual",
+        "scope": "tensión de fuente, fases, buses, ratings/conexiones de transformador y consistencia de asignación de conductor",
+    },
 )
 
 P2_V1_LIMITATIONS = [
@@ -88,6 +95,7 @@ P2_V1_LIMITATIONS = [
     "La ficha Z0 del transformador es canónica y utilizable por una futura proyección pandapower, pero su proyección profesional a OpenDSS permanece bloqueada.",
     "La ampacidad publicada de catálogo no es Iz normativo; métodos de instalación y factores normativos pertenecen a P3.",
     "IEC 60909 no forma parte de P2; pertenece a P4 y sigue MODULE_NOT_READY.",
+    "El estado de readiness por estudio se expone en MCP; su representación visual específica se incorpora con la vista de cada estudio en V3-V6.",
 ]
 
 
@@ -104,6 +112,15 @@ def _issue(code: str, severity: str, message: str, element: str | None = None) -
 
 def _near(a: float, b: float, rel: float = 1e-6, abs_tol: float = 1e-6) -> bool:
     return abs(a - b) <= max(abs_tol, rel * max(abs(a), abs(b), 1.0))
+
+
+def _element_phases(full_name: str) -> int:
+    try:
+        if not dss.Circuit.SetActiveElement(full_name):
+            return 0
+        return int(dss.CktElement.NumPhases())
+    except Exception:
+        return 0
 
 
 def _source_checks(issues: list[dict[str, Any]]) -> None:
@@ -131,7 +148,7 @@ def _source_checks(issues: list[dict[str, Any]]) -> None:
 def _line_checks(model: dict[str, Any], issues: list[dict[str, Any]]) -> None:
     for line in model.get("lines", []):
         element = str(line.get("id") or "Line.?")
-        phases = int(line.get("phases") or 0)
+        phases = _element_phases(element)
         if phases not in {1, 2, 3}:
             issues.append(_issue("P2X201", "ERROR", f"Número de fases no soportado/coherente: {phases}.", element))
         assignment = line.get("conductor_assignment")
@@ -162,11 +179,11 @@ def _transformer_checks(model: dict[str, Any], issues: list[dict[str, Any]]) -> 
     for tr in model.get("transformers", []):
         p2 = tr.get("professional")
         if not p2:
-            # Un transformador legado es permitido por el producto, pero no es
-            # un modelo P2 profesional. Se reporta como WARNING de modelo.
             issues.append(_issue("P2X301", "WARNING", "Transformador legado sin ficha profesional P2.", str(tr.get("id"))))
             continue
         element = str(tr.get("id") or "Transformer.?")
+        if _element_phases(element) != 3:
+            issues.append(_issue("P2X300", "ERROR", "El transformador profesional P2 v1 debe ser trifásico.", element))
         buses = tr.get("buses", [])
         expected_buses = p2.get("buses", {})
         if len(buses) >= 2:
@@ -200,7 +217,7 @@ def _load_generator_checks(model: dict[str, Any], issues: list[dict[str, Any]]) 
         for item in model.get(kind, []):
             element = str(item.get("id") or "?")
             bus = str(item.get("bus") or "").lower()
-            phases = int(item.get("phases") or 0)
+            phases = _element_phases(element)
             if bus and bus not in bus_names:
                 issues.append(_issue("P2X401", "ERROR", "Elemento referencia un bus no presente en el snapshot.", element))
             if phases not in {1, 2, 3}:
