@@ -37,16 +37,33 @@ def register(mcp, on_model_change=None) -> None:
         return engine_selection.obtener_capacidades_motores()
 
     @mcp.tool()
+    def evaluar_preparacion_estudio(
+        estudio: str,
+        norma: str | None = None,
+        tipo_falla: str | None = None,
+        permitir_experimental: bool = False,
+    ) -> dict:
+        """Separa completitud de datos, aptitud del backend y disponibilidad del módulo."""
+        return engine_selection.evaluar_preparacion_estudio(
+            estudio=estudio,
+            norma=norma,
+            tipo_falla=tipo_falla,
+            permitir_experimental=permitir_experimental,
+        )
+
+    @mcp.tool()
     def seleccionar_motor_estudio(
         estudio: str,
         norma: str | None = None,
         permitir_experimental: bool = False,
+        tipo_falla: str | None = None,
     ) -> dict:
         """Indica backend, requisitos y aptitud actual; no despacha el cálculo automáticamente."""
         return engine_selection.seleccionar_motor_estudio(
             estudio=estudio,
             norma=norma,
             permitir_experimental=permitir_experimental,
+            tipo_falla=tipo_falla,
         )
 
     @mcp.tool()
