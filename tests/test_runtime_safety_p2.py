@@ -27,7 +27,7 @@ def test_crear_circuito_reinicia_estados_p2_aunque_reutilice_el_mismo_nombre():
     zero_sequence.definir_fuente(0.3, 0.9, 0.5, 1.2)
     core.agregar_linea("l1", "sourcebus", "b1", 0.1, r1_ohm_km=0.2, x1_ohm_km=0.08)
     conductor_library.aplicar_conductor(
-        "Line.l1", "NEXANS-N2XSY-18-30-CU-70-PH16", "air_trefoil"
+        "Line.l1", "NEXANS-N2XSY-18-30-CU-70-PH16", "air_trefoil_30c"
     )
 
     assert professional_data.obtener_red_equivalente() is not None
