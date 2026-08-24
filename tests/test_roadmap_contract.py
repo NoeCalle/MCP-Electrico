@@ -62,4 +62,9 @@ def test_engine_selection_doc_keeps_deterministic_safety_rules():
     assert "pandapower" in text
     assert "automatic_dispatch=false" in text
     assert "crosscheck=false" in text
-    assert "Nunca confundir `ejecutable` con `apto_para_emision`" in text
+    assert "READY_DATA" in text
+    assert "MISSING_DATA" in text
+    assert "ENGINE_NOT_READY" in text
+    assert "MODULE_NOT_READY" in text
+    assert "professional_execution_ready" in text
+    assert "Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`" in text
