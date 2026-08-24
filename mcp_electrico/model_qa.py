@@ -77,6 +77,7 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
             continue
         sc = p2.get("short_circuit", {})
         vg = p2.get("vector_group", {})
+        projection = p2.get("projection", {})
         if float(sc.get("uk_percent") or 0) <= 0:
             findings.append(_finding("QA211", "ERROR", "Transformador P2 sin uk/%Z válido.", element))
         if float(sc.get("x_r_effective") or 0) <= 0:
@@ -85,8 +86,12 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
             findings.append(_finding("QA213", "ERROR", "Transformador P2 sin grupo vectorial.", element))
         if not p2.get("provenance", {}).get("uk_percent", {}).get("reference"):
             findings.append(_finding("QA214", "ERROR", "Transformador P2 sin procedencia para uk/%Z.", element))
-        if needs_fault_data and not p2.get("projection", {}).get("zero_sequence_ready"):
+        if needs_fault_data and not projection.get("zero_sequence_ready"):
             findings.append(_finding("QA215", "BLOCKER", "El transformador no tiene todavía parámetros de secuencia cero suficientes para el estudio solicitado.", element))
+        if not projection.get("opendss", {}).get("complete", True):
+            assumptions = projection.get("opendss", {}).get("assumptions", [])
+            detail = " ".join(str(x) for x in assumptions) or "Existen parámetros no suministrados que OpenDSS conserva en sus defaults."
+            findings.append(_finding("QA216", "WARNING", "La proyección OpenDSS del transformador no está completamente respaldada por datos P2. " + detail, element))
 
     source = model.get("source")
     if needs_fault_data:
