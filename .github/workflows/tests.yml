@@ -18,6 +18,17 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run tests
         run: python -m pytest -q
+      - name: Generate P1 benchmark report
+        run: |
+          python examples/run_benchmarks_p1.py
+          test -s benchmark_p1.json
+          grep -q '"failed": 0' benchmark_p1.json
+          grep -q '"pass": true' benchmark_p1.json
+      - name: Upload P1 benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-benchmarks-p1
+          path: benchmark_p1.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py

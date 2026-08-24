@@ -18,14 +18,22 @@ VALID_STATES = {
 
 _MODULES = {
     "power_flow": {
-        "status": "UNDER_VALIDATION",
-        "basis": "OpenDSS + postproceso MCP",
-        "limitations": ["Benchmarks independientes aún incompletos"],
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": "OpenDSS + postproceso MCP + benchmarks P1 independientes",
+        "limitations": [
+            "Validado cuantitativamente en casos radiales trifásicos balanceados de dos barras con carga PQ",
+            "Benchmarks IEEE/EPRI de alimentadores completos todavía pendientes",
+            "Cobertura desbalanceada y equipos de regulación todavía no incluida en P1",
+        ],
     },
     "voltage_drop": {
-        "status": "UNDER_VALIDATION",
-        "basis": "Tensiones pu resueltas por OpenDSS",
-        "limitations": ["Validación formal contra casos patrón pendiente"],
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": "Tensiones pu OpenDSS + comparación P1 contra solución independiente",
+        "limitations": [
+            "Validación P1 limitada a caída por objeto Line en redes radiales balanceadas",
+            "Caída acumulada hasta cargas y alimentadores desbalanceados todavía no benchmarkeada",
+            "El límite porcentual de aceptación continúa siendo criterio configurable del usuario",
+        ],
     },
     "conductor_library": {
         "status": "VALIDATED_WITH_LIMITATIONS",

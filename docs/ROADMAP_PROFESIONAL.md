@@ -39,6 +39,10 @@ Esta fase NO declara todavía ningún estudio como profesionalmente validado.
 
 ## Fase P1 — Benchmarks de flujo de potencia y caída de tensión
 
+**Estado: COMPLETADA CON LIMITACIONES (P1 v1).**
+
+La primera cobertura valida casos radiales trifásicos balanceados de dos barras con carga PQ mediante una solución compleja independiente de OpenDSS. Los módulos `power_flow` y `voltage_drop` pasan a `VALIDATED_WITH_LIMITATIONS`. La validación completa con feeders IEEE/EPRI, redes desbalanceadas y equipos de regulación permanece pendiente antes de considerar `VALIDATED`.
+
 Objetivo: validar cuantitativamente la cadena MCP → OpenDSS → postproceso.
 
 Entregables:
@@ -51,6 +55,8 @@ Entregables:
 - CI que impida regresiones fuera de tolerancia.
 
 Criterio de salida: `power_flow` y `voltage_drop` pueden pasar a `VALIDATED_WITH_LIMITATIONS` o `VALIDATED`, según cobertura conseguida.
+
+La evidencia P1 v1 y las limitaciones se documentan en `docs/BENCHMARKS_P1.md`. CI genera `benchmark_p1.json` como artefacto reproducible.
 
 ## Fase P2 — Datos de entrada profesionales
 
