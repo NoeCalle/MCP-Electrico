@@ -28,11 +28,23 @@ El reparto de R total en OpenDSS se realiza 50/50 entre devanados mientras no ex
 
 ## Decisión 5 — Red equivalente positiva-secuencia
 
-P2 v1 representa máximo/mínimo mediante Scc3 y X/R. El escenario activo se proyecta a la fuente OpenDSS. Scc3 no se usa para inventar Z0; secuencia cero queda pendiente.
+P2 v1 representa máximo/mínimo mediante Scc3 y X/R. Para el escenario activo se deriva explícitamente:
+
+`|Z1| = kV_LL² / Scc3_MVA`
+
+`R1 = |Z1| / sqrt(1 + (X/R)²)`
+
+`X1 = R1 · X/R`
+
+La proyección OpenDSS escribe **R1/X1**, no `MVAsc3/MVAsc1`. Esta decisión evita que un cambio de Scc3 positiva fuerce al solver a recalcular una secuencia cero que P2 todavía no conoce. R0/X0 permanecen sin modificar y se consideran `NOT_AVAILABLE` desde la perspectiva profesional hasta que existan datos suficientes.
+
+El primer CI de P2 confirmó la necesidad de esta separación: editar `MVAsc3 + X1R1` al cambiar de escenario hizo que OpenDSS intentara recomputar R0 a partir de información residual de secuencia cero. Esa conducta fue descartada en favor de la proyección positiva explícita.
 
 ## Decisión 6 — QA depende del estudio
 
 La severidad de un dato faltante depende del uso. Una carencia tolerable para flujo puede ser BLOCKER para cortocircuito, protección o Arc Flash. La madurez del algoritmo y la completitud del modelo siguen siendo controles separados.
+
+Además, si un transformador P2 carece de P0/I0 y OpenDSS conserva defaults internos, QA debe mostrarlo como una advertencia de **proyección incompleta**; el default del solver nunca se convierte en un dato P2.
 
 ## Decisión 7 — V2 es parte de P2
 
