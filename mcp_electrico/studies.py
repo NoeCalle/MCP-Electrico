@@ -45,6 +45,22 @@ def _bus_voltage_summary(powerflow: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def _raw_bus_voltage_map() -> dict[str, list[float]]:
+    """Lee magnitudes pu vigentes directamente de OpenDSS sin redondearlas.
+
+    El payload público de `core.ejecutar_flujo_potencia()` redondea tensiones
+    para presentación. Los estudios derivados no deben usar ese redondeo como
+    entrada numérica porque amplifica el error relativo cuando ΔV es pequeño.
+    """
+    result: dict[str, list[float]] = {}
+    for bus in dss.Circuit.AllBusNames():
+        dss.Circuit.SetActiveBus(bus)
+        result[str(bus).lower()] = [
+            float(v) for v in dss.Bus.puVmagAngle()[0::2]
+        ]
+    return result
+
+
 def _active_line_measurements(name: str) -> dict[str, Any]:
     """Extrae magnitudes del terminal 1 de una línea ya resuelta.
 
@@ -142,15 +158,16 @@ def analizar_caida_tension(limite_pct: float = 3.0) -> dict[str, Any]:
     """Calcula caída de tensión por línea usando tensiones pu de buses.
 
     `limite_pct` es un criterio configurable de evaluación. El MCP no afirma
-    que 3 % u otro valor sea universalmente normativo. Se conserva la caída
-    firmada promedio y la mayor caída positiva de fase disponible.
+    que 3 % u otro valor sea universalmente normativo. El cálculo usa las
+    magnitudes pu vigentes de OpenDSS sin redondeo intermedio y redondea solo
+    al construir el resultado de presentación.
     """
     if limite_pct <= 0:
         raise ValueError("limite_pct debe ser mayor que cero.")
 
     flow = analizar_flujo_operacion()
     pf = flow["powerflow"]
-    bus_map = {str(k).lower(): v for k, v in pf.get("voltajes_por_bus", {}).items()}
+    bus_map = _raw_bus_voltage_map()
     rows: list[dict[str, Any]] = []
 
     for name in dss.Lines.AllNames():
@@ -158,8 +175,8 @@ def analizar_caida_tension(limite_pct: float = 3.0) -> dict[str, Any]:
         full = f"Line.{name}"
         bus1 = _bus_name(dss.Lines.Bus1())
         bus2 = _bus_name(dss.Lines.Bus2())
-        v1 = [float(v) for v in bus_map.get(bus1.lower(), {}).get("voltajes_pu", [])]
-        v2 = [float(v) for v in bus_map.get(bus2.lower(), {}).get("voltajes_pu", [])]
+        v1 = [float(v) for v in bus_map.get(bus1.lower(), [])]
+        v2 = [float(v) for v in bus_map.get(bus2.lower(), [])]
         common = min(len(v1), len(v2))
         phase_drop: list[float] = []
         for i in range(common):
@@ -218,7 +235,8 @@ def analizar_caida_tension(limite_pct: float = 3.0) -> dict[str, Any]:
         },
         "flow": flow,
         "metodologia": (
-            "Diferencia de magnitudes de tensión pu entre bus1 y bus2 de cada Line, "
-            "reportando promedio firmado y máxima caída positiva entre fases disponibles."
+            "Diferencia de magnitudes de tensión pu OpenDSS sin redondeo intermedio "
+            "entre bus1 y bus2 de cada Line; se reporta promedio firmado y máxima "
+            "caída positiva entre fases disponibles."
         ),
     }
