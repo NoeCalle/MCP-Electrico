@@ -11,6 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mcp_electrico import (
+    conductor_tools,
     core,
     studies,
     visual_state,
@@ -393,6 +394,9 @@ def calcular_arc_flash(
     return core.calcular_arc_flash(
         voltaje_kv, corriente_falla_ka, tiempo_despeje_s, distancia_trabajo_mm
     )
+
+
+conductor_tools.register(mcp, _refresh_after_model_change)
 
 
 if __name__ == "__main__":
