@@ -5,6 +5,7 @@ from __future__ import annotations
 from . import (
     engine_selection,
     model_qa,
+    p2_completion,
     professional_data,
     runtime_safety,
     validation_status,
@@ -50,6 +51,11 @@ def register(mcp, on_model_change=None) -> None:
             tipo_falla=tipo_falla,
             permitir_experimental=permitir_experimental,
         )
+
+    @mcp.tool()
+    def evaluar_cierre_p2() -> dict:
+        """Evalúa el contrato de producto P2 v1 y la coherencia del modelo activo."""
+        return p2_completion.evaluar_cierre_p2()
 
     @mcp.tool()
     def seleccionar_motor_estudio(
