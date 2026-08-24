@@ -1,8 +1,8 @@
-"""Registro de tools MCP para gobernanza técnica y datos profesionales P2."""
+"""Registro de tools MCP para gobernanza técnica, selección de motor y datos P2."""
 
 from __future__ import annotations
 
-from . import model_qa, professional_data, validation_status
+from . import engine_selection, model_qa, professional_data, validation_status
 
 
 def register(mcp, on_model_change=None) -> None:
@@ -19,6 +19,24 @@ def register(mcp, on_model_change=None) -> None:
     def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict:
         """Ejecuta QA determinístico y reporta si el modelo puede habilitarse para emisión."""
         return model_qa.auditar_modelo(estudios_requeridos)
+
+    @mcp.tool()
+    def obtener_capacidades_motores() -> dict:
+        """Devuelve la matriz determinista OpenDSS/pandapower/MCP sin ejecutar estudios."""
+        return engine_selection.obtener_capacidades_motores()
+
+    @mcp.tool()
+    def seleccionar_motor_estudio(
+        estudio: str,
+        norma: str | None = None,
+        permitir_experimental: bool = False,
+    ) -> dict:
+        """Indica backend, requisitos y aptitud actual; no despacha el cálculo automáticamente."""
+        return engine_selection.seleccionar_motor_estudio(
+            estudio=estudio,
+            norma=norma,
+            permitir_experimental=permitir_experimental,
+        )
 
     @mcp.tool()
     def agregar_transformador_profesional(
