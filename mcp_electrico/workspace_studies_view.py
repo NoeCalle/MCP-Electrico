@@ -13,6 +13,18 @@ from typing import Any
 
 MARKER = "<!-- MCP-STUDIES-V1 -->"
 
+# PR #5 dejó un cierre extra en el listener del botón SVG del HTML base. La
+# extensión se ejecuta sobre todo workspace generado por `server.py`, por lo
+# que normalizamos aquí ese HTML antes de añadir vistas. Se conserva como
+# reparación explícita y verificable hasta mover el fix al renderer base.
+_BASE_JS_BAD = "setTimeout(() => URL.revokeObjectURL(url), 1000);\n  }));\n\n  annotateSvg();"
+_BASE_JS_FIXED = "setTimeout(() => URL.revokeObjectURL(url), 1000);\n  });\n\n  annotateSvg();"
+
+
+def _repair_base_javascript(html: str) -> str:
+    """Corrige una regresión sintáctica conocida del workspace interactivo."""
+    return html.replace(_BASE_JS_BAD, _BASE_JS_FIXED)
+
 
 def _fmt(value: Any, decimals: int = 3, suffix: str = "") -> str:
     if value is None:
@@ -209,6 +221,7 @@ def _script() -> str:
 
 def enhance_html(html: str, snapshot: dict[str, Any]) -> str:
     """Añade pestañas de estudios al HTML base de forma idempotente."""
+    html = _repair_base_javascript(html)
     if MARKER in html:
         return html
 
