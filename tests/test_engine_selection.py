@@ -13,12 +13,14 @@ def _balanced_case():
 def test_matrix_preserves_no_dispatch_no_crosscheck():
     matrix = engine_selection.obtener_capacidades_motores()
 
-    assert matrix["schema_version"] == 1
+    assert matrix["schema_version"] == 2
     assert matrix["automatic_dispatch"] is False
     assert matrix["crosscheck"] is False
     assert matrix["studies"]["power_flow"]["preferred"] == "opendss"
     assert matrix["studies"]["iec60909"]["preferred"] == "pandapower"
     assert matrix["studies"]["ampacity"]["preferred"] == "mcp"
+    assert "READY_DATA" in matrix["readiness_states"]["data"]
+    assert "ENGINE_NOT_READY" in matrix["readiness_states"]["engine"]
 
 
 def test_power_flow_requires_active_model():

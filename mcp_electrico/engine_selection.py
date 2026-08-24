@@ -14,7 +14,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import model_qa, pandapower_engine, validation_status
+from . import model_qa, pandapower_engine, study_readiness, validation_status
 
 
 CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
@@ -34,7 +34,7 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "preferred": "opendss", "alternatives": [], "module": "short_circuit",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "FaultStudy existe, pero todavía no constituye IEC 60909 formal.",
-        "requirements": ["circuito activo", "barra de falla válida"],
+        "requirements": ["circuito activo", "barra de falla válida", "tipo de falla explícito para readiness profesional"],
     },
     "iec60909": {
         "preferred": "pandapower", "alternatives": [], "module": "short_circuit",
@@ -114,22 +114,64 @@ def _has_active_model() -> bool:
 
 def obtener_capacidades_motores() -> dict[str, Any]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "automatic_dispatch": False,
         "crosscheck": False,
         "default_engine": "opendss",
         "studies": deepcopy(CAPABILITY_MATRIX),
-        "note": "La matriz selecciona/recomienda; las tools explícitas siguen ejecutando cada backend.",
+        "readiness_states": {
+            "data": ["READY_DATA", "MISSING_DATA"],
+            "engine": ["READY_ENGINE", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
+            "overall": ["READY_TO_EXECUTE", "MISSING_DATA", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
+        },
+        "note": "La matriz selecciona/recomienda y evalúa preparación; las tools explícitas siguen ejecutando cada backend.",
     }
 
 
-def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_experimental: bool = False) -> dict[str, Any]:
+def evaluar_preparacion_estudio(
+    estudio: str,
+    norma: str | None = None,
+    tipo_falla: str | None = None,
+    permitir_experimental: bool = False,
+) -> dict[str, Any]:
+    """Devuelve completitud de datos, aptitud del backend y estado global sin ejecutar."""
+    normalized = _normalize_study(estudio, norma)
+    capability = CAPABILITY_MATRIX.get(normalized)
+    if capability is None:
+        return {
+            "schema_version": 1,
+            "study_requested": estudio,
+            "study": normalized,
+            "overall_status": "UNKNOWN_STUDY",
+            "data_status": "MISSING_DATA",
+            "engine_status": "ENGINE_NOT_READY",
+            "selected_engine": None,
+            "missing_data": [{"code": "P2READY000", "message": "Estudio no registrado en la matriz E.", "element": None}],
+        }
+    result = study_readiness.evaluar(
+        study=normalized,
+        capability=capability,
+        fault_type=tipo_falla,
+        allow_experimental=permitir_experimental,
+    )
+    result["study_requested"] = estudio
+    result["standard"] = norma
+    return result
+
+
+def seleccionar_motor_estudio(
+    estudio: str,
+    norma: str | None = None,
+    permitir_experimental: bool = False,
+    tipo_falla: str | None = None,
+) -> dict[str, Any]:
     normalized = _normalize_study(estudio, norma)
     capability = CAPABILITY_MATRIX.get(normalized)
     if capability is None:
         return {
             "study_requested": estudio, "study": normalized, "decision": "UNKNOWN_STUDY",
-            "executable": False, "professional_emission": False, "selected_engine": None,
+            "executable": False, "technical_executable": False, "professional_execution_ready": False,
+            "professional_emission": False, "selected_engine": None,
             "reason": "El estudio no existe en la matriz determinista de capacidades.",
             "automatic_dispatch": False, "crosscheck": False,
         }
@@ -144,14 +186,23 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
 
     active_model = _has_active_model()
     model_requirement_ok = active_model or not capability.get("requires_active_model", False)
-    executable = bool(capability["implemented"] and model_requirement_ok)
+    technical_executable = bool(capability["implemented"] and model_requirement_ok)
+
+    readiness = study_readiness.evaluar(
+        study=normalized,
+        capability=capability,
+        fault_type=tipo_falla,
+        allow_experimental=permitir_experimental,
+    )
+    professional_execution_ready = readiness.get("overall_status") == study_readiness.READY_TO_EXECUTE
 
     qa = None
-    if executable and capability["professional_emission_candidate"] and module_name:
+    if technical_executable and capability["professional_emission_candidate"] and module_name:
         qa = model_qa.auditar_modelo([module_name])
 
     professional = bool(
-        executable
+        technical_executable
+        and professional_execution_ready
         and capability["professional_emission_candidate"]
         and module
         and module.get("status") in {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"}
@@ -184,8 +235,12 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
                     item["reason"] = "El modelo activo no entra en el alcance pandapower vigente."
         alternatives.append(item)
 
-    if not capability["implemented"] or not model_requirement_ok:
+    if not technical_executable:
         decision = "NO_APTO_PARA_EJECUCION"
+    elif readiness["overall_status"] == study_readiness.MISSING_DATA:
+        decision = "EJECUTABLE_CON_DATOS_PROFESIONALES_INCOMPLETOS"
+    elif readiness["overall_status"] in {study_readiness.ENGINE_NOT_READY, study_readiness.MODULE_NOT_READY}:
+        decision = "NO_APTO_PARA_EJECUCION_PROFESIONAL"
     elif professional:
         decision = "APTO_DENTRO_DE_LIMITACIONES"
     else:
@@ -199,12 +254,16 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
         "study_requested": estudio,
         "study": normalized,
         "standard": norma,
+        "fault_type": readiness.get("fault_type"),
         "decision": decision,
-        "executable": executable,
+        "executable": technical_executable,
+        "technical_executable": technical_executable,
+        "professional_execution_ready": professional_execution_ready,
         "professional_emission": professional,
         "selected_engine": capability["preferred"],
         "reason": reason,
         "requirements": deepcopy(capability["requirements"]),
+        "readiness": readiness,
         "module_status": deepcopy(module),
         "model_active": active_model,
         "qa_summary": deepcopy((qa or {}).get("summary")),
