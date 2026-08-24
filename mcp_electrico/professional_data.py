@@ -1,9 +1,9 @@
 """Datos profesionales P2 y proyección trazable hacia OpenDSS.
 
 Solo almacena datos explícitos o derivados mediante fórmulas registradas. Un
-dato ausente permanece ausente. Si OpenDSS necesita/conserva un valor por
-defecto porque el usuario no aportó el parámetro, esa condición se registra
-como supuesto de proyección y QA puede señalarla; nunca se presenta como dato.
+dato ausente permanece ausente. Si OpenDSS conserva un valor por defecto
+porque el usuario no aportó el parámetro, esa condición queda registrada como
+supuesto de proyección; nunca se presenta como dato profesional.
 """
 
 from __future__ import annotations
@@ -234,7 +234,7 @@ def agregar_transformador_profesional(
         "projection": {
             "opendss": {"r_percent_each_winding": r_half, "xhl_percent": series["x_percent"], "lead_lag": vg["lead_lag_opendss"], "complete": not projection_assumptions, "assumptions": projection_assumptions},
             "pandapower_ready": pandapower_ready,
-            "pandapower_missing": [] if pandapower_ready else [name for name, value in (("no_load_loss_kw", no_load_loss_kw), ("i0_percent", i0_percent)) if value is None],
+            "pandapower_missing": [] if pandapower_ready else [field for field, value in (("no_load_loss_kw", no_load_loss_kw), ("i0_percent", i0_percent)) if value is None],
             "zero_sequence_ready": False,
         },
     }
@@ -251,16 +251,25 @@ def _source_scenario(name: str, scc_mva: float | None, x_r: float | None) -> dic
     return {"scc3_mva": float(scc_mva), "x_r": float(x_r)}
 
 
+def _equivalent_from_scenario(kv_ll: float, scenario: dict[str, Any]) -> dict[str, float]:
+    z1 = float(kv_ll) ** 2 / float(scenario["scc3_mva"])
+    r1 = z1 / sqrt(1.0 + float(scenario["x_r"]) ** 2)
+    x1 = r1 * float(scenario["x_r"])
+    return {"z1_ohm": z1, "r1_ohm": r1, "x1_ohm": x1}
+
+
 def _apply_source_scenario(record: dict[str, Any]) -> dict[str, Any]:
+    """Aplica solo secuencia positiva; no obliga a OpenDSS a recalcular Z0."""
     scenario_name = record["active_scenario"]
     scenario = record["scenarios"].get(scenario_name)
     if scenario is None:
         raise ValueError(f"P2SRC020: escenario {scenario_name} no está definido.")
-    dss(f"Edit Vsource.source BasekV={record['kv_ll']} MVAsc3={scenario['scc3_mva']} X1R1={scenario['x_r']}")
-    z1 = record["kv_ll"] ** 2 / scenario["scc3_mva"]
-    r1 = z1 / sqrt(1.0 + scenario["x_r"] ** 2)
-    x1 = r1 * scenario["x_r"]
-    return {"z1_ohm": z1, "r1_ohm": r1, "x1_ohm": x1}
+    equivalent = _equivalent_from_scenario(record["kv_ll"], scenario)
+    dss(
+        f"Edit Vsource.source BasekV={record['kv_ll']} "
+        f"R1={equivalent['r1_ohm']} X1={equivalent['x1_ohm']}"
+    )
+    return equivalent
 
 
 def definir_red_equivalente(
@@ -295,6 +304,7 @@ def definir_red_equivalente(
         "active_scenario": active,
         "provenance": _provenance(fuente_referencia, fuente_url, ["kv_ll", "scc_max_mva", "x_r_max", "scc_min_mva", "x_r_min"]),
         "zero_sequence": {"available": False, "status": "NOT_AVAILABLE", "note": "Scc3 y X/R no determinan por sí solos Z0; no se inventa MVAsc1/R0/X0."},
+        "projection": {"opendss": "R1/X1 explícitos; R0/X0 permanecen sin modificar"},
     }
     record["active_equivalent"] = _apply_source_scenario(record)
     _source = record
