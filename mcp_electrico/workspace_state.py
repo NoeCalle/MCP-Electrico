@@ -14,7 +14,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import visual_state
+from . import professional_data, visual_state
 from .core import listar_cargas_criticas
 
 STATE_EMPTY = "EMPTY"
@@ -228,6 +228,7 @@ def _collect_transformers() -> list[dict[str, Any]]:
                 "buses": buses,
                 "windings": windings,
                 "open": _is_open(full),
+                "professional": professional_data.obtener_transformador(full),
             }
         )
     return items
@@ -279,6 +280,7 @@ def collect_model_snapshot() -> dict[str, Any]:
         buses.append({"name": name, "visual": visual_state.get_bus(name)})
     return {
         "circuit": _runtime["circuit_name"],
+        "source": professional_data.obtener_red_equivalente(),
         "buses": buses,
         "lines": _collect_lines(),
         "transformers": _collect_transformers(),
@@ -291,7 +293,8 @@ def collect_model_snapshot() -> dict[str, Any]:
 def snapshot() -> dict[str, Any]:
     """Contrato serializable completo consumido por el workspace HTML."""
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": status(),
         "model": collect_model_snapshot(),
+        "professional": professional_data.snapshot(),
     }
