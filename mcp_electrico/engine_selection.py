@@ -19,107 +19,66 @@ from . import model_qa, pandapower_engine, validation_status
 
 CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
     "power_flow": {
-        "preferred": "opendss",
-        "alternatives": ["pandapower"],
-        "module": "power_flow",
-        "implemented": True,
-        "professional_emission_candidate": True,
-        "requires_active_model": True,
+        "preferred": "opendss", "alternatives": ["pandapower"], "module": "power_flow",
+        "implemented": True, "professional_emission_candidate": True, "requires_active_model": True,
         "reason": "OpenDSS es el backend principal validado con limitaciones para flujo de potencia.",
         "requirements": ["circuito activo"],
     },
     "voltage_drop": {
-        "preferred": "opendss+mcp",
-        "alternatives": [],
-        "module": "voltage_drop",
-        "implemented": True,
-        "professional_emission_candidate": True,
-        "requires_active_model": True,
+        "preferred": "opendss+mcp", "alternatives": [], "module": "voltage_drop",
+        "implemented": True, "professional_emission_candidate": True, "requires_active_model": True,
         "reason": "OpenDSS resuelve tensiones y MCP deriva la caída sin redondeo intermedio.",
         "requirements": ["circuito activo", "flujo convergente", "líneas con buses origen/destino"],
     },
     "short_circuit_exploratory": {
-        "preferred": "opendss",
-        "alternatives": [],
-        "module": "short_circuit",
-        "implemented": True,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "opendss", "alternatives": [], "module": "short_circuit",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "FaultStudy existe, pero todavía no constituye IEC 60909 formal.",
         "requirements": ["circuito activo", "barra de falla válida"],
     },
     "iec60909": {
-        "preferred": "pandapower",
-        "alternatives": [],
-        "module": "short_circuit",
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "pandapower", "alternatives": [], "module": "short_circuit",
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "P4 define pandapower como candidato principal para IEC 60909; el módulo formal aún no está implementado.",
         "requirements": ["P2 completo para datos de fuente/transformadores", "secuencia cero cuando la falla la requiera", "backend P4 validado"],
     },
     "ampacity": {
-        "preferred": "mcp",
-        "alternatives": [],
-        "module": None,
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "mcp", "alternatives": [], "module": None,
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "La ampacidad normativa es una capa MCP de P3, no un resultado del solver de red.",
         "requirements": ["método de instalación", "condiciones térmicas", "factores de corrección", "norma versionada"],
     },
     "protection_coordination": {
-        "preferred": "mcp+pandapower",
-        "alternatives": [],
-        "module": "protection_coordination",
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "mcp+pandapower", "alternatives": [], "module": "protection_coordination",
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "P5 combinará datos de falla/protección con reglas MCP y capacidades de pandapower cuando apliquen.",
         "requirements": ["P4 IEC 60909", "curvas/ajustes de protección", "biblioteca de dispositivos"],
     },
     "arc_flash_ieee1584": {
-        "preferred": "mcp",
-        "alternatives": [],
-        "module": "arc_flash_ieee1584",
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "mcp", "alternatives": [], "module": "arc_flash_ieee1584",
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "IEEE 1584 pertenece a P6 y depende de corriente de arco y tiempo de despeje trazable.",
         "requirements": ["P4 cortocircuito", "P5 tiempo de despeje", "parámetros IEEE 1584"],
     },
     "arc_flash_lee": {
-        "preferred": "mcp",
-        "alternatives": [],
-        "module": "arc_flash_lee",
-        "implemented": True,
-        "professional_emission_candidate": False,
-        "requires_active_model": False,
+        "preferred": "mcp", "alternatives": [], "module": "arc_flash_lee",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
         "reason": "Lee permanece solo como método simplificado/educativo.",
         "requirements": ["voltaje", "corriente de falla", "tiempo de despeje", "distancia de trabajo"],
     },
     "harmonics": {
-        "preferred": "opendss",
-        "alternatives": [],
-        "module": None,
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "opendss", "alternatives": [], "module": None,
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "OpenDSS tiene capacidad de armónicos, pero MCP Eléctrico todavía no expone ni valida un estudio profesional de armónicos.",
         "requirements": ["modelos/espectros armónicos", "módulo MCP específico", "benchmarks"],
     },
     "time_series": {
-        "preferred": "opendss",
-        "alternatives": [],
-        "module": None,
-        "implemented": False,
-        "professional_emission_candidate": False,
-        "requires_active_model": True,
+        "preferred": "opendss", "alternatives": [], "module": None,
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": "OpenDSS es el candidato preferente para series temporales/distribución, pero el módulo MCP aún no está implementado.",
         "requirements": ["perfiles temporales", "módulo MCP específico", "benchmarks"],
     },
 }
-
 
 ALIASES = {
     "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",
@@ -144,6 +103,13 @@ def _normalize_study(study: str, standard: str | None = None) -> str:
     if normalized == "short_circuit_exploratory" and "60909" in key:
         return "iec60909"
     return normalized
+
+
+def _has_active_model() -> bool:
+    try:
+        return bool(str(dss.Circuit.Name() or ""))
+    except Exception:
+        return False
 
 
 def obtener_capacidades_motores() -> dict[str, Any]:
@@ -178,7 +144,7 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
         except KeyError:
             module = None
 
-    active_model = bool(str(dss.Circuit.Name() or ""))
+    active_model = _has_active_model()
     model_requirement_ok = active_model or not capability.get("requires_active_model", False)
     executable = bool(capability["implemented"] and model_requirement_ok)
 
@@ -212,9 +178,7 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
                 item["reason"] = "El modelo activo no entra en el alcance pandapower vigente."
         alternatives.append(item)
 
-    if not capability["implemented"]:
-        decision = "NO_APTO_PARA_EJECUCION"
-    elif not model_requirement_ok:
+    if not capability["implemented"] or not model_requirement_ok:
         decision = "NO_APTO_PARA_EJECUCION"
     elif professional:
         decision = "APTO_DENTRO_DE_LIMITACIONES"
