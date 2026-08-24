@@ -14,7 +14,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import professional_data, visual_state
+from . import conductor_library, professional_data, visual_state
 from .core import listar_cargas_criticas
 
 STATE_EMPTY = "EMPTY"
@@ -95,11 +95,7 @@ def mark_visual_changed(action: str) -> dict[str, Any]:
     return status()
 
 
-def record_solution(
-    result: dict[str, Any],
-    study: str = "powerflow",
-    action: str = "resolver_modelo",
-) -> dict[str, Any]:
+def record_solution(result: dict[str, Any], study: str = "powerflow", action: str = "resolver_modelo") -> dict[str, Any]:
     """Registra una solución asociada exactamente a la revisión actual."""
     _ensure_circuit_sync()
     converged = bool(result.get("convergio", True))
@@ -139,7 +135,6 @@ def record_electrical_error(message: str, action: str = "electrical_error") -> d
 
 
 def record_workspace_error(message: str) -> dict[str, Any]:
-    """Registra un fallo de UI sin alterar la validez del estado eléctrico."""
     _ensure_circuit_sync()
     _runtime["workspace_error"] = str(message)
     _runtime["last_update"] = _now()
@@ -153,16 +148,10 @@ def clear_workspace_error() -> None:
 def status() -> dict[str, Any]:
     studies = {}
     for name, item in _runtime["studies"].items():
-        studies[name] = {
-            **deepcopy(item),
-            "valid": item["model_revision"] == _runtime["model_revision"],
-        }
+        studies[name] = {**deepcopy(item), "valid": item["model_revision"] == _runtime["model_revision"]}
     return {
         **{k: deepcopy(v) for k, v in _runtime.items() if k != "studies"},
-        "results_current": (
-            _runtime["state"] == STATE_SOLVED
-            and _runtime["solved_revision"] == _runtime["model_revision"]
-        ),
+        "results_current": _runtime["state"] == STATE_SOLVED and _runtime["solved_revision"] == _runtime["model_revision"],
         "studies": studies,
     }
 
@@ -196,6 +185,7 @@ def _collect_lines() -> list[dict[str, Any]]:
                 "x1": float(dss.Lines.X1()),
                 "open": _is_open(full),
                 "visual": visual_state.get_feeder(full),
+                "conductor_assignment": conductor_library.obtener_asignacion(full),
             }
         )
     return items
@@ -275,9 +265,7 @@ def _collect_generators() -> list[dict[str, Any]]:
 def collect_model_snapshot() -> dict[str, Any]:
     """Extrae el modelo activo sin ejecutar ni modificar ningún estudio."""
     _ensure_circuit_sync()
-    buses = []
-    for name in dss.Circuit.AllBusNames():
-        buses.append({"name": name, "visual": visual_state.get_bus(name)})
+    buses = [{"name": name, "visual": visual_state.get_bus(name)} for name in dss.Circuit.AllBusNames()]
     return {
         "circuit": _runtime["circuit_name"],
         "source": professional_data.obtener_red_equivalente(),
