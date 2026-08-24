@@ -6,14 +6,14 @@ Servidor MCP para modelar, simular e inspeccionar redes eléctricas MT/BT con
 
 El objetivo del proyecto es ofrecer a un cliente MCP herramientas eléctricas
 de alto nivel —crear circuitos, agregar elementos, resolver flujo de potencia,
-cortocircuito, contingencias y generar diagramas unifilares— sin darle acceso
-directo e irrestricto al intérprete de OpenDSS.
+analizar caída de tensión, cortocircuito, contingencias y generar diagramas
+unifilares— sin darle acceso directo e irrestricto al intérprete de OpenDSS.
 
 Además del diálogo mediante ChatGPT/MCP, el proyecto puede mantener un
 **workspace HTML persistente** que actúa como visor técnico del circuito activo.
 El HTML no contiene un segundo chatbot ni usa una API de modelos: ChatGPT sigue
 siendo la interfaz conversacional, OpenDSS sigue siendo el motor eléctrico y el
-workspace es únicamente una vista estructurada del estado y resultados.
+workspace es una vista estructurada del estado, propiedades y estudios.
 
 > **Estado:** proyecto educativo / experimental. No sustituye un estudio
 > eléctrico profesional ni software validado para diseño, coordinación de
@@ -26,7 +26,6 @@ Requisitos: Python 3.10 o superior.
 ```bash
 git clone https://github.com/NoeCalle/MCP-Electrico.git
 cd MCP-Electrico
-
 python -m venv venv
 ```
 
@@ -65,8 +64,9 @@ python examples/workspace_hospital.py
 
 `unifilar_tecnico.py` genera `unifilar_tecnico.svg` y
 `unifilar_tecnico.html`. `workspace_hospital.py` genera un
-`workspace_hospital.html` persistente con el unifilar embebido, estado de
-cálculo, datos del modelo y botones para impresión/PDF y descarga SVG.
+`workspace_hospital.html` persistente con unifilar, inspector técnico,
+propiedades, flujo de potencia, caída de tensión y botones para impresión/PDF y
+descarga SVG.
 
 Para ejecutar la suite de regresión:
 
@@ -76,7 +76,7 @@ python -m pytest -q
 ```
 
 GitHub Actions ejecuta `pytest`, genera el unifilar técnico y el workspace de
-referencia y conserva ambos como artefactos en cada PR.
+referencia con estudios y conserva ambos como artefactos en cada PR.
 
 ## 3. Conectar a un cliente MCP
 
@@ -102,7 +102,7 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 |---|---|
 | `configurar_workspace` | Configura ruta, título y regeneración automática del visor HTML |
 | `obtener_estado_workspace` | Devuelve revisiones, validez de resultados y estudios registrados |
-| `regenerar_workspace` | Fuerza la regeneración del HTML y SVG compañero |
+| `regenerar_workspace` | Fuerza la regeneración del HTML, SVG y vistas de estudios |
 | `crear_circuito` | Inicia un circuito y limpia el estado auxiliar previo |
 | `agregar_linea` | Agrega línea/cable con R1/X1 |
 | `agregar_transformador` | Agrega transformador trifásico de dos devanados |
@@ -113,7 +113,9 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `configurar_alimentador_unifilar` | Añade etiqueta, protección, conductor y anotaciones ATS/UPS |
 | `obtener_configuracion_unifilar` | Devuelve los metadatos visuales del circuito activo |
 | `agregar_generador_respaldo` | Agrega un grupo electrógeno mediante `Generator` de OpenDSS |
-| `ejecutar_flujo_potencia` | Resuelve voltajes por bus y pérdidas |
+| `ejecutar_flujo_potencia` | Resuelve voltajes/pérdidas y actualiza el estudio detallado `flow` |
+| `analizar_flujo_operacion` | Devuelve corriente, kW/kvar y cargabilidad disponible por alimentador |
+| `analizar_caida_tension` | Calcula ΔV por `Line` contra un límite configurable por el usuario |
 | `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
 | `abrir_elemento` | Abre un elemento y deja el modelo resuelto en ese estado |
 | `cerrar_elemento` | Cierra un elemento y vuelve a resolver |
@@ -143,6 +145,7 @@ agregar_transformador(...)
 agregar_linea(...)
 agregar_carga(...)
 ejecutar_flujo_potencia()
+analizar_caida_tension(limite_pct=3.0)
 ```
 
 ### 5.1 Estado y revisiones
@@ -162,13 +165,14 @@ Cada estudio conserva la revisión con la que fue calculado y expone una bandera
 `valid`. Así un resultado histórico puede permanecer trazable sin presentarse
 como vigente.
 
-### 5.2 HTML y exportación
+### 5.2 HTML, inspector y exportación
 
-La versión inicial incluye:
+La interfaz incluye:
 
 - unifilar SVG embebido;
 - resumen de buses, alimentadores, cargas y pérdidas;
-- pestaña `Datos`;
+- inspector técnico **read-only** con IDs estables del modelo;
+- selección desde el unifilar, tabla `Datos` o selector lateral;
 - snapshot JSON embebido y versionado;
 - botón **Imprimir / PDF**, basado en `window.print()` y CSS de impresión;
 - botón **Descargar SVG**;
@@ -176,11 +180,49 @@ La versión inicial incluye:
 
 El HTML es autocontenido y no usa dependencias remotas. El archivo se reescribe
 automáticamente, pero una pestaña local ya abierta debe refrescarse para leer
-la nueva versión. Un servidor/watch local para actualización en vivo queda para
-una fase posterior.
+la nueva versión.
 
-La guía está en `docs/WORKSPACE.md` y la decisión arquitectónica completa en
-`docs/decisions/ADR-0001-workspace-persistente.md`.
+Las decisiones base están en:
+
+- `docs/WORKSPACE.md`;
+- `docs/WORKSPACE_INTERACTIVO.md`;
+- `docs/decisions/ADR-0001-workspace-persistente.md`;
+- `docs/decisions/ADR-0002-workspace-interactivo.md`.
+
+### 5.3 Flujo de potencia dentro del workspace
+
+`ejecutar_flujo_potencia()` conserva su payload histórico, pero además registra
+un estudio `flow` detallado. La pestaña **Flujo** puede mostrar por alimentador:
+
+- corriente máxima del terminal 1;
+- flujo kW y kvar del terminal 1;
+- cargabilidad respecto a `corriente_nominal_a`, cuando ese rating existe;
+- pérdidas totales del circuito.
+
+La cargabilidad **no equivale por sí sola a validación normativa de ampacidad**.
+Hasta implementar una biblioteca formal de conductores, el rating usado es un
+metadato explícito suministrado al alimentador.
+
+### 5.4 Caída de tensión dentro del workspace
+
+`analizar_caida_tension(limite_pct=3.0)` calcula la diferencia de magnitudes pu
+entre `bus1` y `bus2` de cada `Line`.
+
+El resultado conserva:
+
+- tensión promedio de origen y destino;
+- caída por fase;
+- caída promedio firmada;
+- máxima caída positiva evaluada;
+- estado `OK` / `EXCEDE` respecto al límite suministrado.
+
+El límite es **configurable por el usuario**. El valor 3 % es solo el default de
+la herramienta y no se presenta como requisito normativo universal.
+
+La metodología y decisiones completas están en:
+
+- `docs/WORKSPACE_ESTUDIOS.md`;
+- `docs/decisions/ADR-0003-estudios-operativos-workspace.md`.
 
 ## 6. Unifilar técnico SVG
 
@@ -300,16 +342,22 @@ MCP-Electrico/
 ├── mcp_electrico/
 │   ├── __init__.py
 │   ├── core.py
+│   ├── studies.py
 │   ├── visualization.py
 │   ├── visual_state.py
 │   ├── visual_symbols.py
 │   ├── workspace_state.py
-│   └── workspace.py
+│   ├── workspace.py
+│   └── workspace_studies_view.py
 ├── docs/
 │   ├── UNIFILAR_TECNICO.md
 │   ├── WORKSPACE.md
+│   ├── WORKSPACE_INTERACTIVO.md
+│   ├── WORKSPACE_ESTUDIOS.md
 │   └── decisions/
-│       └── ADR-0001-workspace-persistente.md
+│       ├── ADR-0001-workspace-persistente.md
+│       ├── ADR-0002-workspace-interactivo.md
+│       └── ADR-0003-estudios-operativos-workspace.md
 ├── examples/
 │   ├── unifilar_tecnico.py
 │   └── workspace_hospital.py
@@ -320,11 +368,13 @@ MCP-Electrico/
 
 - `server.py`: tools MCP y orquestación.
 - `core.py`: lógica eléctrica y estado OpenDSS.
+- `studies.py`: métricas operativas derivadas de soluciones OpenDSS.
 - `visualization.py`: interpretación topológica, layout y render SVG.
 - `visual_symbols.py`: biblioteca vectorial de símbolos.
 - `visual_state.py`: metadatos visuales que no alteran el cálculo.
 - `workspace_state.py`: revisiones, validez y contrato snapshot.
-- `workspace.py`: render/autogeneración del HTML persistente.
+- `workspace.py`: HTML persistente e inspector base.
+- `workspace_studies_view.py`: pestañas read-only para resultados de estudios.
 
 ## 14. Limitaciones actuales
 
@@ -337,12 +387,17 @@ MCP-Electrico/
 - no hay `LoadShape`, PV, Storage, capacitores, armónicos ni simulación anual;
 - el workspace no persiste el proyecto entre reinicios del proceso;
 - un HTML local abierto requiere refresco manual para leer una regeneración;
-- las vistas específicas de caída de tensión, flujo, C.C. y contingencias están
-  planificadas sobre el snapshot v1, pero no forman parte todavía del workspace;
+- la caída de tensión inicial se evalúa por cada `Line`, no todavía como caída
+  acumulada independiente hasta cada carga;
+- la corriente nominal usada para cargabilidad es un dato explícito, no una
+  ampacidad calculada según método de instalación;
+- vistas específicas de C.C. y contingencias aún no tienen pestañas propias;
 - el SVG es un unifilar técnico, no un plano CAD contractual ni una biblioteca
   normativa completa IEC/ANSI;
 - Arc Flash es solo una estimación educativa por Lee.
 
-El siguiente salto del workspace será incorporar interacción visual con
-selección de elementos y, después, overlays de flujo y caída de tensión sin
-romper el contrato de snapshot definido en esta fase.
+El siguiente salto recomendado es formalizar la **biblioteca/modelo de
+conductores**: material, sección, aislamiento, tensión nominal, instalación,
+R/X, ampacidad y procedencia del dato. Eso permitirá relacionar el objeto físico
+seleccionado por el usuario con el modelo OpenDSS y con verificaciones de diseño
+más sólidas.
