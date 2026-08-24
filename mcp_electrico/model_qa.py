@@ -55,7 +55,22 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
             findings.append(_finding("QA101", "ERROR", "R1 no positiva o no definida.", element))
         if float(line.get("x1") or 0) < 0:
             findings.append(_finding("QA102", "ERROR", "X1 negativa.", element))
+
         assignment = assignments.get(element.lower())
+        visual_conductor = str(line.get("visual", {}).get("conductor") or "").strip()
+        assignment_description = str((assignment or {}).get("descripcion") or "").strip()
+
+        if assignment and assignment_description and visual_conductor != assignment_description:
+            findings.append(
+                _finding(
+                    "QA112",
+                    "ERROR",
+                    "La asignación de conductor no coincide con el estado visual actual; puede ser un residuo de un modelo previo.",
+                    element,
+                )
+            )
+            assignment = None
+
         if not assignment:
             findings.append(
                 _finding(
@@ -78,7 +93,6 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
                 findings.append(_finding("QA201", "ERROR", "Tensión de devanado no positiva.", element))
             if float(winding.get("kva") or 0) <= 0:
                 findings.append(_finding("QA202", "ERROR", "Potencia de devanado no positiva.", element))
-        # El snapshot actual aún no expone %Z, X/R ni fuente. No se oculta esta brecha.
         findings.append(
             _finding(
                 "QA210",
