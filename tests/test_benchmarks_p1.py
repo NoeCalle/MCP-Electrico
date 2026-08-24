@@ -54,6 +54,17 @@ def test_each_p1_case_passes_against_independent_reference():
             assert metric["pass"] is True
 
 
+def test_mt_drop_no_reintroduce_redondeo_intermedio():
+    case = next(c for c in benchmarks.BENCHMARK_CASES if c["id"] == "mt_radial_pq")
+    result = benchmarks.run_case(case)
+    drop = result["comparisons"]["drop_pct"]
+
+    # La corrección P1 lee Vpu cruda desde OpenDSS antes de redondear el
+    # resultado. Con redondeo intermedio a 4 decimales este error era >6 %.
+    assert drop["rel_error_pct"] is not None
+    assert drop["rel_error_pct"] < 1.0
+
+
 def test_full_p1_suite_reports_no_failures():
     report = benchmarks.run_p1_benchmarks()
     assert report["summary"]["pass"] is True
