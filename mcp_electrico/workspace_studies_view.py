@@ -126,6 +126,7 @@ def _css() -> str:
     return '''
 /* MCP studies v1 */
 .study-panel { padding:0; }
+.study-panel.active { margin-top:12px; border-radius:8px; }
 .study-header { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; padding:16px 16px 8px; }
 .study-header h3 { margin:0 0 4px; color:var(--blue); font-size:16px; }
 .study-header p { margin:0; color:var(--muted); font-size:12px; }
@@ -197,7 +198,9 @@ def _script() -> str:
     const name = btn.dataset.tab;
     Object.entries(studyPanels).forEach(([key, panel]) => panel?.classList.toggle('active', key === name));
     if (name === 'flujo' || name === 'caida') {
-      document.getElementById('panel-unifilar')?.classList.remove('active');
+      // El estudio conserva visible el mismo unifilar y coloca la tabla debajo.
+      // Así el overlay de estado es realmente visible para el usuario.
+      document.getElementById('panel-unifilar')?.classList.add('active');
       document.getElementById('panel-datos')?.classList.remove('active');
       applyOverlay(name);
     } else {
