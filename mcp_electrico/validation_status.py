@@ -35,6 +35,16 @@ _MODULES = {
             "El límite porcentual de aceptación continúa siendo criterio configurable del usuario",
         ],
     },
+    "pandapower_power_flow": {
+        "status": "EXPERIMENTAL",
+        "basis": "pandapower 3.5.x mediante puente explícito desde el modelo activo",
+        "limitations": [
+            "Solo redes trifásicas balanceadas de un único nivel de tensión",
+            "Solo elementos Line + Load con fuente ideal en sourcebus",
+            "Transformadores, generadores, motores y redes desbalanceadas se rechazan en v1",
+            "No existe todavía router automático ni cross-check entre motores",
+        ],
+    },
     "conductor_library": {
         "status": "VALIDATED_WITH_LIMITATIONS",
         "basis": "Fichas Nexans/INDECO Perú trazables",

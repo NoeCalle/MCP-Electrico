@@ -1,9 +1,10 @@
 """
-Servidor MCP para OpenDSS.
+Servidor MCP Eléctrico.
 
-La lógica eléctrica vive en mcp_electrico.core y mcp_electrico.studies. Este
-archivo orquesta las herramientas MCP, registra revisiones y mantiene
-sincronizado el workspace HTML sin mezclar UI con el motor OpenDSS.
+La lógica eléctrica principal vive en mcp_electrico.core y mcp_electrico.studies.
+OpenDSS continúa siendo el motor por defecto. Pandapower se incorpora como un
+segundo motor experimental, invocado de forma explícita y sin cross-check ni
+selección automática en esta fase.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from pathlib import Path
 from mcp_electrico import (
     conductor_tools,
     core,
+    pandapower_engine,
     studies,
     visual_state,
     workspace,
@@ -79,7 +81,8 @@ def configurar_workspace(
     """Configura el visor HTML persistente del circuito activo.
 
     El workspace es solo una vista del modelo. ChatGPT continúa siendo la
-    interfaz conversacional y OpenDSS continúa siendo el motor de cálculo.
+    interfaz conversacional y OpenDSS continúa siendo el motor de cálculo por
+    defecto.
     """
     result = workspace.configure(ruta_salida, titulo, auto_regenerar)
     _enhance_workspace_if_present()
@@ -244,7 +247,7 @@ def agregar_generador_respaldo(
 
 @mcp.tool()
 def ejecutar_flujo_potencia() -> dict:
-    """Resuelve flujo y actualiza también la vista detallada del workspace."""
+    """Resuelve flujo con OpenDSS y actualiza la vista detallada."""
     flow = studies.analizar_flujo_operacion()
     _record_flow(flow, "ejecutar_flujo_potencia")
     _regenerate_workspace()
@@ -253,8 +256,24 @@ def ejecutar_flujo_potencia() -> dict:
 
 
 @mcp.tool()
+def ejecutar_flujo_pandapower() -> dict:
+    """Resuelve explícitamente con pandapower dentro del alcance experimental v1.
+
+    No compara contra OpenDSS, no selecciona motores automáticamente y no
+    modifica la solución base del workspace. Si el modelo contiene elementos
+    todavía no soportados, devuelve el rechazo y sus códigos de compatibilidad.
+    """
+    result = pandapower_engine.ejecutar_flujo()
+    workspace_state.record_study(
+        "powerflow_pandapower", result, action="ejecutar_flujo_pandapower"
+    )
+    _regenerate_workspace()
+    return result
+
+
+@mcp.tool()
 def analizar_flujo_operacion() -> dict:
-    """Devuelve flujo detallado por alimentador y actualiza el workspace."""
+    """Devuelve flujo detallado OpenDSS por alimentador y actualiza el workspace."""
     flow = studies.analizar_flujo_operacion()
     _record_flow(flow, "analizar_flujo_operacion")
     _regenerate_workspace()
