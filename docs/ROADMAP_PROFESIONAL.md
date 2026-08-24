@@ -22,6 +22,16 @@ Cada módulo deberá declarar uno de estos estados:
 
 Un estado `VALIDATED` no elimina la obligación del ingeniero de revisar entradas, hipótesis y resultados.
 
+## Eje transversal V — workspace y representación visual
+
+La evolución visual se mantiene como un eje permanente del proyecto y no como una fase opcional separada. El unifilar técnico, workspace, inspector, tablas y overlays deben evolucionar junto con los datos y estudios de P2–P7.
+
+La base ya implementada incluye unifilar SVG técnico, workspace persistente, IDs estables, inspector read-only, selección sincronizada y overlays de flujo/caída de tensión.
+
+Regla de desarrollo: cuando una fase incorpore un nuevo objeto o estudio deberá decidir expresamente qué representación requiere —inspector, tabla, overlay, símbolo o salida de reporte— y mantener la trazabilidad entre `model_revision`, elemento, motor de cálculo y resultado.
+
+El detalle de entregables visuales por fase se mantiene en `docs/ROADMAP_VISUAL.md`.
+
 ## Fase P0 — Gobernanza técnica y QA del modelo
 
 Objetivo: evitar que el sistema presente como listo para emisión un modelo incompleto.
@@ -190,7 +200,8 @@ Criterios mínimos propuestos:
 - expediente reproducible;
 - documentación de límites de aplicación;
 - CI con benchmarks y pruebas de regresión;
-- matriz de validación publicada por release.
+- matriz de validación publicada por release;
+- workspace/unifilar coherentes con los estudios incluidos en 1.0 y aptos para salida reproducible.
 
 Arc Flash puede formar parte de 1.0 o de un módulo posterior, pero no debe presentarse como IEEE 1584 hasta completar P6.
 
