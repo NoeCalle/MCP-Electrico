@@ -113,7 +113,6 @@ def _has_active_model() -> bool:
 
 
 def obtener_capacidades_motores() -> dict[str, Any]:
-    """Devuelve la matriz versionada sin ejecutar ni modificar el modelo."""
     return {
         "schema_version": 1,
         "automatic_dispatch": False,
@@ -125,7 +124,6 @@ def obtener_capacidades_motores() -> dict[str, Any]:
 
 
 def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_experimental: bool = False) -> dict[str, Any]:
-    """Selecciona backend y determina aptitud sin ejecutar el estudio."""
     normalized = _normalize_study(estudio, norma)
     capability = CAPABILITY_MATRIX.get(normalized)
     if capability is None:
@@ -163,19 +161,27 @@ def seleccionar_motor_estudio(estudio: str, norma: str | None = None, permitir_e
 
     alternatives: list[dict[str, Any]] = []
     for engine in capability.get("alternatives", []):
-        item: dict[str, Any] = {"engine": engine, "eligible": True, "reason": None}
+        item: dict[str, Any] = {"engine": engine, "eligible": False, "reason": None}
         if engine == "pandapower":
-            compatibility = pandapower_engine.evaluar_compatibilidad()
-            item.update(
-                compatible_model=compatibility["compatible"],
-                issues=compatibility["issues"],
-                maturity=compatibility["maturity"],
-            )
-            item["eligible"] = bool(compatibility["compatible"] and permitir_experimental)
-            if not permitir_experimental:
-                item["reason"] = "Pandapower sigue EXPERIMENTAL; habilítalo explícitamente para considerarlo alternativa."
-            elif not compatibility["compatible"]:
-                item["reason"] = "El modelo activo no entra en el alcance pandapower vigente."
+            if not active_model:
+                item.update(
+                    compatible_model=False,
+                    issues=[{"code": "PP001", "message": "No existe un circuito activo."}],
+                    maturity="EXPERIMENTAL",
+                    reason="No se evalúa el backend alternativo sin modelo activo.",
+                )
+            else:
+                compatibility = pandapower_engine.evaluar_compatibilidad()
+                item.update(
+                    compatible_model=compatibility["compatible"],
+                    issues=compatibility["issues"],
+                    maturity=compatibility["maturity"],
+                )
+                item["eligible"] = bool(compatibility["compatible"] and permitir_experimental)
+                if not permitir_experimental:
+                    item["reason"] = "Pandapower sigue EXPERIMENTAL; habilítalo explícitamente para considerarlo alternativa."
+                elif not compatibility["compatible"]:
+                    item["reason"] = "El modelo activo no entra en el alcance pandapower vigente."
         alternatives.append(item)
 
     if not capability["implemented"] or not model_requirement_ok:
