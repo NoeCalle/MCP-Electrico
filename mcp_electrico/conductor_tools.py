@@ -1,7 +1,9 @@
-"""Registro de tools MCP para la biblioteca de conductores.
+"""Registro modular de tools auxiliares del servidor MCP.
 
-Se mantiene en un módulo separado para que `server.py` siga siendo orquestación
-y no contenga la lógica de catálogo/aplicación eléctrica.
+Históricamente este módulo nació para la biblioteca de conductores. Mantiene
+esa API de registro y, mientras `server.py` migra a un registry dedicado,
+también registra las tools de gobernanza profesional sin incorporar lógica de
+cálculo aquí.
 """
 
 from __future__ import annotations
@@ -9,11 +11,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from . import conductor_library
+from . import conductor_library, professional_tools
 
 
 def register(mcp: Any, on_model_change: Callable[[str], None]) -> None:
-    """Registra las tools de conductores sobre una instancia FastMCP existente."""
+    """Registra tools de conductores y gobernanza sobre FastMCP."""
 
     def listar_conductores(nivel: str | None = None, familia: str | None = None) -> list[dict]:
         """Lista productos BT/MT trazables de la biblioteca técnica."""
@@ -52,3 +54,4 @@ def register(mcp: Any, on_model_change: Callable[[str], None]) -> None:
     mcp.tool()(obtener_conductor)
     mcp.tool()(aplicar_conductor)
     mcp.tool()(obtener_asignaciones_conductores)
+    professional_tools.register(mcp)
