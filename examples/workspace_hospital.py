@@ -1,7 +1,8 @@
-"""Ejemplo integral del workspace persistente.
+"""Ejemplo integral del workspace persistente con estudios operativos.
 
 Construye un circuito hospitalario mediante las mismas tools que usa MCP,
-resuelve el flujo y deja `workspace_hospital.html` como visor técnico estable.
+resuelve el flujo, analiza caída de tensión y deja `workspace_hospital.html`
+como visor técnico estable con pestañas de estudios.
 """
 
 from __future__ import annotations
@@ -69,8 +70,9 @@ def main() -> None:
     )
 
     server.ejecutar_flujo_potencia()
+    caida = server.analizar_caida_tension(limite_pct=3.0)
     estado = server.obtener_estado_workspace()
-    print(estado)
+    print({"caida_tension": caida, "estado_workspace": estado})
 
 
 if __name__ == "__main__":
