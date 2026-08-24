@@ -11,6 +11,8 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from . import workspace_p2_view
+
 MARKER = "<!-- MCP-STUDIES-V1 -->"
 
 # PR #5 dejó un cierre extra en el listener del botón SVG del HTML base. La
@@ -198,8 +200,6 @@ def _script() -> str:
     const name = btn.dataset.tab;
     Object.entries(studyPanels).forEach(([key, panel]) => panel?.classList.toggle('active', key === name));
     if (name === 'flujo' || name === 'caida') {
-      // El estudio conserva visible el mismo unifilar y coloca la tabla debajo.
-      // Así el overlay de estado es realmente visible para el usuario.
       document.getElementById('panel-unifilar')?.classList.add('active');
       document.getElementById('panel-datos')?.classList.remove('active');
       applyOverlay(name);
@@ -223,10 +223,10 @@ def _script() -> str:
 
 
 def enhance_html(html: str, snapshot: dict[str, Any]) -> str:
-    """Añade pestañas de estudios al HTML base de forma idempotente."""
+    """Añade pestañas de estudios y extensiones P2 al HTML base idempotentemente."""
     html = _repair_base_javascript(html)
     if MARKER in html:
-        return html
+        return workspace_p2_view.enhance_html(html, snapshot)
 
     tabs_anchor = '      <button type="button" class="tab" data-tab="datos">Datos</button>'
     tabs = tabs_anchor + '\n      <button type="button" class="tab" data-tab="flujo">Flujo</button>\n      <button type="button" class="tab" data-tab="caida">Caída V</button>'
@@ -242,7 +242,7 @@ def enhance_html(html: str, snapshot: dict[str, Any]) -> str:
 
     html = html.replace('</style>', _css() + '\n</style>', 1)
     html = html.replace('</body>', MARKER + _script() + '\n</body>', 1)
-    return html
+    return workspace_p2_view.enhance_html(html, snapshot)
 
 
 def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -258,4 +258,5 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "archivo_html": str(target.resolve()),
         "flujo_vigente": bool(_study(snapshot, "flow")),
         "caida_tension_vigente": bool(_study(snapshot, "voltage_drop")),
+        "p2_cable_inspector": workspace_p2_view.MARKER in enhanced,
     }
