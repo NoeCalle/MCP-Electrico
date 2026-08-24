@@ -1,6 +1,6 @@
 from opendssdirect import dss
 
-from mcp_electrico import benchmarks, core, pandapower_engine, visual_state
+from mcp_electrico import benchmarks, core, pandapower_engine, validation_status, visual_state
 
 
 def _single_voltage_case():
@@ -28,6 +28,7 @@ def test_pandapower_v1_reports_explicit_scope():
     assert result["maturity"] == "EXPERIMENTAL"
     assert result["scope"] == "balanced_three_phase_single_voltage_line_load"
     assert result["compatible"] is True
+    assert validation_status.get_module_status("pandapower_power_flow")["status"] == "EXPERIMENTAL"
 
 
 def test_pandapower_v1_solves_single_voltage_case():
