@@ -23,7 +23,7 @@ jobs:
           python examples/unifilar_tecnico.py
           test -s unifilar_tecnico.svg
           test -s unifilar_tecnico.html
-      - name: Generate persistent interactive workspace
+      - name: Generate persistent workspace with studies
         run: |
           python examples/workspace_hospital.py
           test -s workspace_hospital.html
@@ -35,6 +35,13 @@ jobs:
           grep -q "elementSelect" workspace_hospital.html
           grep -q "inspectorBody" workspace_hospital.html
           grep -q 'data-element-id="Line.f_motor"' workspace_hospital.html
+          grep -q 'data-tab="flujo"' workspace_hospital.html
+          grep -q 'data-tab="caida"' workspace_hospital.html
+          grep -q 'id="panel-flujo"' workspace_hospital.html
+          grep -q 'id="panel-caida"' workspace_hospital.html
+          grep -q "Criterio configurable" workspace_hospital.html
+          grep -q '"voltage_drop"' workspace_hospital.html
+          grep -q '"flow"' workspace_hospital.html
       - name: Upload visual artifacts
         uses: actions/upload-artifact@v4
         with:
