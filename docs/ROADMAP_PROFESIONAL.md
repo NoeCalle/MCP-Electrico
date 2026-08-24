@@ -15,39 +15,46 @@ Este documento es la **guía maestra del proyecto**. Las fases no se consideran 
 | P0 — Gobernanza y QA | COMPLETA | madurez explícita, QA y gate de emisión |
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
-| P2 — Datos profesionales | **EN PROGRESO** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | PENDIENTE | `Ib <= In <= Iz` y factores de corrección trazables |
+| P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
+| P3 — Ampacidad normativa | **SIGUIENTE FASE** | `Ib <= In <= Iz` y factores de corrección trazables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. En el estado actual eso significa **terminar P2 antes de iniciar P3**. Los ejes transversales V y E pueden evolucionar en paralelo porque sirven a todas las fases.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. Con P2 v1 cerrada mediante gate reproducible, el siguiente bloque principal es **P3 — ampacidad normativa**. Los ejes transversales V y E continúan evolucionando en paralelo porque sirven a todas las fases.
 
-### P2 — qué ya existe y qué falta para cerrarla
+### P2 — evidencia de cierre v1
 
-Ya integrado:
+P2 se declara **COMPLETA CON LIMITACIONES**, no “completa universalmente”. El cierre corresponde al alcance P2 v1 y está protegido por `evaluar_cierre_p2()` y tests de salida.
 
-- transformador P2 de dos devanados con kVA, tensiones, grupo vectorial, `uk/%Z`, separación R/X, taps, pérdidas y procedencia;
-- red equivalente positiva-secuencia con Scc3/XR máxima y mínima;
-- proyección trazable a OpenDSS y, cuando hay datos suficientes, a pandapower;
-- biblioteca inicial BT/MT de conductores con fabricante, condiciones de instalación y fuente;
-- workspace schema v2 e inspector de datos profesionales;
-- QA que eleva la severidad según el estudio solicitado.
+Integrado y exigido por el gate:
 
-Pendiente para declarar P2 completa:
+- transformador P2 de dos devanados/trifásico con kVA, tensiones, grupo vectorial, `uk/%Z`, separación R/X, taps, pérdidas cuando se suministran y procedencia;
+- red equivalente positiva-secuencia con Scc3/XR máxima y mínima, escenario activo y procedencia;
+- biblioteca BT/MT trazable y asignación estructurada de **producto + condición de instalación**, separada del simple rótulo visual;
+- secuencia cero explícita para fuente y líneas y ficha homopolar canónica de transformador, sin derivar Z0 desde Z1/Scc3;
+- readiness por estudio con `READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY` y `MODULE_NOT_READY`;
+- checks sistemáticos de coherencia de tensión de fuente, fases, buses, ratings/conexiones de transformador y consistencia de la asignación de conductor;
+- workspace V2 con fuente, transformador y cable/instalación trazables;
+- seguridad de runtime contra datos P2, asignaciones o Z0 obsoletas;
+- gate de salida que separa **capacidad del producto** de **coherencia del modelo activo**.
 
-1. datos de secuencia cero `R0/X0` o geometría/construcción suficiente cuando el estudio los requiera;
-2. modelo más rico de cable + instalación, separado del simple rating visual;
-3. ampliación controlada de bibliotecas/equipos y de grupos/configuraciones soportadas;
-4. chequeos sistemáticos de coherencia de niveles de tensión, fases, conexiones y disponibilidad de datos por estudio;
-5. cierre V2 del inspector para mostrar de forma estructurada producto, instalación, impedancias aplicadas, ampacidad de catálogo y procedencia;
-6. tests de salida P2 que impidan declarar completa la fase mientras existan estos huecos.
+Limitaciones que permanecen deliberadamente fuera del cierre P2 v1:
+
+- la biblioteca no pretende cubrir todo el mercado BT/MT;
+- solo se admiten los grupos vectoriales expresamente soportados por P2 v1;
+- R0/X0 desde geometría física es una ampliación futura; no se inventa cuando falta;
+- la ficha Z0 del transformador no se proyecta profesionalmente a OpenDSS hasta validar una estrategia adecuada de conexión/neutro/núcleo;
+- la ampacidad de catálogo todavía no es `Iz` normativo: eso comienza en P3;
+- IEC 60909 sigue perteneciendo a P4.
+
+Detalle y criterio reproducible: `docs/P2_EXIT_GATE.md`.
 
 ## Principio rector
 
-OpenDSS se mantiene como motor numérico principal y por defecto. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitas. El trabajo pendiente no consiste en reemplazar OpenDSS, sino en profesionalizar la capa alrededor de los motores: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
+OpenDSS se mantiene como motor numérico principal y por defecto. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitos. El trabajo pendiente no consiste en reemplazar OpenDSS, sino en profesionalizar la capa alrededor de los motores: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
 
 ## Estados de madurez
 
@@ -75,17 +82,17 @@ El detalle de entregables visuales por fase se mantiene en `docs/ROADMAP_VISUAL.
 
 Objetivo: que la elección de OpenDSS, pandapower o una capa propia MCP **no dependa de una improvisación del LLM**.
 
-La selección se basará en una matriz versionada de capacidades, requisitos del estudio, madurez del módulo y compatibilidad del modelo. Este eje no altera el orden P0–P8.
+La selección se basa en una matriz versionada de capacidades, requisitos del estudio, madurez del módulo, readiness de datos y compatibilidad del modelo. Este eje no altera el orden P0–P8.
 
 Reglas:
 
 1. OpenDSS continúa siendo el motor por defecto para el flujo actualmente validado y para capacidades de distribución donde sea el backend preferente.
 2. pandapower se seleccionará cuando el estudio tenga una ventaja técnica clara y el módulo MCP correspondiente esté habilitado; IEC 60909 es el candidato principal de P4.
 3. algunos estudios pertenecen a la capa MCP y no a un solver: ampacidad normativa, reglas `Ib/In/Iz`, protección-conductor y IEEE 1584 son ejemplos de orquestación/postproceso propios.
-4. la matriz debe poder responder **motor preferente**, **alternativas**, **requisitos**, **madurez**, **si el estudio puede ejecutarse** y **si puede sustentar emisión**.
-5. si faltan datos o el módulo no está implementado, la decisión debe ser `NO APTO PARA EJECUCIÓN` o `NO APTO PARA EMISIÓN`; nunca se sustituirán silenciosamente datos.
+4. la matriz debe poder responder **motor preferente**, **alternativas**, **requisitos**, **madurez**, **readiness de datos/backend**, **si el estudio puede ejecutarse** y **si puede sustentar emisión**.
+5. si faltan datos o el módulo/backend no está listo, la decisión debe expresarlo; nunca se sustituirán silenciosamente datos.
 6. P1.5/P2 no introducen cross-check. Comparar resultados OpenDSS↔pandapower queda fuera de alcance hasta una fase futura específica.
-7. en la primera versión del eje E la matriz **recomienda/selecciona de forma determinista, pero no despacha automáticamente la ejecución**. Las tools explícitas de cada motor se mantienen.
+7. la matriz E **recomienda/selecciona de forma determinista, pero no despacha automáticamente la ejecución**. Las tools explícitas de cada motor se mantienen.
 
 Documento de detalle: `docs/ENGINE_SELECTION.md`.
 
@@ -142,31 +149,36 @@ Pandapower se considera especialmente relevante para la evolución posterior hac
 
 ## Fase P2 — Datos de entrada profesionales
 
-**Estado: EN PROGRESO.**
+**Estado: COMPLETA CON LIMITACIONES (P2 v1).**
 
-Objetivo: eliminar supuestos silenciosos de equipos principales.
+Objetivo: eliminar supuestos silenciosos de equipos principales y dejar una base de datos/QA capaz de alimentar las fases normativas siguientes.
 
-Criterio de salida:
+Criterio de salida cumplido dentro del alcance v1:
 
-- transformadores, fuente equivalente y cables relevantes para P3/P4 tienen datos suficientes y trazables;
+- transformadores, fuente equivalente y cables tienen representación profesional trazable;
 - ausencia de secuencia cero se bloquea cuando el estudio la requiere;
-- producto y condición de instalación están separados;
+- producto y condición de instalación están estructurados y separados del rating visual;
 - los datos críticos conservan procedencia;
 - OpenDSS/pandapower reciben solo proyecciones explícitas y compatibles;
-- QA y workspace reflejan completitud/limitaciones.
+- readiness diferencia datos faltantes de limitaciones del backend/módulo;
+- QA, runtime y gate P2 detectan incoherencias relevantes;
+- workspace V2 presenta los datos profesionales implementados.
 
-Entregables:
+Entregables consolidados:
 
-- biblioteca de transformadores: kVA, tensiones, grupo vectorial, %Z, X/R, taps, pérdidas y fuente;
-- modelo de red equivalente aguas arriba: Scc/Icc máxima y mínima, X/R y tensión;
-- ampliación de biblioteca de conductores BT/MT;
-- R0/X0 o geometría cuando el estudio lo requiera;
+- transformador profesional: kVA, tensiones, grupo vectorial, %Z, X/R, taps, pérdidas y fuente;
+- red equivalente aguas arriba: Scc máxima/mínima, X/R y tensión;
+- biblioteca trazable de conductores BT/MT y condición de instalación publicada;
+- R0/X0 explícitos de fuente/líneas y ficha Z0 canónica de transformador;
 - metadatos de origen para cada dato crítico;
-- chequeos de coherencia de base kV, fases y conexiones.
+- checks de coherencia de base kV, fases, buses, ratings y conexiones;
+- `evaluar_preparacion_estudio()` y `evaluar_cierre_p2()`.
+
+P2 no adelanta P3/P4: `Iz` normativo e IEC 60909 permanecen respectivamente pendientes.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: PENDIENTE.**
+**Estado: SIGUIENTE FASE.**
 
 Objetivo: poder verificar selección térmica del conductor, no solo mostrar un rating de catálogo.
 
