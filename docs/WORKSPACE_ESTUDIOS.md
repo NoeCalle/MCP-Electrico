@@ -36,7 +36,7 @@ Adicionalmente registra en el workspace el estudio `flow`, que incorpora por cad
 - corrientes por conductor del terminal 1;
 - flujo kW del terminal 1;
 - flujo kvar del terminal 1;
-- cargabilidad si existe `corriente_nominal_a` explícita.
+- cargabilidad si existe una corriente nominal explícita disponible para el alimentador.
 
 ### `analizar_flujo_operacion()`
 
@@ -122,30 +122,21 @@ Si después del cálculo se agrega una carga, cambia una impedancia o se abre/ci
 
 Un cambio exclusivamente visual no invalida los estudios.
 
-## Cargabilidad y ampacidad
+## Cargabilidad, catálogo y ampacidad
 
-Actualmente `corriente_nominal_a` proviene de un metadato explícito configurado en el alimentador.
+La biblioteca de conductores BT/MT ya existe y permite aplicar un producto comercial trazable a un `Line.*` mediante `aplicar_conductor(...)`.
 
-Ejemplo:
+Cuando la ficha cargada contiene una ampacidad publicada para la instalación elegida, el MCP puede actualizar `Line.NormAmps` y conservar la procedencia del dato. En cables MT donde además existe un par R/X verificable, también puede actualizar la impedancia del modelo; en BT, si falta X verificable, la impedancia previa se conserva deliberadamente.
 
-```python
-server.configurar_alimentador_unifilar(
-    "Line.f_motor",
-    etiqueta="F-01",
-    conductor="3x70 mm2 Cu XLPE",
-    corriente_nominal_a=160,
-)
-```
-
-El cálculo:
+También sigue siendo posible declarar manualmente `corriente_nominal_a` como metadato del alimentador. En cualquiera de los dos casos, la cargabilidad mostrada por el estudio representa una comparación contra el rating disponible:
 
 ```text
-cargabilidad = Imax / 160 A × 100
+cargabilidad = Imax / Inom × 100
 ```
 
-es válido respecto a ese rating declarado, pero **no significa que MCP Eléctrico haya verificado normativamente la ampacidad del cable**.
+Esto **no equivale todavía a una verificación normativa de ampacidad**. P3 deberá calcular `Iz` considerando método de instalación, temperatura, agrupamiento, suelo/resistividad y factores de corrección según la norma aplicable.
 
-La biblioteca de conductores será una fase posterior.
+La biblioteca y sus reglas de trazabilidad se documentan en `docs/CONDUCTORES.md`.
 
 ## Selección desde tablas
 
@@ -166,23 +157,11 @@ En Line.f_motor, aumenta la sección del conductor y vuelve a analizar la caída
 - solo se evalúa caída individual sobre objetos `Line`;
 - aún no existe reporte de caída acumulada hasta cada carga;
 - transformadores no tienen todavía una vista de cargabilidad;
-- no se derivan ampacidades a partir de condiciones de instalación;
+- no se derivan ampacidades normativas a partir de condiciones de instalación;
 - no se aplican límites regulatorios automáticos;
+- el inspector todavía debe ampliar la ficha estructurada del conductor y su procedencia;
 - una pestaña ya abierta sigue requiriendo recarga para leer el archivo regenerado.
 
-## Próxima fase recomendada
+## Evolución visual siguiente
 
-Crear un modelo formal de conductores y cables con:
-
-- material;
-- sección;
-- aislamiento;
-- tensión nominal;
-- número de conductores;
-- método de instalación;
-- longitud;
-- R/X;
-- ampacidad;
-- procedencia del dato.
-
-Eso permitirá que el workspace deje de mostrar el conductor solo como texto y pueda relacionar diseño físico, modelo OpenDSS y verificación de cargabilidad.
+La biblioteca de conductores ya dejó de ser solo texto de presentación. El siguiente paso visual, definido en `docs/ROADMAP_VISUAL.md`, es integrar en P2 la ficha estructurada de conductor, transformador y fuente equivalente directamente en el inspector, manteniendo la misma identidad estable de los elementos y sin mover cálculos eléctricos al navegador.
