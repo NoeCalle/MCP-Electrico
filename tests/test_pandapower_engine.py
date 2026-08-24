@@ -49,15 +49,7 @@ def test_pandapower_v1_matches_independent_two_bus_reference_without_opendss_cro
     _single_voltage_case()
     result = pandapower_engine.ejecutar_flujo()
     reference = benchmarks.solve_balanced_two_bus_reference(
-        {
-            "name": "pp_bridge_reference",
-            "kv_ll": 0.48,
-            "length_km": 0.05,
-            "r_ohm_km": 0.2,
-            "x_ohm_km": 0.08,
-            "kw": 30.0,
-            "kvar": 10.0,
-        }
+        dict(benchmarks.BENCHMARK_CASES[0])
     )
 
     buses = {row["bus"].lower(): row for row in result["resultados"]["buses"]}
