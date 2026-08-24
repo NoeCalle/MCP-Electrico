@@ -84,6 +84,14 @@ Las tolerancias están codificadas antes de ejecutar la comparación:
 
 Las tolerancias consideran también el redondeo de la API pública actual: tensiones pu a 4 decimales, corriente a 3 y pérdidas a 3.
 
+## Hallazgo P1: precisión del postproceso de caída
+
+La primera corrida del benchmark detectó que `voltage_drop` calculaba ΔV a partir del payload de tensiones ya redondeado a 4 decimales. En el caso MT, una referencia de aproximadamente `0.07457 %` terminaba reportada como `0.070 %`, lo que representaba un error relativo superior al 6 % aunque el error absoluto fuese pequeño.
+
+P1 corrigió esa arquitectura: el estudio de caída lee ahora las magnitudes pu vigentes directamente de OpenDSS sin redondeo intermedio y redondea únicamente el resultado de presentación. Después de la corrección, el mismo caso reporta `0.075 %` y el error relativo cae por debajo de 1 %.
+
+Existe una regresión específica que impide reintroducir el redondeo intermedio.
+
 ## Reporte automático
 
 Ejecutar:
