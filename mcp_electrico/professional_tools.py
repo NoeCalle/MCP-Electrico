@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
-from . import engine_selection, model_qa, professional_data, validation_status, zero_sequence
+from . import (
+    engine_selection,
+    model_qa,
+    professional_data,
+    runtime_safety,
+    validation_status,
+    zero_sequence,
+)
 
 
 def register(mcp, on_model_change=None) -> None:
+    # Endurece las rutas públicas existentes sin cambiar los nombres de tools:
+    # reinicio completo de estado en Circuit nuevo y preflight Z0 para FaultStudy.
+    runtime_safety.install()
+
     def changed(action: str) -> None:
         if on_model_change is not None:
             on_model_change(action)
