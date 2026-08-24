@@ -6,6 +6,45 @@ Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hac
 
 La firma y responsabilidad profesional siempre corresponden al ingeniero. El objetivo de este roadmap es que la herramienta entregue resultados trazables, reproducibles, verificables y con límites de aplicación explícitos.
 
+## Mapa maestro — orden de ejecución
+
+Este documento es la **guía maestra del proyecto**. Las fases no se consideran cumplidas por tener una primera implementación: cada una debe satisfacer su criterio de salida y mantener pruebas/CI, documentación, QA y representación visual cuando corresponda.
+
+| Fase | Estado actual | Resultado esperado |
+| --- | --- | --- |
+| P0 — Gobernanza y QA | COMPLETA | madurez explícita, QA y gate de emisión |
+| P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
+| P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
+| P2 — Datos profesionales | **EN PROGRESO** | equipos/fuente/cables trazables sin supuestos silenciosos |
+| P3 — Ampacidad normativa | PENDIENTE | `Ib <= In <= Iz` y factores de corrección trazables |
+| P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
+| P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
+| P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
+| P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
+| P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
+
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. En el estado actual eso significa **terminar P2 antes de iniciar P3**. Los ejes transversales V y E pueden evolucionar en paralelo porque sirven a todas las fases.
+
+### P2 — qué ya existe y qué falta para cerrarla
+
+Ya integrado:
+
+- transformador P2 de dos devanados con kVA, tensiones, grupo vectorial, `uk/%Z`, separación R/X, taps, pérdidas y procedencia;
+- red equivalente positiva-secuencia con Scc3/XR máxima y mínima;
+- proyección trazable a OpenDSS y, cuando hay datos suficientes, a pandapower;
+- biblioteca inicial BT/MT de conductores con fabricante, condiciones de instalación y fuente;
+- workspace schema v2 e inspector de datos profesionales;
+- QA que eleva la severidad según el estudio solicitado.
+
+Pendiente para declarar P2 completa:
+
+1. datos de secuencia cero `R0/X0` o geometría/construcción suficiente cuando el estudio los requiera;
+2. modelo más rico de cable + instalación, separado del simple rating visual;
+3. ampliación controlada de bibliotecas/equipos y de grupos/configuraciones soportadas;
+4. chequeos sistemáticos de coherencia de niveles de tensión, fases, conexiones y disponibilidad de datos por estudio;
+5. cierre V2 del inspector para mostrar de forma estructurada producto, instalación, impedancias aplicadas, ampacidad de catálogo y procedencia;
+6. tests de salida P2 que impidan declarar completa la fase mientras existan estos huecos.
+
 ## Principio rector
 
 OpenDSS se mantiene como motor numérico principal y por defecto. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitas. El trabajo pendiente no consiste en reemplazar OpenDSS, sino en profesionalizar la capa alrededor de los motores: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
@@ -32,7 +71,27 @@ Regla de desarrollo: cuando una fase incorpore un nuevo objeto o estudio deberá
 
 El detalle de entregables visuales por fase se mantiene en `docs/ROADMAP_VISUAL.md`.
 
+## Eje transversal E — selección determinista de motor
+
+Objetivo: que la elección de OpenDSS, pandapower o una capa propia MCP **no dependa de una improvisación del LLM**.
+
+La selección se basará en una matriz versionada de capacidades, requisitos del estudio, madurez del módulo y compatibilidad del modelo. Este eje no altera el orden P0–P8.
+
+Reglas:
+
+1. OpenDSS continúa siendo el motor por defecto para el flujo actualmente validado y para capacidades de distribución donde sea el backend preferente.
+2. pandapower se seleccionará cuando el estudio tenga una ventaja técnica clara y el módulo MCP correspondiente esté habilitado; IEC 60909 es el candidato principal de P4.
+3. algunos estudios pertenecen a la capa MCP y no a un solver: ampacidad normativa, reglas `Ib/In/Iz`, protección-conductor y IEEE 1584 son ejemplos de orquestación/postproceso propios.
+4. la matriz debe poder responder **motor preferente**, **alternativas**, **requisitos**, **madurez**, **si el estudio puede ejecutarse** y **si puede sustentar emisión**.
+5. si faltan datos o el módulo no está implementado, la decisión debe ser `NO APTO PARA EJECUCIÓN` o `NO APTO PARA EMISIÓN`; nunca se sustituirán silenciosamente datos.
+6. P1.5/P2 no introducen cross-check. Comparar resultados OpenDSS↔pandapower queda fuera de alcance hasta una fase futura específica.
+7. en la primera versión del eje E la matriz **recomienda/selecciona de forma determinista, pero no despacha automáticamente la ejecución**. Las tools explícitas de cada motor se mantienen.
+
+Documento de detalle: `docs/ENGINE_SELECTION.md`.
+
 ## Fase P0 — Gobernanza técnica y QA del modelo
+
+**Estado: COMPLETA.**
 
 Objetivo: evitar que el sistema presente como listo para emisión un modelo incompleto.
 
@@ -44,8 +103,6 @@ Entregables:
 4. bandera `apto_para_emision` calculada de forma determinística;
 5. reglas de QA documentadas y cubiertas por tests;
 6. sustitución del aviso genérico “educativo/experimental” por estados de madurez específicos por módulo.
-
-Esta fase NO declara todavía ningún estudio como profesionalmente validado.
 
 ## Fase P1 — Benchmarks de flujo de potencia y caída de tensión
 
@@ -64,38 +121,39 @@ Entregables:
 - benchmarks de pérdidas, tensiones, corrientes y caída de tensión;
 - CI que impida regresiones fuera de tolerancia.
 
-Criterio de salida: `power_flow` y `voltage_drop` pueden pasar a `VALIDATED_WITH_LIMITATIONS` o `VALIDATED`, según cobertura conseguida.
-
 La evidencia P1 v1 y las limitaciones se documentan en `docs/BENCHMARKS_P1.md`. CI genera `benchmark_p1.json` como artefacto reproducible.
 
 ## Fase P1.5 — Segundo motor experimental: pandapower
 
-Objetivo: incorporar pandapower de forma controlada como motor complementario sin introducir todavía selección automática de motor ni cross-check entre solvers.
+**Estado: COMPLETA COMO INTEGRACIÓN EXPERIMENTAL.**
 
-Primera entrega:
+Objetivo: incorporar pandapower de forma controlada como motor complementario sin cross-check entre solvers.
 
-- dependencia pandapower 3.5.x versionada;
-- módulo `pandapower_engine.py`;
-- tool explícita `ejecutar_flujo_pandapower()`;
-- flujo AC balanceado para redes trifásicas de un solo nivel de tensión con `Line + Load`;
-- rechazo determinístico de transformadores, generadores, motores y otras topologías fuera de alcance;
+Entregables actuales:
+
+- pandapower 3.5.x versionado;
+- `pandapower_engine.py` y tool explícita `ejecutar_flujo_pandapower()`;
+- flujo AC balanceado con líneas/cargas y transformadores P2 cuando los datos son suficientes;
+- rechazo determinístico de elementos fuera de alcance;
 - benchmark frente a la solución independiente P1, no frente a OpenDSS;
-- estado `pandapower_power_flow = EXPERIMENTAL`;
-- documentación de supuestos y códigos de compatibilidad.
+- estado `pandapower_power_flow = EXPERIMENTAL`.
 
-Decisiones deliberadas:
-
-- OpenDSS sigue siendo el motor por defecto;
-- no existe router automático en P1.5;
-- no existe cross-check OpenDSS/pandapower en P1.5;
-- pandapower no sustituye el estado de solución base del workspace;
-- la traducción de transformadores se pospone hasta disponer de datos profesionales en P2.
-
-Pandapower se considera especialmente relevante para la evolución posterior hacia IEC 60909 y protección industrial, pero esos módulos no se habilitan en P1.5.
+Pandapower se considera especialmente relevante para la evolución posterior hacia IEC 60909 y protección industrial, pero esos módulos no quedan habilitados por P1.5.
 
 ## Fase P2 — Datos de entrada profesionales
 
+**Estado: EN PROGRESO.**
+
 Objetivo: eliminar supuestos silenciosos de equipos principales.
+
+Criterio de salida:
+
+- transformadores, fuente equivalente y cables relevantes para P3/P4 tienen datos suficientes y trazables;
+- ausencia de secuencia cero se bloquea cuando el estudio la requiere;
+- producto y condición de instalación están separados;
+- los datos críticos conservan procedencia;
+- OpenDSS/pandapower reciben solo proyecciones explícitas y compatibles;
+- QA y workspace reflejan completitud/limitaciones.
 
 Entregables:
 
@@ -106,9 +164,9 @@ Entregables:
 - metadatos de origen para cada dato crítico;
 - chequeos de coherencia de base kV, fases y conexiones.
 
-P2 deberá definir datos suficientes para proyectar de forma trazable transformadores y fuentes tanto a OpenDSS como, cuando corresponda, a pandapower.
-
 ## Fase P3 — Ampacidad normativa y conductor
+
+**Estado: PENDIENTE.**
 
 Objetivo: poder verificar selección térmica del conductor, no solo mostrar un rating de catálogo.
 
@@ -127,6 +185,8 @@ La norma de referencia deberá versionarse explícitamente en cada release.
 
 ## Fase P4 — Cortocircuito IEC 60909
 
+**Estado: PENDIENTE.**
+
 Objetivo: disponer de un estudio formal de cortocircuito conforme a una edición declarada de IEC 60909.
 
 Entregables:
@@ -140,6 +200,8 @@ Entregables:
 - escenarios de red máxima y mínima.
 
 ## Fase P5 — Protección del conductor y coordinación
+
+**Estado: PENDIENTE.**
 
 Objetivo: verificar que el dispositivo realmente protege al conductor.
 
@@ -156,6 +218,8 @@ Entregables:
 
 ## Fase P6 — Arc Flash IEEE 1584
 
+**Estado: PENDIENTE.**
+
 Objetivo: reemplazar el cálculo Lee como herramienta principal de arco eléctrico.
 
 Entregables:
@@ -171,6 +235,8 @@ Entregables:
 
 ## Fase P7 — Reporte reproducible y expediente de cálculo
 
+**Estado: PENDIENTE.**
+
 Objetivo: que cada informe pueda reconstruirse exactamente.
 
 Paquete de emisión propuesto:
@@ -185,23 +251,24 @@ Paquete de emisión propuesto:
 - versiones de MCP Eléctrico, OpenDSS y bibliotecas;
 - hash SHA-256 del paquete/modelo.
 
-El informe debe mostrar qué módulos están validados y qué limitaciones permanecen.
-
 ## Fase P8 — Release profesional 1.0
 
-Criterios mínimos propuestos:
+**Estado: PENDIENTE.**
+
+Criterios mínimos:
 
 - P0 completa;
-- flujo y caída de tensión validados;
+- flujo y caída de tensión validados dentro de alcance publicado;
 - QA bloqueante operativo;
-- bibliotecas con trazabilidad;
-- cortocircuito IEC 60909 validado;
-- protección-conductor implementada;
-- expediente reproducible;
+- P2 cerrada con datos profesionales suficientes para estudios incluidos;
+- P3 ampacidad normativa implementada;
+- P4 cortocircuito IEC 60909 validado;
+- P5 protección-conductor implementada;
+- P7 expediente reproducible;
 - documentación de límites de aplicación;
 - CI con benchmarks y pruebas de regresión;
 - matriz de validación publicada por release;
-- workspace/unifilar coherentes con los estudios incluidos en 1.0 y aptos para salida reproducible.
+- workspace/unifilar coherentes con los estudios incluidos en 1.0.
 
 Arc Flash puede formar parte de 1.0 o de un módulo posterior, pero no debe presentarse como IEEE 1584 hasta completar P6.
 
