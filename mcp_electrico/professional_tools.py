@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
-from . import engine_selection, model_qa, professional_data, validation_status
+from . import (
+    engine_selection,
+    model_qa,
+    professional_data,
+    runtime_safety,
+    validation_status,
+    zero_sequence,
+)
 
 
 def register(mcp, on_model_change=None) -> None:
+    # Endurece las rutas públicas existentes sin cambiar los nombres de tools:
+    # reinicio completo de estado en Circuit nuevo y preflight Z0 para FaultStudy.
+    runtime_safety.install()
+
     def changed(action: str) -> None:
         if on_model_change is not None:
             on_model_change(action)
@@ -117,13 +128,96 @@ def register(mcp, on_model_change=None) -> None:
         return result
 
     @mcp.tool()
+    def definir_secuencia_cero_fuente(
+        r0_max_ohm: float,
+        x0_max_ohm: float,
+        r0_min_ohm: float | None = None,
+        x0_min_ohm: float | None = None,
+        fuente_referencia: str | None = None,
+        fuente_url: str | None = None,
+    ) -> dict:
+        """Define R0/X0 explícitos de la red aguas arriba por escenario; no deriva Z0 desde Scc3."""
+        result = zero_sequence.definir_fuente(
+            r0_max_ohm=r0_max_ohm,
+            x0_max_ohm=x0_max_ohm,
+            r0_min_ohm=r0_min_ohm,
+            x0_min_ohm=x0_min_ohm,
+            fuente_referencia=fuente_referencia,
+            fuente_url=fuente_url,
+        )
+        changed("definir_secuencia_cero_fuente")
+        return result
+
+    @mcp.tool()
+    def definir_secuencia_cero_linea(
+        nombre_elemento: str,
+        r0_ohm_km: float,
+        x0_ohm_km: float,
+        c0_nf_km: float | None = None,
+        fuente_referencia: str | None = None,
+        fuente_url: str | None = None,
+    ) -> dict:
+        """Aplica R0/X0 y opcional C0 explícitos a una Line trifásica."""
+        result = zero_sequence.definir_linea(
+            nombre_elemento=nombre_elemento,
+            r0_ohm_km=r0_ohm_km,
+            x0_ohm_km=x0_ohm_km,
+            c0_nf_km=c0_nf_km,
+            fuente_referencia=fuente_referencia,
+            fuente_url=fuente_url,
+        )
+        changed(f"definir_secuencia_cero_linea:{nombre_elemento}")
+        return result
+
+    @mcp.tool()
+    def definir_secuencia_cero_transformador(
+        nombre_elemento: str,
+        uk0_percent: float,
+        ur0_percent: float,
+        magnetizing_z0_ratio_percent: float,
+        magnetizing_r_over_x: float,
+        leakage_share_hv: float,
+        neutral_side: str | None = None,
+        neutral_mode: str | None = None,
+        rn_ohm: float | None = None,
+        xn_ohm: float | None = None,
+        fuente_referencia: str | None = None,
+        fuente_url: str | None = None,
+    ) -> dict:
+        """Registra datos Z0 de transformador sin asumir Z0=Z1 ni proyectarlos silenciosamente a OpenDSS."""
+        result = zero_sequence.definir_transformador(
+            nombre_elemento=nombre_elemento,
+            uk0_percent=uk0_percent,
+            ur0_percent=ur0_percent,
+            magnetizing_z0_ratio_percent=magnetizing_z0_ratio_percent,
+            magnetizing_r_over_x=magnetizing_r_over_x,
+            leakage_share_hv=leakage_share_hv,
+            neutral_side=neutral_side,
+            neutral_mode=neutral_mode,
+            rn_ohm=rn_ohm,
+            xn_ohm=xn_ohm,
+            fuente_referencia=fuente_referencia,
+            fuente_url=fuente_url,
+        )
+        changed(f"definir_secuencia_cero_transformador:{nombre_elemento}")
+        return result
+
+    @mcp.tool()
     def seleccionar_escenario_red(escenario: str) -> dict:
-        """Activa el escenario máximo o mínimo ya definido en la fuente P2."""
+        """Activa el escenario máximo o mínimo y reaplica Z0 solo si existe para ese escenario."""
         result = professional_data.seleccionar_escenario_red(escenario)
+        zero_sequence.reapply_active_source()
         changed(f"seleccionar_escenario_red:{escenario}")
         return result
 
     @mcp.tool()
+    def obtener_secuencia_cero() -> dict:
+        """Devuelve la ficha P2 de secuencia cero de fuente, líneas y transformadores."""
+        return zero_sequence.snapshot()
+
+    @mcp.tool()
     def obtener_datos_profesionales() -> dict:
-        """Devuelve transformadores y red equivalente P2 con procedencia y derivaciones."""
-        return professional_data.snapshot()
+        """Devuelve datos P2 positivos y homopolares con procedencia y derivaciones."""
+        result = professional_data.snapshot()
+        result["zero_sequence"] = zero_sequence.snapshot()
+        return result

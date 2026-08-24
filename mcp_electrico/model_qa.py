@@ -1,14 +1,15 @@
 """QA determinístico del modelo antes de una emisión profesional.
 
 No ejecuta estudios ni modifica los motores. Inspecciona el snapshot vigente,
-las asignaciones trazables, los datos profesionales P2 y la matriz de madurez.
+las asignaciones trazables, los datos profesionales P2, la secuencia cero y la
+matriz de madurez.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from . import conductor_library, validation_status, workspace_state
+from . import conductor_library, validation_status, workspace_state, zero_sequence
 
 _ACCEPTABLE_FOR_EMISSION = {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"}
 _SHORT_CIRCUIT_STUDIES = {"short_circuit", "iec60909", "arc_flash_ieee1584", "protection_coordination"}
@@ -59,6 +60,13 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
         elif not assignment.get("fuente", {}).get("url"):
             findings.append(_finding("QA111", "ERROR", "Asignación de conductor sin URL de fuente.", element))
 
+        if needs_fault_data:
+            z0_line = zero_sequence.obtener_linea(element)
+            if not z0_line:
+                findings.append(_finding("QA120", "BLOCKER", "El alimentador no tiene R0/X0 explícitos; no se sustituyen por múltiplos de R1/X1 para estudios de falla.", element))
+            elif not z0_line.get("projection", {}).get("opendss_ready"):
+                findings.append(_finding("QA121", "BLOCKER", "La secuencia cero del alimentador existe, pero no está proyectada al motor requerido.", element))
+
     for tr in transformers:
         element = tr["id"]
         windings = tr.get("windings", [])
@@ -86,8 +94,12 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
             findings.append(_finding("QA213", "ERROR", "Transformador P2 sin grupo vectorial.", element))
         if not p2.get("provenance", {}).get("uk_percent", {}).get("reference"):
             findings.append(_finding("QA214", "ERROR", "Transformador P2 sin procedencia para uk/%Z.", element))
-        if needs_fault_data and not projection.get("zero_sequence_ready"):
-            findings.append(_finding("QA215", "BLOCKER", "El transformador no tiene todavía parámetros de secuencia cero suficientes para el estudio solicitado.", element))
+        if needs_fault_data:
+            z0_tr = zero_sequence.obtener_transformador(element)
+            if not z0_tr:
+                findings.append(_finding("QA215", "BLOCKER", "El transformador no tiene todavía ficha explícita de secuencia cero para el estudio solicitado.", element))
+            elif not z0_tr.get("projection", {}).get("opendss_ready"):
+                findings.append(_finding("QA217", "BLOCKER", "La ficha Z0 del transformador existe, pero la proyección OpenDSS está bloqueada hasta validar una estrategia que represente conexión, neutro y efectos de núcleo sin asumir Z0=Z1.", element))
         if not projection.get("opendss", {}).get("complete", True):
             assumptions = projection.get("opendss", {}).get("assumptions", [])
             detail = " ".join(str(x) for x in assumptions) or "Existen parámetros no suministrados que OpenDSS conserva en sus defaults."
@@ -101,8 +113,12 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
             active = source.get("scenarios", {}).get(source.get("active_scenario"))
             if not active or float(active.get("scc3_mva") or 0) <= 0 or float(active.get("x_r") or 0) <= 0:
                 findings.append(_finding("QA301", "BLOCKER", "Escenario activo de red equivalente incompleto."))
-            if not source.get("zero_sequence", {}).get("available"):
-                findings.append(_finding("QA302", "BLOCKER", "La red equivalente no contiene Z0/MVAsc1; no es suficiente para fallas a tierra."))
+            z0_source = zero_sequence.obtener_fuente()
+            if not z0_source:
+                findings.append(_finding("QA302", "BLOCKER", "La red equivalente no contiene R0/X0 explícitos; Scc3 y X/R no son suficientes para fallas a tierra."))
+            elif not z0_source.get("active_projection", {}).get("applied"):
+                scenario = source.get("active_scenario")
+                findings.append(_finding("QA304", "BLOCKER", f"La red tiene secuencia cero, pero no existe Z0 explícita aplicada para el escenario activo {scenario}."))
     elif source and not source.get("provenance", {}).get("scc_max_mva", {}).get("reference"):
         findings.append(_finding("QA303", "WARNING", "Red equivalente definida sin referencia de procedencia."))
 
