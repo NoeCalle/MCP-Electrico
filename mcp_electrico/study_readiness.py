@@ -78,7 +78,10 @@ def _fault_type(study: str, value: str | None) -> tuple[str | None, list[dict[st
 
 
 def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
-    model = workspace_state.collect_model_snapshot()
+    try:
+        model = workspace_state.collect_model_snapshot()
+    except Exception:
+        return [_item("P2READY001", "No existe un circuito activo.")]
     missing: list[dict[str, Any]] = []
 
     if not model.get("circuit"):
@@ -137,7 +140,10 @@ def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
 
 
 def _zero_sequence_requirements() -> list[dict[str, Any]]:
-    model = workspace_state.collect_model_snapshot()
+    try:
+        model = workspace_state.collect_model_snapshot()
+    except Exception:
+        return [_item("P2READY001", "No existe un circuito activo.")]
     missing: list[dict[str, Any]] = []
     source = professional_data.obtener_red_equivalente()
     z0_source = zero_sequence.obtener_fuente()
@@ -243,10 +249,9 @@ def evaluar(
         data_missing.extend(_positive_sequence_requirements(study))
 
     if study in _FAULT_STUDIES and normalized_fault == "single_phase_ground":
-        data_missing.extend(_zero_sequence_requirements())
+        if not any(item.get("code") == "P2READY001" for item in data_missing):
+            data_missing.extend(_zero_sequence_requirements())
 
-    # Fases futuras pueden tener requisitos P3/P5/P6 fuera de P2. Aquí se
-    # reportan como módulo pendiente, no se inventan datos que aún no modelamos.
     data_status = READY_DATA if not request_missing and not data_missing else MISSING_DATA
     engine = _engine_readiness(study, capability, normalized_fault, allow_experimental)
 
