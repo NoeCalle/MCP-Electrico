@@ -89,13 +89,43 @@ def obtener_conductor(codigo: str) -> dict[str, Any]:
     raise ValueError(f"Conductor no encontrado en biblioteca: {codigo}")
 
 
+def _assignment_is_current(full_name: str, assignment: dict[str, Any]) -> bool:
+    """Evita reutilizar estado huérfano tras recrear un circuito con el mismo nombre.
+
+    `aplicar_conductor()` sincroniza deliberadamente la descripción de catálogo
+    con el metadato visual. Si ese espejo desaparece o cambia, la asignación ya
+    no puede demostrarse como perteneciente al modelo activo y se descarta.
+    """
+    try:
+        if not dss.Circuit.SetActiveElement(full_name):
+            return False
+        visual = visual_state.get_feeder(full_name)
+    except Exception:
+        return False
+    expected = str(assignment.get("descripcion") or "").strip()
+    current = str(visual.get("conductor") or "").strip()
+    return bool(expected) and current == expected
+
+
+def _purge_stale_assignments() -> None:
+    stale = [
+        key
+        for key, assignment in _assignments.items()
+        if not _assignment_is_current(str(assignment.get("elemento") or key), assignment)
+    ]
+    for key in stale:
+        _assignments.pop(key, None)
+
+
 def obtener_asignacion(nombre_elemento: str) -> dict[str, Any] | None:
     _sync_circuit()
+    _purge_stale_assignments()
     return deepcopy(_assignments.get(nombre_elemento.lower()))
 
 
 def snapshot_asignaciones() -> dict[str, Any]:
     _sync_circuit()
+    _purge_stale_assignments()
     return {
         "circuito": _circuit_name,
         "alimentadores": deepcopy(_assignments),
