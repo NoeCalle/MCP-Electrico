@@ -1,3 +1,4 @@
 mcp>=1.0,<2
 opendssdirect.py>=0.9,<0.10
 networkx>=3.2,<4
+pandapower>=3.5.4,<3.6
