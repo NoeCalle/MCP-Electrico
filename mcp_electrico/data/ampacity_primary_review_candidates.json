@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "candidates": [
+    {
+      "id": "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_CANDIDATE",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 5C",
+      "table_item": 1,
+      "pdf_page_index_zero_based": 564,
+      "pdf_page_number_one_based": 565,
+      "document_page_marker": "Tablas - Pág. 18 de 82",
+      "candidate_subset": {
+        "2": 0.80,
+        "3": 0.70,
+        "12": 0.45
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32877141382,
+        "artifact_id": 9574334684,
+        "artifact_digest": "sha256:484dc013f71dfe7974df88815f364cf6c93dc8233e5b1d7b855e07a36577aefb",
+        "page_render_generated": true,
+        "page_text_extracted": true,
+        "candidate_tokens_found": true
+      },
+      "manual_comparison_confirmed": false,
+      "human_reviewer": null,
+      "eligible_for_primary_dataset_pr": false,
+      "professional_emission": false,
+      "notes": "Evidencia candidata reproducible extraída desde la copia oficial pinneada. No constituye revisión humana ni PRIMARY_VERIFIED."
+    }
+  ]
+}
