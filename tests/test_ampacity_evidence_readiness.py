@@ -126,9 +126,17 @@ def test_condiciones_base_confirmadas_tienen_estado_propio():
     assert evidence["professional_normative_evidence_ready"] is False
 
 
-def test_perfil_sintetico_totalmente_primario_clasifica_ready_sin_habilitar_emision_global():
+def test_base_y_factores_primarios_clasifican_ready_sin_habilitar_emision_global():
     profile = {
         "element": "Line.synthetic",
+        "base": {
+            "evidence": {
+                "origin": "P3B_BASE_DATASET",
+                "normative_base": True,
+                "primary": True,
+                "professional_emission": True,
+            },
+        },
         "correction": {
             "mode": "EXPLICIT_FACTORS",
             "factors": [{"origin": "P3B_DATASET"}],
@@ -146,3 +154,27 @@ def test_perfil_sintetico_totalmente_primario_clasifica_ready_sin_habilitar_emis
     result = ampacity_evidence_readiness._profile_status(profile)
     assert result["status"] == "PRIMARY_EVIDENCE_READY"
     assert result["professional_normative_evidence_ready"] is True
+
+
+def test_factores_primarios_sin_base_normativa_no_completan_evidencia():
+    profile = {
+        "element": "Line.synthetic_without_base",
+        "correction": {
+            "mode": "EXPLICIT_FACTORS",
+            "factors": [{"origin": "P3B_DATASET"}],
+            "factor_evidence": {
+                "total": 1,
+                "manual": 0,
+                "dataset_primary": 1,
+                "dataset_secondary": 0,
+                "contains_secondary": False,
+                "professional_factor_evidence": True,
+                "automatic_normative_lookup": True,
+            },
+        },
+    }
+    result = ampacity_evidence_readiness._profile_status(profile)
+    assert result["status"] == "EVIDENCE_INCOMPLETE"
+    assert result["professional_normative_evidence_ready"] is False
+    assert "Iz_base" in result["reasons"][0]
+

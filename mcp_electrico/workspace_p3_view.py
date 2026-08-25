@@ -125,7 +125,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
   </div>
 </div>
 <div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 separa el origen de Iz base de la evidencia de factores. CATÁLOGO P2 no equivale a base normativa; PRIMARIA/SECUNDARIA se prepara en Python. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>∏k</th><th>Iz</th><th>Evid. factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="11">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>∏k</th><th>Iz</th><th>Evidencia factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="11">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 
