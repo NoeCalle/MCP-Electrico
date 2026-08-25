@@ -144,10 +144,13 @@ def test_readiness_ampacidad_es_especifico_y_no_habilita_emision():
     assert selection["decision"] == "EJECUTABLE_NO_APTO_PARA_EMISION"
 
 
-def test_matriz_validacion_declara_ampacidad_under_validation():
+def test_matriz_validacion_declara_ampacidad_under_validation_y_barrera_p3b():
     status = validation_status.get_module_status("ampacity")
     assert status["status"] == "UNDER_VALIDATION"
-    assert any("tablas" in text.lower() for text in status["limitations"])
+    limitations = " ".join(status["limitations"]).lower()
+    assert "secund" in limitations
+    assert "professional_emission=false" in limitations
+    assert "verificación primaria" in limitations
 
 
 def test_evaluar_todos_resume_estados():
