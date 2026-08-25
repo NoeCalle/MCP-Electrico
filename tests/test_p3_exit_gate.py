@@ -54,7 +54,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_declara_pendientes_reales_y_no_avanza_a_p4():
+def test_gate_p3_reconoce_p3c08_done_y_no_avanza_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -65,16 +65,33 @@ def test_gate_p3_declara_pendientes_reales_y_no_avanza_a_p4():
 
     pending = {item["id"] for item in result["pending_criteria"]}
     assert {
-        "P3C08",
         "P3C09",
         "P3C10",
         "P3C11",
         "P3C12",
         "P3C13",
     } <= pending
+    assert "P3C08" not in pending
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
-    assert {"P3C01", "P3C02", "P3C03", "P3C04", "P3C05", "P3C06", "P3C07"} <= done
+    assert {
+        "P3C01",
+        "P3C02",
+        "P3C03",
+        "P3C04",
+        "P3C05",
+        "P3C06",
+        "P3C07",
+        "P3C08",
+    } <= done
+
+
+def test_p3c08_deriva_del_registro_pinneado():
+    result = p3_completion.evaluar_cierre_p3()
+    criterion = next(item for item in result["criteria"] if item["id"] == "P3C08")
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
+    assert criterion["evidence"] == "ampacity_primary_sources.json"
 
 
 def test_gate_expone_que_iz_base_normativa_sigue_pendiente():

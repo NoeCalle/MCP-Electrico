@@ -34,7 +34,7 @@ El gate no interpola ni amplía el alcance normativo.
 
 ## Criterios del gate
 
-### Infraestructura ya implementada
+### Infraestructura y fuente primaria ya implementadas
 
 - `P3C01` — contrato `Ib/In/Iz`;
 - `P3C02` — router normativo P3A;
@@ -42,11 +42,21 @@ El gate no interpola ni amplía el alcance normativo.
 - `P3C04` — gate de evidencia primaria y pin de fuente;
 - `P3C05` — binding trazable dataset → factor → `Iz`;
 - `P3C06` — readiness de evidencia separado de `READY_DATA`;
-- `P3C07` — evidencia visible en workspace V3.
+- `P3C07` — evidencia visible en workspace V3;
+- `P3C08` — fuente oficial primaria pinneada por SHA-256.
+
+P3C08 utiliza la copia obtenida desde la URL oficial MINEM registrada y fijada en `ampacity_primary_sources.json`:
+
+```text
+source_id = MINEM_CNE_UTIL_2006_OFFICIAL_PDF
+pin_status = PINNED
+expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
+```
+
+El pin identifica la copia primaria de referencia, pero no valida numéricamente ninguna tabla.
 
 ### Criterios actualmente bloqueantes
 
-- `P3C08` — fuente oficial primaria pinneada por SHA-256;
 - `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED` apta para emisión;
 - `P3C10` — estrategia validada de `Iz_base`;
 - `P3C11` — cobertura primaria de las familias 5A/5B/5C/5D/5E del alcance P3-v1;
@@ -123,3 +133,5 @@ La tool MCP es:
 `evaluar_cierre_p3()`
 
 Su función es hacer visible, de forma determinista, **qué falta exactamente** para cerrar P3 y evitar que el roadmap avance por impresión subjetiva.
+
+Después de P3C08, el siguiente criterio práctico es **P3C09**: contrastar un subconjunto numérico pequeño contra la copia pinneada y crear una nueva revisión `PRIMARY_VERIFIED` mediante PR + CI.

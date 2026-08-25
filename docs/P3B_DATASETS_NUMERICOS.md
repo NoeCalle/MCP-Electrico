@@ -100,22 +100,20 @@ Por ahora:
 
 ## Gate de evidencia primaria
 
-P3B registra ahora fuentes oficiales candidatas de forma separada a los datasets. La fuente CNE descubierta en `gob.pe` permanece:
+P3B registra las fuentes oficiales de forma separada a los datasets. La fuente CNE en `gob.pe` ya quedó fijada como copia primaria de referencia:
 
 ```text
 source_class = OFFICIAL_PRIMARY_CANDIDATE
-pin_status = DISCOVERED_UNPINNED
-expected_sha256 = null
+pin_status = PINNED
+expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
 ```
 
-No se promueve ningún valor solo por conocer una URL oficial ni por calcular el SHA-256 de una copia local no fijada.
+La captura reproducible se realizó desde la URL oficial registrada mediante GitHub Actions run `32875620716`, con tamaño `10829258` bytes. El pin identifica exactamente el archivo utilizado por el proyecto; **no significa que MINEM publique ese hash ni que las tablas hayan sido verificadas**.
 
-El proceso es obligatoriamente de dos etapas:
+El proceso sigue siendo obligatoriamente de dos etapas:
 
-1. **fijar la fuente primaria**: obtener una copia oficial reproducible y registrar `pin_status = PINNED` + `expected_sha256` por revisión versionada;
-2. **verificar el dataset**: la copia usada debe tener exactamente ese SHA-256 y luego contrastarse tabla/página por tabla/página.
-
-Mientras la fuente siga `DISCOVERED_UNPINNED`, no puede existir `PRIMARY_EVIDENCE_READY_FOR_REVIEW` ni `ELIGIBLE_FOR_PRIMARY_DATASET_PR`.
+1. **fijar la fuente primaria** — P3C08 ya completado para este CNE;
+2. **verificar el dataset** — la copia usada debe tener exactamente ese SHA-256 y luego contrastarse tabla/página por tabla/página.
 
 Después del pin, el flujo exige:
 
@@ -192,13 +190,15 @@ Esto evita que un benchmark verde se interprete erróneamente como validación n
 
 ## Siguiente paso P3B
 
-1. obtener/archivar una copia primaria reproducible para los subconjuntos CNE a automatizar;
-2. fijar su SHA-256 oficial mediante una revisión versionada independiente;
-3. verificar que la copia de trabajo coincida byte a byte con ese pin;
-4. realizar comparación independiente de páginas/tablas;
-5. crear por PR una nueva revisión primaria del dataset, nunca mutar la secundaria en runtime;
-6. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
-7. comparar contra casos manuales independientes;
-8. usar el binding P3B → P3 ya implementado con datasets primarios reales;
-9. construir el gate formal de salida P3;
+P3C08 ya está completado. El siguiente bloque es P3C09:
+
+1. obtener una copia de trabajo cuyo SHA-256 coincida con el pin registrado;
+2. localizar y revisar un subconjunto pequeño de la Tabla 5C contra páginas/secciones de esa copia;
+3. registrar revisor y confirmación de comparación manual;
+4. crear una **nueva revisión** del dataset con `PRIMARY_VERIFIED`, sin mutar silenciosamente la secundaria existente;
+5. someter esa revisión a PR + CI;
+6. después repetir el proceso por ejes/familias requeridos;
+7. incorporar benchmarks primarios independientes;
+8. validar la estrategia de `Iz_base` de Tablas 1/2;
+9. mantener el gate formal P3 como árbitro del avance a P4;
 10. elevar madurez solo si la evidencia lo permite.

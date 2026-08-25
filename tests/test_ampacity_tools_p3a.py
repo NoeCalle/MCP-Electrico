@@ -1,6 +1,9 @@
 from mcp_electrico import ampacity_tools
 
 
+OFFICIAL_SHA256 = "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64"
+
+
 class FakeMCP:
     def __init__(self):
         self.tools = {}
@@ -46,7 +49,8 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
     sources = mcp.tools["listar_fuentes_primarias_ampacidad"]()
     assert len(sources) >= 1
     assert sources[0]["source_class"] == "OFFICIAL_PRIMARY_CANDIDATE"
-    assert sources[0]["pin_status"] == "DISCOVERED_UNPINNED"
+    assert sources[0]["pin_status"] == "PINNED"
+    assert sources[0]["expected_sha256"] == OFFICIAL_SHA256
 
     evidence = mcp.tools["evaluar_evidencia_normativa_ampacidad"]()
     assert evidence["professional_emission"] is False

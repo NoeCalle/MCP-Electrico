@@ -240,7 +240,13 @@ automatic_normative_lookup = false
 
 El benchmark P3B fija casos 2→0.80, 3→0.70 y 12→0.45 para verificar lookup exacto y trazabilidad. Un CI verde **no valida la tabla normativa primaria**.
 
-La fuente oficial MINEM/CNE está identificada en el registro de fuentes, pero mientras no exista una copia reproducible con SHA-256 fijado debe permanecer `DISCOVERED_UNPINNED`. La infraestructura no permite que ese estado produzca `PRIMARY_VERIFIED`.
+La fuente oficial MINEM/CNE ya está fijada en `ampacity_primary_sources.json` como `PINNED` con:
+
+```text
+expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
+```
+
+La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08, pero no verifica todavía la Tabla 5C ni promueve el dataset secundario actual.
 
 Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `docs/P3_EXIT_GATE.md` y `docs/P3_BENCHMARK_EVIDENCE.md`.
 
@@ -248,11 +254,10 @@ Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `do
 
 `evaluar_cierre_p3()` separa el estado de la fase del estado del modelo y bloquea el paso formal a P4 mientras exista algún criterio P3-v1 pendiente.
 
-Infraestructura `P3C01`–`P3C07`: implementada.
+Infraestructura y fuente `P3C01`–`P3C08`: implementadas.
 
 Bloqueantes actuales:
 
-- `P3C08` — fuente oficial primaria pinneada por SHA-256;
 - `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`;
 - `P3C10` — estrategia validada de `Iz_base`;
 - `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E;
@@ -261,7 +266,6 @@ Bloqueantes actuales:
 
 ### Pendiente para cerrar P3
 
-- obtener una copia reproducible de la fuente oficial MINEM/CNE y fijar su SHA-256 (`P3C08`);
 - cargar y revisar el primer subconjunto `PRIMARY_VERIFIED`, preferentemente pequeño y auditable (`P3C09`);
 - validar la estrategia normativa de ampacidad base mediante Tablas 1/2 o equivalente formalmente validado (`P3C10`);
 - completar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance (`P3C11`);
@@ -271,6 +275,8 @@ Bloqueantes actuales:
 - elevar madurez solo si la evidencia lo permite (`P3C13`).
 
 P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
+
+**Siguiente bloque principal:** P3C09, comenzando por un subconjunto pequeño de Tabla 5C verificado contra la copia oficial pinneada. El eje visual V3 permanece en paralelo; el pin de fuente por sí solo no cambia la evidencia de un modelo hasta que exista un dataset primario verificado.
 
 Detalle general: `docs/P3_AMPACIDAD.md`.
 

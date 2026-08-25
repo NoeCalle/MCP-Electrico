@@ -143,21 +143,25 @@ def test_p3b_doc_keeps_evidence_levels_and_no_false_validation():
     assert "evidence_level = SECONDARY" in text
     assert "ELIGIBLE_FOR_PRIMARY_DATASET_PR" in text
     assert "docs/P3B_EVIDENCIA_PRIMARIA.md" in text
+    assert "pin_status = PINNED" in text
+    assert "P3C08 ya está completado" in text
     assert "no prueban" in text.lower() or "no valida" in text.lower()
 
 
 def test_p3b_primary_evidence_doc_prevents_automatic_promotion():
     text = P3B_EVIDENCE.read_text(encoding="utf-8")
 
-    assert "DISCOVERED_UNPINNED" in text
-    assert "expected_sha256 = null" in text
+    assert "pin_status = PINNED" in text
+    assert "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64" in text
     assert "PRIMARY_EVIDENCE_READY_FOR_REVIEW" in text
     assert "ELIGIBLE_FOR_PRIMARY_DATASET_PR" in text
     assert "automatic_promotion = false" in text
     assert "professional_emission = false" in text
-    assert "source_sha256" in text
+    assert "pinned_hash_match = true" in text
     assert "manual_comparison_confirmed" in text
     assert "PR + CI" in text
+    assert "P3C08`: `DONE" in text
+    assert "P3C09" in text
 
 
 def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
@@ -172,6 +176,7 @@ def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
     assert "P3C11" in text
     assert "P3C12" in text
     assert "P3C13" in text
+    assert "pin_status = PINNED" in text
     assert "Tabla 5D" in text
     assert "READY_TO_EXECUTE" in text
     assert "SECONDARY_EVIDENCE_ONLY" in text

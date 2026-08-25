@@ -7,6 +7,7 @@ from mcp_electrico import ampacity_datasets
 
 
 SOURCE_ID = "MINEM_CNE_UTIL_2006_OFFICIAL_PDF"
+OFFICIAL_SHA256 = "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64"
 
 
 def _secondary():
@@ -33,7 +34,13 @@ def _primary_candidate():
     return item
 
 
-def _set_source_registry(tmp_path, monkeypatch, expected_sha256="a" * 64, norm_reference_id="PERU_CNE_UTILIZACION_2006"):
+def _set_source_registry(
+    tmp_path,
+    monkeypatch,
+    expected_sha256="a" * 64,
+    norm_reference_id="PERU_CNE_UTILIZACION_2006",
+    pin_status="PINNED",
+):
     path = tmp_path / "sources.json"
     path.write_text(
         json.dumps({
@@ -42,8 +49,8 @@ def _set_source_registry(tmp_path, monkeypatch, expected_sha256="a" * 64, norm_r
                 "id": SOURCE_ID,
                 "norm_reference_id": norm_reference_id,
                 "source_class": "OFFICIAL_PRIMARY_CANDIDATE",
-                "pin_status": "PINNED",
-                "expected_sha256": expected_sha256,
+                "pin_status": pin_status,
+                "expected_sha256": expected_sha256 if pin_status == "PINNED" else None,
             }],
         }),
         encoding="utf-8",
@@ -88,7 +95,18 @@ def test_primary_verified_requiere_hash_paginas_y_revisor():
         ampacity_datasets.validar_dataset_record(item)
 
 
-def test_primary_verified_no_pasa_con_fuente_real_aun_unpinned():
+def test_primary_verified_no_pasa_con_fuente_real_si_hash_no_coincide():
+    assert OFFICIAL_SHA256 != "a" * 64
+    with pytest.raises(ValueError, match="P3B019"):
+        ampacity_datasets.validar_dataset_record(_primary_candidate())
+
+
+def test_primary_verified_no_pasa_con_fuente_no_pinneada(tmp_path, monkeypatch):
+    _set_source_registry(
+        tmp_path,
+        monkeypatch,
+        pin_status="DISCOVERED_UNPINNED",
+    )
     with pytest.raises(ValueError, match="P3B018"):
         ampacity_datasets.validar_dataset_record(_primary_candidate())
 
