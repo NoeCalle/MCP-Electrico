@@ -17,6 +17,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from opendssdirect import dss
+
 from . import (
     ampacity,
     conductor_library,
@@ -142,8 +144,11 @@ def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
 
 
 def _ampacity_requirements() -> list[dict[str, Any]]:
+    # P3 puede configurarse desde la capa de dominio aun si el workspace no fue
+    # inicializado por server.py. La existencia del modelo se verifica contra
+    # el circuito OpenDSS activo, que es la autoridad de runtime.
     try:
-        if not str(workspace_state.status().get("circuit_name") or ""):
+        if not str(dss.Circuit.Name() or ""):
             return [_item("P3READY001", "No existe un circuito activo.")]
     except Exception:
         return [_item("P3READY001", "No existe un circuito activo.")]
