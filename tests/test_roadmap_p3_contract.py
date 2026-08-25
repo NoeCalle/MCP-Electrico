@@ -14,7 +14,9 @@ def test_roadmap_p3_reflects_current_gate_and_blockers():
     assert "Infraestructura y fuente `P3C01`–`P3C08`: implementadas" in text
     assert "`P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`" in text
     assert "`P3C13` — madurez de ampacidad" in text
-    assert "Siguiente bloque principal:** P3C09" in text
+    assert "**Revisión explícita actual:**" in text
+    assert "AI_VISUAL_REVIEW_USER_AUTHORIZED" in text
+    assert "habilitados para el siguiente PR de dataset primario" in text
     assert "- gate formal de salida P3;" not in text
 
 
