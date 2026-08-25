@@ -14,7 +14,7 @@ pero **no** declara todavía una implementación automática completa de IEC 603
 
 P3A añade un **router normativo de aplicabilidad**: identifica qué tabla base y qué ejes de corrección resultan aplicables dentro del alcance modelado.
 
-P3B añade la infraestructura de **datasets numéricos versionados**, pero distingue estrictamente entre un valor disponible para desarrollo y un valor verificado que pueda sustentar emisión profesional.
+P3B añade la infraestructura de **datasets numéricos versionados**, con revisiones primarias exactas ya disponibles para un subconjunto de Tabla 5C y para el primer caso de `Iz_base` Tabla 2. La disponibilidad de esos subconjuntos no equivale a cobertura normativa completa.
 
 ## Referencias registradas
 
@@ -25,7 +25,7 @@ El registro P3 incluye, como referencias versionadas:
 
 Registrar una norma **no significa** que sus tablas estén implementadas o verificadas. Cada dataset debe declarar su procedencia y política de uso.
 
-La copia oficial de referencia del CNE–Utilización 2006 ya está fijada por el proyecto con:
+La copia oficial de referencia del CNE–Utilización 2006 está fijada por el proyecto con:
 
 ```text
 source_id = MINEM_CNE_UTIL_2006_OFFICIAL_PDF
@@ -64,18 +64,16 @@ P3B introduce un registro estructurado de datasets con:
 
 - `source_type`;
 - `verification_status`;
-- publisher/referencia/URL;
+- publisher/referencia/URL o fuente primaria pinneada;
 - alcance exacto;
 - política de interpolación/extrapolación;
 - `professional_emission`.
 
-El primer dataset es:
+La reproducción secundaria histórica permanece:
 
 `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1`
 
-Corresponde a una reproducción secundaria de una fila de Tabla 5C y se usa **solo para desarrollo/benchmark de la infraestructura**.
-
-Por política:
+Por política conserva:
 
 ```text
 verification_status = PENDING_PRIMARY_VERIFICATION
@@ -83,13 +81,33 @@ professional_emission = false
 automatic_normative_lookup = false
 ```
 
-El valor secundario no se devuelve por defecto. Requiere un opt-in explícito y aun así continúa marcado como no apto para emisión.
+El valor secundario no se devuelve por defecto. Requiere opt-in explícito y aun así continúa marcado como no apto para emisión.
 
-P3B tampoco interpola ni extrapola valores no tabulados.
+P3C09 añadió una revisión primaria independiente, limitada a las celdas realmente verificadas de Tabla 5C:
 
-El siguiente paso de evidencia es P3C09: contrastar un subconjunto pequeño contra la copia oficial pinneada y crear una revisión nueva `PRIMARY_VERIFIED` mediante PR + CI. La revisión secundaria existente no se transforma silenciosamente.
+`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`
 
-Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.
+con 2→0.80, 3→0.70 y 12→0.45.
+
+P3C10 añade la primera base normativa primaria real:
+
+`PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`
+
+Consulta exacta:
+
+```text
+Método C
+Cu
+XLPE/EPR — 90 °C
+3 conductores cargados
+70 mm2
+Tabla 2, Col. 23
+Iz_base = 229 A
+```
+
+La Tabla 3 confirma el routing hacia Tabla 2 Col. 23. El dataset contiene una sola fila `exact_rows_v1`; cualquier consulta distinta devuelve `VALUE_NOT_TABULATED`. P3B no interpola, extrapola ni usa vecino más cercano.
+
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md` y `docs/P3C10_BASE_AMPACITY_STRATEGY.md`.
 
 ## Variables
 
@@ -108,14 +126,21 @@ El sistema nunca convierte automáticamente una corriente de flujo en `Ib`.
 
 ### Iz base
 
-La foundation usa como punto de partida la ampacidad trazable de una asignación P2 de conductor y conserva:
+P3 mantiene dos fuentes conceptualmente distintas:
 
-- producto/código;
-- condición de instalación publicada;
-- fuente del fabricante;
-- ampacidad base.
+1. **ampacidad de catálogo P2**, trazable al producto/fabricante y condición publicada;
+2. **base normativa P3**, cuando existe una coincidencia exacta en un dataset `base_ampacity` validado.
 
-Ese valor sigue identificado como **ampacidad base de catálogo**, no como `Iz` normativo final.
+La base normativa, cuando existe, entra mediante `ampacity_base_binding.py`, conserva dataset, tabla, query, perfil, referencia normativa y procedencia, y se revalida contra el catálogo activo antes de configurar y evaluar.
+
+Para el caso P3C10 actualmente validado:
+
+```text
+ampacidad catálogo P2 = 296 A
+Iz_base normativa CNE = 229 A
+```
+
+El sistema conserva ambas. El valor P2 **no se transforma** en 229 A ni se reemplaza silenciosamente; la base normativa es una fuente adicional y explícita para el cálculo P3.
 
 ### Factores de corrección
 
@@ -153,6 +178,8 @@ Y conserva por separado:
 - `Ib`;
 - `In`;
 - `Iz_base`;
+- origen y evidencia de `Iz_base`;
+- referencia de catálogo P2 en paralelo;
 - factor total;
 - `Iz`;
 - chequeo `Ib <= In`;
@@ -168,13 +195,15 @@ Un perfil P3 se invalida si la asignación P2 deja de coincidir con la ficha sob
 
 - cambio de conductor;
 - cambio de condición de instalación;
-- cambio de ampacidad base.
+- cambio de ampacidad de catálogo P2.
+
+Cuando existe `base_normativa`, también se revalida el dataset exacto al evaluar. Si cambia el valor, query, tabla, perfil o procedencia del dataset, la evaluación queda en `DATOS_INSUFICIENTES`.
 
 Crear un circuito nuevo también limpia los perfiles y routings P3/P3A.
 
 Si el routing normativo se redefine después de crear la ficha `Ib/In/Iz`, la evaluación y el readiness vuelven a comprobar norma, ejes requeridos y revisiones manuales.
 
-P3B añade otra regla: el lookup numérico debe usar **la misma cantidad de circuitos y disposición** declaradas por P3A. Una discrepancia devuelve `ROUTE_MISMATCH`.
+P3B añade otra regla: el lookup numérico debe usar las mismas condiciones y dimensiones declaradas por el escenario. Una discrepancia de routing específico devuelve `ROUTE_MISMATCH`; una consulta genérica fuera de las dimensiones exactas verificadas no se resuelve.
 
 ## Readiness y matriz E
 
@@ -196,7 +225,7 @@ Cuando existe routing P3A, el readiness bloquea:
 - eje requerido sin factor explícito asociado;
 - confirmación de condiciones base cuando el router identifica correcciones.
 
-La presencia de un dataset P3B secundario **no cambia ese gate profesional**.
+La presencia de un dataset P3B secundario **no cambia ese gate profesional**. Del mismo modo, un dataset primario puntual no eleva por sí solo la madurez global P3.
 
 ## Workspace V3
 
@@ -205,15 +234,17 @@ La vista Ampacidad muestra resultados ya calculados por Python:
 - Ib;
 - In;
 - Iz base;
+- origen de Iz base;
+- **Tabla / dataset base** cuando existe base normativa;
 - producto de factores;
 - Iz;
 - estado;
 - perfil/método/routing P3A cuando existe;
 - calidad de evidencia normativa preparada por Python.
 
-El navegador sigue sin calcular corrientes, factores, criterios ni clasificación de evidencia.
+El navegador sigue sin calcular corrientes, factores, criterios, tablas ni clasificación de evidencia.
 
-El cierre de P3C08 por sí solo no cambia visualmente un factor secundario a primario. V3 solo mostrará evidencia primaria cuando exista un dataset `PRIMARY_VERIFIED` real y esa procedencia llegue al cálculo.
+V3 puede mostrar la nueva base primaria P3C10 como `PRIMARIA` y exponer `Tabla 2 · PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1` porque esa información ya llega estructurada desde Python. JavaScript no hace lookup.
 
 ## Casos patrón y benchmarks
 
@@ -227,27 +258,30 @@ Prueban **aplicabilidad**, no valores numéricos.
 
 ### P3B
 
-Los casos numéricos de infraestructura están en:
+Los casos numéricos históricos de infraestructura están en:
 
 `mcp_electrico/data/ampacity_p3b_benchmark_cases.json`
 
-`examples/run_benchmarks_p3b.py` genera `benchmark_p3b.json` y CI exige explícitamente:
+`examples/run_benchmarks_p3b.py` genera `benchmark_p3b.json` y conserva explícitamente:
 
 ```text
 evidence_level = SECONDARY
 professional_emission = false
 ```
 
-Así un benchmark verde no puede confundirse con validación normativa primaria.
+Así un benchmark verde de infraestructura no puede confundirse con validación normativa primaria. Los benchmarks independientes necesarios para P3C12 se gestionan mediante evidencia separada.
 
 ## Gate formal de salida
 
-`evaluar_cierre_p3()` ya implementa los criterios `P3C01`–`P3C13` y separa el estado de la fase del estado de un modelo concreto.
+`evaluar_cierre_p3()` implementa los criterios `P3C01`–`P3C13` y separa el estado de la fase del estado de un modelo concreto.
 
-A partir del pin de fuente:
+Estado tras P3C10:
 
-- `P3C01`–`P3C08`: `DONE`;
-- `P3C09`–`P3C13`: pendientes.
+- `P3C01`–`P3C10`: `DONE`;
+- `P3C11`–`P3C13`: pendientes;
+- `phase_status = NOT_READY`;
+- `ready_for_next_phase = false`;
+- `professional_emission = false`.
 
 P4 solo aparece como siguiente fase cuando todos los criterios estén completos.
 
@@ -255,12 +289,11 @@ P4 solo aparece como siguiente fase cuando todos los criterios estén completos.
 
 P3/P3A/P3B **no cierran todavía P3**. Permanecen pendientes:
 
-1. crear el primer dataset `PRIMARY_VERIFIED` contra la copia CNE pinneada (`P3C09`);
-2. validar la estrategia normativa de `Iz_base` mediante Tablas 1/2 o equivalente formalmente validado (`P3C10`);
-3. completar la cobertura primaria 5A/5B/5C/5D/5E (`P3C11`);
-4. construir benchmarks independientes primarios por familia (`P3C12`);
-5. mantener BT/MT y ámbitos normativos claramente separados;
-6. validar casos límite y política de valores no tabulados;
-7. elevar la madurez solo si la evidencia lo permite (`P3C13`).
+1. completar la cobertura primaria 5A/5B/5C/5D/5E (`P3C11`);
+2. construir benchmarks independientes primarios por familia (`P3C12`);
+3. mantener BT/MT y ámbitos normativos claramente separados;
+4. ampliar Tablas 1/2 de forma incremental cuando nuevos casos lo requieran, siempre mediante filas exactas verificadas;
+5. validar casos límite y política de valores no tabulados;
+6. elevar la madurez solo si la evidencia lo permite (`P3C13`).
 
 Hasta ese cierre, cualquier resultado P3 debe conservar visible `UNDER_VALIDATION`.

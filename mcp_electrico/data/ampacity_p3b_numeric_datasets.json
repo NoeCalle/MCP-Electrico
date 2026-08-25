@@ -2,6 +2,97 @@
   "schema_version": 1,
   "datasets": [
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 2",
+      "axis": "base_ampacity",
+      "scope": {
+        "installation_methods": ["C"],
+        "conductor_materials": ["Cu"],
+        "insulation": ["XLPE_EPR"],
+        "temperature_c": [90],
+        "loaded_conductors": [3],
+        "section_mm2": [70.0],
+        "table_column": 23,
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "verified_subset_only": true,
+        "note": "Revisión primaria mínima para validar de extremo a extremo la estrategia Iz_base P3C10; no representa cobertura completa de Tabla 2."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "installation_method",
+          "conductor_material",
+          "insulation",
+          "temperature_c",
+          "loaded_conductors",
+          "section_mm2"
+        ],
+        "value_field": "ampacity_a"
+      },
+      "rows": [
+        {
+          "query": {
+            "installation_method": "C",
+            "conductor_material": "Cu",
+            "insulation": "XLPE_EPR",
+            "temperature_c": 90,
+            "loaded_conductors": 3,
+            "section_mm2": 70.0
+          },
+          "ampacity_a": 229.0,
+          "metadata": {
+            "table_column": 23,
+            "routing_table": "Tabla 3",
+            "routing": "Método C, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 23"
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 2 Col. 23; routing por Tabla 3",
+        "page_references": [
+          "PDF 552; Tablas - Pág. 5 de 82; Tabla 2; columna 23; 70 mm2 = 229 A",
+          "PDF 555; Tablas - Pág. 8 de 82; Tabla 3; Método C + XLPE/EPR + 3 conductores -> Tabla 2 Col. 23"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "reviewed_query": {
+            "installation_method": "C",
+            "conductor_material": "Cu",
+            "insulation": "XLPE_EPR",
+            "temperature_c": 90,
+            "loaded_conductors": 3,
+            "section_mm2": 70.0
+          },
+          "reviewed_value": {
+            "ampacity_a": 229.0
+          }
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": true,
+        "note": "Apto como evidencia primaria de Iz_base únicamente para la consulta exacta revisada. Cierra la estrategia P3C10, no la cobertura completa de Tablas 1/2 ni la fase P3."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",

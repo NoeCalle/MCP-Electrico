@@ -36,11 +36,14 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE**" in text
+    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3C01–P3C10 DONE; COBERTURA Y VALIDACIÓN FINAL PENDIENTES**" in text
     assert "P3 permanece `UNDER_VALIDATION`" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
     assert "Tabla 5D" in text
+    assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
+    assert "Iz_base = 229 A" in text
+    assert "docs/P3C10_BASE_AMPACITY_STRATEGY.md" in text
     assert "docs/P3_AMPACIDAD.md" in text
     assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
     assert "docs/P3B_DATASETS_NUMERICOS.md" in text
@@ -63,6 +66,9 @@ def test_visual_roadmap_keeps_cross_phase_deliverables():
 
     assert "COMPLETA CON LIMITACIONES (V2/P2 v1)" in text
     assert "EN PROGRESO — FOUNDATION V3" in text
+    assert "BASE NORMATIVA P3C10" in text
+    assert "Tabla / dataset base" in text
+    assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
     assert "UNDER_VALIDATION" in text
     assert "El JavaScript de V3 no calcula" in text
     assert "no es `Iz` normativo P3" in text
@@ -178,6 +184,8 @@ def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
     assert "P3C11" in text
     assert "P3C12" in text
     assert "P3C13" in text
+    assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
+    assert "ampacity_a = 229 A" in text
     assert "pin_status = PINNED" in text
     assert "Tabla 5D" in text
     assert "READY_TO_EXECUTE" in text

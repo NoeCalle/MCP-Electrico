@@ -1,7 +1,7 @@
 from mcp_electrico import workspace_p3_view
 
 
-def _item(correction_mode="EXPLICIT_FACTORS", evidence=None, automatic=False):
+def _item(correction_mode="EXPLICIT_FACTORS", evidence=None, automatic=False, base_evidence=None):
     return {
         "element": "Line.f1",
         "status": "CUMPLE",
@@ -19,8 +19,35 @@ def _item(correction_mode="EXPLICIT_FACTORS", evidence=None, automatic=False):
             "status": "REQUIREMENTS_IDENTIFIED",
         },
         "installation": {"correction_mode": correction_mode},
+        "base_evidence": base_evidence or {
+            "origin": "P2_CATALOG",
+            "normative_base": False,
+            "primary": False,
+            "professional_emission": False,
+        },
         "factor_evidence": evidence or {},
         "automatic_normative_lookup": automatic,
+    }
+
+
+def _snapshot(item):
+    return {
+        "status": {
+            "studies": {
+                "ampacity": {
+                    "valid": True,
+                    "result": {
+                        "alimentadores": [item],
+                        "summary": {
+                            "total": 1,
+                            "cumple": 1,
+                            "no_cumple": 0,
+                            "datos_insuficientes": 0,
+                        },
+                    },
+                }
+            }
+        }
     }
 
 
@@ -54,33 +81,38 @@ def test_panel_muestra_evidencia_secundaria_y_valores_ya_calculados():
             "automatic_normative_lookup": False,
         }
     )
-    snapshot = {
-        "status": {
-            "studies": {
-                "ampacity": {
-                    "valid": True,
-                    "result": {
-                        "alimentadores": [item],
-                        "summary": {
-                            "total": 1,
-                            "cumple": 1,
-                            "no_cumple": 0,
-                            "datos_insuficientes": 0,
-                        },
-                    },
-                }
-            }
-        }
-    }
-    html = workspace_p3_view._panel(snapshot)
+    html = workspace_p3_view._panel(_snapshot(item))
     assert "Origen Iz base" in html
+    assert "Tabla / dataset base" in html
     assert "Evidencia factores" in html
     assert "CATÁLOGO P2" in html
     assert "SECUNDARIA" in html
     assert "236.8 A" in html
     assert "0.8" in html
     assert "UNDER_VALIDATION" in html
-    assert html.count("<th>") == 11
+    assert html.count("<th>") == 12
+
+
+def test_panel_muestra_tabla_y_dataset_de_base_primaria_sin_lookup_en_browser():
+    dataset_id = "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1"
+    item = _item(
+        correction_mode="BASE_CONDITIONS_CONFIRMED",
+        base_evidence={
+            "origin": "P3B_BASE_DATASET",
+            "normative_base": True,
+            "primary": True,
+            "professional_emission": True,
+            "dataset_id": dataset_id,
+            "table": "Tabla 2",
+            "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+            "verification_status": "PRIMARY_VERIFIED",
+        },
+    )
+    html = workspace_p3_view._panel(_snapshot(item))
+    assert "PRIMARIA" in html
+    assert "Tabla 2" in html
+    assert dataset_id in html
+    assert workspace_p3_view._base_evidence_detail(item) == f"Tabla 2 · {dataset_id}"
 
 
 def test_javascript_v3_no_contiene_logica_de_clasificacion_evidencia():
@@ -90,3 +122,4 @@ def test_javascript_v3_no_contiene_logica_de_clasificacion_evidencia():
     assert "automatic_normative_lookup" not in script
     assert "SECUNDARIA" not in script
     assert "PRIMARIA" not in script
+    assert "Tabla 2" not in script

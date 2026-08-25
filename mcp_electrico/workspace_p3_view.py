@@ -77,6 +77,18 @@ def _base_evidence_label(item: dict[str, Any]) -> tuple[str, str]:
     return "INCOMPLETA", "p3-evidence-incomplete"
 
 
+def _base_evidence_detail(item: dict[str, Any]) -> str:
+    """Resume tabla/dataset ya resueltos por Python; no hace lookup normativo."""
+    evidence = item.get("base_evidence") or {}
+    table = str(evidence.get("table") or "").strip()
+    dataset_id = str(evidence.get("dataset_id") or "").strip()
+    if not table and not dataset_id:
+        return "—"
+    if table and dataset_id:
+        return f"{table} · {dataset_id}"
+    return table or dataset_id
+
+
 def _panel(snapshot: dict[str, Any]) -> str:
     study = _study(snapshot)
     if not study:
@@ -97,6 +109,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
         profile_method, route_status = _routing_label(item)
         evidence_label, evidence_css = _evidence_label(item)
         base_label, base_css = _base_evidence_label(item)
+        base_detail = _base_evidence_detail(item)
         rows.append(
             f'<tr class="{css}" data-p3-element="{escape(str(item.get("element") or ""), quote=True)}">'
             f'<td>{escape(str(item.get("element") or "—"))}</td>'
@@ -106,6 +119,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             f'<td>{_fmt(values.get("in_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("iz_base_a"), 2, " A")}</td>'
             f'<td><span class="p3-evidence-badge {base_css}">{escape(base_label)}</span></td>'
+            f'<td class="p3-base-detail">{escape(base_detail)}</td>'
             f'<td>{_fmt(values.get("factor_total"), 4)}</td>'
             f'<td>{_fmt(values.get("iz_a"), 2, " A")}</td>'
             f'<td><span class="p3-evidence-badge {evidence_css}">{escape(evidence_label)}</span></td>'
@@ -124,8 +138,8 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     <span>Datos insuf. <strong>{summary.get('datos_insuficientes', 0)}</strong></span>
   </div>
 </div>
-<div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 separa el origen de Iz base de la evidencia de factores. CATÁLOGO P2 no equivale a base normativa; PRIMARIA/SECUNDARIA se prepara en Python. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>∏k</th><th>Iz</th><th>Evidencia factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="11">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 separa el origen de Iz base de la evidencia de factores y muestra la tabla/dataset de la base cuando existe. CATÁLOGO P2 no equivale a base normativa; PRIMARIA/SECUNDARIA se prepara en Python. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>Tabla / dataset base</th><th>∏k</th><th>Iz</th><th>Evidencia factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="12">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 
@@ -143,6 +157,7 @@ def _css() -> str:
 .p3-empty { margin:16px; padding:18px; border:1px dashed #cbd5e1; border-radius:8px; color:var(--muted); line-height:1.55; }
 .p3-panel tr[data-p3-element] { cursor:pointer; }
 .p3-panel tr[data-p3-element]:hover { background:var(--blue-soft); }
+.p3-base-detail { max-width:260px; overflow-wrap:anywhere; font-size:10px; }
 .p3-badge,.p3-evidence-badge { display:inline-block; border-radius:999px; padding:4px 7px; font-size:9px; font-weight:700; }
 .p3-badge.p3-ok { color:#166534; background:#dcfce7; }
 .p3-badge.p3-fail { color:#b91c1c; background:#fee2e2; }

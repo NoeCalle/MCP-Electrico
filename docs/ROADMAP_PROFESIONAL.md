@@ -16,7 +16,7 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE** | `Ib <= In <= Iz`, routing normativo y factores verificables |
+| P3 — Ampacidad normativa | **EN PROGRESO — P3C01–P3C10 DONE; COBERTURA Y VALIDACIÓN FINAL PENDIENTES** | `Ib <= In <= Iz`, routing normativo y factores verificables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
@@ -62,7 +62,8 @@ Base ya implementada:
 - selección sincronizada;
 - vistas de flujo y caída de tensión;
 - V2 con fuente, transformadores y conductores trazables;
-- V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado, metadata P3A y calidad de evidencia normativa preparada por Python.
+- V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado, metadata P3A y calidad de evidencia normativa preparada por Python;
+- V3 distingue el origen de `Iz_base` y muestra **Tabla / dataset base** cuando la base normativa proviene de P3B.
 
 Regla: el navegador **no recalcula ingeniería**. Consume resultados producidos por Python/MCP y conserva trazabilidad a `model_revision`, elemento, motor y estudio.
 
@@ -169,7 +170,7 @@ Detalle: `docs/P2_EXIT_GATE.md`.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE.**
+**Estado: EN PROGRESO — P3C01–P3C10 DONE; P3C11–P3C13 PENDIENTES.**
 
 Objetivo: verificar selección térmica del conductor mediante:
 
@@ -184,7 +185,8 @@ sin convertir un rating de catálogo en `Iz` final por simple etiqueta.
 
 - `Ib` explícita o corriente de flujo aceptada expresamente como corriente de diseño;
 - `In` explícito con referencia;
-- `Iz_base` desde asignación P2 trazable;
+- `Iz_base` desde asignación P2 trazable cuando todavía no existe base normativa aplicable;
+- `Iz_base` normativa primaria mediante dataset P3B cuando existe coincidencia exacta validada;
 - factores explícitos y referenciados;
 - prohibición de asumir silenciosamente `product(k_i)=1`;
 - invalidación si cambia conductor/instalación/base;
@@ -219,14 +221,15 @@ P3B ya dispone de:
 - coherencia obligatoria con el routing P3A;
 - gate de fuente primaria con SHA-256 esperado;
 - binding trazable dataset → factor → `Iz`;
+- binding trazable dataset `base_ampacity` → `Iz_base` → `Iz`;
 - separación entre `READY_DATA` y calidad de evidencia normativa;
 - evidencia visible en V3 preparada por Python;
 - gate formal P3 con criterios `P3C01`–`P3C13`;
 - registro versionado de evidencia de benchmarks;
-- motor genérico `exact_rows_v1` para futuros datasets primarios;
+- motor genérico `exact_rows_v1` para datasets normativos primarios;
 - benchmark reproducible `benchmark_p3b.json` en CI.
 
-Primer dataset cargado:
+El dataset histórico de infraestructura permanece:
 
 `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1`
 
@@ -238,36 +241,60 @@ professional_emission = false
 automatic_normative_lookup = false
 ```
 
-El benchmark P3B fija casos 2→0.80, 3→0.70 y 12→0.45 para verificar lookup exacto y trazabilidad. Un CI verde **no valida la tabla normativa primaria**.
+El benchmark P3B histórico fija casos 2→0.80, 3→0.70 y 12→0.45 para verificar lookup exacto y trazabilidad. Un CI verde **no valida por sí solo la tabla normativa primaria**.
 
-La fuente oficial MINEM/CNE ya está fijada en `ampacity_primary_sources.json` como `PINNED` con:
+La fuente oficial MINEM/CNE está fijada en `ampacity_primary_sources.json` como `PINNED` con:
 
 ```text
 expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
 ```
 
-La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08. El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C fue comparado visualmente bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED` y promovido mediante PR+CI a la nueva revisión `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`, sin mutar el dataset secundario histórico.
+La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08.
 
-Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `docs/P3_EXIT_GATE.md` y `docs/P3_BENCHMARK_EVIDENCE.md`.
+El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C fue comparado visualmente bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED` y promovido mediante PR+CI a:
+
+`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`
+
+Esto cerró P3C09 sin mutar el dataset secundario histórico.
+
+P3C10 queda cerrado con la primera revisión primaria exacta de `Iz_base`:
+
+`PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`
+
+Alcance exacto validado:
+
+```text
+Método C
+Cu
+XLPE/EPR — 90 °C
+3 conductores cargados
+70 mm2
+Tabla 2, Col. 23
+Iz_base = 229 A
+```
+
+La Tabla 3 confirma el routing hacia Tabla 2 Col. 23. El dataset utiliza `exact_rows_v1`: otra sección, método, material, aislamiento o número de conductores cargados devuelve `VALUE_NOT_TABULATED`. **No se declara Tabla 2 completa ni se extrapola 229 A.**
+
+El cálculo P3 conserva simultáneamente la base normativa y la ampacidad de catálogo P2; una no sustituye silenciosamente a la otra. V3 muestra el origen de `Iz_base` y, cuando existe base normativa, la **Tabla / dataset base**.
+
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `docs/P3C10_BASE_AMPACITY_STRATEGY.md`, `docs/P3_EXIT_GATE.md` y `docs/P3_BENCHMARK_EVIDENCE.md`.
 
 ### Gate formal de salida P3 — implementado
 
 `evaluar_cierre_p3()` separa el estado de la fase del estado del modelo y bloquea el paso formal a P4 mientras exista algún criterio P3-v1 pendiente.
 
-Infraestructura, fuente y primer dataset primario `P3C01`–`P3C09`: implementados.
+Infraestructura, fuente, primera revisión primaria de factores y estrategia de base normativa `P3C01`–`P3C10`: implementados.
 
 Bloqueantes actuales:
 
-- `P3C10` — estrategia validada de `Iz_base`; infraestructura P3C10A/B implementada y primer candidato Tabla 2 P3C10C visualmente aprobado y elegible para PR de dataset primario;
 - `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E;
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
 ### Pendiente para cerrar P3
 
-- `P3C09` cerrado con una revisión primaria limitada a las celdas efectivamente verificadas de Tabla 5C;
-- crear/promover la primera revisión primaria de `Iz_base` Tabla 2 a partir del candidato aprobado y extender la estrategia primaria de Tablas 1/2 (`P3C10`);
-- completar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance (`P3C11`);
+- ampliar cobertura primaria de 5A/5B/5C/5D/5E según el alcance formal P3-v1 (`P3C11`);
+- extender Tablas 1/2 incrementalmente cuando nuevos casos lo requieran, manteniendo lookup exacto y evidencia primaria; P3C10 no se reabre por falta de cobertura exhaustiva;
 - incorporar benchmarks independientes primarios por familia (`P3C12`);
 - mantener BT/MT y ámbitos normativos separados;
 - mantener política explícita de valores no tabulados;
@@ -275,7 +302,7 @@ Bloqueantes actuales:
 
 P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
 
-**Estado actual:** P3C09 ya dispone de una revisión `PRIMARY_VERIFIED` limitada a 2, 3 y 12 circuitos de Tabla 5C. El candidato P3C10C de Tabla 2 permanece visualmente aprobado y elegible para su propio PR primario. La revisión se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null`; la madurez global P3 continúa `UNDER_VALIDATION` y la emisión profesional automática sigue bloqueada. El eje visual V3 permanece en paralelo y distingue el origen de `Iz_base` de la evidencia de factores.
+**Estado actual:** P3C08–P3C10 están `DONE`. Tabla 5C dispone de una revisión `PRIMARY_VERIFIED` limitada a 2, 3 y 12 circuitos, y Tabla 2 dispone de una revisión `PRIMARY_VERIFIED` limitada al caso Método C / Cu / XLPE-EPR / 3 conductores / 70 mm² = 229 A. Ambas revisiones conservan `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null`; la madurez global P3 continúa `UNDER_VALIDATION`, `professional_emission=false` a nivel de fase y P4 permanece bloqueada. El eje visual V3 sigue en paralelo y distingue origen, tabla/dataset de `Iz_base` y evidencia de factores.
 
 Detalle general: `docs/P3_AMPACIDAD.md`.
 
