@@ -48,6 +48,7 @@
         "environment": "buried_duct",
         "ambient_temperature_c": 25.0,
         "soil_thermal_resistivity_k_m_per_w": 1.5,
+        "burial_depth_m": 0.8,
         "circuits_grouped": 3,
         "grouping_arrangement": "buried_duct_arrangement_pending_classifier"
       },
