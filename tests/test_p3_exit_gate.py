@@ -12,6 +12,7 @@ from mcp_electrico import (
 
 
 ARRANGEMENT = "grouped_air_surface_embedded_enclosed"
+SECONDARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
 
 
 def _secondary_ready_model():
@@ -35,8 +36,8 @@ def _secondary_ready_model():
         disposicion_agrupamiento=ARRANGEMENT,
     )
     resolved = ampacity_datasets.resolver_factor(
-        "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
-        installation_method="C",
+        SECONDARY_DATASET,
+        installation_method=route["installation_method"],
         circuits_grouped=2,
         arrangement_id=ARRANGEMENT,
         allow_secondary=True,
@@ -55,7 +56,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c08_a_p3c10_done_sin_avanzar_a_p4():
+def test_gate_p3_reconoce_p3c08_p3c09_y_p3c10_done_sin_avanzar_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -101,10 +102,7 @@ def test_p3c09_deriva_de_dataset_primary_verified_real():
     assert criterion["evidence"] == "ampacity_p3b_numeric_datasets.json"
 
 
-def test_p3c10_deriva_de_base_ampacity_primary_verified_real():
-    coverage = p3_completion._coverage_flags()
-    assert coverage["base_ampacity_strategy"] is True
-
+def test_gate_reconoce_iz_base_normativa_primary_verified():
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C10")
     assert criterion["status"] == "DONE"
@@ -112,17 +110,19 @@ def test_p3c10_deriva_de_base_ampacity_primary_verified_real():
     assert "Tabla 1/2" in criterion["evidence"]
 
 
-def test_p3c11_reconoce_5c_primaria_pero_cobertura_total_sigue_incompleta():
+def test_p3c11_reconoce_subconjuntos_primarios_sin_confundirlos_con_cobertura_total():
     coverage = p3_completion._coverage_flags()
-    assert coverage["table_5c"] is True
+    assert coverage["base_ampacity_strategy"] is True
     assert coverage["table_5a"] is False
     assert coverage["table_5b"] is False
+    assert coverage["table_5c"] is False
     assert coverage["table_5d"] is False
     assert coverage["table_5e"] is False
 
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C11")
     assert criterion["status"] == "PENDING"
+    assert "subconjuntos primarios" in criterion["blocking_reason"]
 
 
 def test_p3c12_deriva_del_registro_y_benchmark_secundario_no_lo_satisface():
