@@ -287,13 +287,13 @@ Infraestructura, fuente, primera revisión primaria de factores y estrategia de 
 
 Bloqueantes actuales:
 
-- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E (**5B ya dispone de cobertura primaria completa + binding seguro hacia Iz; 5A/5C parciales y 5D/5E pendientes**);
+- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E (**5B y 5D ya disponen de cobertura primaria completa; 5B además tiene binding seguro hacia Iz; 5A/5C parciales y 5E pendiente**);
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
 ### Pendiente para cerrar P3
 
-- ampliar cobertura primaria de 5A/5B/5C/5D/5E según el alcance formal P3-v1 (`P3C11`);
+- completar cobertura primaria pendiente de 5A/5C/5E y habilitar bindings seguros de las familias ya cubiertas según el alcance formal P3-v1 (`P3C11`);
 - extender Tablas 1/2 incrementalmente cuando nuevos casos lo requieran, manteniendo lookup exacto y evidencia primaria; P3C10 no se reabre por falta de cobertura exhaustiva;
 - incorporar benchmarks independientes primarios por familia (`P3C12`);
 - mantener BT/MT y ámbitos normativos separados;
