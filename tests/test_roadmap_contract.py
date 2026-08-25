@@ -9,6 +9,7 @@ P2_EXIT = ROOT / "docs" / "P2_EXIT_GATE.md"
 P3_AMPACITY = ROOT / "docs" / "P3_AMPACIDAD.md"
 P3A_PROFILES = ROOT / "docs" / "P3A_PERFILES_NORMATIVOS.md"
 P3B_DATASETS = ROOT / "docs" / "P3B_DATASETS_NUMERICOS.md"
+P3B_EVIDENCE = ROOT / "docs" / "P3B_EVIDENCIA_PRIMARIA.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -139,4 +140,20 @@ def test_p3b_doc_keeps_evidence_levels_and_no_false_validation():
     assert "ROUTE_MISMATCH" in text
     assert "Tabla 5D" in text
     assert "evidence_level = SECONDARY" in text
+    assert "ELIGIBLE_FOR_PRIMARY_DATASET_PR" in text
+    assert "docs/P3B_EVIDENCIA_PRIMARIA.md" in text
     assert "no prueban" in text.lower() or "no valida" in text.lower()
+
+
+def test_p3b_primary_evidence_doc_prevents_automatic_promotion():
+    text = P3B_EVIDENCE.read_text(encoding="utf-8")
+
+    assert "DISCOVERED_UNPINNED" in text
+    assert "expected_sha256 = null" in text
+    assert "PRIMARY_EVIDENCE_READY_FOR_REVIEW" in text
+    assert "ELIGIBLE_FOR_PRIMARY_DATASET_PR" in text
+    assert "automatic_promotion = false" in text
+    assert "professional_emission = false" in text
+    assert "source_sha256" in text
+    assert "manual_comparison_confirmed" in text
+    assert "PR + CI" in text
