@@ -33,11 +33,13 @@ def test_construye_iz_base_normativa_trazable():
     assert base["ampacity_a"] == 125.0
     assert base["axis"] == "base_ampacity"
     assert base["table"] == "Tabla 2"
+    assert base["norm_reference_id"] == "PERU_CNE_UTILIZACION_2006"
+    assert base["profile_id"] == "PERU_CNE_UTIL_2006_030_004"
     assert base["dataset"]["id"] == "TEST_TABLE_2_PRIMARY"
     assert base["dataset"]["professional_emission"] is True
 
 
-def test_rechaza_factor_o_tabla_que_no_sea_base_p3_v1():
+def test_rechaza_factor_tabla_o_identidad_normativa_incompleta():
     wrong_axis = deepcopy(PRIMARY_RESULT)
     wrong_axis["axis"] = "grouping"
     with pytest.raises(ValueError, match="P3C10A002"):
@@ -47,6 +49,11 @@ def test_rechaza_factor_o_tabla_que_no_sea_base_p3_v1():
     wrong_table["table"] = "Tabla 5C"
     with pytest.raises(ValueError, match="P3C10A003"):
         ampacity_base_binding.construir_base_desde_resultado(wrong_table)
+
+    missing_norm = deepcopy(PRIMARY_RESULT)
+    missing_norm["norm_reference_id"] = ""
+    with pytest.raises(ValueError, match="P3C10A012"):
+        ampacity_base_binding.construir_base_desde_resultado(missing_norm)
 
 
 def test_revalida_valor_y_procedencia_con_catalogo_activo(monkeypatch):
@@ -64,6 +71,16 @@ def test_revalida_valor_y_procedencia_con_catalogo_activo(monkeypatch):
     tampered["ampacity_a"] = 126.0
     with pytest.raises(ValueError, match="P3C10A009"):
         ampacity_base_binding.validar_base_dataset(tampered)
+
+    wrong_norm = deepcopy(item)
+    wrong_norm["norm_reference_id"] = "OTRA_NORMA"
+    with pytest.raises(ValueError, match="P3C10A013"):
+        ampacity_base_binding.validar_base_dataset(wrong_norm)
+
+    wrong_profile = deepcopy(item)
+    wrong_profile["profile_id"] = "OTRO_PERFIL"
+    with pytest.raises(ValueError, match="P3C10A014"):
+        ampacity_base_binding.validar_base_dataset(wrong_profile)
 
 
 def test_base_secundaria_requiere_opt_in_explicito(monkeypatch):
