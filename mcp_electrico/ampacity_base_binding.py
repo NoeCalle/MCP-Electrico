@@ -29,6 +29,8 @@ def construir_base_desde_resultado(result: dict[str, Any]) -> dict[str, Any]:
     axis = str(result.get("axis") or "").strip()
     table = str(result.get("table") or "").strip()
     dataset_id = str(result.get("dataset_id") or "").strip()
+    norm_reference_id = str(result.get("norm_reference_id") or "").strip()
+    profile_id = str(result.get("profile_id") or "").strip()
     value = result.get("value")
 
     if axis != BASE_AXIS:
@@ -39,12 +41,16 @@ def construir_base_desde_resultado(result: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("P3C10A004: resultado sin dataset_id")
     if value is None or float(value) <= 0:
         raise ValueError("P3C10A005: ampacidad base debe ser positiva")
+    if not norm_reference_id or not profile_id:
+        raise ValueError("P3C10A012: Iz_base requiere norm_reference_id y profile_id")
 
     return {
         "origin": DATASET_ORIGIN,
         "ampacity_a": float(value),
         "table": table,
         "axis": axis,
+        "norm_reference_id": norm_reference_id,
+        "profile_id": profile_id,
         "dataset": {
             "id": dataset_id,
             "query": deepcopy(result.get("query") or {}),
@@ -86,6 +92,10 @@ def validar_base_dataset(
         raise ValueError("P3C10A009: Iz_base declarada no coincide con dataset activo")
     if normalized["table"] != str(item.get("table") or ""):
         raise ValueError("P3C10A010: tabla de Iz_base no coincide con dataset activo")
+    if normalized["norm_reference_id"] != str(item.get("norm_reference_id") or ""):
+        raise ValueError("P3C10A013: referencia normativa de Iz_base no coincide con dataset activo")
+    if normalized["profile_id"] != str(item.get("profile_id") or ""):
+        raise ValueError("P3C10A014: perfil normativo de Iz_base no coincide con dataset activo")
 
     primary = bool(normalized["dataset"]["professional_emission"])
     if not primary and not permitir_secundario:
@@ -111,5 +121,7 @@ def resumen_evidencia_base(item: dict[str, Any] | None) -> dict[str, Any]:
         "professional_emission": primary,
         "dataset_id": dataset.get("id"),
         "table": item.get("table"),
+        "norm_reference_id": item.get("norm_reference_id"),
+        "profile_id": item.get("profile_id"),
         "verification_status": dataset.get("verification_status"),
     }
