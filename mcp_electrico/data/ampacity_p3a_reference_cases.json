@@ -2,7 +2,7 @@
   "schema_version": 1,
   "purpose": "Casos patrón manuales para validar el routing P3A sin contener valores numéricos de tablas normativas.",
   "source_basis": [
-    "CNE Utilización 2006, Regla 030-004 y Tablas 1, 2, 5A, 5B, 5C/5E",
+    "CNE Utilización 2006, Regla 030-004 y Tablas 1, 2, 5A, 5B, 5C, 5D/5E",
     "IEC 60364-5-52:2009+AMD1:2024 Ed. 3.1 — perfil registrado sin dataset numérico"
   ],
   "cases": [
@@ -48,11 +48,12 @@
         "environment": "buried_duct",
         "ambient_temperature_c": 25.0,
         "soil_thermal_resistivity_k_m_per_w": 1.5,
-        "circuits_grouped": 3
+        "circuits_grouped": 3,
+        "grouping_arrangement": "buried_duct_arrangement_pending_classifier"
       },
       "expected": {
         "base_ampacity_table": "Tabla 2",
-        "status": "REQUIREMENTS_IDENTIFIED",
+        "status": "MANUAL_REVIEW_REQUIRED",
         "required_axes": ["ambient_temperature", "soil_thermal_resistivity", "grouping"],
         "missing_parameters": [],
         "unresolved_numeric_factors": true
