@@ -43,10 +43,17 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "requirements": ["P2 completo para datos de fuente/transformadores", "secuencia cero cuando la falla la requiera", "backend P4 validado"],
     },
     "ampacity": {
-        "preferred": "mcp", "alternatives": [], "module": None,
-        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "La ampacidad normativa es una capa MCP de P3, no un resultado del solver de red.",
-        "requirements": ["método de instalación", "condiciones térmicas", "factores de corrección", "norma versionada"],
+        "preferred": "mcp", "alternatives": [], "module": "ampacity",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": "La foundation P3 evalúa Ib/In/Iz en la capa MCP con trazabilidad explícita; continúa UNDER_VALIDATION.",
+        "requirements": [
+            "conductor P2 trazable",
+            "ampacidad base y condición de instalación",
+            "In y su referencia",
+            "Ib explícita o uso del flujo aceptado expresamente",
+            "factores referenciados o confirmación de condiciones base",
+            "norma versionada",
+        ],
     },
     "protection_coordination": {
         "preferred": "mcp+pandapower", "alternatives": [], "module": "protection_coordination",
