@@ -37,6 +37,6 @@ jobs:
                   mcp_electrico/workspace_p3_view.py \
                   tests/test_ampacity_normative_base_p3c10b.py \
                   docs/P3C10_BASE_AMPACITY_STRATEGY.md
-          git rm scripts/_apply_p3c10b.py scripts/_apply_p3c10b_v2.py scripts/_fix_p3c10b_v2.py .github/workflows/p3c10b-apply.yml
+          git rm -f scripts/_apply_p3c10b.py scripts/_apply_p3c10b_v2.py scripts/_fix_p3c10b_v2.py .github/workflows/p3c10b-apply.yml
           git commit -m "feat: integrar Iz_base normativo con cálculo y V3"
           git push origin HEAD:feat/p3c10b-integrate-base-v3
