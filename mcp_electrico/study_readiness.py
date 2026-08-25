@@ -18,6 +18,8 @@ from copy import deepcopy
 from typing import Any
 
 from . import (
+    ampacity,
+    conductor_library,
     pandapower_engine,
     professional_data,
     runtime_safety,
@@ -139,6 +141,58 @@ def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
     return missing
 
 
+def _ampacity_requirements() -> list[dict[str, Any]]:
+    try:
+        if not str(workspace_state.status().get("circuit_name") or ""):
+            return [_item("P3READY001", "No existe un circuito activo.")]
+    except Exception:
+        return [_item("P3READY001", "No existe un circuito activo.")]
+
+    state = ampacity.snapshot()
+    profiles = state.get("profiles", [])
+    if not profiles:
+        return [_item("P3READY010", "No existe ningún perfil P3 de ampacidad configurado.")]
+
+    missing: list[dict[str, Any]] = []
+    for profile in profiles:
+        element = str(profile.get("element") or "Line.?")
+        base = profile.get("base", {})
+        correction = profile.get("correction", {})
+        protection = profile.get("protection", {})
+        design = profile.get("design_current", {})
+        norm = profile.get("norm", {})
+
+        assignment = conductor_library.obtener_asignacion(element)
+        if not assignment:
+            missing.append(_item("P3READY101", "Falta asignación P2 trazable del conductor.", element))
+            continue
+        if str(assignment.get("codigo") or "") != str(base.get("conductor_code") or ""):
+            missing.append(_item("P3READY102", "El conductor activo ya no coincide con la ficha P3.", element))
+        if str(assignment.get("instalacion") or "") != str(base.get("catalog_installation") or ""):
+            missing.append(_item("P3READY103", "La instalación activa ya no coincide con la ficha P3.", element))
+        if float(base.get("ampacity_a") or 0) <= 0:
+            missing.append(_item("P3READY104", "Ampacidad base P2 no disponible.", element))
+        if float(protection.get("in_a") or 0) <= 0 or not protection.get("reference"):
+            missing.append(_item("P3READY105", "In o su referencia están incompletos.", element))
+        if design.get("mode") == "EXPLICIT_DESIGN_CURRENT":
+            if float(design.get("ib_a") or 0) <= 0 or not design.get("reference"):
+                missing.append(_item("P3READY106", "Ib explícita o su referencia están incompletas.", element))
+        elif design.get("mode") != "FLOW_CURRENT_EXPLICITLY_ACCEPTED_AS_IB":
+            missing.append(_item("P3READY107", "No existe una fuente válida para Ib.", element))
+        if not correction.get("installation_compatibility_reference"):
+            missing.append(_item("P3READY108", "Falta referencia de compatibilidad de condiciones de instalación.", element))
+        if correction.get("mode") == "EXPLICIT_FACTORS":
+            factors = correction.get("factors", [])
+            if not factors or any(not item.get("reference") for item in factors):
+                missing.append(_item("P3READY109", "Factores de corrección sin trazabilidad completa.", element))
+        elif correction.get("mode") != "BASE_CONDITIONS_CONFIRMED":
+            missing.append(_item("P3READY110", "Modo de corrección P3 no reconocido.", element))
+        if not norm.get("id") or not norm.get("reference_status"):
+            missing.append(_item("P3READY111", "Referencia normativa P3 no registrada.", element))
+
+    return missing
+
+
 def _zero_sequence_requirements() -> list[dict[str, Any]]:
     try:
         model = workspace_state.collect_model_snapshot()
@@ -245,7 +299,9 @@ def evaluar(
     request_missing.extend(fault_issues)
 
     data_missing: list[dict[str, Any]] = []
-    if capability.get("requires_active_model", False) or study in _POSITIVE_SEQUENCE_PROFESSIONAL:
+    if study == "ampacity":
+        data_missing.extend(_ampacity_requirements())
+    elif capability.get("requires_active_model", False) or study in _POSITIVE_SEQUENCE_PROFESSIONAL:
         data_missing.extend(_positive_sequence_requirements(study))
 
     if study in _FAULT_STUDIES and normalized_fault == "single_phase_ground":
