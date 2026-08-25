@@ -1,8 +1,9 @@
-"""Vista V3 para resultados P3/P3A de ampacidad.
+"""Vista V3 para resultados P3/P3A/P3B de ampacidad.
 
 Consume exclusivamente resultados ya calculados y versionados en el snapshot.
 El navegador no deriva Iz, no multiplica factores, no resuelve tablas normativas
-y no evalúa Ib/In/Iz.
+y no evalúa Ib/In/Iz. La clasificación visual de evidencia también se prepara
+en Python a partir de metadatos ya presentes en el resultado P3.
 """
 
 from __future__ import annotations
@@ -41,6 +42,30 @@ def _routing_label(item: dict[str, Any]) -> tuple[str, str]:
     return profile_method, route_status
 
 
+def _evidence_label(item: dict[str, Any]) -> tuple[str, str]:
+    """Devuelve etiqueta/clase visual sin inferir valores normativos."""
+    installation = item.get("installation") or {}
+    if str(installation.get("correction_mode") or "") == "BASE_CONDITIONS_CONFIRMED":
+        return "BASE", "p3-evidence-base"
+
+    evidence = item.get("factor_evidence") or {}
+    manual = int(evidence.get("manual") or 0)
+    primary = int(evidence.get("dataset_primary") or 0)
+    secondary = int(evidence.get("dataset_secondary") or 0)
+    total = int(evidence.get("total") or 0)
+    kinds = sum(bool(value) for value in (manual, primary, secondary))
+
+    if kinds > 1:
+        return "MIXTA", "p3-evidence-mixed"
+    if secondary:
+        return "SECUNDARIA", "p3-evidence-secondary"
+    if manual:
+        return "MANUAL", "p3-evidence-manual"
+    if primary and primary == total and bool(item.get("automatic_normative_lookup")):
+        return "PRIMARIA", "p3-evidence-primary"
+    return "INCOMPLETA", "p3-evidence-incomplete"
+
+
 def _panel(snapshot: dict[str, Any]) -> str:
     study = _study(snapshot)
     if not study:
@@ -59,6 +84,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             "DATOS_INSUFICIENTES": "p3-missing",
         }.get(status, "p3-missing")
         profile_method, route_status = _routing_label(item)
+        evidence_label, evidence_css = _evidence_label(item)
         rows.append(
             f'<tr class="{css}" data-p3-element="{escape(str(item.get("element") or ""), quote=True)}">'
             f'<td>{escape(str(item.get("element") or "—"))}</td>'
@@ -69,6 +95,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             f'<td>{_fmt(values.get("iz_base_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("factor_total"), 4)}</td>'
             f'<td>{_fmt(values.get("iz_a"), 2, " A")}</td>'
+            f'<td><span class="p3-evidence-badge {evidence_css}">{escape(evidence_label)}</span></td>'
             f'<td><span class="p3-badge {css}">{escape(status)}</span></td>'
             "</tr>"
         )
@@ -76,7 +103,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     summary = study.get("summary", {})
     return f'''<section class="panel p3-panel" id="panel-ampacidad">
 <div class="p3-header">
-  <div><h3>Ampacidad — P3/P3A</h3><p>Criterio calculado por MCP Eléctrico: <strong>Ib ≤ In ≤ Iz</strong>.</p></div>
+  <div><h3>Ampacidad — P3/P3A/P3B</h3><p>Criterio calculado por MCP Eléctrico: <strong>Ib ≤ In ≤ Iz</strong>.</p></div>
   <div class="p3-kpis">
     <span>Total <strong>{summary.get('total', 0)}</strong></span>
     <span>Cumple <strong>{summary.get('cumple', 0)}</strong></span>
@@ -84,8 +111,8 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     <span>Datos insuf. <strong>{summary.get('datos_insuficientes', 0)}</strong></span>
   </div>
 </div>
-<div class="p3-note"><strong>UNDER_VALIDATION.</strong> P3A identifica perfil, método y ejes normativos; no resuelve valores de tablas no cargadas. Iz continúa usando ampacidad base P2 y factores explícitos trazables o confirmación documentada de condiciones base.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>∏k</th><th>Iz</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="9">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="p3-note"><strong>UNDER_VALIDATION.</strong> La columna Evidencia distingue procedencia de los factores: PRIMARIA, SECUNDARIA, MANUAL, BASE o MIXTA. Esta etiqueta no cambia el criterio Ib ≤ In ≤ Iz ni habilita emisión por sí sola. El navegador no calcula factores ni clasifica evidencia.</div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>∏k</th><th>Iz</th><th>Evidencia</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="10">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 
@@ -103,10 +130,16 @@ def _css() -> str:
 .p3-empty { margin:16px; padding:18px; border:1px dashed #cbd5e1; border-radius:8px; color:var(--muted); line-height:1.55; }
 .p3-panel tr[data-p3-element] { cursor:pointer; }
 .p3-panel tr[data-p3-element]:hover { background:var(--blue-soft); }
-.p3-badge { display:inline-block; border-radius:999px; padding:4px 7px; font-size:9px; font-weight:700; }
+.p3-badge,.p3-evidence-badge { display:inline-block; border-radius:999px; padding:4px 7px; font-size:9px; font-weight:700; }
 .p3-badge.p3-ok { color:#166534; background:#dcfce7; }
 .p3-badge.p3-fail { color:#b91c1c; background:#fee2e2; }
 .p3-badge.p3-missing { color:#92400e; background:#fef3c7; }
+.p3-evidence-primary { color:#166534; background:#dcfce7; }
+.p3-evidence-secondary { color:#92400e; background:#fef3c7; }
+.p3-evidence-manual { color:#1e40af; background:#dbeafe; }
+.p3-evidence-base { color:#475569; background:#e2e8f0; }
+.p3-evidence-mixed { color:#6b21a8; background:#f3e8ff; }
+.p3-evidence-incomplete { color:#b91c1c; background:#fee2e2; }
 .p3-panel tr.p3-fail td:first-child { border-left:3px solid #dc2626; }
 .p3-panel tr.p3-ok td:first-child { border-left:3px solid #16a34a; }
 @media (max-width:760px) { .p3-header { flex-direction:column; } .p3-kpis { justify-content:flex-start; } }
