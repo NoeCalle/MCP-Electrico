@@ -29,6 +29,7 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
     mode = str(correction.get("mode") or "")
     evidence = deepcopy(correction.get("factor_evidence") or {})
     factors = correction.get("factors") or []
+    base_evidence = deepcopy((profile.get("base") or {}).get("evidence") or {})
 
     if mode == "BASE_CONDITIONS_CONFIRMED":
         return {
@@ -36,8 +37,9 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
             "status": BASE_CONDITIONS_CONFIRMED,
             "professional_normative_evidence_ready": False,
             "factor_evidence": evidence,
+            "base_evidence": base_evidence,
             "reasons": [
-                "Las condiciones base fueron confirmadas explícitamente; no existe todavía un lookup P3B primario que respalde factores automáticos."
+                "Las condiciones base fueron confirmadas explícitamente; no existe todavía un lookup P3B primario que respalde toda la cadena normativa."
             ],
         }
 
@@ -47,6 +49,7 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
             "status": EVIDENCE_INCOMPLETE,
             "professional_normative_evidence_ready": False,
             "factor_evidence": evidence,
+            "base_evidence": base_evidence,
             "reasons": ["La ficha no contiene un conjunto de factores con evidencia clasificable."],
         }
 
@@ -61,6 +64,7 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
             "status": EVIDENCE_INCOMPLETE,
             "professional_normative_evidence_ready": False,
             "factor_evidence": evidence,
+            "base_evidence": base_evidence,
             "reasons": ["El resumen de evidencia no cubre todos los factores configurados."],
         }
 
@@ -84,11 +88,18 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
             "Los factores fueron introducidos manualmente con referencia; P3B no ha verificado automáticamente sus valores contra un dataset primario."
         ]
     elif primary == total and bool(evidence.get("automatic_normative_lookup")):
-        status = PRIMARY_EVIDENCE_READY
-        ready = True
-        reasons = [
-            "Todos los factores provienen de datasets P3B primarios/verificados y el binding conserva su trazabilidad."
-        ]
+        if bool(base_evidence.get("professional_emission")):
+            status = PRIMARY_EVIDENCE_READY
+            ready = True
+            reasons = [
+                "Iz_base y todos los factores provienen de datasets P3B primarios/verificados con binding trazable."
+            ]
+        else:
+            status = EVIDENCE_INCOMPLETE
+            ready = False
+            reasons = [
+                "Los factores son primarios, pero Iz_base todavía no dispone de evidencia normativa primaria."
+            ]
     else:
         status = EVIDENCE_INCOMPLETE
         ready = False
@@ -99,6 +110,7 @@ def _profile_status(profile: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "professional_normative_evidence_ready": ready,
         "factor_evidence": evidence,
+        "base_evidence": base_evidence,
         "reasons": reasons,
     }
 

@@ -19,6 +19,7 @@ from typing import Any
 from opendssdirect import dss
 
 from . import (
+    ampacity_base_binding,
     ampacity_factor_binding,
     ampacity_norms,
     ampacity_profiles,
@@ -209,6 +210,8 @@ def definir_condiciones(
     referencia_ib: str | None = None,
     referencia_condiciones_instalacion: str | None = None,
     permitir_factores_dataset_secundarios: bool = False,
+    base_normativa: dict[str, Any] | None = None,
+    permitir_base_dataset_secundaria: bool = False,
 ) -> dict[str, Any]:
     """Configura datos P3 sin asumir factor 1, In ni Ib silenciosamente.
 
@@ -259,9 +262,25 @@ def definir_condiciones(
     if ib_diseno_a is not None and not str(referencia_ib or "").strip():
         raise ValueError("P3A015: Ib explícita requiere referencia/metodología")
 
-    base = float(assignment.get("ampacidad_aplicada_a") or 0)
-    if base <= 0:
+    catalog_base = float(assignment.get("ampacidad_aplicada_a") or 0)
+    if catalog_base <= 0:
         raise ValueError("P3A016: ampacidad base P2 no disponible")
+
+    normative_base = None
+    if base_normativa is not None:
+        normative_base = ampacity_base_binding.validar_base_dataset(
+            base_normativa,
+            permitir_secundario=permitir_base_dataset_secundaria,
+        )
+        if normative_base["norm_reference_id"] != norm["id"]:
+            raise ValueError("P3C10B001: Iz_base normativa pertenece a otra referencia normativa")
+        if route and normative_base["profile_id"] != route.get("profile_id"):
+            raise ValueError("P3C10B002: Iz_base normativa pertenece a otro perfil P3A")
+        base = float(normative_base["ampacity_a"])
+    else:
+        base = catalog_base
+
+    base_evidence = ampacity_base_binding.resumen_evidencia_base(normative_base)
     total = prod(item["value"] for item in validated) if validated else 1.0
     evidence = ampacity_factor_binding.resumen_evidencia_factores(validated)
 
@@ -270,10 +289,15 @@ def definir_condiciones(
         "norm": norm,
         "base": {
             "ampacity_a": base,
+            "origin": "NORMATIVE_DATASET" if normative_base else "P2_CATALOG",
+            "catalog_ampacity_a": catalog_base,
             "catalog_installation": assignment.get("instalacion"),
             "catalog_conditions": deepcopy(assignment.get("condiciones_ampacidad")),
             "source": deepcopy(assignment.get("fuente")),
             "conductor_code": assignment.get("codigo"),
+            "normative_dataset": deepcopy(normative_base),
+            "evidence": deepcopy(base_evidence),
+            "allow_secondary": bool(permitir_base_dataset_secundaria),
         },
         "correction": {
             "mode": "EXPLICIT_FACTORS" if validated else "BASE_CONDITIONS_CONFIRMED",
@@ -330,9 +354,23 @@ def _profile_is_current(profile: dict[str, Any]) -> tuple[bool, list[str]]:
     if str(assignment.get("instalacion") or "") != str(base.get("catalog_installation") or ""):
         missing.append("instalacion_modificada")
     current_ampacity = float(assignment.get("ampacidad_aplicada_a") or 0)
-    if abs(current_ampacity - float(base.get("ampacity_a") or 0)) > 1e-9:
+    expected_catalog_ampacity = float(
+        base.get("catalog_ampacity_a", base.get("ampacity_a")) or 0
+    )
+    if abs(current_ampacity - expected_catalog_ampacity) > 1e-9:
         missing.append("ampacidad_base_modificada")
     return not missing, missing
+
+
+def _revalidar_base_normativa(profile: dict[str, Any]) -> dict[str, Any] | None:
+    base = profile.get("base") or {}
+    normative = base.get("normative_dataset")
+    if not normative:
+        return None
+    return ampacity_base_binding.validar_base_dataset(
+        normative,
+        permitir_secundario=bool(base.get("allow_secondary")),
+    )
 
 
 def evaluar(nombre_elemento: str) -> dict[str, Any]:
@@ -356,6 +394,17 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "missing": stale,
             "maturity": "UNDER_VALIDATION",
             "note": "La ficha P3 ya no coincide con la asignación P2 activa; debe redefinirse antes de evaluar.",
+        }
+
+    try:
+        active_normative_base = _revalidar_base_normativa(profile)
+    except ValueError as exc:
+        return {
+            "element": full,
+            "status": "DATOS_INSUFICIENTES",
+            "missing": ["iz_base_normativa"],
+            "maturity": "UNDER_VALIDATION",
+            "note": str(exc),
         }
 
     route = _normative_routes.get(full.lower())
@@ -385,13 +434,21 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         ib_source = "OpenDSS corriente_max_a; uso como Ib autorizado explícitamente"
 
     in_a = float(profile["protection"]["in_a"])
-    iz_base = float(profile["base"]["ampacity_a"])
+    iz_base = float(
+        active_normative_base["ampacity_a"]
+        if active_normative_base is not None
+        else profile["base"]["ampacity_a"]
+    )
     factor_total = float(profile["correction"]["factor_total"])
     iz = iz_base * factor_total
     c1 = ib <= in_a
     c2 = in_a <= iz
     evidence = deepcopy(profile["correction"].get("factor_evidence") or {})
-    automatic_lookup = bool(profile["correction"].get("automatic_normative_lookup"))
+    base_evidence = ampacity_base_binding.resumen_evidencia_base(active_normative_base)
+    automatic_lookup = bool(
+        base_evidence.get("professional_emission")
+        and profile["correction"].get("automatic_normative_lookup")
+    )
 
     return {
         "element": full,
@@ -408,7 +465,12 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         "sources": {
             "ib": ib_source,
             "in": profile["protection"]["reference"],
-            "iz_base": deepcopy(profile["base"]["source"]),
+            "iz_base": deepcopy(
+                active_normative_base
+                if active_normative_base is not None
+                else profile["base"]["source"]
+            ),
+            "iz_base_catalog_p2": deepcopy(profile["base"]["source"]),
             "norm": deepcopy(profile["norm"]),
             "factors": deepcopy(profile["correction"]["factors"]),
             "installation_compatibility": profile["correction"]["installation_compatibility_reference"],
@@ -417,7 +479,10 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "catalog_installation": profile["base"]["catalog_installation"],
             "catalog_conditions": deepcopy(profile["base"]["catalog_conditions"]),
             "correction_mode": profile["correction"]["mode"],
+            "iz_base_origin": base_evidence.get("origin"),
+            "iz_base_table": base_evidence.get("table"),
         },
+        "base_evidence": deepcopy(base_evidence),
         "factor_evidence": evidence,
         "normative_applicability": deepcopy(route),
         "maturity": "UNDER_VALIDATION",
@@ -481,7 +546,8 @@ def snapshot() -> dict[str, Any]:
         "normative_profiles": ampacity_profiles.listar_perfiles(),
         "maturity": "UNDER_VALIDATION",
         "automatic_normative_lookup": bool(profiles) and all(
-            bool((item.get("correction") or {}).get("automatic_normative_lookup"))
+            bool((item.get("base") or {}).get("evidence", {}).get("professional_emission"))
+            and bool((item.get("correction") or {}).get("automatic_normative_lookup"))
             for item in profiles
         ),
     }

@@ -73,12 +73,14 @@ def test_panel_muestra_evidencia_secundaria_y_valores_ya_calculados():
         }
     }
     html = workspace_p3_view._panel(snapshot)
-    assert "Evidencia" in html
+    assert "Origen Iz base" in html
+    assert "Evidencia factores" in html
+    assert "CATÁLOGO P2" in html
     assert "SECUNDARIA" in html
     assert "236.8 A" in html
     assert "0.8" in html
     assert "UNDER_VALIDATION" in html
-    assert html.count("<th>") == 10
+    assert html.count("<th>") == 11
 
 
 def test_javascript_v3_no_contiene_logica_de_clasificacion_evidencia():
