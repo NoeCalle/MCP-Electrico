@@ -2,6 +2,61 @@
   "schema_version": 1,
   "datasets": [
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5C",
+      "axis": "grouping",
+      "scope": {
+        "installation_methods": ["A1", "A2", "B1", "B2", "C", "E", "F"],
+        "arrangement_id": "grouped_air_surface_embedded_enclosed",
+        "arrangement_label": "Agrupados en el aire, sobre una superficie, empotrados o encerrados",
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "verified_values_only": [2, 3, 12],
+        "method_d_excluded": "El método D enterrado se enruta por P3A a Tabla 5D y requiere dataset específico."
+      },
+      "values": {
+        "2": 0.80,
+        "3": 0.70,
+        "12": 0.45
+      },
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 5C, ítem 1",
+        "page_references": [
+          "PDF 565; Tablas - Pág. 18 de 82; Tabla 5C; ítem 1"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "reviewed_values": {
+            "2": 0.80,
+            "3": 0.70,
+            "12": 0.45
+          }
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": true,
+        "note": "Apto como evidencia primaria para lookup exacto únicamente en los tres valores visualmente verificados. La aptitud del dataset no eleva por sí sola la madurez global P3 ni habilita emisión automática del estudio."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",

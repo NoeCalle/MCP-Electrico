@@ -7,7 +7,7 @@ infraestructura únicamente con opt-in explícito.
 
 La carga del catálogo aplica defensa en profundidad: un registro no puede
 presentarse como ``PRIMARY_VERIFIED`` sin huella SHA-256, páginas verificadas,
-revisión humana y correspondencia exacta con una fuente oficial PINNED del
+revisión explícita trazable y correspondencia exacta con una fuente oficial PINNED del
 registro de evidencia primaria.
 """
 
@@ -101,7 +101,19 @@ def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
             )
         if record.get("manual_comparison_confirmed") is not True:
             raise ValueError(
-                f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación manual confirmada"
+                f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación explícita confirmada"
+            )
+        review_mode = str(record.get("review_mode") or "").strip()
+        if not review_mode:
+            raise ValueError(
+                f"P3B021: {dataset_id} PRIMARY_VERIFIED requiere review_mode trazable"
+            )
+        if (
+            review_mode == "AI_VISUAL_REVIEW_USER_AUTHORIZED"
+            and record.get("review_authorized_by_user") is not True
+        ):
+            raise ValueError(
+                f"P3B022: {dataset_id} revisión visual IA requiere autorización explícita del usuario"
             )
         primary_source_id = str(provenance.get("primary_source_id") or "").strip()
         if not primary_source_id:

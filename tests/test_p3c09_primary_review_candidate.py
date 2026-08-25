@@ -1,13 +1,14 @@
 import json
 from pathlib import Path
 
-from mcp_electrico import p3_completion
+from mcp_electrico import ampacity_datasets, p3_completion
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_review_candidates.json"
 SOURCES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_sources.json"
 CANDIDATE_ID = "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1"
+PRIMARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1"
 
 
 def _candidate():
@@ -43,8 +44,10 @@ def test_candidato_tabla_5c_preserva_subconjunto_y_pagina():
     assert candidate["automated_extraction"]["page_render_generated"] is True
 
 
-def test_candidato_tiene_revision_visual_autorizada_pero_aun_no_cierra_p3c09():
+def test_candidato_promovido_sin_fingir_revision_humana():
     candidate = _candidate()
+    dataset = ampacity_datasets.obtener_dataset(PRIMARY_DATASET)
+    record = dataset["provenance"]["verification_record"]
 
     assert candidate["manual_comparison_confirmed"] is True
     assert candidate["human_reviewer"] is None
@@ -53,10 +56,26 @@ def test_candidato_tiene_revision_visual_autorizada_pero_aun_no_cierra_p3c09():
     assert candidate["review_authorized_by_user"] is True
     assert candidate["review_result"] == "APPROVED"
     assert candidate["eligible_for_primary_dataset_pr"] is True
-    assert candidate["professional_emission"] is False
 
+    assert dataset["provenance"]["verification_status"] == "PRIMARY_VERIFIED"
+    assert dataset["provenance"]["source_sha256"] == candidate["source_sha256"]
+    assert dataset["values"] == candidate["candidate_subset"]
+    assert record["candidate_id"] == CANDIDATE_ID
+    assert record["reviewer"] == candidate["reviewer"]
+    assert record["review_mode"] == candidate["review_mode"]
+    assert record["review_authorized_by_user"] is True
+    assert record["manual_comparison_confirmed"] is True
+    assert dataset["usage_policy"]["professional_emission"] is True
+
+
+def test_p3c09_cierra_pero_p3_global_sigue_bloqueada():
     gate = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C09")
-    assert criterion["status"] == "PENDING"
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
     assert gate["ready_for_next_phase"] is False
     assert gate["professional_emission"] is False
+
+    pending = {item["id"] for item in gate["pending_criteria"]}
+    assert "P3C09" not in pending
+    assert {"P3C10", "P3C11", "P3C12", "P3C13"} <= pending

@@ -2,6 +2,8 @@ from mcp_electrico import ampacity_tools
 
 
 OFFICIAL_SHA256 = "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64"
+PRIMARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1"
+SECONDARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
 
 
 class FakeMCP:
@@ -43,8 +45,13 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
     assert all(item["automatic_factor_lookup"] is False for item in profiles)
 
     datasets = mcp.tools["listar_datasets_numericos_ampacidad"]()
-    assert len(datasets) >= 1
-    assert all(item["usage_policy"]["professional_emission"] is False for item in datasets)
+    dataset_by_id = {item["id"]: item for item in datasets}
+    assert PRIMARY_DATASET in dataset_by_id
+    assert SECONDARY_DATASET in dataset_by_id
+    assert dataset_by_id[PRIMARY_DATASET]["provenance"]["verification_status"] == "PRIMARY_VERIFIED"
+    assert dataset_by_id[PRIMARY_DATASET]["usage_policy"]["professional_emission"] is True
+    assert dataset_by_id[SECONDARY_DATASET]["provenance"]["verification_status"] == "PENDING_PRIMARY_VERIFICATION"
+    assert dataset_by_id[SECONDARY_DATASET]["usage_policy"]["professional_emission"] is False
 
     sources = mcp.tools["listar_fuentes_primarias_ampacidad"]()
     assert len(sources) >= 1
