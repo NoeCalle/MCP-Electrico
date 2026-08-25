@@ -2,8 +2,9 @@
 
 Consume exclusivamente resultados ya calculados y versionados en el snapshot.
 El navegador no deriva Iz, no multiplica factores, no resuelve tablas normativas
-y no evalúa Ib/In/Iz. La clasificación visual de evidencia también se prepara
-en Python a partir de metadatos ya presentes en el resultado P3.
+y no evalúa Ib/In/Iz. La clasificación visual de evidencia y el resumen de
+factores aplicados también se preparan en Python a partir de metadatos ya
+presentes en el resultado P3.
 """
 
 from __future__ import annotations
@@ -78,15 +79,45 @@ def _base_evidence_label(item: dict[str, Any]) -> tuple[str, str]:
 
 
 def _base_evidence_detail(item: dict[str, Any]) -> str:
-    """Resume tabla/dataset ya resueltos por Python; no hace lookup normativo."""
+    """Resume tabla/columna/dataset ya resueltos por Python."""
     evidence = item.get("base_evidence") or {}
     table = str(evidence.get("table") or "").strip()
+    column = evidence.get("table_column")
     dataset_id = str(evidence.get("dataset_id") or "").strip()
-    if not table and not dataset_id:
+    parts: list[str] = []
+    if table:
+        parts.append(f"{table} col. {column}" if column is not None else table)
+    if dataset_id:
+        parts.append(dataset_id)
+    return " · ".join(parts) or "—"
+
+
+def _factor_detail(item: dict[str, Any]) -> str:
+    """Resume factores ya revalidados por Python; no calcula ni hace lookup."""
+    factors = (item.get("sources") or {}).get("factors") or []
+    if not factors:
         return "—"
-    if table and dataset_id:
-        return f"{table} · {dataset_id}"
-    return table or dataset_id
+    details: list[str] = []
+    for factor in factors:
+        axis = str(factor.get("axis") or "factor")
+        value = _fmt(factor.get("value"), 4)
+        table = str(factor.get("table_or_clause") or "").strip()
+        meta = factor.get("dataset") or {}
+        dataset_id = str(meta.get("id") or "").strip()
+        query = meta.get("query") or {}
+        context: list[str] = []
+        if query.get("ambient_temperature_c") is not None:
+            context.append(f"{_fmt(query.get('ambient_temperature_c'), 1)} °C")
+        if query.get("circuits_grouped") is not None:
+            context.append(f"{query.get('circuits_grouped')} circuitos")
+        parts = [f"{axis}: k={value}"]
+        if table:
+            parts.append(table)
+        parts.extend(context)
+        if dataset_id:
+            parts.append(dataset_id)
+        details.append(" · ".join(parts))
+    return " | ".join(details)
 
 
 def _panel(snapshot: dict[str, Any]) -> str:
@@ -110,6 +141,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
         evidence_label, evidence_css = _evidence_label(item)
         base_label, base_css = _base_evidence_label(item)
         base_detail = _base_evidence_detail(item)
+        factor_detail = _factor_detail(item)
         rows.append(
             f'<tr class="{css}" data-p3-element="{escape(str(item.get("element") or ""), quote=True)}">'
             f'<td>{escape(str(item.get("element") or "—"))}</td>'
@@ -121,6 +153,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             f'<td><span class="p3-evidence-badge {base_css}">{escape(base_label)}</span></td>'
             f'<td class="p3-base-detail">{escape(base_detail)}</td>'
             f'<td>{_fmt(values.get("factor_total"), 4)}</td>'
+            f'<td class="p3-factor-detail">{escape(factor_detail)}</td>'
             f'<td>{_fmt(values.get("iz_a"), 2, " A")}</td>'
             f'<td><span class="p3-evidence-badge {evidence_css}">{escape(evidence_label)}</span></td>'
             f'<td><span class="p3-badge {css}">{escape(status)}</span></td>'
@@ -138,8 +171,8 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     <span>Datos insuf. <strong>{summary.get('datos_insuficientes', 0)}</strong></span>
   </div>
 </div>
-<div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 separa el origen de Iz base de la evidencia de factores y muestra la tabla/dataset de la base cuando existe. CATÁLOGO P2 no equivale a base normativa; PRIMARIA/SECUNDARIA se prepara en Python. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>Tabla / dataset base</th><th>∏k</th><th>Iz</th><th>Evidencia factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="12">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 muestra el origen de Iz base y los factores realmente revalidados por Python. Los factores <code>exact_rows_v1</code> solo llegan a esta tabla después de pasar compatibilidad con routing e Iz base normativa. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>Tabla / dataset base</th><th>∏k</th><th>Factores aplicados</th><th>Iz</th><th>Evidencia factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="13">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 
@@ -157,7 +190,7 @@ def _css() -> str:
 .p3-empty { margin:16px; padding:18px; border:1px dashed #cbd5e1; border-radius:8px; color:var(--muted); line-height:1.55; }
 .p3-panel tr[data-p3-element] { cursor:pointer; }
 .p3-panel tr[data-p3-element]:hover { background:var(--blue-soft); }
-.p3-base-detail { max-width:260px; overflow-wrap:anywhere; font-size:10px; }
+.p3-base-detail,.p3-factor-detail { max-width:300px; overflow-wrap:anywhere; font-size:10px; line-height:1.35; }
 .p3-badge,.p3-evidence-badge { display:inline-block; border-radius:999px; padding:4px 7px; font-size:9px; font-weight:700; }
 .p3-badge.p3-ok { color:#166534; background:#dcfce7; }
 .p3-badge.p3-fail { color:#b91c1c; background:#fee2e2; }
