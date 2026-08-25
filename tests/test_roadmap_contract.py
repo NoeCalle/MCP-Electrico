@@ -98,6 +98,6 @@ def test_p3_foundation_doc_preserves_under_validation_scope():
     assert "UNDER_VALIDATION" in text
     assert "Ib <= In <= Iz" in text
     assert "automatic_tables=false" in text
-    assert "no se asume silenciosamente" in text
+    assert "P3 no asume silenciosamente `product(k_i)=1`" in text
     assert "automatic_normative_lookup=false" in text
     assert "no cierra P3" in text.lower()
