@@ -93,6 +93,116 @@
       }
     },
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5A_XLPE_AIR_A1_COL15_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5A",
+      "axis": "ambient_temperature",
+      "scope": {
+        "base_tables": ["Tabla 2"],
+        "base_table_columns": [15],
+        "installation_methods": ["A1"],
+        "insulation": ["XLPE_EPR"],
+        "environment": ["air"],
+        "ambient_temperature_c": [35, 40],
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "verified_subset_only": true,
+        "normative_scope_issue": "Tabla 5A declara su primer bloque aplicable a columnas 2-16 de Tablas 1 y 2, mientras Tabla 3 remite también métodos cuyas columnas base llegan hasta 25. Este dataset no generaliza fuera de la columna 15 revisada.",
+        "note": "Subconjunto P3C11A deliberadamente restringido a un caso inequívoco dentro del alcance literal columnas 2-16 de Tabla 5A."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "base_table",
+          "base_table_column",
+          "installation_method",
+          "insulation",
+          "environment",
+          "ambient_temperature_c"
+        ],
+        "value_field": "factor"
+      },
+      "rows": [
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "base_table_column": 15,
+            "installation_method": "A1",
+            "insulation": "XLPE_EPR",
+            "environment": "air",
+            "ambient_temperature_c": 35
+          },
+          "factor": 0.96,
+          "metadata": {
+            "base_temperature_c": 30,
+            "routing_table": "Tabla 3",
+            "routing": "Método A1, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 15; factor de temperatura -> Tabla 5A"
+          }
+        },
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "base_table_column": 15,
+            "installation_method": "A1",
+            "insulation": "XLPE_EPR",
+            "environment": "air",
+            "ambient_temperature_c": 40
+          },
+          "factor": 0.91,
+          "metadata": {
+            "base_temperature_c": 30,
+            "routing_table": "Tabla 3",
+            "routing": "Método A1, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 15; factor de temperatura -> Tabla 5A"
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 5A; routing A1 por Tabla 3",
+        "page_references": [
+          "PDF 563; Tablas - Pág. 16 de 82; Tabla 5A; XLPE/EPR cables al aire: 35 °C = 0.96 y 40 °C = 0.91",
+          "PDF 555; Tablas - Pág. 8 de 82; Tabla 3; A1 + XLPE/EPR + 3 conductores -> Tabla 2 Col. 15 y factor de temperatura Tabla 5A"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11A_TABLE_5A_XLPE_AIR_A1_COL15_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "reviewed_query_scope": {
+            "base_table": "Tabla 2",
+            "base_table_column": 15,
+            "installation_method": "A1",
+            "insulation": "XLPE_EPR",
+            "environment": "air"
+          },
+          "reviewed_values": {
+            "35": 0.96,
+            "40": 0.91
+          },
+          "normative_scope_conflict_reviewed": true
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": true,
+        "p3c11_family_coverage": false,
+        "automatic_binding_to_iz": false,
+        "note": "Apto como evidencia primaria únicamente para las dos consultas exactas revisadas. No se generaliza a otras columnas ni cierra la familia 5A de P3C11; el binding hacia Iz se implementará solo con validación explícita de compatibilidad de base/routing."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
@@ -144,7 +254,8 @@
         "professional_emission": true,
         "requires_explicit_secondary_opt_in": false,
         "verified_subset_only": true,
-        "note": "Apto como evidencia primaria para lookup exacto únicamente en los tres valores visualmente verificados. La aptitud del dataset no eleva por sí sola la madurez global P3 ni habilita emisión automática del estudio."
+        "p3c11_family_coverage": false,
+        "note": "Apto como evidencia primaria para lookup exacto únicamente en los tres valores visualmente verificados. Es cobertura parcial P3C11: no representa la familia completa Tabla 5C ni eleva por sí sola la madurez global P3."
       }
     },
     {

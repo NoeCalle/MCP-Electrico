@@ -110,21 +110,34 @@ def _primary_datasets() -> list[dict[str, Any]]:
     return result
 
 
+def _family_complete(primary: list[dict[str, Any]], table: str, axis: str) -> bool:
+    """Una celda primaria no equivale a cobertura de una familia P3C11.
+
+    La cobertura completa se declara de forma explícita en ``usage_policy`` una
+    vez que el dataset/revisiones cubren el alcance P3-v1 publicado. Esto evita
+    que subconjuntos mínimos de validación cierren P3C11 por accidente.
+    """
+    return any(
+        str(item.get("table") or "").strip() == table
+        and str(item.get("axis") or "").strip() == axis
+        and bool((item.get("usage_policy") or {}).get("p3c11_family_coverage"))
+        for item in primary
+    )
+
+
 def _coverage_flags() -> dict[str, bool]:
     primary = _primary_datasets()
-    tables = {str(item.get("table") or "").strip() for item in primary}
-    axes = {str(item.get("axis") or "").strip() for item in primary}
     return {
         "base_ampacity_strategy": any(
             str(item.get("axis") or "") == "base_ampacity"
             and str(item.get("table") or "") in {"Tabla 1", "Tabla 2"}
             for item in primary
         ),
-        "table_5a": "Tabla 5A" in tables and "ambient_temperature" in axes,
-        "table_5b": "Tabla 5B" in tables and "soil_thermal_resistivity" in axes,
-        "table_5c": "Tabla 5C" in tables and "grouping" in axes,
-        "table_5d": "Tabla 5D" in tables and "grouping" in axes,
-        "table_5e": "Tabla 5E" in tables and "grouping" in axes,
+        "table_5a": _family_complete(primary, "Tabla 5A", "ambient_temperature"),
+        "table_5b": _family_complete(primary, "Tabla 5B", "soil_thermal_resistivity"),
+        "table_5c": _family_complete(primary, "Tabla 5C", "grouping"),
+        "table_5d": _family_complete(primary, "Tabla 5D", "grouping"),
+        "table_5e": _family_complete(primary, "Tabla 5E", "grouping"),
     }
 
 
@@ -190,8 +203,8 @@ def _capabilities() -> list[dict[str, Any]]:
         _criterion(
             "P3C11", "primary_correction_factor_coverage",
             all(coverage[key] for key in ("table_5a", "table_5b", "table_5c", "table_5d", "table_5e")),
-            "Cobertura primaria de Tablas 5A/5B/5C/5D/5E dentro del alcance P3-v1",
-            "La cobertura numérica primaria de temperatura, suelo y agrupamiento/disposición todavía está incompleta.",
+            "Cobertura primaria completa declarada de Tablas 5A/5B/5C/5D/5E dentro del alcance P3-v1",
+            "Existen subconjuntos primarios puntuales, pero la cobertura completa declarada de temperatura, suelo y agrupamiento/disposición todavía está incompleta.",
         ),
         _criterion(
             "P3C12", "independent_primary_normative_benchmarks",
@@ -262,6 +275,7 @@ def evaluar_cierre_p3() -> dict[str, Any]:
         "professional_emission": False,
         "note": (
             "El gate P3 separa infraestructura/cobertura normativa del producto de la preparación de un modelo concreto. "
+            "P3C11 exige cobertura de familia declarada; una celda PRIMARY_VERIFIED no la cierra. "
             "P3C12 se deriva de evidencia versionada de benchmarks; no de una constante manual."
         ),
     }
