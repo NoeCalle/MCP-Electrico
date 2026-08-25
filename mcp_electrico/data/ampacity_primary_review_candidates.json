@@ -102,6 +102,74 @@
       "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
       "notes": "Comparación visual aprobada por GPT-5.6 Sol bajo autorización explícita del usuario. No se atribuye revisión humana; la elegibilidad solo habilita crear una revisión PRIMARY_VERIFIED por PR+CI."
+    },
+    {
+      "id": "P3C11A_TABLE_5A_XLPE_AIR_A1_COL15_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
+      "purpose": "ambient_temperature_correction",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 5A",
+      "axis": "ambient_temperature",
+      "pdf_page_index_zero_based": 562,
+      "pdf_page_number_one_based": 563,
+      "document_page_marker": "Tablas - Pág. 16 de 82",
+      "routing_evidence": {
+        "table": "Tabla 3",
+        "pdf_page_index_zero_based": 554,
+        "pdf_page_number_one_based": 555,
+        "document_page_marker": "Tablas - Pág. 8 de 82",
+        "mapping": "Método A1, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 15; factor de temperatura -> Tabla 5A"
+      },
+      "candidate_query_scope": {
+        "base_table": "Tabla 2",
+        "base_table_column": 15,
+        "installation_method": "A1",
+        "insulation": "XLPE_EPR",
+        "environment": "air"
+      },
+      "candidate_values": {
+        "35": 0.96,
+        "40": 0.91
+      },
+      "normative_scope_conflict": {
+        "status": "OPEN_FAIL_CLOSED",
+        "table_5a_literal_scope": "Primer bloque aplicable a columnas 2 a 16 de Tablas 1 y 2",
+        "table_3_conflicting_route": "Tabla 3 remite también B1/B2/C/D a Tabla 5A aunque sus columnas XLPE/EPR son 18-25",
+        "table_2_note": "Nota 3 remite a Tabla 5A para mayor temperatura ambiente",
+        "manual_of_support": "El Manual de Sustentación indica aplicar Tabla 5A-a al aire/canalización sobre 30 °C y 5A-b en ductos enterrados distintos de 20 °C, pero no elimina la restricción literal de columnas impresa en Tabla 5A.",
+        "policy": "No generalizar el dataset primario fuera de una columna 2-16 visualmente verificada hasta resolver formalmente la inconsistencia."
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32897924798,
+        "artifact_id": 9581927062,
+        "artifact_digest": "sha256:5efaad4206475a1458861854c39e09a4d89ec4c054149bcaf2a11b0d202f03a2",
+        "page_render_generated": true,
+        "page_text_extracted": true,
+        "source_pin_verified": true
+      },
+      "manual_comparison_confirmed": true,
+      "human_reviewer": null,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 5A legible en PDF 563 / Tablas - Pág. 16 de 82",
+        "Primer bloque declara aplicabilidad literal a columnas 2-16 de Tablas 1 y 2",
+        "XLPE/EPR, cables al aire, 35 °C = 0.96",
+        "XLPE/EPR, cables al aire, 40 °C = 0.91",
+        "Tabla 3 confirma A1 + XLPE/EPR + 3 conductores -> Tabla 2 Col. 15 y factor de temperatura Tabla 5A",
+        "La contradicción de alcance para columnas 17-25 queda abierta y fail-closed"
+      ],
+      "eligible_for_primary_dataset_pr": true,
+      "professional_emission": false,
+      "notes": "Aprobación limitada a las dos celdas y al routing A1/Col.15 efectivamente revisados. No se atribuye revisión humana ni se autoriza extrapolar Tabla 5A a la columna 23 del caso P3C10."
     }
   ]
 }
