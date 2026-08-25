@@ -8,12 +8,24 @@
       "table": "Tabla 2",
       "axis": "base_ampacity",
       "scope": {
-        "installation_methods": ["C"],
-        "conductor_materials": ["Cu"],
-        "insulation": ["XLPE_EPR"],
-        "temperature_c": [90],
-        "loaded_conductors": [3],
-        "section_mm2": [70.0],
+        "installation_methods": [
+          "C"
+        ],
+        "conductor_materials": [
+          "Cu"
+        ],
+        "insulation": [
+          "XLPE_EPR"
+        ],
+        "temperature_c": [
+          90
+        ],
+        "loaded_conductors": [
+          3
+        ],
+        "section_mm2": [
+          70.0
+        ],
         "table_column": 23,
         "exact_lookup_only": true,
         "interpolation": false,
@@ -99,12 +111,24 @@
       "table": "Tabla 2",
       "axis": "base_ampacity",
       "scope": {
-        "installation_methods": ["A1"],
-        "conductor_materials": ["Cu"],
-        "insulation": ["XLPE_EPR"],
-        "temperature_c": [90],
-        "loaded_conductors": [3],
-        "section_mm2": [70.0],
+        "installation_methods": [
+          "A1"
+        ],
+        "conductor_materials": [
+          "Cu"
+        ],
+        "insulation": [
+          "XLPE_EPR"
+        ],
+        "temperature_c": [
+          90
+        ],
+        "loaded_conductors": [
+          3
+        ],
+        "section_mm2": [
+          70.0
+        ],
         "table_column": 15,
         "exact_lookup_only": true,
         "interpolation": false,
@@ -191,12 +215,25 @@
       "table": "Tabla 5A",
       "axis": "ambient_temperature",
       "scope": {
-        "base_tables": ["Tabla 2"],
-        "base_table_columns": [15],
-        "installation_methods": ["A1"],
-        "insulation": ["XLPE_EPR"],
-        "environment": ["air"],
-        "ambient_temperature_c": [35, 40],
+        "base_tables": [
+          "Tabla 2"
+        ],
+        "base_table_columns": [
+          15
+        ],
+        "installation_methods": [
+          "A1"
+        ],
+        "insulation": [
+          "XLPE_EPR"
+        ],
+        "environment": [
+          "air"
+        ],
+        "ambient_temperature_c": [
+          35,
+          40
+        ],
         "exact_lookup_only": true,
         "interpolation": false,
         "extrapolation": false,
@@ -301,18 +338,30 @@
       "table": "Tabla 5C",
       "axis": "grouping",
       "scope": {
-        "installation_methods": ["A1", "A2", "B1", "B2", "C", "E", "F"],
+        "installation_methods": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C",
+          "E",
+          "F"
+        ],
         "arrangement_id": "grouped_air_surface_embedded_enclosed",
         "arrangement_label": "Agrupados en el aire, sobre una superficie, empotrados o encerrados",
         "exact_lookup_only": true,
         "interpolation": false,
         "extrapolation": false,
-        "verified_values_only": [2, 3, 12],
+        "verified_values_only": [
+          2,
+          3,
+          12
+        ],
         "method_d_excluded": "El método D enterrado se enruta por P3A a Tabla 5D y requiere dataset específico."
       },
       "values": {
-        "2": 0.80,
-        "3": 0.70,
+        "2": 0.8,
+        "3": 0.7,
         "12": 0.45
       },
       "provenance": {
@@ -335,8 +384,8 @@
           "review_confidence": "HIGH",
           "manual_comparison_confirmed": true,
           "reviewed_values": {
-            "2": 0.80,
-            "3": 0.70,
+            "2": 0.8,
+            "3": 0.7,
             "12": 0.45
           }
         }
@@ -351,13 +400,195 @@
       }
     },
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5B",
+      "axis": "soil_thermal_resistivity",
+      "scope": {
+        "base_tables": [
+          "Tabla 2"
+        ],
+        "installation_methods": [
+          "D"
+        ],
+        "environment": [
+          "buried_duct"
+        ],
+        "burial_depth_scope": [
+          "up_to_0_8_m"
+        ],
+        "max_burial_depth_m": 0.8,
+        "soil_thermal_resistivity_k_m_per_w": [
+          1.0,
+          1.5,
+          2.0,
+          2.5,
+          3.0
+        ],
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "complete_table_verified": true,
+        "direct_buried_excluded": true,
+        "accuracy_note": "Los factores publicados tienen precisión indicada dentro de ±5%.",
+        "note": "Tabla 5B completa dentro de su alcance literal: método D, cables en ductos soterrados, profundidad hasta 0,8 m."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "base_table",
+          "installation_method",
+          "environment",
+          "burial_depth_scope",
+          "soil_thermal_resistivity_k_m_per_w"
+        ],
+        "value_field": "factor"
+      },
+      "rows": [
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "burial_depth_scope": "up_to_0_8_m",
+            "soil_thermal_resistivity_k_m_per_w": 1.0
+          },
+          "factor": 1.18,
+          "metadata": {
+            "base_soil_thermal_resistivity_k_m_per_w": 2.5,
+            "max_burial_depth_m": 0.8,
+            "factor_accuracy_note": "±5% según Nota 1 de Tabla 5B",
+            "direct_buried_excluded": true
+          }
+        },
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "burial_depth_scope": "up_to_0_8_m",
+            "soil_thermal_resistivity_k_m_per_w": 1.5
+          },
+          "factor": 1.1,
+          "metadata": {
+            "base_soil_thermal_resistivity_k_m_per_w": 2.5,
+            "max_burial_depth_m": 0.8,
+            "factor_accuracy_note": "±5% según Nota 1 de Tabla 5B",
+            "direct_buried_excluded": true
+          }
+        },
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "burial_depth_scope": "up_to_0_8_m",
+            "soil_thermal_resistivity_k_m_per_w": 2.0
+          },
+          "factor": 1.05,
+          "metadata": {
+            "base_soil_thermal_resistivity_k_m_per_w": 2.5,
+            "max_burial_depth_m": 0.8,
+            "factor_accuracy_note": "±5% según Nota 1 de Tabla 5B",
+            "direct_buried_excluded": true
+          }
+        },
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "burial_depth_scope": "up_to_0_8_m",
+            "soil_thermal_resistivity_k_m_per_w": 2.5
+          },
+          "factor": 1.0,
+          "metadata": {
+            "base_soil_thermal_resistivity_k_m_per_w": 2.5,
+            "max_burial_depth_m": 0.8,
+            "factor_accuracy_note": "±5% según Nota 1 de Tabla 5B",
+            "direct_buried_excluded": true
+          }
+        },
+        {
+          "query": {
+            "base_table": "Tabla 2",
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "burial_depth_scope": "up_to_0_8_m",
+            "soil_thermal_resistivity_k_m_per_w": 3.0
+          },
+          "factor": 0.96,
+          "metadata": {
+            "base_soil_thermal_resistivity_k_m_per_w": 2.5,
+            "max_burial_depth_m": 0.8,
+            "factor_accuracy_note": "±5% según Nota 1 de Tabla 5B",
+            "direct_buried_excluded": true
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Regla 030-004(9) y Tabla 5B",
+        "page_references": [
+          "PDF 37; Sección 030 - Pág. 2 de 11; Regla 030-004(9): método D y resistividad distinta de 2,5 K.m/W -> Tabla 5B",
+          "PDF 564; Tablas - Pág. 17 de 82; Tabla 5B completa"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11B_TABLE_5B_SOIL_THERMAL_RESISTIVITY_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "complete_table_reviewed": true,
+          "reviewed_values": {
+            "1": 1.18,
+            "1.5": 1.1,
+            "2": 1.05,
+            "2.5": 1.0,
+            "3": 0.96
+          },
+          "reviewed_scope": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "max_burial_depth_m": 0.8,
+            "direct_buried_excluded": true
+          }
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": false,
+        "p3c11_family_coverage": true,
+        "automatic_binding_to_iz": false,
+        "note": "Cobertura primaria completa de Tabla 5B dentro del alcance literal publicado. El binding contextual hacia Iz permanece fail-closed hasta P3C11B2."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
       "table": "Tabla 5C",
       "axis": "grouping",
       "scope": {
-        "installation_methods": ["A1", "A2", "B1", "B2", "C", "E", "F"],
+        "installation_methods": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C",
+          "E",
+          "F"
+        ],
         "arrangement_id": "grouped_air_surface_embedded_enclosed",
         "arrangement_label": "Agrupados en el aire, sobre una superficie, empotrados o encerrados",
         "exact_lookup_only": true,
@@ -366,15 +597,15 @@
         "method_d_excluded": "El método D enterrado se enruta por P3A a Tabla 5D y requiere dataset específico."
       },
       "values": {
-        "1": 1.00,
-        "2": 0.80,
-        "3": 0.70,
+        "1": 1.0,
+        "2": 0.8,
+        "3": 0.7,
         "4": 0.65,
-        "5": 0.60,
+        "5": 0.6,
         "6": 0.57,
         "7": 0.54,
         "8": 0.52,
-        "9": 0.50,
+        "9": 0.5,
         "12": 0.45,
         "16": 0.41,
         "20": 0.38

@@ -14,8 +14,8 @@
       "pdf_page_number_one_based": 565,
       "document_page_marker": "Tablas - Pág. 18 de 82",
       "candidate_subset": {
-        "2": 0.80,
-        "3": 0.70,
+        "2": 0.8,
+        "3": 0.7,
         "12": 0.45
       },
       "automated_extraction": {
@@ -230,6 +230,71 @@
       "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
       "notes": "Revisión visual directa de la misma página oficial y pinneada ya capturada para P3C10C. La nueva aprobación se limita a A1/Col.15/70 mm2=179 A y habilita probar la cadena primaria con Tabla 5A; no amplía cobertura fuera de esa fila."
+    },
+    {
+      "id": "P3C11B_TABLE_5B_SOIL_THERMAL_RESISTIVITY_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
+      "purpose": "soil_thermal_resistivity_correction",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 5B",
+      "axis": "soil_thermal_resistivity",
+      "pdf_page_index_zero_based": 563,
+      "pdf_page_number_one_based": 564,
+      "document_page_marker": "Tablas - Pág. 17 de 82",
+      "rule_evidence": {
+        "pdf_page_number_one_based": 37,
+        "document_page_marker": "Sección 030 - Pág. 2 de 11",
+        "reference": "Regla 030-004(9)",
+        "text_scope": "Método D; cables embutidos en ductos; resistividad distinta de 2,5 K.m/W; Tabla 5B"
+      },
+      "candidate_values": {
+        "1": 1.18,
+        "1.5": 1.1,
+        "2": 1.05,
+        "2.5": 1.0,
+        "3": 0.96
+      },
+      "reviewed_notes": {
+        "factor_accuracy": "±5%",
+        "direct_buried": "No se generaliza; Nota 2 distingue cables directamente apoyados en tierra.",
+        "max_burial_depth_m": 0.8,
+        "more_precise_method": "IEC 60287 cuando se requieran valores más precisos"
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32907046624,
+        "artifact_id": 9585177132,
+        "artifact_digest": "sha256:0acd2b81916e3b2bdbc0dd7e03304ce82fc05591a7672a31553be67e983423d3",
+        "page_render_generated": true,
+        "page_text_extracted": true,
+        "source_pin_verified": true
+      },
+      "manual_comparison_confirmed": true,
+      "human_reviewer": null,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 5B y marcador Tablas - Pág. 17 de 82 legibles",
+        "1 K.m/W = 1.18",
+        "1.5 K.m/W = 1.10",
+        "2 K.m/W = 1.05",
+        "2.5 K.m/W = 1.00",
+        "3 K.m/W = 0.96",
+        "Nota 2 limita la aplicación automática a ductos soterrados",
+        "Nota 3 limita los factores a ductos hasta 0.8 m de profundidad",
+        "Regla 030-004(9) confirma Tabla 5B para método D"
+      ],
+      "complete_table_reviewed": true,
+      "eligible_for_primary_dataset_pr": true,
+      "professional_emission": false,
+      "notes": "Tabla completa visualmente aprobada bajo autorización explícita del usuario. La cobertura numérica 5B puede declararse completa dentro del alcance literal, pero el binding a Iz queda para P3C11B2."
     }
   ]
 }
