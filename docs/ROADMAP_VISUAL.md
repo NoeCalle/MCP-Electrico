@@ -97,29 +97,34 @@ Se mantiene visible la advertencia de que la ampacidad publicada **no es `Iz` no
 
 ### Limitación V2 deliberada
 
-El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se expone ya por tools MCP y por el eje E. Su representación gráfica se incorporará en las vistas específicas V3–V6 de cada estudio, donde existe contexto inequívoco para interpretarlo; V2 no inventa un “estudio activo” en el workspace.
+El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se expone ya por tools MCP y por el eje E. Su representación gráfica se incorpora progresivamente en las vistas específicas V3–V6 de cada estudio, donde existe contexto inequívoco para interpretarlo; V2 no inventa un “estudio activo” en el workspace.
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
-**Estado: EN PROGRESO — FOUNDATION V3.**
+**Estado: EN PROGRESO — FOUNDATION V3 + METADATOS P3A.**
 
-La foundation visual ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados calculados por Python y permite distinguir:
+La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados calculados por Python y permite distinguir:
 
+- perfil normativo asociado cuando existe;
+- método de instalación P3A;
+- estado del routing normativo (`BASE_CONDITIONS_IDENTIFIED`, `REQUIREMENTS_IDENTIFIED`, etc.);
 - `Ib` corriente de diseño o corriente de flujo aceptada expresamente como Ib;
 - `In` de protección declarado;
 - `Iz_base` trazable;
 - producto de factores `∏k`;
 - `Iz` calculada;
 - estado `CUMPLE` / `NO_CUMPLE` / `DATOS_INSUFICIENTES`;
-- aviso visible de madurez `UNDER_VALIDATION` y de que las tablas normativas automáticas IEC/CNE aún no están implementadas.
+- aviso visible de madurez `UNDER_VALIDATION` y de que P3A no resuelve valores de tablas normativas no cargadas.
 
-La selección de una fila sincroniza el alimentador con el inspector. El JavaScript de V3 no calcula `Ib`, `In`, factores ni `Iz`: únicamente presenta datos y gestiona navegación.
+Si no existe routing P3A, la vista identifica el cálculo como foundation manual y conserva la referencia normativa de la ficha P3 cuando está disponible.
+
+La selección de una fila sincroniza el alimentador con el inspector. **El JavaScript de V3 no calcula** `Ib`, `In`, factores, `Iz`, tablas ni routing: únicamente presenta datos ya estructurados por Python y gestiona navegación.
 
 Pendiente para cerrar V3 junto con P3:
 
-- representar con más detalle las referencias de factores/condiciones cuando el modelo normativo esté consolidado;
-- decidir overlay del unifilar para `NO_CUMPLE` sin saturar la vista;
-- incorporar readiness normativo completo en la vista cuando existan perfiles automáticos versionados;
+- representar con más detalle las referencias de factores y fuentes normativas sin saturar la tabla principal;
+- decidir overlay del unifilar para `NO_CUMPLE` sin convertirlo en sustituto del panel de estudio;
+- mostrar de forma compacta los motivos de `MISSING_DATA`/revisión manual cuando se consolide el gate P3;
 - ampliar pruebas visuales una vez exista el gate formal de salida P3.
 
 El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo.
