@@ -79,8 +79,14 @@ def definir_condiciones(
     usar_corriente_flujo_como_ib: bool = False,
     referencia_in: str | None = None,
     referencia_ib: str | None = None,
+    referencia_condiciones_instalacion: str | None = None,
 ) -> dict[str, Any]:
-    """Configura datos P3 sin asumir factor 1, In ni Ib silenciosamente."""
+    """Configura datos P3 sin asumir factor 1, In ni Ib silenciosamente.
+
+    ``referencia_condiciones_instalacion`` documenta por qué los factores
+    declarados son compatibles con la ampacidad base de catálogo, o por qué
+    las condiciones reales coinciden con las condiciones base publicadas.
+    """
     _sync()
     if not _circuit_name:
         raise ValueError("P3A003: no existe circuito activo")
@@ -101,6 +107,11 @@ def definir_condiciones(
         raise ValueError("P3A007: use factores o confirme condiciones base, no ambos")
     if not raw_factors and not confirmar_condiciones_base:
         raise ValueError("P3A008: no se asume factor total 1.0")
+    installation_reference = str(referencia_condiciones_instalacion or "").strip()
+    if not installation_reference:
+        raise ValueError(
+            "P3A009: documente la compatibilidad entre condiciones reales, ampacidad base y factores aplicados"
+        )
     validated = [_factor(item, idx) for idx, item in enumerate(raw_factors)]
 
     if ib_diseno_a is not None and usar_corriente_flujo_como_ib:
@@ -132,6 +143,7 @@ def definir_condiciones(
             "factors": validated,
             "factor_total": total,
             "base_conditions_confirmed": bool(confirmar_condiciones_base),
+            "installation_compatibility_reference": installation_reference,
             "automatic_normative_lookup": False,
         },
         "protection": {"in_a": in_value, "reference": str(referencia_in).strip()},
@@ -164,6 +176,23 @@ def _flow_ib(full: str) -> float:
     raise ValueError(f"P3A020: no se obtuvo corriente de flujo válida para {full}")
 
 
+def _profile_is_current(profile: dict[str, Any]) -> tuple[bool, list[str]]:
+    full = str(profile.get("element") or "")
+    assignment = conductor_library.obtener_asignacion(full)
+    if not assignment:
+        return False, ["asignacion_conductor_p2"]
+    missing: list[str] = []
+    base = profile.get("base", {})
+    if str(assignment.get("codigo") or "") != str(base.get("conductor_code") or ""):
+        missing.append("conductor_modificado")
+    if str(assignment.get("instalacion") or "") != str(base.get("catalog_installation") or ""):
+        missing.append("instalacion_modificada")
+    current_ampacity = float(assignment.get("ampacidad_aplicada_a") or 0)
+    if abs(current_ampacity - float(base.get("ampacity_a") or 0)) > 1e-9:
+        missing.append("ampacidad_base_modificada")
+    return not missing, missing
+
+
 def evaluar(nombre_elemento: str) -> dict[str, Any]:
     """Evalúa el criterio Ib <= In <= Iz dentro del alcance P3 foundation."""
     _sync()
@@ -175,6 +204,16 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "status": "DATOS_INSUFICIENTES",
             "missing": ["condiciones_ampacidad_p3"],
             "maturity": "UNDER_VALIDATION",
+        }
+
+    current, stale = _profile_is_current(profile)
+    if not current:
+        return {
+            "element": full,
+            "status": "DATOS_INSUFICIENTES",
+            "missing": stale,
+            "maturity": "UNDER_VALIDATION",
+            "note": "La ficha P3 ya no coincide con la asignación P2 activa; debe redefinirse antes de evaluar.",
         }
 
     design = profile["design_current"]
@@ -196,7 +235,13 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         "element": full,
         "status": "CUMPLE" if c1 and c2 else "NO_CUMPLE",
         "criterion": "Ib <= In <= Iz",
-        "values": {"ib_a": ib, "in_a": in_a, "iz_base_a": iz_base, "factor_total": factor_total, "iz_a": iz},
+        "values": {
+            "ib_a": ib,
+            "in_a": in_a,
+            "iz_base_a": iz_base,
+            "factor_total": factor_total,
+            "iz_a": iz,
+        },
         "checks": {"ib_le_in": c1, "in_le_iz": c2},
         "sources": {
             "ib": ib_source,
@@ -204,6 +249,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "iz_base": deepcopy(profile["base"]["source"]),
             "norm": deepcopy(profile["norm"]),
             "factors": deepcopy(profile["correction"]["factors"]),
+            "installation_compatibility": profile["correction"]["installation_compatibility_reference"],
         },
         "installation": {
             "catalog_installation": profile["base"]["catalog_installation"],
@@ -213,6 +259,33 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         "maturity": "UNDER_VALIDATION",
         "automatic_normative_lookup": False,
         "note": "Iz usa ampacidad base trazable y factores explícitos; tablas automáticas IEC/CNE aún no implementadas.",
+    }
+
+
+def evaluar_todos() -> dict[str, Any]:
+    """Evalúa todos los alimentadores con perfil P3 configurado."""
+    _sync()
+    results = [evaluar(profile["element"]) for _, profile in sorted(_profiles.items())]
+    counts = {
+        "cumple": sum(1 for item in results if item.get("status") == "CUMPLE"),
+        "no_cumple": sum(1 for item in results if item.get("status") == "NO_CUMPLE"),
+        "datos_insuficientes": sum(1 for item in results if item.get("status") == "DATOS_INSUFICIENTES"),
+    }
+    if not results or counts["datos_insuficientes"]:
+        status = "DATOS_INSUFICIENTES"
+    elif counts["no_cumple"]:
+        status = "NO_CUMPLE"
+    else:
+        status = "CUMPLE"
+    return {
+        "study": "ampacity",
+        "status": status,
+        "criterion": "Ib <= In <= Iz",
+        "alimentadores": results,
+        "summary": {"total": len(results), **counts},
+        "maturity": "UNDER_VALIDATION",
+        "automatic_normative_lookup": False,
+        "note": "Foundation P3: no se declara validación normativa automática hasta incorporar tablas/factores versionados y benchmarks.",
     }
 
 
