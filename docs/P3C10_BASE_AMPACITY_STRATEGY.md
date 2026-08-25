@@ -2,14 +2,16 @@
 
 ## Estado
 
-**P3C10A + P3C10B IMPLEMENTADOS COMO INFRAESTRUCTURA; P3C10 CONTINÚA PENDIENTE DE CREAR Y VALIDAR EL DATASET PRIMARIO TABLA 1/2.**
+**P3C10 DONE — ESTRATEGIA `Iz_base` VALIDADA DE EXTREMO A EXTREMO CON UNA REVISIÓN PRIMARIA EXACTA DE TABLA 2.**
 
 P3 foundation utiliza una ampacidad de catálogo P2 trazable como punto de partida cuando todavía no existe una base normativa. Esa información sigue siendo útil para el modelo físico y para detectar inconsistencias de producto/instalación, pero **no equivale por sí sola a una ampacidad base normativa CNE**.
 
-P3C10 exige una estrategia validada para `Iz_base`. Dentro del alcance P3-v1, el router P3A ya establece:
+P3C10 exige una estrategia validada para `Iz_base`. Dentro del alcance P3-v1, el router P3A establece:
 
 - métodos A1/A2/B1/B2/C/D → Tabla 2;
 - métodos E/F/G → Tabla 1.
+
+P3C10 se considera cerrado cuando existe al menos una ruta real `PRIMARY_VERIFIED` que demuestre de extremo a extremo el contrato Tabla 1/2 → lookup exacto → binding → `Iz_base` → cálculo → evidencia V3. **Esto no equivale a declarar cobertura numérica completa de Tablas 1/2.** La expansión de cobertura seguirá siendo incremental y deberá conservar el mismo gate de evidencia.
 
 ## Separación de responsabilidades
 
@@ -22,7 +24,7 @@ El cálculo conserva ambas referencias y nunca sustituye silenciosamente una por
 
 ## Binding P3C10A
 
-`ampacity_base_binding.py` introduce el contrato portable:
+`ampacity_base_binding.py` implementa el contrato portable:
 
 ```text
 lookup exacto P3B
@@ -57,31 +59,74 @@ Cuando existe base normativa:
 Iz = Iz_base_normativa × ∏k
 ```
 
-El resultado expone `base_evidence`, la fuente normativa de `Iz_base` y la fuente de catálogo P2 por separado. V3 añade la columna **Origen Iz base**, con clasificación preparada por Python: `CATÁLOGO P2`, `PRIMARIA`, `SECUNDARIA` o `INCOMPLETA`. La evidencia de los factores se presenta en una columna separada. El navegador continúa sin resolver tablas ni recalcular ingeniería.
+El resultado expone `base_evidence`, la fuente normativa de `Iz_base` y la fuente de catálogo P2 por separado. V3 muestra **Origen Iz base** y **Tabla / dataset base**, con clasificación preparada por Python: `CATÁLOGO P2`, `PRIMARIA`, `SECUNDARIA` o `INCOMPLETA`. La evidencia de los factores se presenta en una columna separada. El navegador continúa sin resolver tablas ni recalcular ingeniería.
 
-La readiness de evidencia exige ahora la cadena completa: una base primaria y factores primarios cuando correspondan. Factores primarios con `Iz_base` todavía de catálogo P2 se clasifican como evidencia normativa incompleta.
+La readiness de evidencia exige la cadena completa: una base primaria y factores primarios cuando correspondan. Factores primarios con `Iz_base` todavía de catálogo P2 se clasifican como evidencia normativa incompleta.
 
-## P3C10C — primer candidato de Tabla 2 revisado
+## P3C10C — primera revisión primaria real de Tabla 2
 
 La fuente oficial pinneada fue recorrida de forma reproducible en GitHub Actions run `32880258067`. Se localizaron Tabla 1 en PDF 548–550, Tabla 2 en PDF 551–554 y la Tabla 3 de correspondencia método/columna en PDF 555.
 
-Se registró el candidato mínimo `P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1` para método C, cobre, XLPE/EPR, 90 °C, tres conductores cargados y 70 mm². La Tabla 3 lo vincula a Tabla 2 Col. 23 y la evidencia conserva `ampacity_a=229.0` desde PDF 552.
-
-La página de Tabla 2 y la página de routing Tabla 3 fueron comparadas visualmente y aprobadas el 2026-08-25 mediante `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con revisor declarado `GPT-5.6 Sol`, autorización explícita del usuario y confianza `HIGH`. La trazabilidad mantiene `human_reviewer=null` para no presentar la revisión como humana.
-
-El candidato queda con:
+El candidato `P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1` fue aprobado para:
 
 ```text
-manual_comparison_confirmed = true
-review_result = APPROVED
-eligible_for_primary_dataset_pr = true
-professional_emission = false
+installation_method = C
+conductor_material = Cu
+insulation = XLPE_EPR
+temperature_c = 90
+loaded_conductors = 3
+section_mm2 = 70.0
+Tabla 2, Col. 23
+ampacity_a = 229.0
 ```
 
-Por tanto, la revisión visual ya no bloquea P3C10. El siguiente paso es crear una revisión dataset `PRIMARY_VERIFIED` limitada al alcance efectivamente revisado y someterla a PR + CI. P3C10 continúa `PENDING` hasta que esa revisión exista y pase sus validaciones.
+La Tabla 3 confirma el routing **Método C + XLPE/EPR + 3 conductores cargados → Tabla 2 Col. 23**. La Tabla 2, PDF 552 / Tablas - Pág. 5 de 82, fija para 70 mm² el valor **229 A**.
+
+La comparación visual fue aprobada el 2026-08-25 mediante `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con revisor declarado `GPT-5.6 Sol`, autorización explícita del usuario y confianza `HIGH`. La trazabilidad mantiene `human_reviewer=null`; no se presenta como revisión humana.
+
+La revisión promovida es:
+
+`PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`
+
+Propiedades:
+
+```text
+axis = base_ampacity
+table = Tabla 2
+lookup_schema = exact_rows_v1
+verification_status = PRIMARY_VERIFIED
+professional_emission = true   # aptitud del dataset, no de la fase P3
+interpolation = false
+extrapolation = false
+verified_subset_only = true
+```
+
+El dataset contiene **una sola fila exacta**. Una consulta distinta —por ejemplo otra sección, método, material, aislamiento o número de conductores cargados— debe devolver `VALUE_NOT_TABULATED`; no se aproxima ni se reutiliza 229 A fuera de su alcance.
+
+## Qué cierra y qué no cierra P3C10
+
+Con esta revisión, P3C10 demuestra de extremo a extremo que MCP Eléctrico puede usar una `Iz_base` normativa primaria sin confundirla con la ampacidad de catálogo P2. Para el conductor de prueba de 70 mm², el cálculo conserva simultáneamente:
+
+```text
+ampacidad catálogo P2 = 296 A
+Iz_base normativa CNE = 229 A
+```
+
+Son magnitudes con función y procedencia diferentes.
+
+P3C10 = `DONE` **no significa**:
+
+- que Tabla 2 esté cargada completa;
+- que Tabla 1 esté cargada completa;
+- que 229 A sea aplicable a otra consulta;
+- que las correcciones 5A/5B/5C/5D/5E estén completas;
+- que P3 esté cerrada;
+- que `professional_emission` global sea true.
+
+El gate P3 permanece `NOT_READY` por P3C11, P3C12 y P3C13.
 
 ## Política de revisión
 
 La evidencia debe conservar un revisor identificable y el modo de revisión. Una revisión asistida por IA solo puede registrarse como aprobada cuando la fuente renderizada es suficientemente clara, la comparación es directa y el usuario ha autorizado explícitamente esa modalidad. Nunca se rellena `human_reviewer` con un modelo.
 
-P3C10 solo podrá cerrar cuando exista al menos una estrategia/dataset Tabla 1/2 `PRIMARY_VERIFIED` real que satisfaga el gate formal y sus benchmarks correspondientes. Este estado debe mantenerse sincronizado con `docs/ROADMAP_PROFESIONAL.md` y el eje visual V3.
+Este estado debe mantenerse sincronizado con `docs/ROADMAP_PROFESIONAL.md`, `docs/P3_EXIT_GATE.md` y el eje visual V3.
