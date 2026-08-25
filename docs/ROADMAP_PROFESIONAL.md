@@ -259,7 +259,7 @@ Infraestructura y fuente `P3C01`–`P3C08`: implementadas.
 Bloqueantes actuales:
 
 - `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`;
-- `P3C10` — estrategia validada de `Iz_base`;
+- `P3C10` — estrategia validada de `Iz_base`; infraestructura P3C10A/B implementada y primer candidato Tabla 2 P3C10C pendiente de revisión humana;
 - `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E;
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
@@ -267,7 +267,7 @@ Bloqueantes actuales:
 ### Pendiente para cerrar P3
 
 - cargar y revisar el primer subconjunto `PRIMARY_VERIFIED`, preferentemente pequeño y auditable (`P3C09`);
-- validar la estrategia normativa de ampacidad base mediante Tablas 1/2 o equivalente formalmente validado (`P3C10`);
+- completar la revisión/promoción del primer candidato de `Iz_base` Tabla 2 y extender la estrategia primaria de Tablas 1/2 (`P3C10`);
 - completar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance (`P3C11`);
 - incorporar benchmarks independientes primarios por familia (`P3C12`);
 - mantener BT/MT y ámbitos normativos separados;
@@ -276,7 +276,7 @@ Bloqueantes actuales:
 
 P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
 
-**Siguiente bloque principal:** P3C09, comenzando por un subconjunto pequeño de Tabla 5C verificado contra la copia oficial pinneada. El eje visual V3 permanece en paralelo; el pin de fuente por sí solo no cambia la evidencia de un modelo hasta que exista un dataset primario verificado.
+**Bloqueo humano actual:** P3C09 (Tabla 5C) y el primer candidato P3C10C (Tabla 2) ya disponen de evidencia reproducible, pero conservan revisión humana pendiente y no son `PRIMARY_VERIFIED`. Mientras esa barrera permanece correctamente cerrada, el siguiente bloque técnico automatizable es P3C11A: preparar evidencia primaria candidata para 5A/5B/5D/5E sin promover valores automáticamente. El eje visual V3 permanece en paralelo y ya distingue el origen de `Iz_base` de la evidencia de factores.
 
 Detalle general: `docs/P3_AMPACIDAD.md`.
 

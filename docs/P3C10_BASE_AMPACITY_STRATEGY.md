@@ -79,3 +79,12 @@ El motor genérico `exact_rows_v1` permite que cada futura revisión primaria de
 Localizar y revisar en la copia oficial pinneada los subconjuntos necesarios de Tabla 1/2, registrar evidencia candidata reproducible y, solo después de revisión humana y benchmarks, crear una revisión `PRIMARY_VERIFIED` apta para alimentar `Iz_base`.
 
 P3C10 solo podrá cerrar cuando exista al menos una estrategia/dataset Tabla 1/2 `PRIMARY_VERIFIED` real que satisfaga el gate formal y sus benchmarks correspondientes. Este estado debe mantenerse sincronizado con `docs/ROADMAP_PROFESIONAL.md` y el eje visual V3.
+
+## P3C10C — primer candidato de Tabla 2
+
+La fuente oficial pinneada fue recorrida de forma reproducible en GitHub Actions run `32880258067`. Se localizaron Tabla 1 en PDF 548–550, Tabla 2 en PDF 551–554 y la Tabla 3 de correspondencia método/columna en PDF 555.
+
+Se registró el candidato mínimo `P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1` para método C, cobre, XLPE/EPR, 90 °C, tres conductores cargados y 70 mm². La Tabla 3 lo vincula a Tabla 2 Col. 23 y la evidencia candidata conserva `ampacity_a=229.0` desde PDF 552.
+
+Este registro mantiene `manual_comparison_confirmed=false`, `human_reviewer=null`, `eligible_for_primary_dataset_pr=false` y `professional_emission=false`. Por tanto P3C10 sigue `PENDING`; P3C10C únicamente elimina la incertidumbre sobre estructura, página, columna y primer punto candidato.
+
