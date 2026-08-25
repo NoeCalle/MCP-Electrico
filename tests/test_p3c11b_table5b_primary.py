@@ -60,7 +60,7 @@ def test_5b_cuenta_como_familia_primaria_completa_pero_p3c11_sigue_pendiente():
     assert flags["table_5b"] is True
     assert flags["table_5a"] is False
     assert flags["table_5c"] is False
-    assert flags["table_5d"] is False
+    assert flags["table_5d"] is True
     assert flags["table_5e"] is False
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(item for item in gate["criteria"] if item["id"] == "P3C11")

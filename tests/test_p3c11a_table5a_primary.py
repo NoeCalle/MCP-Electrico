@@ -92,7 +92,7 @@ def test_5a_y_5c_siguen_parciales_aunque_5b_ya_esta_completa():
     assert flags["table_5a"] is False
     assert flags["table_5b"] is True
     assert flags["table_5c"] is False
-    assert flags["table_5d"] is False
+    assert flags["table_5d"] is True
     assert flags["table_5e"] is False
 
     gate = p3_completion.evaluar_cierre_p3()
