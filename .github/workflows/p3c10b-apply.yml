@@ -19,8 +19,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Validate applicator syntax
+        run: python -m py_compile scripts/_apply_p3c10b_v2.py
       - name: Apply deterministic P3C10B patch
-        run: python scripts/_apply_p3c10b.py
+        run: python scripts/_apply_p3c10b_v2.py
       - name: Syntax check
         run: python -m compileall -q mcp_electrico tests
       - name: Commit applied patch and remove temporary machinery
@@ -33,6 +35,6 @@ jobs:
                   mcp_electrico/workspace_p3_view.py \
                   tests/test_ampacity_normative_base_p3c10b.py \
                   docs/P3C10_BASE_AMPACITY_STRATEGY.md
-          git rm scripts/_apply_p3c10b.py .github/workflows/p3c10b-apply.yml
+          git rm scripts/_apply_p3c10b.py scripts/_apply_p3c10b_v2.py .github/workflows/p3c10b-apply.yml
           git commit -m "feat: integrar Iz_base normativo con cálculo y V3"
           git push origin HEAD:feat/p3c10b-integrate-base-v3
