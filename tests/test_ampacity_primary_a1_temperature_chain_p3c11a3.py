@@ -150,5 +150,6 @@ def test_cadena_5a_real_no_cierra_p3c11_ni_habilita_p4():
     assert criteria["P3C12"]["status"] == "PENDING"
     assert criteria["P3C13"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
-    assert gate["can_advance_to_next_phase"] is False
+    assert gate["ready_for_next_phase"] is False
+    assert gate["next_phase"] is None
     assert gate["professional_emission"] is False
