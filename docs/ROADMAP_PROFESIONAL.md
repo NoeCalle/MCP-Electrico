@@ -4,11 +4,11 @@
 
 Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hacia una plataforma de ingeniería reproducible y validada, apta para sustentar estudios emitidos por un profesional responsable.
 
-La firma y responsabilidad profesional siempre corresponden al ingeniero. El objetivo de este roadmap es que la herramienta entregue resultados trazables, reproducibles, verificables y con límites de aplicación explícitos.
+La firma y responsabilidad profesional siempre corresponden al ingeniero. El objetivo del roadmap es que la herramienta entregue resultados trazables, reproducibles, verificables y con límites de aplicación explícitos.
 
 ## Mapa maestro — orden de ejecución
 
-Este documento es la **guía maestra del proyecto**. Las fases no se consideran cumplidas por tener una primera implementación: cada una debe satisfacer su criterio de salida y mantener pruebas/CI, documentación, QA y representación visual cuando corresponda.
+Este documento es la **guía maestra del proyecto**. Una fase no se considera cumplida por tener una primera implementación: debe satisfacer su criterio de salida, mantener CI/pruebas, documentación, QA y representación visual cuando corresponda.
 
 | Fase | Estado actual | Resultado esperado |
 | --- | --- | --- |
@@ -16,85 +16,74 @@ Este documento es la **guía maestra del proyecto**. Las fases no se consideran 
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION** | `Ib <= In <= Iz` y factores de corrección trazables |
+| P3 — Ampacidad normativa | **EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION** | `Ib <= In <= Iz`, routing normativo y factores verificables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está ahora **en progreso** y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar su cobertura normativa, benchmarks y gate de salida. Los ejes transversales V y E continúan evolucionando en paralelo porque sirven a todas las fases.
-
-### P2 — evidencia de cierre v1
-
-P2 se declara **COMPLETA CON LIMITACIONES**, no “completa universalmente”. El cierre corresponde al alcance P2 v1 y está protegido por `evaluar_cierre_p2()` y tests de salida.
-
-Integrado y exigido por el gate:
-
-- transformador P2 de dos devanados/trifásico con kVA, tensiones, grupo vectorial, `uk/%Z`, separación R/X, taps, pérdidas cuando se suministran y procedencia;
-- red equivalente positiva-secuencia con Scc3/XR máxima y mínima, escenario activo y procedencia;
-- biblioteca BT/MT trazable y asignación estructurada de **producto + condición de instalación**, separada del simple rótulo visual;
-- secuencia cero explícita para fuente y líneas y ficha homopolar canónica de transformador, sin derivar Z0 desde Z1/Scc3;
-- readiness por estudio con `READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY` y `MODULE_NOT_READY`;
-- checks sistemáticos de coherencia de tensión de fuente, fases, buses, ratings/conexiones de transformador y consistencia de la asignación de conductor;
-- workspace V2 con fuente, transformador y cable/instalación trazables;
-- seguridad de runtime contra datos P2, asignaciones o Z0 obsoletas;
-- gate de salida que separa **capacidad del producto** de **coherencia del modelo activo**.
-
-Limitaciones que permanecen deliberadamente fuera del cierre P2 v1:
-
-- la biblioteca no pretende cubrir todo el mercado BT/MT;
-- solo se admiten los grupos vectoriales expresamente soportados por P2 v1;
-- R0/X0 desde geometría física es una ampliación futura; no se inventa cuando falta;
-- la ficha Z0 del transformador no se proyecta profesionalmente a OpenDSS hasta validar una estrategia adecuada de conexión/neutro/núcleo;
-- la ampacidad de catálogo todavía no es `Iz` normativo: eso comienza en P3;
-- IEC 60909 sigue perteneciendo a P4.
-
-Detalle y criterio reproducible: `docs/P2_EXIT_GATE.md`.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está en progreso y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar cobertura normativa, evidencia numérica primaria suficiente, benchmarks y gate de salida P3. Los ejes transversales V y E evolucionan en paralelo.
 
 ## Principio rector
 
-OpenDSS se mantiene como motor numérico principal y por defecto. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitos. El trabajo pendiente no consiste en reemplazar OpenDSS, sino en profesionalizar la capa alrededor de los motores: calidad de datos, bibliotecas, normativa, benchmarks, trazabilidad, control de versiones y reportabilidad.
+OpenDSS se mantiene como motor numérico principal y por defecto para el flujo actualmente validado. El proyecto puede incorporar motores complementarios cuando exista una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitos.
+
+La profesionalización se apoya en cinco pilares:
+
+1. calidad y procedencia de datos;
+2. selección determinista del motor;
+3. validación independiente y CI;
+4. normativa versionada;
+5. representación y reporte reproducibles.
 
 ## Estados de madurez
 
-Cada módulo deberá declarar uno de estos estados:
+Cada módulo declara uno de estos estados:
 
-- `NOT_IMPLEMENTED`: no existe una implementación utilizable.
-- `EXPERIMENTAL`: existe implementación, pero no debe emplearse como base de emisión profesional.
-- `UNDER_VALIDATION`: implementación funcional con validación incompleta.
-- `VALIDATED_WITH_LIMITATIONS`: validada para un alcance y supuestos expresamente definidos.
-- `VALIDATED`: validada contra casos patrón y apta dentro de su alcance documentado.
+- `NOT_IMPLEMENTED`;
+- `EXPERIMENTAL`;
+- `UNDER_VALIDATION`;
+- `VALIDATED_WITH_LIMITATIONS`;
+- `VALIDATED`.
 
-Un estado `VALIDATED` no elimina la obligación del ingeniero de revisar entradas, hipótesis y resultados.
+Un estado `VALIDATED` no elimina la revisión, criterio ni responsabilidad del ingeniero.
 
 ## Eje transversal V — workspace y representación visual
 
-La evolución visual se mantiene como un eje permanente del proyecto y no como una fase opcional separada. El unifilar técnico, workspace, inspector, tablas y overlays deben evolucionar junto con los datos y estudios de P2–P7.
+La evolución visual es un eje permanente. El unifilar técnico, workspace, inspector, tablas y overlays deben evolucionar junto con P2–P7.
 
-La base ya implementada incluye unifilar SVG técnico, workspace persistente, IDs estables, inspector read-only, selección sincronizada y overlays de flujo/caída de tensión.
+Base ya implementada:
 
-Regla de desarrollo: cuando una fase incorpore un nuevo objeto o estudio deberá decidir expresamente qué representación requiere —inspector, tabla, overlay, símbolo o salida de reporte— y mantener la trazabilidad entre `model_revision`, elemento, motor de cálculo y resultado.
+- unifilar SVG técnico;
+- workspace persistente;
+- IDs estables;
+- inspector read-only;
+- selección sincronizada;
+- vistas de flujo y caída de tensión;
+- V2 con fuente, transformadores y conductores trazables;
+- V3 foundation con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado y metadata P3A.
 
-El detalle de entregables visuales por fase se mantiene en `docs/ROADMAP_VISUAL.md`.
+Regla: el navegador **no recalcula ingeniería**. Consume resultados producidos por Python/MCP y conserva trazabilidad a `model_revision`, elemento, motor y estudio.
+
+Detalle: `docs/ROADMAP_VISUAL.md`.
 
 ## Eje transversal E — selección determinista de motor
 
-Objetivo: que la elección de OpenDSS, pandapower o una capa propia MCP **no dependa de una improvisación del LLM**.
+Objetivo: que la elección de OpenDSS, pandapower o una capa propia MCP **no dependa de improvisación del LLM**.
 
-La selección se basa en una matriz versionada de capacidades, requisitos del estudio, madurez del módulo, readiness de datos y compatibilidad del modelo. Este eje no altera el orden P0–P8.
+Reglas vigentes:
 
-Reglas:
+1. OpenDSS continúa como motor por defecto para el flujo validado y capacidades de distribución donde sea preferente.
+2. pandapower se seleccionará cuando el estudio tenga ventaja técnica clara; IEC 60909 es el candidato principal de P4.
+3. ampacidad, protección-conductor y IEEE 1584 pertenecen a la capa de orquestación/postproceso MCP.
+4. la matriz E responde motor preferente, alternativas, requisitos, madurez, readiness y aptitud de ejecución/emisión.
+5. faltantes de datos o limitaciones del backend se expresan; nunca se sustituyen silenciosamente.
+6. `automatic_dispatch=false`.
+7. `crosscheck=false` en el alcance actual.
+8. la matriz recomienda/selecciona determinísticamente, pero **no despacha automáticamente la ejecución**.
 
-1. OpenDSS continúa siendo el motor por defecto para el flujo actualmente validado y para capacidades de distribución donde sea el backend preferente.
-2. pandapower se seleccionará cuando el estudio tenga una ventaja técnica clara y el módulo MCP correspondiente esté habilitado; IEC 60909 es el candidato principal de P4.
-3. algunos estudios pertenecen a la capa MCP y no a un solver: ampacidad normativa, reglas `Ib/In/Iz`, protección-conductor y IEEE 1584 son ejemplos de orquestación/postproceso propios.
-4. la matriz debe poder responder **motor preferente**, **alternativas**, **requisitos**, **madurez**, **readiness de datos/backend**, **si el estudio puede ejecutarse** y **si puede sustentar emisión**.
-5. si faltan datos o el módulo/backend no está listo, la decisión debe expresarlo; nunca se sustituirán silenciosamente datos.
-6. P1.5/P2 no introducen cross-check. Comparar resultados OpenDSS↔pandapower queda fuera de alcance hasta una fase futura específica.
-7. la matriz E **recomienda/selecciona de forma determinista, pero no despacha automáticamente la ejecución**. Las tools explícitas de cada motor se mantienen.
-
-Documento de detalle: `docs/ENGINE_SELECTION.md`.
+Detalle: `docs/ENGINE_SELECTION.md`.
 
 ## Fase P0 — Gobernanza técnica y QA del modelo
 
@@ -102,188 +91,243 @@ Documento de detalle: `docs/ENGINE_SELECTION.md`.
 
 Objetivo: evitar que el sistema presente como listo para emisión un modelo incompleto.
 
-Entregables:
+Entregables consolidados:
 
-1. matriz de estado de validación por módulo;
-2. `ModelQAService` con severidades `INFO`, `WARNING`, `ERROR` y `BLOCKER`;
-3. tool MCP `auditar_modelo()`;
-4. bandera `apto_para_emision` calculada de forma determinística;
-5. reglas de QA documentadas y cubiertas por tests;
-6. sustitución del aviso genérico “educativo/experimental” por estados de madurez específicos por módulo.
+- matriz de madurez por módulo;
+- `ModelQAService` con `INFO`, `WARNING`, `ERROR`, `BLOCKER`;
+- `auditar_modelo()`;
+- `apto_para_emision` determinístico;
+- reglas QA documentadas y probadas;
+- estados de madurez específicos en lugar de un aviso genérico experimental.
 
 ## Fase P1 — Benchmarks de flujo de potencia y caída de tensión
 
-**Estado: COMPLETADA CON LIMITACIONES (P1 v1).**
-
-La primera cobertura valida casos radiales trifásicos balanceados de dos barras con carga PQ mediante una solución compleja independiente de OpenDSS. Los módulos `power_flow` y `voltage_drop` pasan a `VALIDATED_WITH_LIMITATIONS`. La validación completa con feeders IEEE/EPRI, redes desbalanceadas y equipos de regulación permanece pendiente antes de considerar `VALIDATED`.
+**Estado: COMPLETA CON LIMITACIONES (P1 v1).**
 
 Objetivo: validar cuantitativamente la cadena MCP → OpenDSS → postproceso.
 
-Entregables:
+Cobertura validada:
 
-- casos analíticos simples con solución independiente;
-- IEEE/EPRI feeders de referencia donde sea aplicable;
-- tolerancias declaradas antes de ejecutar la comparación;
-- reporte automático de error absoluto/relativo;
-- benchmarks de pérdidas, tensiones, corrientes y caída de tensión;
-- CI que impida regresiones fuera de tolerancia.
+- casos radiales trifásicos balanceados de dos barras con carga PQ;
+- solución compleja independiente de OpenDSS;
+- tolerancias declaradas antes de comparar;
+- tensión, corriente, pérdidas y caída de tensión;
+- CI con `benchmark_p1.json`.
 
-La evidencia P1 v1 y las limitaciones se documentan en `docs/BENCHMARKS_P1.md`. CI genera `benchmark_p1.json` como artefacto reproducible.
+`power_flow` y `voltage_drop` son `VALIDATED_WITH_LIMITATIONS`, no globalmente `VALIDATED`. Feeder IEEE/EPRI completo, desbalance y regulación siguen fuera del alcance P1 v1.
+
+Detalle: `docs/BENCHMARKS_P1.md`.
 
 ## Fase P1.5 — Segundo motor experimental: pandapower
 
 **Estado: COMPLETA COMO INTEGRACIÓN EXPERIMENTAL.**
 
-Objetivo: incorporar pandapower de forma controlada como motor complementario sin cross-check entre solvers.
+Objetivo: incorporar pandapower de forma controlada sin cross-check.
 
-Entregables actuales:
+Entregables:
 
 - pandapower 3.5.x versionado;
-- `pandapower_engine.py` y tool explícita `ejecutar_flujo_pandapower()`;
-- flujo AC balanceado con líneas/cargas y transformadores P2 cuando los datos son suficientes;
+- `pandapower_engine.py`;
+- tool explícita `ejecutar_flujo_pandapower()`;
+- flujo AC balanceado con líneas/cargas y transformadores P2 cuando existen datos suficientes;
 - rechazo determinístico de elementos fuera de alcance;
-- benchmark frente a la solución independiente P1, no frente a OpenDSS;
-- estado `pandapower_power_flow = EXPERIMENTAL`.
+- benchmark frente a referencia analítica P1, no contra OpenDSS;
+- `pandapower_power_flow = EXPERIMENTAL`.
 
-Pandapower se considera especialmente relevante para la evolución posterior hacia IEC 60909 y protección industrial, pero esos módulos no quedan habilitados por P1.5.
+P1.5 no habilita IEC 60909 ni protección.
 
 ## Fase P2 — Datos de entrada profesionales
 
 **Estado: COMPLETA CON LIMITACIONES (P2 v1).**
 
-Objetivo: eliminar supuestos silenciosos de equipos principales y dejar una base de datos/QA capaz de alimentar las fases normativas siguientes.
-
-Criterio de salida cumplido dentro del alcance v1:
-
-- transformadores, fuente equivalente y cables tienen representación profesional trazable;
-- ausencia de secuencia cero se bloquea cuando el estudio la requiere;
-- producto y condición de instalación están estructurados y separados del rating visual;
-- los datos críticos conservan procedencia;
-- OpenDSS/pandapower reciben solo proyecciones explícitas y compatibles;
-- readiness diferencia datos faltantes de limitaciones del backend/módulo;
-- QA, runtime y gate P2 detectan incoherencias relevantes;
-- workspace V2 presenta los datos profesionales implementados.
+Objetivo: eliminar supuestos silenciosos de equipos principales y dejar una base capaz de alimentar las fases normativas.
 
 Entregables consolidados:
 
-- transformador profesional: kVA, tensiones, grupo vectorial, %Z, X/R, taps, pérdidas y fuente;
-- red equivalente aguas arriba: Scc máxima/mínima, X/R y tensión;
-- biblioteca trazable de conductores BT/MT y condición de instalación publicada;
-- R0/X0 explícitos de fuente/líneas y ficha Z0 canónica de transformador;
-- metadatos de origen para cada dato crítico;
-- checks de coherencia de base kV, fases, buses, ratings y conexiones;
-- `evaluar_preparacion_estudio()` y `evaluar_cierre_p2()`.
+- transformadores: kVA, tensiones, grupo vectorial, `%Z/uk`, X/R, taps, pérdidas y procedencia;
+- red equivalente: Scc máxima/mínima, X/R, tensión y escenario activo;
+- biblioteca BT/MT trazable;
+- producto y condición de instalación estructurados;
+- R0/X0 explícitos para fuente y líneas;
+- ficha homopolar canónica de transformador;
+- readiness `READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`, `MODULE_NOT_READY`;
+- checks de coherencia de bases kV, fases, buses, ratings y conexiones;
+- workspace V2;
+- seguridad de runtime contra estado obsoleto;
+- `evaluar_cierre_p2()`.
 
-P2 no adelanta P3/P4: `Iz` normativo e IEC 60909 permanecen respectivamente pendientes.
+Limitaciones P2 v1:
+
+- biblioteca de mercado no exhaustiva;
+- grupos vectoriales limitados al alcance soportado;
+- R0/X0 por geometría física pendiente;
+- Z0 profesional de transformador no proyectada todavía a OpenDSS sin estrategia validada;
+- ampacidad de catálogo no equivale a `Iz` normativo;
+- IEC 60909 pertenece a P4.
+
+Detalle: `docs/P2_EXIT_GATE.md`.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION.**
+**Estado: EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION.**
 
-Objetivo: poder verificar selección térmica del conductor, no solo mostrar un rating de catálogo.
+Objetivo: verificar selección térmica del conductor mediante:
 
-Foundation P3 ya implementada:
+```text
+Ib <= In <= Iz
+Iz = Iz_base * product(k_i)
+```
 
-- contrato explícito `Ib <= In <= Iz` en la capa MCP;
-- `In` declarado con referencia, sin inferirlo del rating visual histórico;
-- `Ib` explícita o uso de corriente OpenDSS únicamente mediante aceptación expresa del escenario como corriente de diseño;
-- `Iz_base` proveniente de una asignación P2 trazable;
-- factores de corrección explícitos con referencia, o confirmación documentada de coincidencia con condiciones base;
-- prohibición de asumir silenciosamente un factor total igual a 1;
-- invalidación del perfil si cambia conductor, instalación o ampacidad base P2;
-- readiness específico P3 y madurez `UNDER_VALIDATION`;
-- workspace V3 con valores ya calculados y sin cálculo eléctrico en JavaScript;
-- referencias versionadas registradas para IEC 60364-5-52 Ed. 3.1 y CNE–Utilización, sin afirmar que sus tablas estén automatizadas.
+sin convertir un rating de catálogo en `Iz` final por simple etiqueta.
 
-P3A añade:
+### Foundation P3 — implementada
 
-- perfil `PERU_CNE_UTIL_2006_030_004` con routing A1/A2/B1/B2/C/D → Tabla 2 y E/F/G → Tabla 1;
-- identificación de ejes de corrección de temperatura, resistividad térmica y agrupamiento dentro del alcance modelado;
-- separación estricta entre perfil CNE 2006 e IEC 60364-5-52:2009+AMD1:2024;
-- IEC 2024 permanece `REFERENCE_ONLY` hasta disponer de dataset propio de esa edición;
-- restricción de 030-004(13) a transición subterránea → visible y 030-004(14) como revisión manual;
-- vínculo explícito entre factor manual y `axis` normativo requerido;
-- readiness bloqueante si el routing queda incompleto, cambia después de la ficha o conserva revisión manual pendiente;
-- casos patrón separados en `mcp_electrico/data/ampacity_p3a_reference_cases.json`.
+- `Ib` explícita o corriente de flujo aceptada expresamente como corriente de diseño;
+- `In` explícito con referencia;
+- `Iz_base` desde asignación P2 trazable;
+- factores explícitos y referenciados;
+- prohibición de asumir silenciosamente `product(k_i)=1`;
+- invalidación si cambia conductor/instalación/base;
+- readiness específico P3;
+- V3 read-only;
+- referencias CNE e IEC versionadas.
 
-Pendiente para cerrar P3:
+### P3A — router normativo implementado
 
-- datasets numéricos de ampacidades/factores con procedencia y alcance legal explícitos;
-- resolución por aislamiento, sección, método y configuración;
-- benchmarks independientes de valores numéricos y casos límite;
-- política explícita para valores no tabulados/interpolaciones cuando corresponda;
+- perfil `PERU_CNE_UTIL_2006_030_004`;
+- A1/A2/B1/B2/C/D → Tabla 2 como base;
+- E/F/G → Tabla 1 como base;
+- temperatura → 5A;
+- resistividad térmica para D en ducto enterrado → 5B;
+- agrupamiento A1/A2/B1/B2/C → 5C;
+- **agrupamiento D enterrado → 5D**;
+- E/F/G → 5C/5E según disposición;
+- 030-004(13) restringida a transición subterránea → visible;
+- 030-004(14) siempre manual;
+- IEC 60364-5-52:2009+AMD1:2024 permanece `REFERENCE_ONLY`;
+- bloqueo de mezcla CNE↔IEC;
+- factor manual debe vincularse al `axis` requerido.
+
+Detalle: `docs/P3A_PERFILES_NORMATIVOS.md`.
+
+### P3B — datasets numéricos en implementación
+
+P3B añade:
+
+- registro versionado de datasets;
+- procedencia y nivel de evidencia por dataset;
+- lookup exacto sin interpolación/extrapolación;
+- coherencia obligatoria con el routing P3A;
+- tool de consulta de datasets;
+- tool de lookup de agrupamiento;
+- benchmark reproducible `benchmark_p3b.json` en CI.
+
+Primer dataset cargado:
+
+`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1`
+
+Es una **reproducción secundaria** utilizada únicamente para desarrollo y benchmark de infraestructura. Requiere opt-in explícito y conserva:
+
+```text
+verification_status = PENDING_PRIMARY_VERIFICATION
+professional_emission = false
+automatic_normative_lookup = false
+```
+
+El benchmark P3B fija casos 2→0.80, 3→0.70 y 12→0.45 para verificar lookup exacto y trazabilidad. Un CI verde **no valida la tabla normativa primaria**.
+
+La auditoría P3B corrigió además el routing de agrupamiento del método D hacia **Tabla 5D**; el dataset inicial 5C excluye expresamente D.
+
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.
+
+### Pendiente para cerrar P3
+
+- obtener/archivar fuentes primarias reproducibles para datasets automatizados;
+- cargar y verificar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance;
+- incorporar selección de ampacidad base normativa cuando corresponda por conductor/aislamiento/método/sección;
+- mantener BT/MT y ámbitos normativos separados;
+- benchmarks independientes contra fuente primaria y cálculos manuales;
+- política de valores no tabulados;
 - gate formal de salida P3;
-- elevar madurez solo cuando la evidencia lo permita.
+- elevar madurez solo si la evidencia lo permite.
 
-P3 conserva `automatic_normative_lookup=false` y no habilita emisión profesional automática. Detalle: `docs/P3_AMPACIDAD.md` y `docs/P3A_PERFILES_NORMATIVOS.md`.
+P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
+
+Detalle general: `docs/P3_AMPACIDAD.md`.
 
 ## Fase P4 — Cortocircuito IEC 60909
 
 **Estado: PENDIENTE.**
 
-Objetivo: disponer de un estudio formal de cortocircuito conforme a una edición declarada de IEC 60909.
+Objetivo: disponer de un estudio formal conforme a una edición declarada de IEC 60909.
 
-Entregables:
+Entregables previstos:
 
-- integración o motor IEC 60909 desacoplado del solver de flujo, con versión y alcance explícitos;
-- evaluación de pandapower como backend normativo principal antes de implementar ecuaciones propias innecesariamente;
+- backend IEC 60909 desacoplado del solver de flujo;
+- evaluación de pandapower como backend principal antes de reimplementar ecuaciones;
 - fallas 3F, 2F, 1F-T y 2F-T según alcance;
 - `Ik''`, `ip`, `Ib`, `Ik`, `Sk''` cuando correspondan;
 - factores de tensión y contribuciones de fuentes;
-- casos ejemplo oficiales/independientes de validación;
-- escenarios de red máxima y mínima.
+- escenarios máximo/mínimo;
+- casos oficiales/independientes de validación;
+- V4 de cortocircuito.
 
 ## Fase P5 — Protección del conductor y coordinación
 
 **Estado: PENDIENTE.**
 
-Objetivo: verificar que el dispositivo realmente protege al conductor.
+Objetivo: verificar que el dispositivo realmente protege al conductor y coordina con otros dispositivos.
 
-Entregables:
+Entregables previstos:
 
-- biblioteca comercial de dispositivos con fuente;
-- Icu/Ics/Icw según equipo;
-- ajustes Ir/Isd/Ii y curvas TCC;
+- biblioteca comercial trazable;
+- Icu/Ics/Icw;
+- ajustes Ir/Isd/Ii;
+- curvas TCC;
 - verificación de sobrecarga;
-- verificación adiabática `I²t <= k²S²`;
+- `I²t <= k²S²`;
 - tiempos de despeje;
-- selectividad/backup donde exista información suficiente;
-- advertencia explícita cuando falten curvas o datos del fabricante.
+- selectividad/backup cuando exista información suficiente;
+- advertencia bloqueante cuando falten curvas/datos;
+- V5 con panel TCC.
 
 ## Fase P6 — Arc Flash IEEE 1584
 
 **Estado: PENDIENTE.**
 
-Objetivo: reemplazar el cálculo Lee como herramienta principal de arco eléctrico.
+Objetivo: implementar IEEE 1584-2018 como módulo formal de arco eléctrico.
 
-Entregables:
+Entregables previstos:
 
-- IEEE 1584-2018;
 - configuraciones de electrodos;
 - gap, enclosure y working distance;
 - Iarc e Iarc_min;
-- tiempos de despeje vinculados a protección;
-- energía incidente y arc-flash boundary;
-- validación con casos independientes;
-- Lee permanece únicamente como método histórico/educativo separado.
+- tiempo de despeje vinculado a protección;
+- energía incidente;
+- arc-flash boundary;
+- validación independiente;
+- V6 Arc Flash.
+
+Lee permanece separado como método experimental/histórico y no sustituye IEEE 1584.
 
 ## Fase P7 — Reporte reproducible y expediente de cálculo
 
 **Estado: PENDIENTE.**
 
-Objetivo: que cada informe pueda reconstruirse exactamente.
+Objetivo: reconstruir exactamente cada estudio emitido.
 
-Paquete de emisión propuesto:
+Paquete previsto:
 
 - `report.pdf`;
 - `model.json`;
-- export DSS completo;
+- export DSS;
 - `sources.json`;
 - `assumptions.json`;
 - matriz de validación;
-- resultados QA;
-- versiones de MCP Eléctrico, OpenDSS y bibliotecas;
-- hash SHA-256 del paquete/modelo.
+- QA;
+- versiones de MCP/OpenDSS/pandapower/bibliotecas;
+- hash SHA-256;
+- V7/salida vectorial reportable.
 
 ## Fase P8 — Release profesional 1.0
 
@@ -292,22 +336,22 @@ Paquete de emisión propuesto:
 Criterios mínimos:
 
 - P0 completa;
-- flujo y caída de tensión validados dentro de alcance publicado;
+- P1 validada dentro de alcance publicado;
 - QA bloqueante operativo;
-- P2 cerrada con datos profesionales suficientes para estudios incluidos;
-- P3 ampacidad normativa implementada;
-- P4 cortocircuito IEC 60909 validado;
+- P2 cerrada dentro de alcance;
+- P3 ampacidad normativa implementada/validada para alcance declarado;
+- P4 IEC 60909 validado;
 - P5 protección-conductor implementada;
 - P7 expediente reproducible;
-- documentación de límites de aplicación;
-- CI con benchmarks y pruebas de regresión;
-- matriz de validación publicada por release;
-- workspace/unifilar coherentes con los estudios incluidos en 1.0.
+- documentación de límites;
+- CI con benchmarks;
+- matriz de validación por release;
+- workspace/unifilar coherentes con los estudios incluidos.
 
-Arc Flash puede formar parte de 1.0 o de un módulo posterior, pero no debe presentarse como IEEE 1584 hasta completar P6.
+Arc Flash puede entrar en 1.0 o en un módulo posterior, pero nunca se presentará como IEEE 1584 antes de cerrar P6.
 
 ## Regla de emisión
 
-`apto_para_emision=true` significa únicamente que el modelo supera los chequeos automáticos definidos para los estudios solicitados y que los módulos requeridos tienen un estado de validación aceptable.
+`apto_para_emision=true` significa únicamente que el modelo supera los chequeos automáticos de los estudios solicitados y que los módulos requeridos tienen un estado de validación aceptable.
 
 No significa que el software asuma responsabilidad profesional ni sustituye la revisión, criterio, firma o colegiatura del ingeniero responsable.

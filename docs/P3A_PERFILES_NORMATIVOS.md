@@ -24,11 +24,13 @@ Fuente legal registrada:
 
 El router modela actualmente:
 
-- métodos A1, A2, B1, B2, C y D → **Tabla 2**;
-- métodos E, F y G → **Tabla 1**;
+- métodos A1, A2, B1, B2, C y D → **Tabla 2** como tabla base de ampacidad dentro del alcance declarado;
+- métodos E, F y G → **Tabla 1** como tabla base;
 - corrección por temperatura → Regla 030-004(8) / **Tabla 5A**;
 - corrección por resistividad térmica del suelo, dentro del alcance modelado para método D en ductos enterrados → Regla 030-004(9) / **Tabla 5B**;
-- agrupamiento → Regla 030-004(1)(c), (10) / **Tabla 5C** y ramas que requieren distinguir disposición física al aire;
+- agrupamiento A1/A2/B1/B2/C → **Tabla 5C** dentro del alcance modelado;
+- agrupamiento del **método D enterrado → Tabla 5D**, con clasificación de disposición/separación todavía manual hasta incorporar su dataset específico;
+- agrupamiento E/F/G → rama **5C/5E** según la disposición física; cuando la rama no puede determinarse inequívocamente se devuelve `MANUAL_REVIEW_REQUIRED`;
 - transición subterránea → visible dentro del alcance de 030-004(13): gobierna la menor ampacidad aplicable;
 - 030-004(14): **no se automatiza**. Si se solicita la excepción de tramo corto, P3A exige revisión manual.
 
@@ -58,7 +60,7 @@ La edición IEC está registrada para trazabilidad, pero sus tablas/datasets no 
 P3A puede devolver:
 
 - `BASE_CONDITIONS_IDENTIFIED`: las variables declaradas coinciden con las condiciones base modeladas y no se identifican ejes de corrección;
-- `REQUIREMENTS_IDENTIFIED`: se identificó uno o más ejes de corrección, pero el valor numérico de la tabla sigue `TABLE_DATA_NOT_LOADED`;
+- `REQUIREMENTS_IDENTIFIED`: se identificó uno o más ejes de corrección, pero el valor numérico de la tabla sigue sin resolver;
 - `MISSING_INPUTS`: faltan datos para decidir la aplicabilidad;
 - `MANUAL_REVIEW_REQUIRED`: la regla requiere una clasificación o revisión que P3A no automatiza;
 - `TABLE_DATA_NOT_LOADED`: perfil registrado sin dataset/routing numérico suficiente, caso actual de IEC 2024.
@@ -100,7 +102,22 @@ La ficha puede aceptar posteriormente un factor manual trazable:
 }
 ```
 
-P3A valida el **vínculo lógico**, no certifica todavía que `0.96` sea el valor normativo correcto. Esa verificación requiere el futuro dataset numérico versionado y sus benchmarks.
+P3A valida el **vínculo lógico**, no certifica todavía que `0.96` sea el valor normativo correcto. Esa verificación pertenece a P3B mediante datasets versionados y benchmarks.
+
+## Método D y Tabla 5D
+
+La auditoría realizada al iniciar P3B corrigió una simplificación de la primera versión del router: **el agrupamiento de circuitos en ductos enterrados del método D no debe caer en la rama genérica 5C**.
+
+P3A ahora declara:
+
+```text
+método D + más de un circuito
+→ grouping route = Tabla 5D
+→ requiere disposición/separación
+→ MANUAL_REVIEW_REQUIRED hasta disponer del dataset 5D correspondiente
+```
+
+El dataset P3B inicial de Tabla 5C excluye expresamente el método D, por lo que no puede utilizarse como sustituto de 5D.
 
 ## Regla 030-004(13)-(14)
 
@@ -120,7 +137,7 @@ Cubren al menos:
 
 - método C en condiciones base;
 - método C con corrección de temperatura;
-- método D con temperatura, resistividad y agrupamiento;
+- método D con temperatura, resistividad, agrupamiento y ruta 5D;
 - método F agrupado con revisión de disposición;
 - transición dentro del alcance 030-004(13);
 - IEC 2024 como `REFERENCE_ONLY`.
@@ -131,11 +148,13 @@ Estos casos validan el **routing**. No son todavía benchmarks de valores numér
 
 - no copia tablas IEC completas;
 - no presenta factores CNE como si fueran IEC 2024;
-- no calcula automáticamente factores 5A/5B/5C/5E;
+- no calcula por sí solo los valores numéricos 5A/5B/5C/5D/5E;
 - no decide la excepción 030-004(14);
 - no convierte el módulo `ampacity` en `VALIDATED_WITH_LIMITATIONS`;
 - no habilita emisión profesional automática.
 
-## Siguiente bloque de P3
+## Siguiente bloque: P3B
 
-Para elevar la madurez se necesita un bloque P3B con datasets numéricos de alcance y procedencia legal explícitos, selección por aislamiento/método/sección, pruebas manuales independientes y gate formal de salida P3.
+P3B incorpora datasets numéricos con procedencia y política de uso explícitas. El primer dataset es deliberadamente secundario y sirve únicamente para validar infraestructura; permanece `professional_emission=false` hasta la verificación contra una fuente primaria reproducible.
+
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.

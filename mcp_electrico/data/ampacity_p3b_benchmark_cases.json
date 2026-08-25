@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "evidence_level": "SECONDARY",
+  "professional_emission": false,
+  "source": {
+    "reference": "Reproducción de CNE Utilización Tabla 5C en Cybertesis UNMSM",
+    "url": "https://cybertesis.unmsm.edu.pe/backend/api/core/bitstreams/9109b64f-62ef-4504-b242-946dbcb41301/content",
+    "verification_status": "PENDING_PRIMARY_VERIFICATION"
+  },
+  "cases": [
+    {
+      "id": "table5c_item1_c_2circuits",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+      "installation_method": "C",
+      "circuits_grouped": 2,
+      "arrangement_id": "grouped_air_surface_embedded_enclosed",
+      "expected_factor": 0.80
+    },
+    {
+      "id": "table5c_item1_c_3circuits",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+      "installation_method": "C",
+      "circuits_grouped": 3,
+      "arrangement_id": "grouped_air_surface_embedded_enclosed",
+      "expected_factor": 0.70
+    },
+    {
+      "id": "table5c_item1_c_12circuits",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+      "installation_method": "C",
+      "circuits_grouped": 12,
+      "arrangement_id": "grouped_air_surface_embedded_enclosed",
+      "expected_factor": 0.45
+    }
+  ]
+}
