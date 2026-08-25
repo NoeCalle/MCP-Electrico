@@ -24,6 +24,7 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
         "verificar_archivo_fuente_ampacidad",
         "construir_evidencia_primaria_ampacidad",
         "evaluar_promocion_dataset_ampacidad",
+        "evaluar_evidencia_normativa_ampacidad",
         "resolver_factor_agrupamiento_ampacidad",
         "definir_aplicabilidad_normativa_ampacidad",
         "obtener_estado_ampacidad",
@@ -45,3 +46,15 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
     assert len(sources) >= 1
     assert sources[0]["source_class"] == "OFFICIAL_PRIMARY_CANDIDATE"
     assert sources[0]["pin_status"] == "DISCOVERED_UNPINNED"
+
+    evidence = mcp.tools["evaluar_evidencia_normativa_ampacidad"]()
+    assert evidence["professional_emission"] is False
+    assert evidence["status"] in {
+        "NOT_CONFIGURED",
+        "PRIMARY_EVIDENCE_READY",
+        "SECONDARY_EVIDENCE_ONLY",
+        "MANUAL_EVIDENCE",
+        "BASE_CONDITIONS_CONFIRMED",
+        "MIXED_EVIDENCE",
+        "EVIDENCE_INCOMPLETE",
+    }
