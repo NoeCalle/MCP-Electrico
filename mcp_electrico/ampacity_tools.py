@@ -7,13 +7,30 @@ el workspace V3.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from . import ampacity, ampacity_norms
+
+
+def _record_default(name: str, result: dict, action: str) -> None:
+    """Registra el estudio y refresca el workspace sin recalcular en navegador."""
+    from . import workspace, workspace_state, workspace_studies_view
+
+    workspace_state.record_study(name, result, action=action)
+    refreshed = workspace.safe_regenerate()
+    if not refreshed.get("ok") or refreshed.get("skipped"):
+        return
+    path = Path(workspace.get_state()["config"]["ruta_salida"]).expanduser()
+    if path.exists():
+        workspace_studies_view.enhance_file(path, workspace_state.snapshot())
 
 
 def register(mcp, on_study=None) -> None:
     def record(name: str, result: dict, action: str) -> None:
         if on_study is not None:
             on_study(name, result, action)
+        else:
+            _record_default(name, result, action)
 
     @mcp.tool()
     def listar_referencias_ampacidad() -> list[dict]:
