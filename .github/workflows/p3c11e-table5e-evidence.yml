@@ -1,0 +1,25 @@
+name: p3c11e-table5e-evidence
+on:
+  push:
+    branches: [feat/p3c11e-table5e-primary]
+    paths: [.github/workflows/p3c11e-table5e-evidence.yml]
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pypdf pymupdf
+      - name: Download and verify pinned CNE
+        run: |
+          curl -L --fail --retry 3 -A 'Mozilla/5.0' -e 'https://www.gob.pe/' -o cne_utilizacion.pdf 'https://cdn.www.gob.pe/uploads/document/file/898623/C%C3%B3digo_Nacional_de_Electricidad__Utilizaci%C3%B3n_.pdf'
+          test "$(sha256sum cne_utilizacion.pdf | awk '{print $1}')" = '2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64'
+      - run: python scripts/p3c11e_capture.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p3c11e-table5e-evidence
+          path: p3c11e_table5e/
