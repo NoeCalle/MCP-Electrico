@@ -1,0 +1,133 @@
+name: p3c09-table5c-evidence-candidate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p3c09-table5c-evidence-candidate.yml"
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install extraction dependencies
+        run: pip install pypdf pymupdf
+      - name: Download pinned official CNE copy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          from urllib.request import Request, urlopen
+
+          registry = json.loads(Path("mcp_electrico/data/ampacity_primary_sources.json").read_text(encoding="utf-8"))
+          source = next(item for item in registry["sources"] if item["id"] == "MINEM_CNE_UTIL_2006_OFFICIAL_PDF")
+          assert source["pin_status"] == "PINNED"
+          request = Request(
+              source["direct_url"],
+              headers={
+                  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36",
+                  "Accept": "application/pdf,application/octet-stream;q=0.9,*/*;q=0.8",
+                  "Referer": source["landing_url"],
+              },
+          )
+          with urlopen(request, timeout=60) as response:
+              Path("/tmp/cne-utilizacion.pdf").write_bytes(response.read())
+          PY
+      - name: Verify exact source pin and extract Table 5C candidate
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          import json
+          from pathlib import Path
+          import re
+
+          import fitz
+          from pypdf import PdfReader
+
+          source_file = Path("/tmp/cne-utilizacion.pdf")
+          registry = json.loads(Path("mcp_electrico/data/ampacity_primary_sources.json").read_text(encoding="utf-8"))
+          source = next(item for item in registry["sources"] if item["id"] == "MINEM_CNE_UTIL_2006_OFFICIAL_PDF")
+          digest = sha256(source_file.read_bytes()).hexdigest()
+          expected = source["expected_sha256"]
+          if digest != expected:
+              raise SystemExit(f"P3C09 refused: source hash {digest} != pinned {expected}")
+
+          reader = PdfReader(str(source_file))
+          matches = []
+          for index, page in enumerate(reader.pages):
+              text = page.extract_text() or ""
+              normalized = re.sub(r"\s+", " ", text)
+              if re.search(r"Tabla\s*5C", normalized, re.I) and "Factores de reducción" in normalized:
+                  matches.append((index, text, normalized))
+
+          if len(matches) != 1:
+              raise SystemExit(f"P3C09 refused: expected exactly one Table 5C page, found {len(matches)}")
+
+          index, raw_text, normalized = matches[0]
+          candidate_values = {
+              "circuits_2": "0,80" in normalized or "0.80" in normalized,
+              "circuits_3": "0,70" in normalized or "0.70" in normalized,
+              "circuits_12": "0,45" in normalized or "0.45" in normalized,
+          }
+          if not all(candidate_values.values()):
+              raise SystemExit(f"P3C09 refused: expected candidate values not all visible: {candidate_values}")
+
+          page_marker = None
+          marker_match = re.search(r"Tablas\s*-\s*P[áa]g\.\s*18\s*de\s*82", normalized, re.I)
+          if marker_match:
+              page_marker = marker_match.group(0)
+
+          payload = {
+              "schema_version": 1,
+              "status": "PRIMARY_TABLE_EVIDENCE_CANDIDATE",
+              "source_id": source["id"],
+              "norm_reference_id": source["norm_reference_id"],
+              "source_sha256": digest,
+              "source_hash_match": True,
+              "table": "Tabla 5C",
+              "table_item": 1,
+              "pdf_page_index_zero_based": index,
+              "pdf_page_number_one_based": index + 1,
+              "document_page_marker": page_marker,
+              "candidate_subset": {
+                  "2": 0.80,
+                  "3": 0.70,
+                  "12": 0.45,
+              },
+              "candidate_tokens_found": candidate_values,
+              "manual_comparison_confirmed": False,
+              "human_reviewer": None,
+              "eligible_for_primary_dataset_pr": False,
+              "professional_emission": False,
+              "note": "Extracción automatizada de evidencia candidata desde la copia oficial pinneada. Requiere revisión humana visual antes de cualquier PRIMARY_VERIFIED.",
+          }
+          Path("p3c09_table5c_candidate.json").write_text(
+              json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8",
+          )
+          Path("p3c09_table5c_page_text.txt").write_text(raw_text, encoding="utf-8")
+
+          doc = fitz.open(str(source_file))
+          page = doc[index]
+          matrix = fitz.Matrix(2, 2)
+          pix = page.get_pixmap(matrix=matrix, alpha=False)
+          pix.save("p3c09_table5c_page.png")
+
+          md = f"""# P3C09 — Evidencia candidata Tabla 5C\n\n- Fuente: `{source['id']}`\n- SHA-256: `{digest}`\n- Match con pin: **sí**\n- Página PDF: **{index + 1}**\n- Marcador interno: `{page_marker}`\n- Tabla: **5C**, ítem **1**\n- Subconjunto candidato: `2→0.80`, `3→0.70`, `12→0.45`\n- Revisión humana: **PENDIENTE**\n- Elegible como PRIMARY_VERIFIED: **NO**\n\nLa imagen y el texto extraído se adjuntan únicamente para revisión. Esta ejecución no modifica datasets ni habilita emisión profesional.\n"""
+          Path("p3c09_table5c_candidate.md").write_text(md, encoding="utf-8")
+          print(json.dumps(payload, ensure_ascii=False))
+          PY
+      - name: Upload P3C09 evidence candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3c09-table5c-evidence-candidate
+          path: |
+            p3c09_table5c_candidate.json
+            p3c09_table5c_candidate.md
+            p3c09_table5c_page_text.txt
+            p3c09_table5c_page.png
