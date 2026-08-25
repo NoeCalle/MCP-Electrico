@@ -110,6 +110,8 @@ def definir_aplicabilidad_normativa(
     profundidad_enterramiento_m: float | None = None,
     circuitos_agrupados: int = 1,
     disposicion_agrupamiento: str | None = None,
+    rama_tabla_5d: str | None = None,
+    separacion_tabla_5d_id: str | None = None,
     numero_tramos: int = 1,
     transicion_tramos: str | None = None,
     solicitar_excepcion_tramo_corto: bool = False,
@@ -128,6 +130,8 @@ def definir_aplicabilidad_normativa(
         burial_depth_m=profundidad_enterramiento_m,
         circuits_grouped=circuitos_agrupados,
         grouping_arrangement=disposicion_agrupamiento,
+        table5d_branch=rama_tabla_5d,
+        grouping_spacing_id=separacion_tabla_5d_id,
         segment_count=numero_tramos,
         segment_transition=transicion_tramos,
         request_short_segment_exception=solicitar_excepcion_tramo_corto,
@@ -151,6 +155,8 @@ def definir_aplicabilidad_normativa(
             ),
             "circuits_grouped": int(circuitos_agrupados),
             "grouping_arrangement": str(disposicion_agrupamiento or "").strip() or None,
+            "table5d_branch": str(rama_tabla_5d or "").strip() or None,
+            "grouping_spacing_id": str(separacion_tabla_5d_id or "").strip() or None,
         },
     }
 

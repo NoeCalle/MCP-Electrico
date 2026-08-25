@@ -2194,8 +2194,8 @@
         "requires_explicit_secondary_opt_in": false,
         "verified_subset_only": false,
         "p3c11_family_coverage": true,
-        "automatic_binding_to_iz": false,
-        "note": "Tabla 5D completa y verificable por lookup exacto. El binding automático a Iz permanece bloqueado hasta P3C11D2, que clasificará la disposición física y comprobará contexto P3A."
+        "automatic_binding_to_iz": true,
+        "note": "Tabla 5D completa; P3C11D2 habilita binding solo con rama/espaciado estructurados y condiciones exactas 0.7 m / 2.5 K.m/W."
       }
     },
     {

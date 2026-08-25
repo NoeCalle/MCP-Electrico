@@ -114,6 +114,22 @@ def _factor_detail(item: dict[str, Any]) -> str:
             context.append(f"ρ={_fmt(query.get('soil_thermal_resistivity_k_m_per_w'), 2)} K·m/W")
         if query.get("burial_depth_scope") == "up_to_0_8_m":
             context.append("prof. ≤0.8 m")
+        if query.get("table5d_branch") is not None:
+            branch_labels = {
+                "A_DIRECT_BURIED_CABLES": "5D-A directa",
+                "B_MULTICORE_SINGLE_WAY_DUCTS": "5D-B multipolar/ducto",
+                "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS": "5D-C unipolar/ducto",
+            }
+            context.append(branch_labels.get(str(query.get("table5d_branch")), str(query.get("table5d_branch"))))
+        if query.get("spacing_id") is not None:
+            spacing_labels = {
+                "contact": "sep. contacto", "one_cable_diameter": "sep. 1 diámetro",
+                "0_125_m": "sep. 0.125 m", "0_25_m": "sep. 0.25 m",
+                "0_5_m": "sep. 0.5 m", "1_0_m": "sep. 1.0 m",
+            }
+            context.append(spacing_labels.get(str(query.get("spacing_id")), str(query.get("spacing_id"))))
+        if query.get("burial_depth_m") is not None:
+            context.append(f"prof.={_fmt(query.get('burial_depth_m'), 2)} m")
         parts = [f"{axis}: k={value}"]
         if table:
             parts.append(table)

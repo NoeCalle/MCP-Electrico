@@ -159,6 +159,47 @@ def _axis(axis: str, required: bool, reference: str, reason: str, status: str) -
     }
 
 
+_TABLE5D_BRANCH_ENVIRONMENT = {
+    "A_DIRECT_BURIED_CABLES": "direct_buried",
+    "B_MULTICORE_SINGLE_WAY_DUCTS": "buried_duct",
+    "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS": "buried_duct",
+}
+
+_TABLE5D_SPACING_IDS = {
+    "A_DIRECT_BURIED_CABLES": {"contact", "one_cable_diameter", "0_125_m", "0_25_m", "0_5_m"},
+    "B_MULTICORE_SINGLE_WAY_DUCTS": {"contact", "0_25_m", "0_5_m", "1_0_m"},
+    "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS": {"contact", "0_25_m", "0_5_m", "1_0_m"},
+}
+
+def _table5d_branch(value: str | None) -> str | None:
+    if value is None or not str(value).strip():
+        return None
+    raw = str(value).strip().upper()
+    aliases = {
+        "A": "A_DIRECT_BURIED_CABLES",
+        "B": "B_MULTICORE_SINGLE_WAY_DUCTS",
+        "C": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+        **{key: key for key in _TABLE5D_BRANCH_ENVIRONMENT},
+    }
+    if raw not in aliases:
+        raise ValueError("P3P009: table5d_branch debe ser A | B | C o un ID canónico de Tabla 5D")
+    return aliases[raw]
+
+def _table5d_spacing(branch: str, value: str | None) -> str | None:
+    if value is None or not str(value).strip():
+        return None
+    spacing = str(value).strip().lower().replace(".", "_")
+    aliases = {
+        "none": "contact", "ninguna": "contact", "contacto": "contact",
+        "one_diameter": "one_cable_diameter", "un_diametro": "one_cable_diameter",
+        "0_125": "0_125_m", "0_25": "0_25_m", "0_5": "0_5_m", "1_0": "1_0_m",
+    }
+    spacing = aliases.get(spacing, spacing)
+    if spacing not in _TABLE5D_SPACING_IDS[branch]:
+        raise ValueError(f"P3P010: spacing_id={spacing} no existe en la rama {branch} de Tabla 5D")
+    return spacing
+
+
 def _segment_transition(value: str | None) -> str | None:
     if value is None or not str(value).strip():
         return None
@@ -186,6 +227,8 @@ def evaluar_aplicabilidad(
     burial_depth_m: float | None = None,
     circuits_grouped: int = 1,
     grouping_arrangement: str | None = None,
+    table5d_branch: str | None = None,
+    grouping_spacing_id: str | None = None,
     segment_count: int = 1,
     segment_transition: str | None = None,
     request_short_segment_exception: bool = False,
@@ -226,6 +269,7 @@ def evaluar_aplicabilidad(
     manual: list[str] = []
     axes: list[dict[str, Any]] = []
     depth: float | None = None
+    rho: float | None = None
 
     env_raw = str(environment or "").strip().lower()
     if method == "D":
@@ -303,10 +347,12 @@ def evaluar_aplicabilidad(
                     axis_status,
                 ))
         elif env == "direct_buried":
-            manual.append(
-                "P3A no extrapola la Tabla 5B a tendido directamente enterrado; "
-                "la rama automatizada de 030-004(9) se limita a conductores en ductos enterrados."
-            )
+            # Tabla 5B no se aplica automáticamente a enterramiento directo.
+            # Tabla 5D-A sí publica una rama explícita; D2 la valida más abajo.
+            if soil_thermal_resistivity_k_m_per_w is not None:
+                rho = float(soil_thermal_resistivity_k_m_per_w)
+                if rho <= 0:
+                    raise ValueError("P3P003: resistividad térmica del suelo debe ser positiva")
 
     grouped = int(circuits_grouped)
     if grouped < 1:
@@ -314,22 +360,67 @@ def evaluar_aplicabilidad(
     arrangement = str(grouping_arrangement or "").strip() or None
     if grouped > 1:
         if method == "D":
-            if not arrangement:
-                missing.append("grouping_arrangement")
-            axes.append(_axis(
-                "grouping",
-                True,
-                "Tabla 5D — factores de reducción para más de un circuito en ductos enterrados",
-                (
-                    f"Se declararon {grouped} circuitos para método D; la Tabla 5D depende de la disposición "
-                    "y separación física de cables/ductos."
-                ),
-                MANUAL_REVIEW_REQUIRED,
-            ))
-            manual.append(
-                "P3A identifica Tabla 5D para método D, pero todavía no clasifica automáticamente sus ramas "
-                "por cable/ducto y separación; se requiere disposición explícita antes del lookup numérico."
-            )
+            branch5d = _table5d_branch(table5d_branch)
+            spacing5d = _table5d_spacing(branch5d, grouping_spacing_id) if branch5d else None
+            if branch5d is None or spacing5d is None:
+                if arrangement:
+                    axes.append(_axis(
+                        "grouping", True,
+                        "Tabla 5D — factores de reducción para más de un circuito en método D",
+                        f"Se declararon {grouped} circuitos con disposición libre '{arrangement}', todavía no clasificada en rama/espaciado 5D.",
+                        MANUAL_REVIEW_REQUIRED,
+                    ))
+                    manual.append(
+                        "P3C11D2 no interpreta grouping_arrangement libre. Declare table5d_branch y grouping_spacing_id para lookup automático."
+                    )
+                else:
+                    if branch5d is None:
+                        missing.append("table5d_branch: A | B | C")
+                    if spacing5d is None:
+                        missing.append("grouping_spacing_id")
+                    axes.append(_axis(
+                        "grouping", True,
+                        "Tabla 5D — factores de reducción para más de un circuito en método D",
+                        "Tabla 5D requiere rama física A/B/C y separación exacta.",
+                        TABLE_DATA_NOT_LOADED,
+                    ))
+            else:
+                expected_env = _TABLE5D_BRANCH_ENVIRONMENT[branch5d]
+                if env != expected_env:
+                    raise ValueError(
+                        f"P3P011: rama {branch5d} requiere environment={expected_env}, no {env or 'NONE'}"
+                    )
+                if depth is None:
+                    missing.append("burial_depth_m")
+                if rho is None:
+                    missing.append("soil_thermal_resistivity_k_m_per_w")
+                exact_depth = depth is not None and abs(depth - 0.7) <= 1e-12
+                exact_rho = rho is not None and abs(rho - 2.5) <= 1e-12
+                count_tabulated = 2 <= grouped <= 6
+                axis_status = TABLE_DATA_NOT_LOADED
+                if depth is not None and not exact_depth:
+                    axis_status = MANUAL_REVIEW_REQUIRED
+                    manual.append(
+                        f"Tabla 5D publica factores a 0,7 m; profundidad declarada={depth:g} m. No se extrapola automáticamente."
+                    )
+                if rho is not None and not exact_rho:
+                    axis_status = MANUAL_REVIEW_REQUIRED
+                    manual.append(
+                        f"Tabla 5D publica factores a ρ=2,5 K·m/W; valor declarado={rho:g}. La combinación 5B×5D queda fuera de D2."
+                    )
+                if not count_tabulated:
+                    axis_status = MANUAL_REVIEW_REQUIRED
+                    manual.append(
+                        f"Tabla 5D v1 tabula 2 a 6 circuitos/cables; se declararon {grouped}. No se extrapola."
+                    )
+                axes.append(_axis(
+                    "grouping", True,
+                    "Tabla 5D — factores de reducción para más de un circuito en método D",
+                    (f"Rama={branch5d}; separación={spacing5d}; circuitos/cables={grouped}; "
+                     + (f"profundidad={depth:g} m; " if depth is not None else "profundidad pendiente; ")
+                     + (f"ρ={rho:g} K·m/W." if rho is not None else "ρ pendiente.")),
+                    axis_status,
+                ))
         elif method in {"E", "F", "G"}:
             if not arrangement:
                 missing.append("grouping_arrangement")
@@ -423,12 +514,19 @@ def evaluar_aplicabilidad(
         "burial_context": {
             "burial_depth_m": depth,
             "table_5b_max_automatic_depth_m": 0.8 if method == "D" and env == "buried_duct" else None,
+            "table_5d_automatic_depth_m": 0.7 if method == "D" else None,
+            "table_5d_automatic_soil_thermal_resistivity_k_m_per_w": 2.5 if method == "D" else None,
         },
         "base_conditions": deepcopy(base),
         "grouping_context": {
             "circuits_grouped": grouped,
             "arrangement": arrangement,
             "route": method_info["grouping_route"],
+            "table5d_branch": (_table5d_branch(table5d_branch) if method == "D" and table5d_branch else None),
+            "grouping_spacing_id": (
+                _table5d_spacing(_table5d_branch(table5d_branch), grouping_spacing_id)
+                if method == "D" and table5d_branch and grouping_spacing_id else None
+            ),
         },
         "required_axes": axes,
         "required_factor_tables": required_tables,
