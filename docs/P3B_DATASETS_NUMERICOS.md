@@ -120,8 +120,8 @@ Después del pin, el flujo exige:
 1. copia local cuyo SHA-256 coincida exactamente con `expected_sha256`;
 2. tablas verificadas;
 3. referencias de página/sección;
-4. revisor identificado;
-5. confirmación de comparación manual;
+4. revisor identificado y modalidad de revisión trazable;
+5. confirmación de comparación explícita; si la modalidad es IA visual, debe conservar autorización expresa del usuario;
 6. evaluación de elegibilidad;
 7. **nueva revisión del dataset por PR + CI**.
 
@@ -190,15 +190,14 @@ Esto evita que un benchmark verde se interprete erróneamente como validación n
 
 ## Siguiente paso P3B
 
-P3C08 ya está completado. El siguiente bloque es P3C09:
+P3C09 queda cerrado con la nueva revisión `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`. La revisión primaria contiene deliberadamente **solo** los valores 2→0.80, 3→0.70 y 12→0.45 que fueron contrastados contra la copia oficial pinneada; la revisión secundaria histórica se conserva sin mutarla.
 
-1. obtener una copia de trabajo cuyo SHA-256 coincida con el pin registrado;
-2. localizar y revisar un subconjunto pequeño de la Tabla 5C contra páginas/secciones de esa copia;
-3. registrar revisor y confirmación de comparación manual;
-4. crear una **nueva revisión** del dataset con `PRIMARY_VERIFIED`, sin mutar silenciosamente la secundaria existente;
-5. someter esa revisión a PR + CI;
-6. después repetir el proceso por ejes/familias requeridos;
-7. incorporar benchmarks primarios independientes;
-8. validar la estrategia de `Iz_base` de Tablas 1/2;
-9. mantener el gate formal P3 como árbitro del avance a P4;
-10. elevar madurez solo si la evidencia lo permite.
+El siguiente bloque principal es **P3C10**:
+
+1. crear la primera revisión primaria de `Iz_base` desde el candidato Tabla 2 ya aprobado (método C, Cu, XLPE/EPR, 3 conductores cargados, 70 mm² → 229 A);
+2. mantener Tabla 1/2 separadas de la ampacidad de catálogo P2;
+3. después ampliar cobertura primaria 5A/5B/5D/5E para P3C11;
+4. incorporar benchmarks normativos primarios independientes para P3C12;
+5. elevar madurez únicamente cuando la evidencia permita cerrar P3C13.
+
+P3 permanece `UNDER_VALIDATION`: que un dataset puntual tenga `professional_emission=true` significa que **ese subconjunto exacto** puede sustentar evidencia normativa; no habilita por sí mismo la emisión profesional automática del estudio completo.

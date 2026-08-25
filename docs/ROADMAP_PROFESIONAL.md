@@ -246,7 +246,7 @@ La fuente oficial MINEM/CNE ya está fijada en `ampacity_primary_sources.json` c
 expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
 ```
 
-La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08. El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C ya fue comparado visualmente y aprobado bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED`; el dataset secundario todavía no ha sido promovido a una revisión `PRIMARY_VERIFIED`.
+La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08. El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C fue comparado visualmente bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED` y promovido mediante PR+CI a la nueva revisión `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`, sin mutar el dataset secundario histórico.
 
 Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `docs/P3_EXIT_GATE.md` y `docs/P3_BENCHMARK_EVIDENCE.md`.
 
@@ -254,11 +254,10 @@ Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `do
 
 `evaluar_cierre_p3()` separa el estado de la fase del estado del modelo y bloquea el paso formal a P4 mientras exista algún criterio P3-v1 pendiente.
 
-Infraestructura y fuente `P3C01`–`P3C08`: implementadas.
+Infraestructura, fuente y primer dataset primario `P3C01`–`P3C09`: implementados.
 
 Bloqueantes actuales:
 
-- `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`;
 - `P3C10` — estrategia validada de `Iz_base`; infraestructura P3C10A/B implementada y primer candidato Tabla 2 P3C10C visualmente aprobado y elegible para PR de dataset primario;
 - `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E;
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
@@ -266,7 +265,7 @@ Bloqueantes actuales:
 
 ### Pendiente para cerrar P3
 
-- cargar y revisar el primer subconjunto `PRIMARY_VERIFIED`, preferentemente pequeño y auditable (`P3C09`);
+- `P3C09` cerrado con una revisión primaria limitada a las celdas efectivamente verificadas de Tabla 5C;
 - crear/promover la primera revisión primaria de `Iz_base` Tabla 2 a partir del candidato aprobado y extender la estrategia primaria de Tablas 1/2 (`P3C10`);
 - completar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance (`P3C11`);
 - incorporar benchmarks independientes primarios por familia (`P3C12`);
@@ -276,7 +275,7 @@ Bloqueantes actuales:
 
 P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
 
-**Revisión explícita actual:** P3C09 (Tabla 5C) y el primer candidato P3C10C (Tabla 2) ya fueron comparados visualmente y aprobados mediante `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null` para no atribuir revisión humana al modelo. Ambos están habilitados para el siguiente PR de dataset primario, pero aún no son `PRIMARY_VERIFIED` ni habilitan emisión profesional. El eje visual V3 permanece en paralelo y ya distingue el origen de `Iz_base` de la evidencia de factores.
+**Estado actual:** P3C09 ya dispone de una revisión `PRIMARY_VERIFIED` limitada a 2, 3 y 12 circuitos de Tabla 5C. El candidato P3C10C de Tabla 2 permanece visualmente aprobado y elegible para su propio PR primario. La revisión se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null`; la madurez global P3 continúa `UNDER_VALIDATION` y la emisión profesional automática sigue bloqueada. El eje visual V3 permanece en paralelo y distingue el origen de `Iz_base` de la evidencia de factores.
 
 Detalle general: `docs/P3_AMPACIDAD.md`.
 

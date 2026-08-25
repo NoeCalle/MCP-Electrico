@@ -11,12 +11,13 @@ def test_roadmap_p3_reflects_current_gate_and_blockers():
 
     assert "INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS" in text
     assert "Gate formal de salida P3 — implementado" in text
-    assert "Infraestructura y fuente `P3C01`–`P3C08`: implementadas" in text
-    assert "`P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`" in text
+    assert "Infraestructura, fuente y primer dataset primario `P3C01`–`P3C09`: implementados" in text
+    assert "`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`" in text
     assert "`P3C13` — madurez de ampacidad" in text
-    assert "**Revisión explícita actual:**" in text
+    assert "**Estado actual:**" in text
     assert "AI_VISUAL_REVIEW_USER_AUTHORIZED" in text
-    assert "habilitados para el siguiente PR de dataset primario" in text
+    assert "candidato P3C10C" in text
+    assert "UNDER_VALIDATION" in text
     assert "- gate formal de salida P3;" not in text
 
 

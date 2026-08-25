@@ -27,6 +27,7 @@ def _primary_candidate():
         "page_references": ["Sección 030 / Tabla 5C"],
         "verification_record": {
             "reviewer": "Ingeniero revisor",
+            "review_mode": "HUMAN_MANUAL_REVIEW",
             "manual_comparison_confirmed": True,
         },
     }
@@ -92,6 +93,26 @@ def test_primary_verified_requiere_hash_paginas_y_revisor():
     item = _primary_candidate()
     item["provenance"]["verification_record"]["manual_comparison_confirmed"] = False
     with pytest.raises(ValueError, match="P3B011"):
+        ampacity_datasets.validar_dataset_record(item)
+
+
+
+def test_primary_verified_requiere_modalidad_de_revision_trazable(tmp_path, monkeypatch):
+    _set_source_registry(tmp_path, monkeypatch)
+    item = _primary_candidate()
+    item["provenance"]["verification_record"].pop("review_mode")
+    with pytest.raises(ValueError, match="P3B021"):
+        ampacity_datasets.validar_dataset_record(item)
+
+
+def test_revision_visual_ia_requiere_autorizacion_usuario(tmp_path, monkeypatch):
+    _set_source_registry(tmp_path, monkeypatch)
+    item = _primary_candidate()
+    record = item["provenance"]["verification_record"]
+    record["review_mode"] = "AI_VISUAL_REVIEW_USER_AUTHORIZED"
+    record["reviewer"] = "GPT-5.6 Sol"
+    record["review_authorized_by_user"] = False
+    with pytest.raises(ValueError, match="P3B022"):
         ampacity_datasets.validar_dataset_record(item)
 
 
