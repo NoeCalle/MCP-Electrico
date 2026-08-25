@@ -1,7 +1,8 @@
-"""Vista V3 para resultados P3 de ampacidad.
+"""Vista V3 para resultados P3/P3A de ampacidad.
 
 Consume exclusivamente resultados ya calculados y versionados en el snapshot.
-El navegador no deriva Iz, no multiplica factores y no evalúa Ib/In/Iz.
+El navegador no deriva Iz, no multiplica factores, no resuelve tablas normativas
+y no evalúa Ib/In/Iz.
 """
 
 from __future__ import annotations
@@ -29,6 +30,17 @@ def _study(snapshot: dict[str, Any]) -> dict[str, Any] | None:
     return item.get("result") or {}
 
 
+def _routing_label(item: dict[str, Any]) -> tuple[str, str]:
+    route = item.get("normative_applicability") or {}
+    sources = item.get("sources", {})
+    norm = sources.get("norm", {}) if isinstance(sources, dict) else {}
+    profile = str(route.get("profile_id") or norm.get("id") or "—")
+    method = str(route.get("installation_method") or "").strip()
+    profile_method = f"{profile} / {method}" if method else profile
+    route_status = str(route.get("status") or "MANUAL_FOUNDATION")
+    return profile_method, route_status
+
+
 def _panel(snapshot: dict[str, Any]) -> str:
     study = _study(snapshot)
     if not study:
@@ -46,9 +58,12 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             "NO_CUMPLE": "p3-fail",
             "DATOS_INSUFICIENTES": "p3-missing",
         }.get(status, "p3-missing")
+        profile_method, route_status = _routing_label(item)
         rows.append(
             f'<tr class="{css}" data-p3-element="{escape(str(item.get("element") or ""), quote=True)}">'
             f'<td>{escape(str(item.get("element") or "—"))}</td>'
+            f'<td>{escape(profile_method)}</td>'
+            f'<td>{escape(route_status)}</td>'
             f'<td>{_fmt(values.get("ib_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("in_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("iz_base_a"), 2, " A")}</td>'
@@ -61,7 +76,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     summary = study.get("summary", {})
     return f'''<section class="panel p3-panel" id="panel-ampacidad">
 <div class="p3-header">
-  <div><h3>Ampacidad — P3 foundation</h3><p>Criterio calculado por MCP Eléctrico: <strong>Ib ≤ In ≤ Iz</strong>.</p></div>
+  <div><h3>Ampacidad — P3/P3A</h3><p>Criterio calculado por MCP Eléctrico: <strong>Ib ≤ In ≤ Iz</strong>.</p></div>
   <div class="p3-kpis">
     <span>Total <strong>{summary.get('total', 0)}</strong></span>
     <span>Cumple <strong>{summary.get('cumple', 0)}</strong></span>
@@ -69,8 +84,8 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     <span>Datos insuf. <strong>{summary.get('datos_insuficientes', 0)}</strong></span>
   </div>
 </div>
-<div class="p3-note"><strong>UNDER_VALIDATION.</strong> Iz proviene de ampacidad base P2 y factores explícitos trazables o confirmación documentada de condiciones base. Las tablas normativas automáticas IEC/CNE todavía no están implementadas.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Ib</th><th>In</th><th>Iz base</th><th>∏k</th><th>Iz</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="7">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="p3-note"><strong>UNDER_VALIDATION.</strong> P3A identifica perfil, método y ejes normativos; no resuelve valores de tablas no cargadas. Iz continúa usando ampacidad base P2 y factores explícitos trazables o confirmación documentada de condiciones base.</div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>∏k</th><th>Iz</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="9">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 
