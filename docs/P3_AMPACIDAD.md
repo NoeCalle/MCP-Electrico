@@ -12,7 +12,9 @@ Ib <= In <= Iz
 
 pero **no** declara todavía una implementación automática completa de IEC 60364-5-52 ni del CNE–Utilización. La foundation separa correctamente los datos y evita convertir una ampacidad de catálogo en `Iz` normativo sin justificación.
 
-P3A añade ahora un **router normativo de aplicabilidad**: puede identificar qué tabla base y qué ejes de corrección resultan aplicables dentro del alcance modelado, sin inventar ni copiar valores de tablas todavía no cargadas.
+P3A añade un **router normativo de aplicabilidad**: identifica qué tabla base y qué ejes de corrección resultan aplicables dentro del alcance modelado.
+
+P3B añade la infraestructura de **datasets numéricos versionados**, pero distingue estrictamente entre un valor disponible para desarrollo y un valor verificado que pueda sustentar emisión profesional.
 
 ## Referencias registradas
 
@@ -21,7 +23,7 @@ El registro P3 incluye, como referencias versionadas:
 - `IEC_60364_5_52_2009_A1_2024`: IEC 60364-5-52:2009+AMD1:2024, Ed. 3.1, publicada el 2024-11-22;
 - `PERU_CNE_UTILIZACION_2006`: Código Nacional de Electricidad – Utilización, aprobado por R.M. N.° 0037-2006-MEM.
 
-Registrar una norma **no significa** que sus tablas estén implementadas. Cada registro conserva `automatic_tables=false` hasta que el proyecto incorpore datasets numéricos con alcance, procedencia y benchmarks suficientes.
+Registrar una norma **no significa** que sus tablas estén implementadas o verificadas. Cada dataset debe declarar su procedencia y política de uso.
 
 ## P3A — perfiles normativos
 
@@ -36,13 +38,46 @@ El perfil CNE modela actualmente:
 - métodos A1/A2/B1/B2/C/D → Tabla 2;
 - temperatura → Regla 030-004(8) / Tabla 5A;
 - resistividad térmica del suelo para el alcance modelado de método D en ductos enterrados → Regla 030-004(9) / Tabla 5B;
-- agrupamiento → Regla 030-004(1)(c), (10) / Tabla 5C y ramas que dependen de la disposición al aire;
+- agrupamiento A1/A2/B1/B2/C → Tabla 5C dentro del alcance soportado;
+- agrupamiento método D enterrado → **Tabla 5D**, con disposición/separación todavía bajo revisión manual hasta cargar su dataset específico;
+- métodos E/F/G → rama 5C/5E según disposición física, todavía `MANUAL_REVIEW_REQUIRED` cuando la rama no es inequívoca;
 - transición subterránea → visible dentro del alcance de 030-004(13);
 - excepción 030-004(14) siempre como `MANUAL_REVIEW_REQUIRED`.
 
 P3A **no generaliza** 030-004(13) a cualquier cambio de instalación.
 
 Detalle completo: `docs/P3A_PERFILES_NORMATIVOS.md`.
+
+## P3B — datasets numéricos
+
+P3B introduce un registro estructurado de datasets con:
+
+- `source_type`;
+- `verification_status`;
+- publisher/referencia/URL;
+- alcance exacto;
+- política de interpolación/extrapolación;
+- `professional_emission`.
+
+El primer dataset es:
+
+`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1`
+
+Corresponde a una reproducción secundaria de una fila de Tabla 5C y se usa **solo para desarrollo/benchmark de la infraestructura**.
+
+Por política:
+
+```text
+verification_status = PENDING_PRIMARY_VERIFICATION
+professional_emission = false
+automatic_normative_lookup = false
+```
+
+El valor secundario no se devuelve por defecto. Requiere un opt-in explícito y aun así continúa marcado como no apto para emisión.
+
+P3B tampoco interpola ni extrapola valores no tabulados.
+
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.
 
 ## Variables
 
@@ -127,6 +162,8 @@ Crear un circuito nuevo también limpia los perfiles y routings P3/P3A.
 
 Si el routing normativo se redefine después de crear la ficha `Ib/In/Iz`, la evaluación y el readiness vuelven a comprobar norma, ejes requeridos y revisiones manuales.
 
+P3B añade otra regla: el lookup numérico debe usar **la misma cantidad de circuitos y disposición** declaradas por P3A. Una discrepancia devuelve `ROUTE_MISMATCH`.
+
 ## Readiness y matriz E
 
 La matriz de motores declara ampacidad como:
@@ -136,9 +173,9 @@ La matriz de motores declara ampacidad como:
 - madurez: `UNDER_VALIDATION`;
 - emisión profesional automática: no habilitada.
 
-`evaluar_preparacion_estudio("ampacidad")` comprueba un contrato específico P3 y no exige indiscriminadamente todos los datos de flujo/cortocircuito. Sin routing P3A, un perfil manual completo puede devolver `READY_DATA + READY_ENGINE + READY_TO_EXECUTE` dentro de la foundation.
+`evaluar_preparacion_estudio("ampacidad")` comprueba un contrato específico P3 y no exige indiscriminadamente todos los datos de flujo/cortocircuito.
 
-Cuando existe routing P3A, el readiness también bloquea:
+Cuando existe routing P3A, el readiness bloquea:
 
 - parámetros normativos faltantes;
 - perfil `REFERENCE_ONLY` sin dataset aplicable;
@@ -147,7 +184,7 @@ Cuando existe routing P3A, el readiness también bloquea:
 - eje requerido sin factor explícito asociado;
 - confirmación de condiciones base cuando el router identifica correcciones.
 
-`professional_emission=false` se mantiene por madurez.
+La presencia de un dataset P3B secundario **no cambia ese gate profesional**.
 
 ## Workspace V3
 
@@ -158,30 +195,47 @@ La vista Ampacidad muestra resultados ya calculados por Python:
 - Iz base;
 - producto de factores;
 - Iz;
-- estado.
+- estado;
+- perfil/método/routing P3A cuando existe.
 
-P3A añade metadatos de norma/método/routing al resultado; el navegador sigue sin calcular corrientes, factores ni criterios.
+El navegador sigue sin calcular corrientes, factores ni criterios.
 
-## Casos patrón P3A
+## Casos patrón y benchmarks
+
+### P3A
 
 Los casos de routing están separados del algoritmo en:
 
 `mcp_electrico/data/ampacity_p3a_reference_cases.json`
 
-Cubren condiciones base, temperatura, método D con varios ejes, agrupamiento E/F/G, alcance de 030-004(13) e IEC 2024 como `REFERENCE_ONLY`.
+Prueban **aplicabilidad**, no valores numéricos.
 
-Estos casos prueban **aplicabilidad**, no valores numéricos de tablas.
+### P3B
+
+Los casos numéricos de infraestructura están en:
+
+`mcp_electrico/data/ampacity_p3b_benchmark_cases.json`
+
+`examples/run_benchmarks_p3b.py` genera `benchmark_p3b.json` y CI exige explícitamente:
+
+```text
+evidence_level = SECONDARY
+professional_emission = false
+```
+
+Así un benchmark verde no puede confundirse con validación normativa primaria.
 
 ## Qué falta para cerrar P3
 
-La foundation y P3A **no cierran P3**. Permanecen pendientes:
+P3/P3A/P3B **no cierran todavía P3**. Permanecen pendientes:
 
-1. incorporar datasets numéricos de alcance y procedencia legal explícitos;
-2. seleccionar ampacidad/factor por aislamiento, método, sección y configuración dentro de cada perfil soportado;
-3. mantener BT/MT y ámbitos normativos claramente separados;
-4. construir benchmarks manuales/independientes de valores numéricos con resultados esperados fijados antes de ejecutar;
-5. validar casos límite e interpolaciones/condiciones no tabuladas según la política que se adopte;
-6. definir el gate formal de salida P3;
-7. solo entonces considerar `VALIDATED_WITH_LIMITATIONS`.
+1. verificar/cargar datasets primarios reproducibles para los subconjuntos CNE que se automaticen;
+2. incorporar temperatura, agrupamiento y resistividad con alcance exacto por método/disposición;
+3. cargar el dataset específico de Tabla 5D antes de automatizar método D agrupado;
+4. mantener BT/MT y ámbitos normativos claramente separados;
+5. construir benchmarks independientes contra fuentes primarias y casos manuales;
+6. validar casos límite y política de valores no tabulados;
+7. definir el gate formal de salida P3;
+8. solo entonces considerar `VALIDATED_WITH_LIMITATIONS`.
 
-Hasta ese cierre, cualquier resultado P3 debe conservar visible `UNDER_VALIDATION` y `automatic_normative_lookup=false`.
+Hasta ese cierre, cualquier resultado P3 debe conservar visible `UNDER_VALIDATION`.
