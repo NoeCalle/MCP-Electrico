@@ -178,7 +178,7 @@ def validar_compatibilidad_contexto(
         return {"status": "LEGACY_FACTOR", "compatible": True, "policy": LEGACY_SCHEMA}
 
     axis = str(factor.get("axis") or "").strip().lower()
-    if axis not in {"ambient_temperature", "soil_thermal_resistivity"}:
+    if axis not in {"ambient_temperature", "soil_thermal_resistivity", "grouping"}:
         raise ValueError(
             f"P3C11A2004: factor exact_rows_v1 axis={axis or 'NONE'} sin política de compatibilidad implementada"
         )
@@ -235,6 +235,54 @@ def validar_compatibilidad_contexto(
                 "base_table": normative_base.get("table"),
                 "base_table_column": base_row.get("table_column"),
                 "insulation": base_query.get("insulation"),
+            },
+        }
+
+    # P3C11D2 — Tabla 5D. Legacy 5C no pasa por exact_rows_v1.
+    if axis == "grouping":
+        if str(factor.get("table_or_clause") or "") != "Tabla 5D":
+            raise ValueError("P3C11D2001: grouping exact_rows_v1 automático requiere Tabla 5D")
+        if expected_method != "D":
+            raise ValueError("P3C11D2002: Tabla 5D automática requiere método D")
+        if str(normative_base.get("table") or "") != "Tabla 2":
+            raise ValueError("P3C11D2003: Tabla 5D v1 requiere Iz_base de Tabla 2")
+        grouping = route.get("grouping_context") or {}
+        branch = str(grouping.get("table5d_branch") or "")
+        spacing = str(grouping.get("grouping_spacing_id") or "")
+        if not branch or not spacing:
+            raise ValueError("P3C11D2004: routing P3A no contiene rama/espaciado estructurado de Tabla 5D")
+        if str(query.get("table5d_branch") or "") != branch:
+            raise ValueError("P3C11D2005: rama Tabla 5D del factor no coincide con routing P3A")
+        if str(query.get("spacing_id") or "") != spacing:
+            raise ValueError("P3C11D2006: separación Tabla 5D del factor no coincide con routing P3A")
+        if int(query.get("circuits_grouped") or 0) != int(grouping.get("circuits_grouped") or 0):
+            raise ValueError("P3C11D2007: número de circuitos/cables 5D no coincide con routing P3A")
+        if str(query.get("environment") or "") != str(route.get("environment") or ""):
+            raise ValueError("P3C11D2008: ambiente de la rama 5D no coincide con routing P3A")
+        depth = declared.get("burial_depth_m")
+        rho5d = declared.get("soil_thermal_resistivity_k_m_per_w")
+        if not _same_number(query.get("burial_depth_m"), depth) or not _same_number(depth, 0.7):
+            raise ValueError("P3C11D2009: Tabla 5D automática requiere profundidad exacta de 0,7 m")
+        if not _same_number(query.get("soil_thermal_resistivity_k_m_per_w"), rho5d) or not _same_number(rho5d, 2.5):
+            raise ValueError("P3C11D2010: Tabla 5D automática requiere resistividad exacta de 2,5 K·m/W")
+        return {
+            "status": "COMPATIBLE_EXACT_FACTOR",
+            "compatible": True,
+            "policy": "P3C11D2_TABLE_5D_EXACT_CONTEXT_V1",
+            "axis": axis,
+            "dataset_id": meta.get("id"),
+            "base_dataset_id": base_meta.get("id"),
+            "checked": {
+                "norm_reference_id": factor_norm,
+                "profile_id": factor_profile,
+                "installation_method": expected_method,
+                "environment": route.get("environment"),
+                "table5d_branch": branch,
+                "spacing_id": spacing,
+                "circuits_grouped": grouping.get("circuits_grouped"),
+                "burial_depth_m": float(depth),
+                "soil_thermal_resistivity_k_m_per_w": float(rho5d),
+                "base_table": normative_base.get("table"),
             },
         }
 

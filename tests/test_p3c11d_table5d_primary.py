@@ -41,7 +41,7 @@ def test_dataset_5d_es_tabla_completa_primary_verified_de_65_filas():
     assert dataset["provenance"]["verification_status"] == "PRIMARY_VERIFIED"
     assert dataset["usage_policy"]["professional_emission"] is True
     assert dataset["usage_policy"]["p3c11_family_coverage"] is True
-    assert dataset["usage_policy"]["automatic_binding_to_iz"] is False
+    assert dataset["usage_policy"]["automatic_binding_to_iz"] is True
     assert dataset["scope"]["complete_table_verified"] is True
     assert len(dataset["rows"]) == 65
     assert ampacity_exact_lookup.validar_dataset(dataset)["row_count"] == 65
@@ -116,11 +116,11 @@ def test_5d_cierra_solo_su_familia_y_p3c11_global_sigue_pendiente():
     assert gate["next_phase"] is None
 
 
-def test_5d_permanece_fail_closed_para_binding_hasta_d2():
+def test_5d_con_binding_d2_permanece_fail_closed_sin_routing_p3a():
     result = ampacity_exact_lookup.resolver_catalogo(
         DATASET,
         q("B_MULTICORE_SINGLE_WAY_DUCTS", "buried_duct", 3, "0_25_m"),
     )
     factor = ampacity_factor_binding.construir_factor_desde_resultado(result)
-    with pytest.raises(ValueError, match="sin política de compatibilidad implementada"):
+    with pytest.raises(ValueError, match="P3C11A2005"):
         ampacity_factor_binding.validar_compatibilidad_contexto(factor, None, None)

@@ -35,7 +35,9 @@
       "expected": {
         "base_ampacity_table": "Tabla 2",
         "status": "REQUIREMENTS_IDENTIFIED",
-        "required_axes": ["ambient_temperature"],
+        "required_axes": [
+          "ambient_temperature"
+        ],
         "missing_parameters": [],
         "unresolved_numeric_factors": true
       }
@@ -55,7 +57,34 @@
       "expected": {
         "base_ampacity_table": "Tabla 2",
         "status": "MANUAL_REVIEW_REQUIRED",
-        "required_axes": ["ambient_temperature", "soil_thermal_resistivity", "grouping"],
+        "required_axes": [
+          "ambient_temperature",
+          "soil_thermal_resistivity",
+          "grouping"
+        ],
+        "missing_parameters": [],
+        "unresolved_numeric_factors": true
+      }
+    },
+    {
+      "id": "cne_method_d_table5d_structured_exact_context",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "D",
+        "environment": "buried_duct",
+        "ambient_temperature_c": 20.0,
+        "soil_thermal_resistivity_k_m_per_w": 2.5,
+        "burial_depth_m": 0.7,
+        "circuits_grouped": 3,
+        "table5d_branch": "B",
+        "grouping_spacing_id": "0_25_m"
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 2",
+        "status": "REQUIREMENTS_IDENTIFIED",
+        "required_axes": [
+          "grouping"
+        ],
         "missing_parameters": [],
         "unresolved_numeric_factors": true
       }
@@ -73,7 +102,9 @@
       "expected": {
         "base_ampacity_table": "Tabla 1",
         "status": "MANUAL_REVIEW_REQUIRED",
-        "required_axes": ["grouping"],
+        "required_axes": [
+          "grouping"
+        ],
         "missing_parameters": [],
         "unresolved_numeric_factors": true
       }
