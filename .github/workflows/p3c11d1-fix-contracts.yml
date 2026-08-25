@@ -1,0 +1,47 @@
+name: p3c11d1-fix-contracts
+
+on:
+  push:
+    branches:
+      - feat/p3c11d-table5d-primary
+    paths:
+      - .github/workflows/p3c11d1-fix-contracts.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c11d-table5d-primary
+          fetch-depth: 0
+      - name: Update historical P3C11 state contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          paths = [
+              Path('tests/test_p3_exit_gate.py'),
+              Path('tests/test_p3c11a_table5a_primary.py'),
+              Path('tests/test_p3c11b_table5b_primary.py'),
+          ]
+          changed = 0
+          for p in paths:
+              text = p.read_text(encoding='utf-8')
+              old = 'assert coverage["table_5d"] is False' if p.name == 'test_p3_exit_gate.py' else 'assert flags["table_5d"] is False'
+              new = old.replace(' is False', ' is True')
+              if old not in text:
+                  raise SystemExit(f'anchor not found in {p}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+              changed += 1
+          assert changed == 3
+          PY
+      - name: Commit contracts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests
+          git commit -m "test: reconocer cobertura primaria completa Tabla 5D"
+          git push
