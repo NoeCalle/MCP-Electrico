@@ -110,6 +110,10 @@ def _factor_detail(item: dict[str, Any]) -> str:
             context.append(f"{_fmt(query.get('ambient_temperature_c'), 1)} °C")
         if query.get("circuits_grouped") is not None:
             context.append(f"{query.get('circuits_grouped')} circuitos")
+        if query.get("soil_thermal_resistivity_k_m_per_w") is not None:
+            context.append(f"ρ={_fmt(query.get('soil_thermal_resistivity_k_m_per_w'), 2)} K·m/W")
+        if query.get("burial_depth_scope") == "up_to_0_8_m":
+            context.append("prof. ≤0.8 m")
         parts = [f"{axis}: k={value}"]
         if table:
             parts.append(table)

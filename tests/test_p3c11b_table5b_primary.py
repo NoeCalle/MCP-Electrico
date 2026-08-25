@@ -54,7 +54,7 @@ def test_5b_no_interpola_ni_sale_del_alcance_de_ducto_hasta_08m():
 def test_5b_cuenta_como_familia_primaria_completa_pero_p3c11_sigue_pendiente():
     dataset = ampacity_datasets.obtener_dataset(DATASET)
     assert dataset["usage_policy"]["p3c11_family_coverage"] is True
-    assert dataset["usage_policy"]["automatic_binding_to_iz"] is False
+    assert dataset["usage_policy"]["automatic_binding_to_iz"] is True
     assert dataset["scope"]["complete_table_verified"] is True
     flags = p3_completion._coverage_flags()
     assert flags["table_5b"] is True
@@ -69,12 +69,22 @@ def test_5b_cuenta_como_familia_primaria_completa_pero_p3c11_sigue_pendiente():
     assert gate["next_phase"] is None
 
 
-def test_5b_no_puede_entrar_a_iz_antes_del_binding_contextual_b2():
+def test_5b_binding_exige_contexto_completo_aunque_dataset_resuelva():
     result = ampacity_exact_lookup.resolver_catalogo(DATASET, _query(3.0))
     factor = ampacity_factor_binding.construir_factor_desde_resultado(result)
-    with pytest.raises(ValueError, match="P3C11A2004"):
+    with pytest.raises(ValueError, match="P3C11B2008"):
         ampacity_factor_binding.validar_compatibilidad_contexto(
             factor,
-            route={"profile_id": "PERU_CNE_UTIL_2006_030_004"},
-            normative_base={"profile_id": "PERU_CNE_UTIL_2006_030_004"},
+            route={
+                "profile_id": "PERU_CNE_UTIL_2006_030_004",
+                "installation_method": "D",
+                "environment": "buried_duct",
+                "declared_conditions": {"soil_thermal_resistivity_k_m_per_w": 3.0},
+            },
+            normative_base={
+                "profile_id": "PERU_CNE_UTIL_2006_030_004",
+                "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+                "table": "Tabla 2",
+                "dataset": {"query": {"installation_method": "D"}},
+            },
         )
