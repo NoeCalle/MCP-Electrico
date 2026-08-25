@@ -1,8 +1,9 @@
-"""Registro de tools MCP para gobernanza técnica, selección de motor y datos P2."""
+"""Registro de tools MCP para gobernanza técnica, selección de motor y datos P2/P3."""
 
 from __future__ import annotations
 
 from . import (
+    ampacity_tools,
     engine_selection,
     model_qa,
     p2_completion,
@@ -244,3 +245,7 @@ def register(mcp, on_model_change=None) -> None:
         result = professional_data.snapshot()
         result["zero_sequence"] = zero_sequence.snapshot()
         return result
+
+    # P3 mantiene su registro separado para no mezclar datos de red P2 con la
+    # evaluación térmica/normativa de conductores.
+    ampacity_tools.register(mcp)

@@ -101,16 +101,28 @@ El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se e
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
-P3 debe añadir una vista específica de conductor/ampacidad que permita distinguir claramente:
+**Estado: EN PROGRESO — FOUNDATION V3.**
 
-- `Ib` corriente de diseño o resultante;
-- `In` protección;
-- `Iz` corriente admisible;
-- factores de corrección aplicados;
-- método de instalación;
-- estado `OK` / `NO CUMPLE` / `DATOS INSUFICIENTES`.
+La foundation visual ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados calculados por Python y permite distinguir:
 
-El overlay del unifilar podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo.
+- `Ib` corriente de diseño o corriente de flujo aceptada expresamente como Ib;
+- `In` de protección declarado;
+- `Iz_base` trazable;
+- producto de factores `∏k`;
+- `Iz` calculada;
+- estado `CUMPLE` / `NO_CUMPLE` / `DATOS_INSUFICIENTES`;
+- aviso visible de madurez `UNDER_VALIDATION` y de que las tablas normativas automáticas IEC/CNE aún no están implementadas.
+
+La selección de una fila sincroniza el alimentador con el inspector. El JavaScript de V3 no calcula `Ib`, `In`, factores ni `Iz`: únicamente presenta datos y gestiona navegación.
+
+Pendiente para cerrar V3 junto con P3:
+
+- representar con más detalle las referencias de factores/condiciones cuando el modelo normativo esté consolidado;
+- decidir overlay del unifilar para `NO_CUMPLE` sin saturar la vista;
+- incorporar readiness normativo completo en la vista cuando existan perfiles automáticos versionados;
+- ampliar pruebas visuales una vez exista el gate formal de salida P3.
+
+El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo.
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 

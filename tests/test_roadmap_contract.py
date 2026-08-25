@@ -6,6 +6,7 @@ PROFESSIONAL = ROOT / "docs" / "ROADMAP_PROFESIONAL.md"
 VISUAL = ROOT / "docs" / "ROADMAP_VISUAL.md"
 ENGINE = ROOT / "docs" / "ENGINE_SELECTION.md"
 P2_EXIT = ROOT / "docs" / "P2_EXIT_GATE.md"
+P3_AMPACITY = ROOT / "docs" / "P3_AMPACIDAD.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -31,7 +32,9 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **SIGUIENTE FASE**" in text
+    assert "P3 — Ampacidad normativa | **EN PROGRESO — FOUNDATION UNDER_VALIDATION**" in text
+    assert "automatic_normative_lookup=false" in text
+    assert "docs/P3_AMPACIDAD.md" in text
     assert "evaluar_cierre_p2()" in text
     assert "docs/P2_EXIT_GATE.md" in text
     assert "docs/ROADMAP_VISUAL.md" in text
@@ -51,6 +54,9 @@ def test_visual_roadmap_keeps_cross_phase_deliverables():
         assert heading in text, f"Falta del roadmap visual: {heading}"
 
     assert "COMPLETA CON LIMITACIONES (V2/P2 v1)" in text
+    assert "EN PROGRESO — FOUNDATION V3" in text
+    assert "UNDER_VALIDATION" in text
+    assert "El JavaScript de V3 no calcula" in text
     assert "no es `Iz` normativo P3" in text
     assert "panel TCC" in text
     assert "Arc Flash" in text
@@ -84,3 +90,14 @@ def test_p2_exit_gate_preserves_scope_and_next_phase():
     assert "ampacidad de catálogo todavía no es `Iz` normativo" in text
     assert "IEC 60909 sigue perteneciendo a P4" in text
     assert "P3 — ampacidad normativa" in text
+
+
+def test_p3_foundation_doc_preserves_under_validation_scope():
+    text = P3_AMPACITY.read_text(encoding="utf-8")
+
+    assert "UNDER_VALIDATION" in text
+    assert "Ib <= In <= Iz" in text
+    assert "automatic_tables=false" in text
+    assert "P3 no asume silenciosamente `product(k_i)=1`" in text
+    assert "automatic_normative_lookup=false" in text
+    assert "no cierra p3" in text.lower()

@@ -66,13 +66,18 @@ def test_iec60909_is_routed_to_pandapower_but_blocked_until_p4():
     assert result["decision"] == "NO_APTO_PARA_EJECUCION"
 
 
-def test_ampacity_is_mcp_owned_but_not_implemented_before_p3():
+def test_ampacity_foundation_is_mcp_owned_under_validation():
     _balanced_case()
     result = engine_selection.seleccionar_motor_estudio("ampacidad")
 
     assert result["selected_engine"] == "mcp"
-    assert result["executable"] is False
-    assert result["decision"] == "NO_APTO_PARA_EJECUCION"
+    assert result["executable"] is True
+    assert result["technical_executable"] is True
+    assert result["professional_execution_ready"] is False
+    assert result["professional_emission"] is False
+    assert result["readiness"]["data_status"] == "MISSING_DATA"
+    assert result["module_status"]["status"] == "UNDER_VALIDATION"
+    assert result["decision"] == "EJECUTABLE_CON_DATOS_PROFESIONALES_INCOMPLETOS"
 
 
 def test_unknown_study_is_not_guessed():
