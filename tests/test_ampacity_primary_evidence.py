@@ -8,6 +8,7 @@ from mcp_electrico import ampacity_evidence
 
 SOURCE = "MINEM_CNE_UTIL_2006_OFFICIAL_PDF"
 DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
+OFFICIAL_SHA256 = "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64"
 
 
 def _fake_pdf(tmp_path, suffix=b""):
@@ -17,35 +18,54 @@ def _fake_pdf(tmp_path, suffix=b""):
     return path, data
 
 
-def _pin_source(monkeypatch, expected_sha256):
+def _override_source(monkeypatch, *, pin_status, expected_sha256):
     original = ampacity_evidence.obtener_fuente
     source = original(SOURCE)
-    pinned = deepcopy(source)
-    pinned["pin_status"] = "PINNED"
-    pinned["expected_sha256"] = expected_sha256
+    overridden = deepcopy(source)
+    overridden["pin_status"] = pin_status
+    overridden["expected_sha256"] = expected_sha256
 
     def fake_obtener(source_id):
         if str(source_id).upper() == SOURCE:
-            return deepcopy(pinned)
+            return deepcopy(overridden)
         return original(source_id)
 
     monkeypatch.setattr(ampacity_evidence, "obtener_fuente", fake_obtener)
-    return pinned
+    return overridden
 
 
-def test_fuente_oficial_candidata_permanece_unpinned():
+def _pin_source(monkeypatch, expected_sha256):
+    return _override_source(
+        monkeypatch,
+        pin_status="PINNED",
+        expected_sha256=expected_sha256,
+    )
+
+
+def _unpin_source(monkeypatch):
+    return _override_source(
+        monkeypatch,
+        pin_status="DISCOVERED_UNPINNED",
+        expected_sha256=None,
+    )
+
+
+def test_fuente_oficial_candidata_esta_pinned_con_hash_reproducible():
     source = ampacity_evidence.obtener_fuente(SOURCE)
     assert source["source_class"] == "OFFICIAL_PRIMARY_CANDIDATE"
-    assert source["pin_status"] == "DISCOVERED_UNPINNED"
-    assert source["expected_sha256"] is None
+    assert source["pin_status"] == "PINNED"
+    assert source["expected_sha256"] == OFFICIAL_SHA256
+    assert source["pin_evidence"]["workflow_run_id"] == 32875620716
+    assert source["pin_evidence"]["size_bytes"] == 10829258
 
 
-def test_verificar_archivo_calcula_sha_sin_promover(tmp_path):
+def test_verificar_archivo_distinto_del_pin_calcula_sha_sin_promover(tmp_path):
     path, data = _fake_pdf(tmp_path)
     result = ampacity_evidence.verificar_archivo(SOURCE, str(path))
     assert result["status"] == "FILE_HASHED"
     assert result["sha256"] == sha256(data).hexdigest()
-    assert result["pinned_hash_match"] is None
+    assert result["expected_sha256"] == OFFICIAL_SHA256
+    assert result["pinned_hash_match"] is False
     assert result["eligible_as_primary_file"] is False
     assert result["professional_emission"] is False
 
@@ -57,7 +77,7 @@ def test_verificar_archivo_rechaza_no_pdf(tmp_path):
         ampacity_evidence.verificar_archivo(SOURCE, str(path))
 
 
-def test_paquete_incompleto_no_es_elegible(tmp_path):
+def test_paquete_con_archivo_distinto_del_pin_no_es_elegible(tmp_path):
     path, _ = _fake_pdf(tmp_path)
     file_evidence = ampacity_evidence.verificar_archivo(SOURCE, str(path))
     packet = ampacity_evidence.construir_paquete_evidencia(
@@ -69,14 +89,16 @@ def test_paquete_incompleto_no_es_elegible(tmp_path):
         manual_comparison_confirmed=False,
     )
     assert packet["status"] == "PRIMARY_EVIDENCE_INCOMPLETE"
-    assert "source_pinned_sha256" in packet["missing"]
+    assert "source_hash_match" in packet["missing"]
+    assert "tables_checked" in packet["missing"]
     result = ampacity_evidence.evaluar_promocion_dataset(DATASET, packet)
     assert result["eligible"] is False
     assert result["status"] == "NOT_ELIGIBLE"
     assert result["professional_emission"] is False
 
 
-def test_unpinned_sigue_bloqueado_aunque_comparacion_manual_este_completa(tmp_path):
+def test_unpinned_sigue_bloqueado_aunque_comparacion_manual_este_completa(tmp_path, monkeypatch):
+    _unpin_source(monkeypatch)
     path, _ = _fake_pdf(tmp_path)
     file_evidence = ampacity_evidence.verificar_archivo(SOURCE, str(path))
     packet = ampacity_evidence.construir_paquete_evidencia(
