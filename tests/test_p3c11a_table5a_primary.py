@@ -54,7 +54,7 @@ def test_dataset_5a_primary_resuelve_solo_celdas_exactas_revisadas():
     assert dataset["provenance"]["verification_status"] == "PRIMARY_VERIFIED"
     assert dataset["usage_policy"]["professional_emission"] is True
     assert dataset["usage_policy"]["p3c11_family_coverage"] is False
-    assert dataset["usage_policy"]["automatic_binding_to_iz"] is False
+    assert dataset["usage_policy"]["automatic_binding_to_iz"] is True
 
     r35 = ampacity_exact_lookup.resolver_catalogo(DATASET, _query(35))
     r40 = ampacity_exact_lookup.resolver_catalogo(DATASET, _query(40.0))
