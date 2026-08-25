@@ -54,6 +54,7 @@ def construir_base_desde_resultado(result: dict[str, Any]) -> dict[str, Any]:
         "dataset": {
             "id": dataset_id,
             "query": deepcopy(result.get("query") or {}),
+            "row_metadata": deepcopy(result.get("row_metadata") or {}),
             "verification_status": result.get("verification_status"),
             "professional_emission": bool(result.get("professional_emission")),
             "automatic_normative_lookup": bool(result.get("automatic_normative_lookup")),
@@ -97,6 +98,10 @@ def validar_base_dataset(
     if normalized["profile_id"] != str(item.get("profile_id") or ""):
         raise ValueError("P3C10A014: perfil normativo de Iz_base no coincide con dataset activo")
 
+    declared_row_metadata = meta.get("row_metadata")
+    if declared_row_metadata is not None and declared_row_metadata != normalized["dataset"]["row_metadata"]:
+        raise ValueError("P3C10A015: metadata de fila Iz_base no coincide con dataset activo")
+
     primary = bool(normalized["dataset"]["professional_emission"])
     if not primary and not permitir_secundario:
         raise ValueError("P3C10A011: Iz_base secundaria requiere opt-in explícito")
@@ -113,6 +118,7 @@ def resumen_evidencia_base(item: dict[str, Any] | None) -> dict[str, Any]:
             "professional_emission": False,
         }
     dataset = item.get("dataset") or {}
+    row_metadata = dataset.get("row_metadata") or {}
     primary = bool(dataset.get("professional_emission"))
     return {
         "origin": str(item.get("origin") or ""),
@@ -121,6 +127,7 @@ def resumen_evidencia_base(item: dict[str, Any] | None) -> dict[str, Any]:
         "professional_emission": primary,
         "dataset_id": dataset.get("id"),
         "table": item.get("table"),
+        "table_column": row_metadata.get("table_column"),
         "norm_reference_id": item.get("norm_reference_id"),
         "profile_id": item.get("profile_id"),
         "verification_status": dataset.get("verification_status"),
