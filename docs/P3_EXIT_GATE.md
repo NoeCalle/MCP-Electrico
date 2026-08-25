@@ -34,7 +34,7 @@ El gate no interpola ni amplía el alcance normativo.
 
 ## Criterios del gate
 
-### Infraestructura y fuente primaria ya implementadas
+### Infraestructura y evidencia primaria implementadas
 
 - `P3C01` — contrato `Ib/In/Iz`;
 - `P3C02` — router normativo P3A;
@@ -43,7 +43,9 @@ El gate no interpola ni amplía el alcance normativo.
 - `P3C05` — binding trazable dataset → factor → `Iz`;
 - `P3C06` — readiness de evidencia separado de `READY_DATA`;
 - `P3C07` — evidencia visible en workspace V3;
-- `P3C08` — fuente oficial primaria pinneada por SHA-256.
+- `P3C08` — fuente oficial primaria pinneada por SHA-256;
+- `P3C09` — primera revisión numérica `PRIMARY_VERIFIED` de Tabla 5C;
+- `P3C10` — estrategia validada de `Iz_base` con primera revisión primaria exacta de Tabla 2.
 
 P3C08 utiliza la copia obtenida desde la URL oficial MINEM registrada y fijada en `ampacity_primary_sources.json`:
 
@@ -55,21 +57,48 @@ expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd
 
 El pin identifica la copia primaria de referencia, pero no valida numéricamente ninguna tabla.
 
+P3C09 conserva una revisión primaria limitada a las celdas efectivamente verificadas de Tabla 5C. P3C10 añade la primera `Iz_base` primaria:
+
+```text
+dataset = PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1
+axis = base_ampacity
+table = Tabla 2
+Método C / Cu / XLPE-EPR / 90 °C / 3 cargados / 70 mm2
+ampacity_a = 229 A
+verification_status = PRIMARY_VERIFIED
+```
+
+El valor 229 A solo es válido para esa consulta exacta. El dataset no representa Tabla 2 completa y no permite interpolación, extrapolación ni vecino más cercano.
+
+La estrategia P3C10 queda demostrada de extremo a extremo:
+
+```text
+Tabla 2 primaria
+→ exact_rows_v1
+→ ampacity_base_binding
+→ base_normativa
+→ Iz_base
+→ Ib <= In <= Iz
+→ base_evidence / V3
+```
+
+El cálculo conserva en paralelo la ampacidad de catálogo P2; no la reemplaza ni la presenta como normativa.
+
 ### Criterios actualmente bloqueantes
 
-- `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED` apta para emisión;
-- `P3C10` — estrategia validada de `Iz_base`;
 - `P3C11` — cobertura primaria de las familias 5A/5B/5C/5D/5E del alcance P3-v1;
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
+
+P3C10 `DONE` valida la **estrategia** de base normativa, no la cobertura completa de todas las filas de Tablas 1/2. La ampliación de dichas tablas seguirá utilizando el mismo contrato de lookup exacto y evidencia primaria.
 
 ## P3C12 — evidencia de benchmark, no constante
 
 `P3C12` se deriva de `mcp_electrico/data/ampacity_benchmark_evidence.json` mediante `ampacity_benchmark_evidence.evaluar_cobertura()`.
 
-Un benchmark solo cuenta para una familia P3-v1 si es `PASS`, tiene evidencia `PRIMARY`, usa una referencia independiente, está asociado a un dataset `PRIMARY_VERIFIED`, conserva el SHA-256 de una fuente primaria pinneada y tiene revisión humana confirmada.
+Un benchmark solo cuenta para una familia P3-v1 si es `PASS`, tiene evidencia `PRIMARY`, usa una referencia independiente, está asociado a un dataset `PRIMARY_VERIFIED`, conserva el SHA-256 de una fuente primaria pinneada y satisface la política de revisión definida para benchmarks.
 
-El benchmark P3B actual permanece:
+El benchmark P3B histórico de infraestructura permanece:
 
 ```text
 PASS
@@ -77,7 +106,7 @@ SECONDARY
 professional_normative_coverage = false
 ```
 
-Por tanto, **no satisface P3C12**. Que CI esté verde demuestra reproducibilidad de infraestructura, no validación normativa primaria.
+Por tanto, **no satisface P3C12**. Que CI esté verde demuestra reproducibilidad de infraestructura, no validación normativa independiente.
 
 Detalle: `docs/P3_BENCHMARK_EVIDENCE.md`.
 
@@ -134,4 +163,4 @@ La tool MCP es:
 
 Su función es hacer visible, de forma determinista, **qué falta exactamente** para cerrar P3 y evitar que el roadmap avance por impresión subjetiva.
 
-Después de P3C08, el siguiente criterio práctico es **P3C09**: contrastar un subconjunto numérico pequeño contra la copia pinneada y crear una nueva revisión `PRIMARY_VERIFIED` mediante PR + CI.
+Después de P3C10, el siguiente frente técnico formal es **P3C11**: ampliar cobertura primaria de factores de corrección 5A/5B/5C/5D/5E dentro del alcance declarado, sin perder la separación por método ni la política de valor no tabulado.
