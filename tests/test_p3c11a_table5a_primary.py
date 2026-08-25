@@ -86,11 +86,11 @@ def test_dataset_5a_no_se_puede_reutilizar_para_metodo_c_columna_23():
     assert result["extrapolation"] is False
 
 
-def test_subconjuntos_5a_y_5c_no_cierran_cobertura_de_familia_p3c11():
+def test_5a_y_5c_siguen_parciales_aunque_5b_ya_esta_completa():
     flags = p3_completion._coverage_flags()
     assert flags["base_ampacity_strategy"] is True
     assert flags["table_5a"] is False
-    assert flags["table_5b"] is False
+    assert flags["table_5b"] is True
     assert flags["table_5c"] is False
     assert flags["table_5d"] is False
     assert flags["table_5e"] is False
