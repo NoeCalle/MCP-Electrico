@@ -33,7 +33,7 @@ _CNE_METHODS = {
     "B1": {"base_table": "Tabla 2", "environment_family": "air", "grouping_route": "Tabla 5C"},
     "B2": {"base_table": "Tabla 2", "environment_family": "air", "grouping_route": "Tabla 5C"},
     "C": {"base_table": "Tabla 2", "environment_family": "air", "grouping_route": "Tabla 5C"},
-    "D": {"base_table": "Tabla 2", "environment_family": "buried", "grouping_route": "Tabla 5C"},
+    "D": {"base_table": "Tabla 2", "environment_family": "buried", "grouping_route": "Tabla 5D"},
     "E": {"base_table": "Tabla 1", "environment_family": "air", "grouping_route": "Tabla 5C/5E según disposición"},
     "F": {"base_table": "Tabla 1", "environment_family": "air", "grouping_route": "Tabla 5C/5E según disposición"},
     "G": {"base_table": "Tabla 1", "environment_family": "air", "grouping_route": "Tabla 5C/5E según disposición"},
@@ -71,7 +71,7 @@ _PROFILES: dict[str, dict[str, Any]] = {
                 "scope": "método D, cables en ductos enterrados",
             },
             "grouping": {
-                "reference": "Regla 030-004(1)(c), (10) / Tablas 5C y ramas de Tabla 5E al aire",
+                "reference": "Regla 030-004(1)(c), (10) / Tablas 5C, 5D y ramas 5E según instalación",
                 "dataset_status": TABLE_DATA_NOT_LOADED,
             },
             "mixed_installation_segments": {
@@ -290,9 +290,26 @@ def evaluar_aplicabilidad(
     grouped = int(circuits_grouped)
     if grouped < 1:
         raise ValueError("P3P004: circuits_grouped debe ser >= 1")
+    arrangement = str(grouping_arrangement or "").strip() or None
     if grouped > 1:
-        if method in {"E", "F", "G"}:
-            arrangement = str(grouping_arrangement or "").strip()
+        if method == "D":
+            if not arrangement:
+                missing.append("grouping_arrangement")
+            axes.append(_axis(
+                "grouping",
+                True,
+                "Tabla 5D — factores de reducción para más de un circuito en ductos enterrados",
+                (
+                    f"Se declararon {grouped} circuitos para método D; la Tabla 5D depende de la disposición "
+                    "y separación física de cables/ductos."
+                ),
+                MANUAL_REVIEW_REQUIRED,
+            ))
+            manual.append(
+                "P3A identifica Tabla 5D para método D, pero todavía no clasifica automáticamente sus ramas "
+                "por cable/ducto y separación; se requiere disposición explícita antes del lookup numérico."
+            )
+        elif method in {"E", "F", "G"}:
             if not arrangement:
                 missing.append("grouping_arrangement")
             axes.append(_axis(
@@ -383,6 +400,11 @@ def evaluar_aplicabilidad(
         "base_ampacity_table": method_info["base_table"],
         "environment": env,
         "base_conditions": deepcopy(base),
+        "grouping_context": {
+            "circuits_grouped": grouped,
+            "arrangement": arrangement,
+            "route": method_info["grouping_route"],
+        },
         "required_axes": axes,
         "required_factor_tables": required_tables,
         "missing_parameters": missing,
