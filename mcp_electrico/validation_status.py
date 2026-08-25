@@ -57,13 +57,15 @@ _MODULES = {
     },
     "ampacity": {
         "status": "UNDER_VALIDATION",
-        "basis": "P3/P3A MCP: Ib/In/Iz + ampacidad base P2 + factores explícitos + routing normativo versionado",
+        "basis": "P3/P3A/P3B MCP: Ib/In/Iz + routing normativo + datasets numéricos con procedencia y política de uso",
         "limitations": [
-            "P3A identifica tabla base y ejes de corrección del CNE 2006, pero no carga todavía valores numéricos de tablas",
+            "P3A identifica tabla base y ejes de corrección del CNE 2006; método D agrupado se enruta a Tabla 5D y permanece manual hasta cargar su dataset específico",
+            "P3B contiene inicialmente solo un subconjunto numérico de Tabla 5C como SECONDARY_TRANSCRIPTION para desarrollo/benchmark de infraestructura",
+            "Los datasets secundarios requieren opt-in explícito y mantienen professional_emission=false",
             "IEC 60364-5-52:2009+AMD1:2024 permanece REFERENCE_ONLY hasta disponer de dataset propio de esa edición",
-            "Los factores deben ser introducidos con referencia explícita y, cuando existe routing P3A, vinculados al eje aplicable",
+            "Temperatura, resistividad del suelo y demás ramas numéricas siguen pendientes de datasets primarios/verificados",
             "La compatibilidad entre ampacidad base de fabricante y factores aplicados debe documentarse",
-            "Pendientes benchmarks numéricos normativos y gate de salida P3 antes de elevar madurez",
+            "Pendientes verificación primaria, benchmarks normativos independientes y gate de salida P3 antes de elevar madurez",
         ],
     },
     "short_circuit": {
