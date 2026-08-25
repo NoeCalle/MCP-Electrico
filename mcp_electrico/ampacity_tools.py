@@ -13,6 +13,7 @@ from . import (
     ampacity,
     ampacity_datasets,
     ampacity_evidence,
+    ampacity_evidence_readiness,
     ampacity_factor_binding,
     ampacity_norms,
     ampacity_profiles,
@@ -83,6 +84,11 @@ def register(mcp, on_study=None) -> None:
     @mcp.tool()
     def evaluar_promocion_dataset_ampacidad(dataset_id: str, evidencia: dict) -> dict:
         return ampacity_evidence.evaluar_promocion_dataset(dataset_id, evidencia)
+
+    @mcp.tool()
+    def evaluar_evidencia_normativa_ampacidad() -> dict:
+        """Clasifica evidencia de factores sin cambiar READY_DATA ni madurez P3."""
+        return ampacity_evidence_readiness.evaluar()
 
     @mcp.tool()
     def resolver_factor_agrupamiento_ampacidad(
