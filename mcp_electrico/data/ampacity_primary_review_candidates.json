@@ -3,7 +3,7 @@
   "candidates": [
     {
       "id": "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1",
-      "status": "PRIMARY_TABLE_EVIDENCE_CANDIDATE",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
       "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
       "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
@@ -26,15 +26,27 @@
         "page_text_extracted": true,
         "candidate_tokens_found": true
       },
-      "manual_comparison_confirmed": false,
+      "manual_comparison_confirmed": true,
       "human_reviewer": null,
-      "eligible_for_primary_dataset_pr": false,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 5C e ítem 1 legibles en la página renderizada",
+        "2 circuitos = 0.80",
+        "3 circuitos = 0.70",
+        "12 circuitos = 0.45"
+      ],
+      "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
-      "notes": "Evidencia candidata reproducible extraída desde la copia oficial pinneada. No constituye revisión humana ni PRIMARY_VERIFIED."
+      "notes": "Comparación visual aprobada por GPT-5.6 Sol bajo autorización explícita del usuario. No se atribuye revisión humana; la elegibilidad solo habilita crear una revisión PRIMARY_VERIFIED por PR+CI."
     },
     {
       "id": "P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1",
-      "status": "PRIMARY_TABLE_EVIDENCE_CANDIDATE",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
       "purpose": "base_ampacity",
       "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
@@ -72,11 +84,24 @@
         "routing_page_render_generated": true,
         "source_pin_verified": true
       },
-      "manual_comparison_confirmed": false,
+      "manual_comparison_confirmed": true,
       "human_reviewer": null,
-      "eligible_for_primary_dataset_pr": false,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 2 continuación legible en PDF 552",
+        "Método C corresponde a columnas 22/23 para XLPE/EPR",
+        "3 conductores cargados corresponde a columna 23",
+        "70 mm2 en columna 23 = 229 A",
+        "Tabla 3 confirma Método C + XLPE/EPR + 3 conductores -> Tabla 2 Col. 23"
+      ],
+      "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
-      "notes": "Primer candidato mínimo de Iz_base. La extracción y renderización identifican Tabla 2/Col. 23 y el valor candidato; requiere revisión humana antes de cualquier PRIMARY_VERIFIED."
+      "notes": "Comparación visual aprobada por GPT-5.6 Sol bajo autorización explícita del usuario. No se atribuye revisión humana; la elegibilidad solo habilita crear una revisión PRIMARY_VERIFIED por PR+CI."
     }
   ]
 }
