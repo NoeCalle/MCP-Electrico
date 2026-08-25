@@ -183,6 +183,7 @@ def evaluar_aplicabilidad(
     environment: str | None = None,
     ambient_temperature_c: float | None = None,
     soil_thermal_resistivity_k_m_per_w: float | None = None,
+    burial_depth_m: float | None = None,
     circuits_grouped: int = 1,
     grouping_arrangement: str | None = None,
     segment_count: int = 1,
@@ -224,6 +225,7 @@ def evaluar_aplicabilidad(
     missing: list[str] = []
     manual: list[str] = []
     axes: list[dict[str, Any]] = []
+    depth: float | None = None
 
     env_raw = str(environment or "").strip().lower()
     if method == "D":
@@ -261,6 +263,11 @@ def evaluar_aplicabilidad(
         ))
 
     if method == "D":
+        if burial_depth_m is not None:
+            depth = float(burial_depth_m)
+            if depth <= 0:
+                raise ValueError("P3P008: profundidad de enterramiento debe ser positiva")
+
         if env == "buried_duct":
             if soil_thermal_resistivity_k_m_per_w is None:
                 missing.append("soil_thermal_resistivity_k_m_per_w")
@@ -270,16 +277,30 @@ def evaluar_aplicabilidad(
                     raise ValueError("P3P003: resistividad térmica del suelo debe ser positiva")
                 rho_base = float(base["soil_thermal_resistivity_k_m_per_w"])
                 changed = abs(rho - rho_base) > 1e-9
+                axis_status = BASE_CONDITION
+                detail = f"ρsuelo coincide con base {rho_base:g} K·m/W."
+                if changed:
+                    if depth is None:
+                        missing.append("burial_depth_m")
+                        axis_status = TABLE_DATA_NOT_LOADED
+                    elif depth <= 0.8 + 1e-12:
+                        axis_status = TABLE_DATA_NOT_LOADED
+                    else:
+                        axis_status = MANUAL_REVIEW_REQUIRED
+                        manual.append(
+                            f"Tabla 5B limita sus factores a ductos hasta 0,8 m; profundidad declarada={depth:g} m. "
+                            "No se extrapola automáticamente; use revisión de ingeniería/IEC 60287."
+                        )
+                    detail = (
+                        f"ρsuelo={rho:g} K·m/W difiere de base {rho_base:g} K·m/W; "
+                        + (f"profundidad={depth:g} m." if depth is not None else "falta profundidad de enterramiento.")
+                    )
                 axes.append(_axis(
                     "soil_thermal_resistivity",
                     changed,
                     "Regla 030-004(9) / Tabla 5B",
-                    (
-                        f"ρsuelo={rho:g} K·m/W difiere de base {rho_base:g} K·m/W."
-                        if changed
-                        else f"ρsuelo coincide con base {rho_base:g} K·m/W."
-                    ),
-                    TABLE_DATA_NOT_LOADED if changed else BASE_CONDITION,
+                    detail,
+                    axis_status,
                 ))
         elif env == "direct_buried":
             manual.append(
@@ -399,6 +420,10 @@ def evaluar_aplicabilidad(
         "installation_method": method,
         "base_ampacity_table": method_info["base_table"],
         "environment": env,
+        "burial_context": {
+            "burial_depth_m": depth,
+            "table_5b_max_automatic_depth_m": 0.8 if method == "D" and env == "buried_duct" else None,
+        },
         "base_conditions": deepcopy(base),
         "grouping_context": {
             "circuits_grouped": grouped,

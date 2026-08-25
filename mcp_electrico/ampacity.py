@@ -107,6 +107,7 @@ def definir_aplicabilidad_normativa(
     ambiente: str | None = None,
     temperatura_ambiente_c: float | None = None,
     resistividad_termica_suelo_k_m_w: float | None = None,
+    profundidad_enterramiento_m: float | None = None,
     circuitos_agrupados: int = 1,
     disposicion_agrupamiento: str | None = None,
     numero_tramos: int = 1,
@@ -124,6 +125,7 @@ def definir_aplicabilidad_normativa(
         environment=ambiente,
         ambient_temperature_c=temperatura_ambiente_c,
         soil_thermal_resistivity_k_m_per_w=resistividad_termica_suelo_k_m_w,
+        burial_depth_m=profundidad_enterramiento_m,
         circuits_grouped=circuitos_agrupados,
         grouping_arrangement=disposicion_agrupamiento,
         segment_count=numero_tramos,
@@ -140,6 +142,11 @@ def definir_aplicabilidad_normativa(
             "soil_thermal_resistivity_k_m_per_w": (
                 float(resistividad_termica_suelo_k_m_w)
                 if resistividad_termica_suelo_k_m_w is not None
+                else None
+            ),
+            "burial_depth_m": (
+                float(profundidad_enterramiento_m)
+                if profundidad_enterramiento_m is not None
                 else None
             ),
             "circuits_grouped": int(circuitos_agrupados),

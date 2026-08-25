@@ -5,11 +5,10 @@ revalida el dataset al momento de configurar Ib/In/Iz. Un factor secundario
 requiere opt-in explícito en la configuración P3 y nunca se presenta como
 lookup normativo automático profesional.
 
-P3C11A2 añade soporte al schema genérico ``exact_rows_v1``. Para factores de
-Tabla 5A la compatibilidad se valida contra routing P3A e Iz_base normativa:
-perfil, referencia, método, ambiente, temperatura, aislamiento, tabla y columna
-base deben coincidir exactamente. Las familias genéricas futuras permanecen
-fail-closed hasta declarar su propia política de compatibilidad.
+P3C11A2 añade soporte al schema genérico ``exact_rows_v1`` para Tabla 5A.
+P3C11B2 incorpora Tabla 5B con validación explícita de método D, ducto enterrado,
+resistividad térmica y profundidad <= 0,8 m. Las familias genéricas futuras
+permanecen fail-closed hasta declarar su propia política de compatibilidad.
 """
 
 from __future__ import annotations
@@ -167,9 +166,9 @@ def validar_compatibilidad_contexto(
 ) -> dict[str, Any]:
     """Valida compatibilidad contextual de factores ``exact_rows_v1``.
 
-    Los factores legacy 5C conservan su política histórica. Un factor genérico
-    nuevo solo puede entrar a Iz si existe una política explícita por eje. En
-    P3C11A2 únicamente ``ambient_temperature`` (Tabla 5A) está habilitado.
+    P3C11A2 habilita Tabla 5A (temperatura) y P3C11B2 habilita Tabla 5B
+    (resistividad térmica del suelo). Cualquier otro eje genérico permanece
+    fail-closed hasta declarar su propia política.
     """
     if str(factor.get("origin") or "") != DATASET_ORIGIN:
         return {"status": "MANUAL_FACTOR", "compatible": True, "policy": "manual_engineering"}
@@ -179,14 +178,14 @@ def validar_compatibilidad_contexto(
         return {"status": "LEGACY_FACTOR", "compatible": True, "policy": LEGACY_SCHEMA}
 
     axis = str(factor.get("axis") or "").strip().lower()
-    if axis != "ambient_temperature":
+    if axis not in {"ambient_temperature", "soil_thermal_resistivity"}:
         raise ValueError(
             f"P3C11A2004: factor exact_rows_v1 axis={axis or 'NONE'} sin política de compatibilidad implementada"
         )
     if route is None:
-        raise ValueError("P3C11A2005: Tabla 5A requiere routing P3A vinculado")
+        raise ValueError("P3C11A2005: factor normativo exacto requiere routing P3A vinculado")
     if normative_base is None:
-        raise ValueError("P3C11A2006: Tabla 5A requiere Iz_base normativa exacta compatible; catálogo P2 no basta")
+        raise ValueError("P3C11A2006: factor normativo exacto requiere Iz_base normativa compatible; catálogo P2 no basta")
 
     query = meta.get("query") or {}
     base_meta = normative_base.get("dataset") or {}
@@ -197,34 +196,84 @@ def validar_compatibilidad_contexto(
     factor_norm = str(factor.get("norm_reference_id") or "")
     factor_profile = str(factor.get("profile_id") or "")
     if factor_norm != str(normative_base.get("norm_reference_id") or ""):
-        raise ValueError("P3C11A2007: factor 5A e Iz_base pertenecen a referencias normativas distintas")
+        raise ValueError("P3C11A2007: factor e Iz_base pertenecen a referencias normativas distintas")
     if factor_profile != str(normative_base.get("profile_id") or ""):
-        raise ValueError("P3C11A2008: factor 5A e Iz_base pertenecen a perfiles distintos")
+        raise ValueError("P3C11A2008: factor e Iz_base pertenecen a perfiles distintos")
     if factor_profile != str(route.get("profile_id") or ""):
-        raise ValueError("P3C11A2009: factor 5A no coincide con perfil del routing P3A")
+        raise ValueError("P3C11A2009: factor no coincide con perfil del routing P3A")
 
     expected_method = str(route.get("installation_method") or "")
     if str(query.get("installation_method") or "") != expected_method:
-        raise ValueError("P3C11A2010: método del factor 5A no coincide con routing P3A")
+        raise ValueError("P3C11A2010: método del factor no coincide con routing P3A")
     if str(base_query.get("installation_method") or "") != expected_method:
         raise ValueError("P3C11A2011: método de Iz_base no coincide con routing P3A")
 
-    if str(query.get("environment") or "") != str(route.get("environment") or ""):
-        raise ValueError("P3C11A2012: ambiente del factor 5A no coincide con routing P3A")
-    if not _same_number(query.get("ambient_temperature_c"), declared.get("ambient_temperature_c")):
-        raise ValueError("P3C11A2013: temperatura del factor 5A no coincide con la declarada en routing P3A")
+    if axis == "ambient_temperature":
+        if str(query.get("environment") or "") != str(route.get("environment") or ""):
+            raise ValueError("P3C11A2012: ambiente del factor 5A no coincide con routing P3A")
+        if not _same_number(query.get("ambient_temperature_c"), declared.get("ambient_temperature_c")):
+            raise ValueError("P3C11A2013: temperatura del factor 5A no coincide con la declarada en routing P3A")
+        if str(query.get("base_table") or "") != str(normative_base.get("table") or ""):
+            raise ValueError("P3C11A2014: tabla base declarada por 5A no coincide con Iz_base")
+        if not _same_number(query.get("base_table_column"), base_row.get("table_column")):
+            raise ValueError("P3C11A2015: columna base declarada por 5A no coincide con Iz_base")
+        if str(query.get("insulation") or "") != str(base_query.get("insulation") or ""):
+            raise ValueError("P3C11A2016: aislamiento del factor 5A no coincide con Iz_base")
+        return {
+            "status": "COMPATIBLE_EXACT_FACTOR",
+            "compatible": True,
+            "policy": "P3C11A2_TABLE_5A_EXACT_CONTEXT_V1",
+            "axis": axis,
+            "dataset_id": meta.get("id"),
+            "base_dataset_id": base_meta.get("id"),
+            "checked": {
+                "norm_reference_id": factor_norm,
+                "profile_id": factor_profile,
+                "installation_method": expected_method,
+                "environment": route.get("environment"),
+                "ambient_temperature_c": declared.get("ambient_temperature_c"),
+                "base_table": normative_base.get("table"),
+                "base_table_column": base_row.get("table_column"),
+                "insulation": base_query.get("insulation"),
+            },
+        }
 
+    # P3C11B2 — Tabla 5B.
+    if str(factor.get("table_or_clause") or "") != "Tabla 5B":
+        raise ValueError("P3C11B2001: eje soil_thermal_resistivity requiere Tabla 5B")
+    if expected_method != "D":
+        raise ValueError("P3C11B2002: Tabla 5B automática solo se habilita para método D")
+    if str(route.get("environment") or "") != "buried_duct":
+        raise ValueError("P3C11B2003: Tabla 5B automática requiere cables en ductos enterrados")
+    if str(query.get("environment") or "") != "buried_duct":
+        raise ValueError("P3C11B2004: dataset 5B no corresponde a ambiente buried_duct")
     if str(query.get("base_table") or "") != str(normative_base.get("table") or ""):
-        raise ValueError("P3C11A2014: tabla base declarada por 5A no coincide con Iz_base")
-    if not _same_number(query.get("base_table_column"), base_row.get("table_column")):
-        raise ValueError("P3C11A2015: columna base declarada por 5A no coincide con Iz_base")
-    if str(query.get("insulation") or "") != str(base_query.get("insulation") or ""):
-        raise ValueError("P3C11A2016: aislamiento del factor 5A no coincide con Iz_base")
+        raise ValueError("P3C11B2005: tabla base declarada por 5B no coincide con Iz_base")
+    if str(normative_base.get("table") or "") != "Tabla 2":
+        raise ValueError("P3C11B2006: política 5B v1 requiere Iz_base de Tabla 2")
+    if not _same_number(
+        query.get("soil_thermal_resistivity_k_m_per_w"),
+        declared.get("soil_thermal_resistivity_k_m_per_w"),
+    ):
+        raise ValueError("P3C11B2007: resistividad del factor 5B no coincide con routing P3A")
+    depth = declared.get("burial_depth_m")
+    if depth is None:
+        raise ValueError("P3C11B2008: Tabla 5B requiere profundidad de enterramiento explícita")
+    try:
+        depth_value = float(depth)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("P3C11B2009: profundidad de enterramiento no numérica") from exc
+    if depth_value <= 0:
+        raise ValueError("P3C11B2010: profundidad de enterramiento debe ser positiva")
+    if depth_value > 0.8 + 1e-12:
+        raise ValueError("P3C11B2011: Tabla 5B no se extrapola a profundidades mayores de 0,8 m")
+    if str(query.get("burial_depth_scope") or "") != "up_to_0_8_m":
+        raise ValueError("P3C11B2012: dataset 5B no declara el alcance de profundidad esperado")
 
     return {
         "status": "COMPATIBLE_EXACT_FACTOR",
         "compatible": True,
-        "policy": "P3C11A2_TABLE_5A_EXACT_CONTEXT_V1",
+        "policy": "P3C11B2_TABLE_5B_EXACT_CONTEXT_V1",
         "axis": axis,
         "dataset_id": meta.get("id"),
         "base_dataset_id": base_meta.get("id"),
@@ -233,13 +282,12 @@ def validar_compatibilidad_contexto(
             "profile_id": factor_profile,
             "installation_method": expected_method,
             "environment": route.get("environment"),
-            "ambient_temperature_c": declared.get("ambient_temperature_c"),
+            "soil_thermal_resistivity_k_m_per_w": declared.get("soil_thermal_resistivity_k_m_per_w"),
+            "burial_depth_m": depth_value,
+            "burial_depth_scope": query.get("burial_depth_scope"),
             "base_table": normative_base.get("table"),
-            "base_table_column": base_row.get("table_column"),
-            "insulation": base_query.get("insulation"),
         },
     }
-
 
 def resumen_evidencia_factores(factors: list[dict[str, Any]]) -> dict[str, Any]:
     """Resume el origen/evidencia del conjunto de factores configurados."""

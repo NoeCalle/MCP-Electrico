@@ -287,7 +287,7 @@ Infraestructura, fuente, primera revisión primaria de factores y estrategia de 
 
 Bloqueantes actuales:
 
-- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E (**5B ya dispone de cobertura primaria completa; 5A/5C parciales y 5D/5E pendientes**);
+- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E (**5B ya dispone de cobertura primaria completa + binding seguro hacia Iz; 5A/5C parciales y 5D/5E pendientes**);
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
