@@ -11,6 +11,7 @@ from mcp_electrico import (
 
 
 ARRANGEMENT = "grouped_air_surface_embedded_enclosed"
+SECONDARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
 
 
 def _linea():
@@ -37,8 +38,9 @@ def _linea():
 
 
 def _factor_secundario(route):
-    result = ampacity_datasets.resolver_grouping_for_route(
-        route,
+    result = ampacity_datasets.resolver_factor(
+        SECONDARY_DATASET,
+        installation_method=route["installation_method"],
         circuits_grouped=2,
         arrangement_id=ARRANGEMENT,
         allow_secondary=True,
@@ -84,7 +86,7 @@ def test_factor_secundario_requiere_opt_in_al_entrar_a_ib_in_iz():
 
     stored = profile["correction"]["factors"][0]
     assert stored["origin"] == "P3B_DATASET"
-    assert stored["dataset"]["id"] == "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
+    assert stored["dataset"]["id"] == SECONDARY_DATASET
     assert stored["dataset"]["verification_status"] == "PENDING_PRIMARY_VERIFICATION"
     assert stored["dataset"]["professional_emission"] is False
 
