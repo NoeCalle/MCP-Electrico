@@ -18,6 +18,18 @@ jobs:
         with:
           ref: feat/p3c11b2-table5b-binding
           fetch-depth: 0
+      - name: Repair temporary applicator syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/p3c11b2_apply.py')
+          text = p.read_text(encoding='utf-8')
+          bad = 'rtext = roadmap.read_text(encoding="utf-8")nrtext = rtext.replace('
+          good = 'rtext = roadmap.read_text(encoding="utf-8")\nrtext = rtext.replace('
+          if bad not in text:
+              raise SystemExit('expected temporary syntax defect not found')
+          p.write_text(text.replace(bad, good, 1), encoding='utf-8')
+          PY
       - name: Apply P3C11B2
         run: python scripts/p3c11b2_apply.py
       - name: Commit generated changes
