@@ -8,12 +8,13 @@
       "table": "Tabla 5C",
       "axis": "grouping",
       "scope": {
-        "installation_methods": ["A1", "A2", "B1", "B2", "C", "D", "E", "F"],
+        "installation_methods": ["A1", "A2", "B1", "B2", "C", "E", "F"],
         "arrangement_id": "grouped_air_surface_embedded_enclosed",
         "arrangement_label": "Agrupados en el aire, sobre una superficie, empotrados o encerrados",
         "exact_lookup_only": true,
         "interpolation": false,
-        "extrapolation": false
+        "extrapolation": false,
+        "method_d_excluded": "El método D enterrado se enruta por P3A a Tabla 5D y requiere dataset específico."
       },
       "values": {
         "1": 1.00,
