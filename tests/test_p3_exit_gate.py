@@ -55,7 +55,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c08_y_p3c09_done_sin_avanzar_a_p4():
+def test_gate_p3_reconoce_p3c08_a_p3c10_done_sin_avanzar_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -65,14 +65,10 @@ def test_gate_p3_reconoce_p3c08_y_p3c09_done_sin_avanzar_a_p4():
     assert result["professional_emission"] is False
 
     pending = {item["id"] for item in result["pending_criteria"]}
-    assert {
-        "P3C10",
-        "P3C11",
-        "P3C12",
-        "P3C13",
-    } <= pending
+    assert {"P3C11", "P3C12", "P3C13"} <= pending
     assert "P3C08" not in pending
     assert "P3C09" not in pending
+    assert "P3C10" not in pending
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
     assert {
@@ -85,6 +81,7 @@ def test_gate_p3_reconoce_p3c08_y_p3c09_done_sin_avanzar_a_p4():
         "P3C07",
         "P3C08",
         "P3C09",
+        "P3C10",
     } <= done
 
 
@@ -104,12 +101,15 @@ def test_p3c09_deriva_de_dataset_primary_verified_real():
     assert criterion["evidence"] == "ampacity_p3b_numeric_datasets.json"
 
 
-def test_gate_expone_que_iz_base_normativa_sigue_pendiente():
+def test_p3c10_deriva_de_base_ampacity_primary_verified_real():
+    coverage = p3_completion._coverage_flags()
+    assert coverage["base_ampacity_strategy"] is True
+
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C10")
-    assert criterion["status"] == "PENDING"
-    assert "Iz_base" in criterion["blocking_reason"]
-    assert "Tabla 1/2" in criterion["blocking_reason"]
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
+    assert "Tabla 1/2" in criterion["evidence"]
 
 
 def test_p3c11_reconoce_5c_primaria_pero_cobertura_total_sigue_incompleta():
