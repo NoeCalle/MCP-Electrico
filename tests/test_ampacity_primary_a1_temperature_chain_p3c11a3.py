@@ -7,6 +7,7 @@ from mcp_electrico import (
     ampacity_factor_binding,
     conductor_library,
     core,
+    p3_completion,
     visual_state,
     workspace_p3_view,
 )
@@ -140,3 +141,14 @@ def test_base_a1_no_extrapola_a_otra_seccion():
     assert result["status"] == "VALUE_NOT_TABULATED"
     assert result["value"] is None
     assert result["professional_emission"] is False
+
+
+def test_cadena_5a_real_no_cierra_p3c11_ni_habilita_p4():
+    gate = p3_completion.evaluar_cierre_p3()
+    criteria = {item["id"]: item for item in gate["criteria"]}
+    assert criteria["P3C11"]["status"] == "PENDING"
+    assert criteria["P3C12"]["status"] == "PENDING"
+    assert criteria["P3C13"]["status"] == "PENDING"
+    assert gate["phase_status"] == "NOT_READY"
+    assert gate["can_advance_to_next_phase"] is False
+    assert gate["professional_emission"] is False
