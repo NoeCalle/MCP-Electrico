@@ -1,5 +1,6 @@
 from copy import deepcopy
 import json
+from pathlib import Path
 
 import pytest
 
@@ -8,12 +9,14 @@ from mcp_electrico import ampacity_datasets
 
 SOURCE_ID = "MINEM_CNE_UTIL_2006_OFFICIAL_PDF"
 OFFICIAL_SHA256 = "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64"
+ROOT = Path(__file__).resolve().parents[1]
+DATASETS_FILE = ROOT / "mcp_electrico" / "data" / "ampacity_p3b_numeric_datasets.json"
+SECONDARY_ID = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
 
 
 def _secondary():
-    return ampacity_datasets.obtener_dataset(
-        "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
-    )
+    data = json.loads(DATASETS_FILE.read_text(encoding="utf-8"))
+    return deepcopy(next(item for item in data["datasets"] if item["id"] == SECONDARY_ID))
 
 
 def _primary_candidate():
@@ -94,7 +97,6 @@ def test_primary_verified_requiere_hash_paginas_y_revisor():
     item["provenance"]["verification_record"]["manual_comparison_confirmed"] = False
     with pytest.raises(ValueError, match="P3B011"):
         ampacity_datasets.validar_dataset_record(item)
-
 
 
 def test_primary_verified_requiere_modalidad_de_revision_trazable(tmp_path, monkeypatch):
