@@ -3,7 +3,7 @@
   "candidates": [
     {
       "id": "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1",
-      "status": "PRIMARY_TABLE_EVIDENCE_CANDIDATE",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
       "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
       "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
@@ -26,11 +26,82 @@
         "page_text_extracted": true,
         "candidate_tokens_found": true
       },
-      "manual_comparison_confirmed": false,
+      "manual_comparison_confirmed": true,
       "human_reviewer": null,
-      "eligible_for_primary_dataset_pr": false,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 5C e ítem 1 legibles en la página renderizada",
+        "2 circuitos = 0.80",
+        "3 circuitos = 0.70",
+        "12 circuitos = 0.45"
+      ],
+      "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
-      "notes": "Evidencia candidata reproducible extraída desde la copia oficial pinneada. No constituye revisión humana ni PRIMARY_VERIFIED."
+      "notes": "Comparación visual aprobada por GPT-5.6 Sol bajo autorización explícita del usuario. No se atribuye revisión humana; la elegibilidad solo habilita crear una revisión PRIMARY_VERIFIED por PR+CI."
+    },
+    {
+      "id": "P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
+      "purpose": "base_ampacity",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 2",
+      "table_column": 23,
+      "pdf_page_index_zero_based": 551,
+      "pdf_page_number_one_based": 552,
+      "document_page_marker": "Tablas - Pág. 5 de 82",
+      "routing_evidence": {
+        "table": "Tabla 3",
+        "pdf_page_index_zero_based": 554,
+        "pdf_page_number_one_based": 555,
+        "document_page_marker": "Tablas - Pág. 8 de 82",
+        "mapping": "Método C, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 23"
+      },
+      "candidate_query": {
+        "installation_method": "C",
+        "conductor_material": "Cu",
+        "insulation": "XLPE_EPR",
+        "temperature_c": 90,
+        "loaded_conductors": 3,
+        "section_mm2": 70.0
+      },
+      "candidate_value": {
+        "ampacity_a": 229.0
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32880258067,
+        "artifact_id": 9575497393,
+        "artifact_digest": "sha256:601f536b1a621d0567fb31a556ba3e6f7758fbb99cd22f866ec4682832d9905b",
+        "table_page_render_generated": true,
+        "routing_page_render_generated": true,
+        "source_pin_verified": true
+      },
+      "manual_comparison_confirmed": true,
+      "human_reviewer": null,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "review_checks": [
+        "Tabla 2 continuación legible en PDF 552",
+        "Método C corresponde a columnas 22/23 para XLPE/EPR",
+        "3 conductores cargados corresponde a columna 23",
+        "70 mm2 en columna 23 = 229 A",
+        "Tabla 3 confirma Método C + XLPE/EPR + 3 conductores -> Tabla 2 Col. 23"
+      ],
+      "eligible_for_primary_dataset_pr": true,
+      "professional_emission": false,
+      "notes": "Comparación visual aprobada por GPT-5.6 Sol bajo autorización explícita del usuario. No se atribuye revisión humana; la elegibilidad solo habilita crear una revisión PRIMARY_VERIFIED por PR+CI."
     }
   ]
 }

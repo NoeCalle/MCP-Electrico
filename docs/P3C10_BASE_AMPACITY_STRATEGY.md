@@ -2,7 +2,7 @@
 
 ## Estado
 
-**P3C10A + P3C10B IMPLEMENTADOS COMO INFRAESTRUCTURA; P3C10 CONTINÚA PENDIENTE DE DATOS PRIMARIOS TABLA 1/2.**
+**P3C10A + P3C10B IMPLEMENTADOS COMO INFRAESTRUCTURA; P3C10 CONTINÚA PENDIENTE DE CREAR Y VALIDAR EL DATASET PRIMARIO TABLA 1/2.**
 
 P3 foundation utiliza una ampacidad de catálogo P2 trazable como punto de partida cuando todavía no existe una base normativa. Esa información sigue siendo útil para el modelo físico y para detectar inconsistencias de producto/instalación, pero **no equivale por sí sola a una ampacidad base normativa CNE**.
 
@@ -61,21 +61,27 @@ El resultado expone `base_evidence`, la fuente normativa de `Iz_base` y la fuent
 
 La readiness de evidencia exige ahora la cadena completa: una base primaria y factores primarios cuando correspondan. Factores primarios con `Iz_base` todavía de catálogo P2 se clasifican como evidencia normativa incompleta.
 
-## Lo que P3C10A/B NO hace
+## P3C10C — primer candidato de Tabla 2 revisado
 
-La infraestructura no:
+La fuente oficial pinneada fue recorrida de forma reproducible en GitHub Actions run `32880258067`. Se localizaron Tabla 1 en PDF 548–550, Tabla 2 en PDF 551–554 y la Tabla 3 de correspondencia método/columna en PDF 555.
 
-- incorpora valores numéricos reales de Tabla 1/2;
-- inventa dimensiones de dichas tablas;
-- modifica ni promueve el dataset secundario 5C;
-- declara `P3C10=DONE`;
-- eleva la madurez de ampacidad;
-- habilita emisión profesional.
+Se registró el candidato mínimo `P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1` para método C, cobre, XLPE/EPR, 90 °C, tres conductores cargados y 70 mm². La Tabla 3 lo vincula a Tabla 2 Col. 23 y la evidencia conserva `ampacity_a=229.0` desde PDF 552.
 
-El motor genérico `exact_rows_v1` permite que cada futura revisión primaria declare sus dimensiones exactas sin codificarlas antes de verificar la fuente oficial.
+La página de Tabla 2 y la página de routing Tabla 3 fueron comparadas visualmente y aprobadas el 2026-08-25 mediante `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con revisor declarado `GPT-5.6 Sol`, autorización explícita del usuario y confianza `HIGH`. La trazabilidad mantiene `human_reviewer=null` para no presentar la revisión como humana.
 
-## Próximo paso de P3C10
+El candidato queda con:
 
-Localizar y revisar en la copia oficial pinneada los subconjuntos necesarios de Tabla 1/2, registrar evidencia candidata reproducible y, solo después de revisión humana y benchmarks, crear una revisión `PRIMARY_VERIFIED` apta para alimentar `Iz_base`.
+```text
+manual_comparison_confirmed = true
+review_result = APPROVED
+eligible_for_primary_dataset_pr = true
+professional_emission = false
+```
+
+Por tanto, la revisión visual ya no bloquea P3C10. El siguiente paso es crear una revisión dataset `PRIMARY_VERIFIED` limitada al alcance efectivamente revisado y someterla a PR + CI. P3C10 continúa `PENDING` hasta que esa revisión exista y pase sus validaciones.
+
+## Política de revisión
+
+La evidencia debe conservar un revisor identificable y el modo de revisión. Una revisión asistida por IA solo puede registrarse como aprobada cuando la fuente renderizada es suficientemente clara, la comparación es directa y el usuario ha autorizado explícitamente esa modalidad. Nunca se rellena `human_reviewer` con un modelo.
 
 P3C10 solo podrá cerrar cuando exista al menos una estrategia/dataset Tabla 1/2 `PRIMARY_VERIFIED` real que satisfaga el gate formal y sus benchmarks correspondientes. Este estado debe mantenerse sincronizado con `docs/ROADMAP_PROFESIONAL.md` y el eje visual V3.
