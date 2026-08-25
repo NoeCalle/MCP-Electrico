@@ -98,6 +98,35 @@ Por ahora:
 - P3B no reutiliza el dataset 5C para método D;
 - el dataset numérico 5D queda pendiente.
 
+## Gate de evidencia primaria
+
+P3B registra ahora fuentes oficiales candidatas de forma separada a los datasets. La fuente CNE descubierta en `gob.pe` permanece:
+
+```text
+source_class = OFFICIAL_PRIMARY_CANDIDATE
+pin_status = DISCOVERED_UNPINNED
+expected_sha256 = null
+```
+
+No se promueve ningún valor solo por conocer una URL oficial.
+
+El flujo de verificación exige:
+
+1. copia local del PDF oficial;
+2. SHA-256 calculado;
+3. tablas verificadas;
+4. referencias de página/sección;
+5. revisor identificado;
+6. confirmación de comparación manual;
+7. evaluación de elegibilidad;
+8. **nueva revisión del dataset por PR + CI**.
+
+El mejor resultado previo al PR es `ELIGIBLE_FOR_PRIMARY_DATASET_PR`. No existe promoción automática.
+
+Además, el loader del catálogo aplica `validar_dataset_record()`: un registro `PRIMARY_VERIFIED` sin `primary_source_id`, SHA-256, páginas y registro de revisión hace fallar la carga y CI. Un dataset no primario tampoco puede declarar `professional_emission=true`.
+
+Detalle del proceso: `docs/P3B_EVIDENCIA_PRIMARIA.md`.
+
 ## Benchmark reproducible
 
 `examples/run_benchmarks_p3b.py` genera:
@@ -115,10 +144,11 @@ Esto evita que un benchmark verde se interprete erróneamente como validación n
 
 ## Siguiente paso P3B
 
-1. obtener/archivar una fuente primaria reproducible para los subconjuntos CNE a automatizar;
-2. verificar hashes/versiones y transcripción independiente;
-3. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
-4. comparar contra casos manuales independientes;
-5. integrar factores primarios con `Ib/In/Iz`;
-6. construir el gate formal de salida P3;
-7. elevar madurez solo si la evidencia lo permite.
+1. obtener/archivar una copia primaria reproducible para los subconjuntos CNE a automatizar;
+2. fijar hash y realizar comparación independiente de páginas/tablas;
+3. crear por PR una nueva revisión primaria del dataset, nunca mutar la secundaria en runtime;
+4. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
+5. comparar contra casos manuales independientes;
+6. integrar factores primarios con `Ib/In/Iz`;
+7. construir el gate formal de salida P3;
+8. elevar madurez solo si la evidencia lo permite.
