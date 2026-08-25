@@ -13,6 +13,7 @@ from . import (
     ampacity,
     ampacity_datasets,
     ampacity_evidence,
+    ampacity_factor_binding,
     ampacity_norms,
     ampacity_profiles,
 )
@@ -40,27 +41,22 @@ def register(mcp, on_study=None) -> None:
 
     @mcp.tool()
     def listar_referencias_ampacidad() -> list[dict]:
-        """Lista referencias P3 registradas sin afirmar que sus tablas estén automatizadas."""
         return ampacity_norms.listar_referencias()
 
     @mcp.tool()
     def listar_perfiles_normativos_ampacidad() -> list[dict]:
-        """Lista perfiles P3A y su madurez de routing/tablas."""
         return ampacity_profiles.listar_perfiles()
 
     @mcp.tool()
     def listar_datasets_numericos_ampacidad() -> list[dict]:
-        """Lista datasets P3B con procedencia y política de uso visibles."""
         return ampacity_datasets.listar_datasets()
 
     @mcp.tool()
     def listar_fuentes_primarias_ampacidad() -> list[dict]:
-        """Lista fuentes oficiales candidatas y su estado de pin/hash."""
         return ampacity_evidence.listar_fuentes()
 
     @mcp.tool()
     def verificar_archivo_fuente_ampacidad(source_id: str, ruta_archivo: str) -> dict:
-        """Calcula SHA-256 de una copia local de fuente; no verifica tablas ni promueve datasets."""
         return ampacity_evidence.verificar_archivo(source_id, ruta_archivo)
 
     @mcp.tool()
@@ -73,7 +69,6 @@ def register(mcp, on_study=None) -> None:
         comparacion_manual_confirmada: bool,
         notas: str | None = None,
     ) -> dict:
-        """Hashea el PDF local y construye un paquete de evidencia para revisión por PR."""
         file_evidence = ampacity_evidence.verificar_archivo(source_id, ruta_archivo)
         return ampacity_evidence.construir_paquete_evidencia(
             source_id=source_id,
@@ -87,10 +82,6 @@ def register(mcp, on_study=None) -> None:
 
     @mcp.tool()
     def evaluar_promocion_dataset_ampacidad(dataset_id: str, evidencia: dict) -> dict:
-        """Evalúa si la evidencia permite proponer una nueva revisión PRIMARY_VERIFIED.
-
-        Nunca modifica el dataset existente ni habilita emisión por sí sola.
-        """
         return ampacity_evidence.evaluar_promocion_dataset(dataset_id, evidencia)
 
     @mcp.tool()
@@ -100,12 +91,7 @@ def register(mcp, on_study=None) -> None:
         disposicion_id: str,
         permitir_dataset_secundario: bool = False,
     ) -> dict:
-        """Resuelve factor de agrupamiento P3B para el routing P3A vinculado.
-
-        Por defecto no devuelve valores de transcripciones secundarias. El opt-in
-        explícito permite usarlas únicamente para desarrollo/benchmark y el
-        resultado conserva ``professional_emission=false``.
-        """
+        """Resuelve agrupamiento y, si existe valor, devuelve ``factor_p3`` trazable."""
         route = ampacity.obtener_aplicabilidad_normativa(nombre_elemento)
         if not route:
             raise ValueError("P3B010: el alimentador no tiene routing P3A vinculado")
@@ -115,6 +101,12 @@ def register(mcp, on_study=None) -> None:
             arrangement_id=disposicion_id,
             allow_secondary=permitir_dataset_secundario,
         )
+        if result.get("status") in {
+            ampacity_datasets.RESOLVED_PRIMARY,
+            ampacity_datasets.RESOLVED_SECONDARY,
+        }:
+            result = dict(result)
+            result["factor_p3"] = ampacity_factor_binding.construir_factor_desde_resultado(result)
         record(
             "ampacity_numeric_lookup",
             result,
@@ -136,7 +128,6 @@ def register(mcp, on_study=None) -> None:
         transicion_tramos: str | None = None,
         solicitar_excepcion_tramo_corto: bool = False,
     ) -> dict:
-        """Identifica tabla base/ejes CNE o limitación IEC sin devolver factores no cargados."""
         result = ampacity.definir_aplicabilidad_normativa(
             nombre_elemento=nombre_elemento,
             perfil_normativo_id=perfil_normativo_id,
@@ -159,7 +150,6 @@ def register(mcp, on_study=None) -> None:
 
     @mcp.tool()
     def obtener_estado_ampacidad() -> dict:
-        """Devuelve perfiles P3, routing P3A y madurez vigente."""
         return ampacity.snapshot()
 
     @mcp.tool()
@@ -174,12 +164,9 @@ def register(mcp, on_study=None) -> None:
         referencia_in: str | None = None,
         referencia_ib: str | None = None,
         referencia_condiciones_instalacion: str | None = None,
+        permitir_factores_dataset_secundarios: bool = False,
     ) -> dict:
-        """Configura Ib/In/Iz con referencias explícitas; no asume factores ni In.
-
-        Si existe un routing P3A vinculado, cada factor requerido debe declarar
-        ``axis`` para demostrar que cubre el eje normativo identificado.
-        """
+        """Configura Ib/In/Iz; factores P3B secundarios requieren opt-in explícito."""
         result = ampacity.definir_condiciones(
             nombre_elemento=nombre_elemento,
             norma_id=norma_id,
@@ -191,13 +178,13 @@ def register(mcp, on_study=None) -> None:
             referencia_in=referencia_in,
             referencia_ib=referencia_ib,
             referencia_condiciones_instalacion=referencia_condiciones_instalacion,
+            permitir_factores_dataset_secundarios=permitir_factores_dataset_secundarios,
         )
         record("ampacity_config", ampacity.snapshot(), f"definir_condiciones_ampacidad:{nombre_elemento}")
         return result
 
     @mcp.tool()
     def evaluar_ampacidad(nombre_elemento: str | None = None) -> dict:
-        """Evalúa Ib <= In <= Iz para un alimentador o todos los perfiles configurados."""
         result = ampacity.evaluar(nombre_elemento) if nombre_elemento else ampacity.evaluar_todos()
         payload = result if not nombre_elemento else {
             "study": "ampacity",
@@ -211,7 +198,8 @@ def register(mcp, on_study=None) -> None:
                 "datos_insuficientes": int(result.get("status") == "DATOS_INSUFICIENTES"),
             },
             "maturity": "UNDER_VALIDATION",
-            "automatic_normative_lookup": False,
+            "automatic_normative_lookup": bool(result.get("automatic_normative_lookup")),
+            "professional_emission": False,
         }
         record("ampacity", payload, f"evaluar_ampacidad:{nombre_elemento or 'todos'}")
         return result
