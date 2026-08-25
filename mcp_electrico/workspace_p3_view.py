@@ -66,6 +66,17 @@ def _evidence_label(item: dict[str, Any]) -> tuple[str, str]:
     return "INCOMPLETA", "p3-evidence-incomplete"
 
 
+def _base_evidence_label(item: dict[str, Any]) -> tuple[str, str]:
+    evidence = item.get("base_evidence") or {}
+    if str(evidence.get("origin") or "") == "P2_CATALOG":
+        return "CATÁLOGO P2", "p3-evidence-base"
+    if bool(evidence.get("primary")):
+        return "PRIMARIA", "p3-evidence-primary"
+    if bool(evidence.get("normative_base")):
+        return "SECUNDARIA", "p3-evidence-secondary"
+    return "INCOMPLETA", "p3-evidence-incomplete"
+
+
 def _panel(snapshot: dict[str, Any]) -> str:
     study = _study(snapshot)
     if not study:
@@ -85,6 +96,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
         }.get(status, "p3-missing")
         profile_method, route_status = _routing_label(item)
         evidence_label, evidence_css = _evidence_label(item)
+        base_label, base_css = _base_evidence_label(item)
         rows.append(
             f'<tr class="{css}" data-p3-element="{escape(str(item.get("element") or ""), quote=True)}">'
             f'<td>{escape(str(item.get("element") or "—"))}</td>'
@@ -93,6 +105,7 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
             f'<td>{_fmt(values.get("ib_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("in_a"), 2, " A")}</td>'
             f'<td>{_fmt(values.get("iz_base_a"), 2, " A")}</td>'
+            f'<td><span class="p3-evidence-badge {base_css}">{escape(base_label)}</span></td>'
             f'<td>{_fmt(values.get("factor_total"), 4)}</td>'
             f'<td>{_fmt(values.get("iz_a"), 2, " A")}</td>'
             f'<td><span class="p3-evidence-badge {evidence_css}">{escape(evidence_label)}</span></td>'
@@ -111,8 +124,8 @@ Configura un perfil trazable de conductor, Ib, In y factores/condiciones y ejecu
     <span>Datos insuf. <strong>{summary.get('datos_insuficientes', 0)}</strong></span>
   </div>
 </div>
-<div class="p3-note"><strong>UNDER_VALIDATION.</strong> La columna Evidencia distingue procedencia de los factores: PRIMARIA, SECUNDARIA, MANUAL, BASE o MIXTA. Esta etiqueta no cambia el criterio Ib ≤ In ≤ Iz ni habilita emisión por sí sola. El navegador no calcula factores ni clasifica evidencia.</div>
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>∏k</th><th>Iz</th><th>Evidencia</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="10">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
+<div class="p3-note"><strong>UNDER_VALIDATION.</strong> V3 separa el origen de Iz base de la evidencia de factores. CATÁLOGO P2 no equivale a base normativa; PRIMARIA/SECUNDARIA se prepara en Python. El navegador no resuelve tablas, multiplica factores ni clasifica evidencia.</div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Alimentador</th><th>Perfil / método</th><th>Routing</th><th>Ib</th><th>In</th><th>Iz base</th><th>Origen Iz base</th><th>∏k</th><th>Iz</th><th>Evid. factores</th><th>Estado</th></tr></thead><tbody>{''.join(rows) or '<tr><td colspan="11">No existen perfiles P3 evaluados.</td></tr>'}</tbody></table></div>
 </section>'''
 
 

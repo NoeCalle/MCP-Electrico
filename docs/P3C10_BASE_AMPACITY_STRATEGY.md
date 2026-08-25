@@ -59,15 +59,20 @@ P3C10A no:
 
 El motor genérico `exact_rows_v1` ya permite que cada futura revisión primaria declare sus dimensiones exactas sin codificarlas antes de verificar la fuente oficial.
 
-## Próximo bloque — P3C10B
+## P3C10B — integración al cálculo y V3
 
-Conectar este binding al cálculo P3:
+**IMPLEMENTADO COMO INFRAESTRUCTURA. P3C10 CONTINÚA PENDIENTE DE DATOS PRIMARIOS Tabla 1/2.**
 
-- permitir que `definir_condiciones_ampacidad()` reciba una base normativa trazable;
-- revalidarla en cada evaluación;
-- comparar/retener también la asignación P2 activa para detectar cambios de conductor;
-- calcular `Iz = Iz_base_normativa × ∏k` cuando corresponda;
-- llevar al resultado y al workspace V3 el origen de `Iz_base` (`CATÁLOGO P2` vs `NORMATIVA PRIMARIA/SECUNDARIA`);
-- mantener el navegador en modo read-only de ingeniería.
+El cálculo P3 puede recibir ahora una `base_normativa` portable producida por P3C10A. La base se revalida contra el catálogo activo antes de configurar y nuevamente al evaluar. La asignación P2 se conserva en paralelo para detectar cambios de conductor/instalación y para mostrar la diferencia entre catálogo y norma.
 
-P3C10 solo podrá cerrar cuando exista al menos una estrategia/dataset Tabla 1/2 `PRIMARY_VERIFIED` que satisfaga el gate formal y sus benchmarks correspondientes.
+Cuando existe base normativa:
+
+```text
+Iz = Iz_base_normativa × ∏k
+```
+
+El resultado expone `base_evidence`, la fuente normativa de `Iz_base` y la fuente de catálogo P2 por separado. V3 añade la columna **Origen Iz base**, con clasificación preparada por Python: `CATÁLOGO P2`, `PRIMARIA`, `SECUNDARIA` o `INCOMPLETA`. El navegador continúa sin resolver tablas ni recalcular ingeniería.
+
+La readiness de evidencia también exige base primaria: factores primarios con `Iz_base` todavía de catálogo P2 ya no pueden clasificarse como evidencia normativa profesional completa.
+
+P3C10 solo podrá cerrar cuando exista al menos una estrategia/dataset Tabla 1/2 `PRIMARY_VERIFIED` real que satisfaga el gate formal y sus benchmarks correspondientes.

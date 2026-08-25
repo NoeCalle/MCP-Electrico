@@ -12,7 +12,9 @@ from pathlib import Path
 
 from . import (
     ampacity,
+    ampacity_base_binding,
     ampacity_datasets,
+    ampacity_exact_lookup,
     ampacity_evidence,
     ampacity_evidence_readiness,
     ampacity_factor_binding,
@@ -128,6 +130,28 @@ def register(mcp, on_study=None) -> None:
         return result
 
     @mcp.tool()
+    def resolver_base_normativa_ampacidad(
+        dataset_id: str,
+        consulta: dict,
+        permitir_dataset_secundario: bool = False,
+    ) -> dict:
+        """Resuelve Tabla 1/2 exacta y devuelve ``base_p3`` portable si existe."""
+        result = ampacity_exact_lookup.resolver_catalogo(
+            dataset_id,
+            consulta,
+            allow_secondary=permitir_dataset_secundario,
+        )
+        if result.get("status") == ampacity_exact_lookup.RESOLVED_EXACT:
+            result = dict(result)
+            result["base_p3"] = ampacity_base_binding.construir_base_desde_resultado(result)
+        record(
+            "ampacity_base_lookup",
+            result,
+            f"resolver_base_normativa_ampacidad:{dataset_id}",
+        )
+        return result
+
+    @mcp.tool()
     def definir_aplicabilidad_normativa_ampacidad(
         nombre_elemento: str,
         perfil_normativo_id: str,
@@ -178,6 +202,8 @@ def register(mcp, on_study=None) -> None:
         referencia_ib: str | None = None,
         referencia_condiciones_instalacion: str | None = None,
         permitir_factores_dataset_secundarios: bool = False,
+        base_normativa: dict | None = None,
+        permitir_base_dataset_secundaria: bool = False,
     ) -> dict:
         """Configura Ib/In/Iz; factores P3B secundarios requieren opt-in explícito."""
         result = ampacity.definir_condiciones(
@@ -192,6 +218,8 @@ def register(mcp, on_study=None) -> None:
             referencia_ib=referencia_ib,
             referencia_condiciones_instalacion=referencia_condiciones_instalacion,
             permitir_factores_dataset_secundarios=permitir_factores_dataset_secundarios,
+            base_normativa=base_normativa,
+            permitir_base_dataset_secundaria=permitir_base_dataset_secundaria,
         )
         record("ampacity_config", ampacity.snapshot(), f"definir_condiciones_ampacidad:{nombre_elemento}")
         return result
