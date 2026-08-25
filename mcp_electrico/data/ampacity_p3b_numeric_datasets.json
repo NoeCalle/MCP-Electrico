@@ -678,6 +678,1527 @@
       }
     },
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5D",
+      "axis": "grouping",
+      "scope": {
+        "installation_methods": [
+          "D"
+        ],
+        "environments": [
+          "direct_buried",
+          "buried_duct"
+        ],
+        "table5d_branches": [
+          "A_DIRECT_BURIED_CABLES",
+          "B_MULTICORE_SINGLE_WAY_DUCTS",
+          "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS"
+        ],
+        "burial_depth_m": [
+          0.7
+        ],
+        "soil_thermal_resistivity_k_m_per_w": [
+          2.5
+        ],
+        "circuits_grouped": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "complete_table_verified": true,
+        "accuracy_note": "Los valores son promedios; la nota de Tabla 5D indica errores de hasta ±10% por promedio/redondeo.",
+        "precision_note": "Cuando se requieran valores más precisos, la propia tabla remite a IEC 60287.",
+        "note": "Cobertura completa de las ramas A, B y C de Tabla 5D bajo sus condiciones publicadas de 0.7 m y 2.5 K.m/W."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "installation_method",
+          "environment",
+          "table5d_branch",
+          "burial_depth_m",
+          "soil_thermal_resistivity_k_m_per_w",
+          "circuits_grouped",
+          "spacing_id"
+        ],
+        "value_field": "factor"
+      },
+      "rows": [
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "contact"
+          },
+          "factor": 0.75,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "one_cable_diameter"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_125_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "contact"
+          },
+          "factor": 0.65,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "one_cable_diameter"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_125_m"
+          },
+          "factor": 0.75,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "contact"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "one_cable_diameter"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_125_m"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.75,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "contact"
+          },
+          "factor": 0.55,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "one_cable_diameter"
+          },
+          "factor": 0.55,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_125_m"
+          },
+          "factor": 0.65,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "contact"
+          },
+          "factor": 0.5,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "one_cable_diameter"
+          },
+          "factor": 0.55,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_125_m"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "direct_buried",
+            "table5d_branch": "A_DIRECT_BURIED_CABLES",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 566,
+            "document_page_marker": "Tablas - Pág. 19 de 82",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "source_row_header": "Número de circuitos",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "contact"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.95,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.95,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "contact"
+          },
+          "factor": 0.75,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.95,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "contact"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "contact"
+          },
+          "factor": 0.65,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "contact"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "B_MULTICORE_SINGLE_WAY_DUCTS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "source_row_header": "Número de cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "contact"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 2,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.95,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "contact"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.85,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 3,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "contact"
+          },
+          "factor": 0.65,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.75,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 4,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "contact"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 5,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "contact"
+          },
+          "factor": 0.6,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_25_m"
+          },
+          "factor": 0.7,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "0_5_m"
+          },
+          "factor": 0.8,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": null,
+            "normalization_note": null,
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "D",
+            "environment": "buried_duct",
+            "table5d_branch": "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS",
+            "burial_depth_m": 0.7,
+            "soil_thermal_resistivity_k_m_per_w": 2.5,
+            "circuits_grouped": 6,
+            "spacing_id": "1_0_m"
+          },
+          "factor": 0.9,
+          "metadata": {
+            "source_page": 567,
+            "document_page_marker": "Tablas - Pág. 20 de 82",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "source_row_header": "Número de circuitos unipolares de dos o tres cables",
+            "source_token": ",0,90",
+            "normalization_note": "El PDF imprime ',0,90'; se normaliza numéricamente a 0.90 conservando el token original.",
+            "average_rounding_error_note": "hasta ±10% según nota de Tabla 5D",
+            "precision_method_reference": "IEC 60287"
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 5D",
+        "page_references": [
+          "PDF 555; Tablas - Pág. 8 de 82; Tabla 3: método D -> Tabla 5D para agrupamiento",
+          "PDF 566; Tablas - Pág. 19 de 82; Tabla 5D rama A",
+          "PDF 567; Tablas - Pág. 20 de 82; Tabla 5D ramas B y C"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11D_TABLE_5D_GROUPING_METHOD_D_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "complete_table_reviewed": true,
+          "reviewed_row_count": 65,
+          "human_reviewer": null
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": false,
+        "p3c11_family_coverage": true,
+        "automatic_binding_to_iz": false,
+        "note": "Tabla 5D completa y verificable por lookup exacto. El binding automático a Iz permanece bloqueado hasta P3C11D2, que clasificará la disposición física y comprobará contexto P3A."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",

@@ -355,6 +355,206 @@
       "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
       "notes": "Revisión visual aprobada bajo autorización del usuario, limitada a D/Col.25/70 mm2=178 A."
+    },
+    {
+      "id": "P3C11D_TABLE_5D_GROUPING_METHOD_D_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
+      "purpose": "grouping_correction_method_d",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 5D",
+      "axis": "grouping",
+      "pdf_pages": [
+        566,
+        567
+      ],
+      "document_page_markers": [
+        "Tablas - Pág. 19 de 82",
+        "Tablas - Pág. 20 de 82"
+      ],
+      "routing_evidence": {
+        "pdf_page_number_one_based": 555,
+        "document_page_marker": "Tablas - Pág. 8 de 82",
+        "reference": "Tabla 3",
+        "text_scope": "Método D -> Tabla 5D como factor de reducción por agrupamiento"
+      },
+      "candidate_structure": {
+        "branches": {
+          "A_DIRECT_BURIED_CABLES": {
+            "environment": "direct_buried",
+            "source_heading": "A.- Cables directamente apoyados en la tierra",
+            "row_header": "Número de circuitos",
+            "spacing_ids": [
+              "contact",
+              "one_cable_diameter",
+              "0_125_m",
+              "0_25_m",
+              "0_5_m"
+            ],
+            "values": {
+              "2": [
+                0.75,
+                0.8,
+                0.85,
+                0.9,
+                0.9
+              ],
+              "3": [
+                0.65,
+                0.7,
+                0.75,
+                0.8,
+                0.85
+              ],
+              "4": [
+                0.6,
+                0.6,
+                0.7,
+                0.75,
+                0.8
+              ],
+              "5": [
+                0.55,
+                0.55,
+                0.65,
+                0.7,
+                0.8
+              ],
+              "6": [
+                0.5,
+                0.55,
+                0.6,
+                0.7,
+                0.8
+              ]
+            }
+          },
+          "B_MULTICORE_SINGLE_WAY_DUCTS": {
+            "environment": "buried_duct",
+            "source_heading": "B.- Cable multipolar en ductos de una vía - enterrado",
+            "row_header": "Número de cables",
+            "spacing_ids": [
+              "contact",
+              "0_25_m",
+              "0_5_m",
+              "1_0_m"
+            ],
+            "values": {
+              "2": [
+                0.85,
+                0.9,
+                0.95,
+                0.95
+              ],
+              "3": [
+                0.75,
+                0.85,
+                0.9,
+                0.95
+              ],
+              "4": [
+                0.7,
+                0.8,
+                0.85,
+                0.9
+              ],
+              "5": [
+                0.65,
+                0.8,
+                0.85,
+                0.9
+              ],
+              "6": [
+                0.6,
+                0.8,
+                0.8,
+                0.9
+              ]
+            }
+          },
+          "C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS": {
+            "environment": "buried_duct",
+            "source_heading": "C.- Cables unipolares en ductos de una vía - enterrado",
+            "row_header": "Número de circuitos unipolares de dos o tres cables",
+            "spacing_ids": [
+              "contact",
+              "0_25_m",
+              "0_5_m",
+              "1_0_m"
+            ],
+            "values": {
+              "2": [
+                0.8,
+                0.9,
+                0.9,
+                0.95
+              ],
+              "3": [
+                0.7,
+                0.8,
+                0.85,
+                0.9
+              ],
+              "4": [
+                0.65,
+                0.75,
+                0.8,
+                0.9
+              ],
+              "5": [
+                0.6,
+                0.7,
+                0.8,
+                0.9
+              ],
+              "6": [
+                0.6,
+                0.7,
+                0.8,
+                0.9
+              ]
+            }
+          }
+        },
+        "row_count": 65,
+        "burial_depth_m": 0.7,
+        "soil_thermal_resistivity_k_m_per_w": 2.5
+      },
+      "publication_anomaly": {
+        "location": "Rama C; 6 circuitos; separación 1,0 m",
+        "source_token": ",0,90",
+        "normalized_numeric_value": 0.9,
+        "policy": "Preservar token original en metadata y normalizar solo su forma decimal."
+      },
+      "reviewed_notes": {
+        "average_rounding_error": "hasta ±10%",
+        "precision_method_reference": "IEC 60287",
+        "published_depth_m": 0.7,
+        "published_soil_thermal_resistivity_k_m_per_w": 2.5
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32911061659,
+        "artifact_id": 9586544930,
+        "artifact_digest": "sha256:927949b5276c1515e82f04fe605f5d045d832ca8f2ef3bd980c0f3c5fc587442",
+        "page_render_generated": true,
+        "page_text_extracted": true,
+        "source_pin_verified": true
+      },
+      "manual_comparison_confirmed": true,
+      "human_reviewer": null,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "complete_table_reviewed": true,
+      "eligible_for_primary_dataset_pr": true,
+      "professional_emission": false,
+      "notes": "Ramas A/B/C revisadas visualmente desde páginas renderizadas de la fuente oficial pinneada. Binding a Iz reservado para P3C11D2."
     }
   ]
 }
