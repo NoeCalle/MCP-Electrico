@@ -25,6 +25,7 @@ DATASET_NOT_APPROVED = "DATASET_NOT_APPROVED"
 DATASET_NOT_FOUND = "DATASET_NOT_FOUND"
 VALUE_NOT_TABULATED = "VALUE_NOT_TABULATED"
 SCOPE_MISMATCH = "SCOPE_MISMATCH"
+ROUTE_MISMATCH = "ROUTE_MISMATCH"
 
 
 def _load() -> dict[str, Any]:
@@ -146,6 +147,27 @@ def resolver_factor(
     }
 
 
+def _route_consistency(
+    route: dict[str, Any],
+    circuits_grouped: int,
+    arrangement_id: str,
+) -> list[str]:
+    context = route.get("grouping_context") or {}
+    issues: list[str] = []
+    routed_count = context.get("circuits_grouped")
+    if routed_count is not None and int(routed_count) != int(circuits_grouped):
+        issues.append(
+            f"circuits_grouped del routing={int(routed_count)}; lookup solicitado={int(circuits_grouped)}"
+        )
+    routed_arrangement = str(context.get("arrangement") or "").strip()
+    requested_arrangement = str(arrangement_id or "").strip()
+    if routed_arrangement and routed_arrangement != requested_arrangement:
+        issues.append(
+            f"arrangement del routing={routed_arrangement}; lookup solicitado={requested_arrangement or 'NONE'}"
+        )
+    return issues
+
+
 def resolver_grouping_for_route(
     route: dict[str, Any],
     circuits_grouped: int,
@@ -160,6 +182,17 @@ def resolver_grouping_for_route(
             "reason": "No existe dataset P3B para el perfil normativo solicitado.",
             "professional_emission": False,
         }
+
+    route_issues = _route_consistency(route, circuits_grouped, arrangement_id)
+    if route_issues:
+        return {
+            "status": ROUTE_MISMATCH,
+            "factor": None,
+            "route_issues": route_issues,
+            "professional_emission": False,
+            "note": "El lookup numérico debe usar exactamente el escenario declarado por P3A.",
+        }
+
     method = str(route.get("installation_method") or "").upper()
     candidates = [
         item for item in listar_datasets()
