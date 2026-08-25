@@ -84,9 +84,36 @@ Tabla 2 primaria
 
 El cálculo conserva en paralelo la ampacidad de catálogo P2; no la reemplaza ni la presenta como normativa.
 
+### P3C11 — cobertura de factores de corrección
+
+P3C11 se ejecuta por subconjuntos primarios, pero **un subconjunto `PRIMARY_VERIFIED` no equivale a una familia completa**. El gate solo considera una familia 5A/5B/5C/5D/5E cubierta cuando un dataset/revisión declara explícitamente:
+
+```text
+p3c11_family_coverage = true
+```
+
+Los subconjuntos primarios actuales de Tabla 5C y Tabla 5A declaran `false`; por tanto P3C11 permanece bloqueado.
+
+P3C11A incorpora el primer subconjunto primario de Tabla 5A:
+
+```text
+dataset = PERU_CNE_UTIL_2006_TABLE_5A_XLPE_AIR_A1_COL15_PRIMARY_V1
+Tabla 2 / método A1 / columna 15 / XLPE-EPR / aire
+35 °C -> 0.96
+40 °C -> 0.91
+```
+
+La Tabla 5A oficial (PDF 563 / Tablas - Pág. 16 de 82) declara el primer bloque aplicable a columnas 2–16. Tabla 3 (PDF 555) confirma A1 + XLPE/EPR + 3 conductores → Tabla 2 Col. 15 y remite el factor de temperatura a Tabla 5A.
+
+Se detectó además una inconsistencia normativa abierta: Tabla 3 remite B1/B2/C/D a Tabla 5A aunque sus columnas XLPE/EPR llegan hasta 25, y la Nota 3 de Tabla 2 también remite a Tabla 5A. El Manual de Sustentación confirma la intención de aplicar 5A-a/5A-b por temperatura, pero no elimina expresamente la restricción literal de columnas de la tabla.
+
+Política del MCP: **fail-closed**. El dataset P3C11A no generaliza a columna 23 ni a cualquier otra combinación fuera de sus filas exactas. El binding automático hacia `Iz` queda pendiente hasta validar de forma determinista base/routing/temperatura.
+
+Detalle: `docs/P3C11A_TABLE5A_PRIMARY.md`.
+
 ### Criterios actualmente bloqueantes
 
-- `P3C11` — cobertura primaria de las familias 5A/5B/5C/5D/5E del alcance P3-v1;
+- `P3C11` — cobertura primaria completa declarada de las familias 5A/5B/5C/5D/5E del alcance P3-v1;
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
@@ -163,4 +190,4 @@ La tool MCP es:
 
 Su función es hacer visible, de forma determinista, **qué falta exactamente** para cerrar P3 y evitar que el roadmap avance por impresión subjetiva.
 
-Después de P3C10, el siguiente frente técnico formal es **P3C11**: ampliar cobertura primaria de factores de corrección 5A/5B/5C/5D/5E dentro del alcance declarado, sin perder la separación por método ni la política de valor no tabulado.
+Después de P3C11A, el siguiente subbloque natural es implementar el binding genérico seguro de factores `exact_rows_v1` hacia `Iz`, preservando la política fail-closed de compatibilidad; luego continuar con cobertura primaria 5B/5D/5E y ampliación controlada de 5A/5C.
