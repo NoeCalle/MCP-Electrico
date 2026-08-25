@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "datasets": [
+    {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5C",
+      "axis": "grouping",
+      "scope": {
+        "installation_methods": ["A1", "A2", "B1", "B2", "C", "D", "E", "F"],
+        "arrangement_id": "grouped_air_surface_embedded_enclosed",
+        "arrangement_label": "Agrupados en el aire, sobre una superficie, empotrados o encerrados",
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false
+      },
+      "values": {
+        "1": 1.00,
+        "2": 0.80,
+        "3": 0.70,
+        "4": 0.65,
+        "5": 0.60,
+        "6": 0.57,
+        "7": 0.54,
+        "8": 0.52,
+        "9": 0.50,
+        "12": 0.45,
+        "16": 0.41,
+        "20": 0.38
+      },
+      "provenance": {
+        "source_type": "secondary_reproduction",
+        "verification_status": "PENDING_PRIMARY_VERIFICATION",
+        "publisher": "Universidad Nacional Mayor de San Marcos - Cybertesis",
+        "reference": "Tabla reproducida con fuente declarada: CNE Utilización, Tabla 5C",
+        "url": "https://cybertesis.unmsm.edu.pe/backend/api/core/bitstreams/9109b64f-62ef-4504-b242-946dbcb41301/content",
+        "access_date": "2026-08-24",
+        "confidence": "MEDIUM"
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": false,
+        "requires_explicit_secondary_opt_in": true,
+        "note": "Dataset de desarrollo y validación de infraestructura. No habilita emisión profesional hasta verificación contra publicación primaria oficial."
+      }
+    }
+  ]
+}
