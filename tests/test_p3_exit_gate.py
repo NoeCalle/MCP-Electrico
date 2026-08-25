@@ -110,11 +110,11 @@ def test_gate_reconoce_iz_base_normativa_primary_verified():
     assert "Tabla 1/2" in criterion["evidence"]
 
 
-def test_p3c11_reconoce_subconjuntos_primarios_sin_confundirlos_con_cobertura_total():
+def test_p3c11_reconoce_5b_completa_y_subconjuntos_restantes_sin_cerrar_fase():
     coverage = p3_completion._coverage_flags()
     assert coverage["base_ampacity_strategy"] is True
     assert coverage["table_5a"] is False
-    assert coverage["table_5b"] is False
+    assert coverage["table_5b"] is True
     assert coverage["table_5c"] is False
     assert coverage["table_5d"] is False
     assert coverage["table_5e"] is False
