@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "purpose": "Casos patrón manuales para validar el routing P3A sin contener valores numéricos de tablas normativas.",
+  "source_basis": [
+    "CNE Utilización 2006, Regla 030-004 y Tablas 1, 2, 5A, 5B, 5C/5E",
+    "IEC 60364-5-52:2009+AMD1:2024 Ed. 3.1 — perfil registrado sin dataset numérico"
+  ],
+  "cases": [
+    {
+      "id": "cne_method_c_base_conditions",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "C",
+        "environment": "air",
+        "ambient_temperature_c": 30.0,
+        "circuits_grouped": 1
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 2",
+        "status": "BASE_CONDITIONS_IDENTIFIED",
+        "required_axes": [],
+        "missing_parameters": [],
+        "unresolved_numeric_factors": false
+      }
+    },
+    {
+      "id": "cne_method_c_temperature_correction",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "C",
+        "environment": "air",
+        "ambient_temperature_c": 35.0,
+        "circuits_grouped": 1
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 2",
+        "status": "REQUIREMENTS_IDENTIFIED",
+        "required_axes": ["ambient_temperature"],
+        "missing_parameters": [],
+        "unresolved_numeric_factors": true
+      }
+    },
+    {
+      "id": "cne_method_d_temperature_soil_grouping",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "D",
+        "environment": "buried_duct",
+        "ambient_temperature_c": 25.0,
+        "soil_thermal_resistivity_k_m_per_w": 1.5,
+        "circuits_grouped": 3
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 2",
+        "status": "REQUIREMENTS_IDENTIFIED",
+        "required_axes": ["ambient_temperature", "soil_thermal_resistivity", "grouping"],
+        "missing_parameters": [],
+        "unresolved_numeric_factors": true
+      }
+    },
+    {
+      "id": "cne_method_f_grouping_requires_manual_branch",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "F",
+        "environment": "air",
+        "ambient_temperature_c": 30.0,
+        "circuits_grouped": 2,
+        "grouping_arrangement": "declared_physical_arrangement"
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 1",
+        "status": "MANUAL_REVIEW_REQUIRED",
+        "required_axes": ["grouping"],
+        "missing_parameters": [],
+        "unresolved_numeric_factors": true
+      }
+    },
+    {
+      "id": "cne_rule_13_transition_scope",
+      "input": {
+        "profile_id": "PERU_CNE_UTIL_2006_030_004",
+        "installation_method": "C",
+        "environment": "air",
+        "ambient_temperature_c": 30.0,
+        "circuits_grouped": 1,
+        "segment_count": 2,
+        "segment_transition": "underground_to_exposed"
+      },
+      "expected": {
+        "base_ampacity_table": "Tabla 2",
+        "status": "MANUAL_REVIEW_REQUIRED",
+        "required_axes": [],
+        "missing_parameters": [],
+        "segment_policy": "LOWEST_AMPACITY_GOVERNS",
+        "unresolved_numeric_factors": false
+      }
+    },
+    {
+      "id": "iec_2024_reference_only",
+      "input": {
+        "profile_id": "IEC_60364_5_52_2009_A1_2024",
+        "installation_method": "C",
+        "environment": "air",
+        "ambient_temperature_c": 30.0,
+        "circuits_grouped": 1
+      },
+      "expected": {
+        "status": "TABLE_DATA_NOT_LOADED",
+        "applicable": false,
+        "required_axes": [],
+        "unresolved_numeric_factors": true
+      }
+    }
+  ]
+}
