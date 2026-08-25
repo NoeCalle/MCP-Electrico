@@ -4,6 +4,10 @@ La existencia de un valor numérico no implica que pueda sustentar emisión.
 Cada dataset declara procedencia, estado de verificación y política de uso.
 Los datasets secundarios pueden usarse para desarrollo/benchmark de la
 infraestructura únicamente con opt-in explícito.
+
+La carga del catálogo también aplica un gate estructural: un registro no puede
+presentarse como ``PRIMARY_VERIFIED`` sin huella SHA-256, páginas/tablas
+verificadas y un registro explícito de revisión humana.
 """
 
 from __future__ import annotations
@@ -28,10 +32,84 @@ SCOPE_MISMATCH = "SCOPE_MISMATCH"
 ROUTE_MISMATCH = "ROUTE_MISMATCH"
 
 
+def _valid_sha256(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return len(text) == 64 and all(ch in "0123456789abcdef" for ch in text)
+
+
+def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
+    """Valida que la política de evidencia sea coherente con el estado declarado.
+
+    Esta función comprueba *estructura de evidencia*, no la corrección del valor
+    normativo. Un dataset que supera este gate aún necesita sus benchmarks y el
+    resto del proceso de revisión declarado por P3.
+    """
+    dataset_id = str(item.get("id") or "").strip()
+    if not dataset_id:
+        raise ValueError("P3B004: dataset sin id")
+
+    provenance = item.get("provenance") or {}
+    usage = item.get("usage_policy") or {}
+    verified = str(provenance.get("verification_status") or "").strip()
+    source_type = str(provenance.get("source_type") or "").strip()
+    professional = bool(usage.get("professional_emission"))
+
+    if not verified:
+        raise ValueError(f"P3B005: {dataset_id} sin verification_status")
+    if not source_type:
+        raise ValueError(f"P3B006: {dataset_id} sin source_type")
+
+    if verified == PRIMARY_VERIFIED:
+        if source_type != "primary_official":
+            raise ValueError(
+                f"P3B007: {dataset_id} PRIMARY_VERIFIED requiere source_type=primary_official"
+            )
+        if not _valid_sha256(provenance.get("source_sha256")):
+            raise ValueError(
+                f"P3B008: {dataset_id} PRIMARY_VERIFIED requiere source_sha256 válido"
+            )
+        pages = [str(value).strip() for value in provenance.get("page_references", []) if str(value).strip()]
+        if not pages:
+            raise ValueError(
+                f"P3B009: {dataset_id} PRIMARY_VERIFIED requiere page_references"
+            )
+        record = provenance.get("verification_record") or {}
+        if not str(record.get("reviewer") or "").strip():
+            raise ValueError(
+                f"P3B010: {dataset_id} PRIMARY_VERIFIED requiere reviewer"
+            )
+        if record.get("manual_comparison_confirmed") is not True:
+            raise ValueError(
+                f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación manual confirmada"
+            )
+        if not str(provenance.get("primary_source_id") or "").strip():
+            raise ValueError(
+                f"P3B012: {dataset_id} PRIMARY_VERIFIED requiere primary_source_id"
+            )
+    elif professional:
+        raise ValueError(
+            f"P3B013: {dataset_id} no puede professional_emission=true sin PRIMARY_VERIFIED"
+        )
+
+    if source_type == "secondary_reproduction" and verified == PRIMARY_VERIFIED:
+        raise ValueError(
+            f"P3B014: {dataset_id} no puede ser simultáneamente secondary_reproduction y PRIMARY_VERIFIED"
+        )
+
+    return {
+        "valid": True,
+        "dataset_id": dataset_id,
+        "verification_status": verified,
+        "professional_emission": professional,
+    }
+
+
 def _load() -> dict[str, Any]:
     payload = json.loads(_DATA_FILE.read_text(encoding="utf-8"))
     if int(payload.get("schema_version") or 0) != 1:
         raise ValueError("P3B001: schema de datasets numéricos no soportado")
+    for item in payload.get("datasets", []):
+        validar_dataset_record(item)
     return payload
 
 
@@ -119,7 +197,7 @@ def resolver_factor(
         }
 
     factor = float(values[key])
-    primary = verified == PRIMARY_VERIFIED and not secondary
+    primary = verified == PRIMARY_VERIFIED and source_type == "primary_official"
     status = RESOLVED_PRIMARY if primary else RESOLVED_SECONDARY
     professional = bool(usage.get("professional_emission")) and primary
     return {
