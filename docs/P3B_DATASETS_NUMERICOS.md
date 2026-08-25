@@ -8,7 +8,7 @@ P3B incorpora la infraestructura para resolver factores numéricos desde dataset
 
 La regla principal es:
 
-> Un valor numérico solo puede habilitar cálculo normativo automático profesional si su dataset tiene procedencia primaria/verificada y una política de uso que lo permita.
+> Un valor numérico solo puede habilitar cálculo normativo automático profesional si su dataset tiene procedencia primaria verificada, una fuente oficial pinneada y una política de uso que lo permita.
 
 ## Estados de evidencia
 
@@ -24,7 +24,7 @@ Los datasets declaran al menos:
 
 P3B diferencia, entre otros:
 
-- `PRIMARY_VERIFIED`: contenido contrastado contra fuente primaria/versionada;
+- `PRIMARY_VERIFIED`: contenido contrastado contra fuente primaria/versionada y pinneada;
 - `PENDING_PRIMARY_VERIFICATION`: valor disponible pero pendiente de contraste primario;
 - `SECONDARY_TRANSCRIPTION`: transcripción/reproducción secundaria.
 
@@ -98,6 +98,41 @@ Por ahora:
 - P3B no reutiliza el dataset 5C para método D;
 - el dataset numérico 5D queda pendiente.
 
+## Gate de evidencia primaria
+
+P3B registra ahora fuentes oficiales candidatas de forma separada a los datasets. La fuente CNE descubierta en `gob.pe` permanece:
+
+```text
+source_class = OFFICIAL_PRIMARY_CANDIDATE
+pin_status = DISCOVERED_UNPINNED
+expected_sha256 = null
+```
+
+No se promueve ningún valor solo por conocer una URL oficial ni por calcular el SHA-256 de una copia local no fijada.
+
+El proceso es obligatoriamente de dos etapas:
+
+1. **fijar la fuente primaria**: obtener una copia oficial reproducible y registrar `pin_status = PINNED` + `expected_sha256` por revisión versionada;
+2. **verificar el dataset**: la copia usada debe tener exactamente ese SHA-256 y luego contrastarse tabla/página por tabla/página.
+
+Mientras la fuente siga `DISCOVERED_UNPINNED`, no puede existir `PRIMARY_EVIDENCE_READY_FOR_REVIEW` ni `ELIGIBLE_FOR_PRIMARY_DATASET_PR`.
+
+Después del pin, el flujo exige:
+
+1. copia local cuyo SHA-256 coincida exactamente con `expected_sha256`;
+2. tablas verificadas;
+3. referencias de página/sección;
+4. revisor identificado;
+5. confirmación de comparación manual;
+6. evaluación de elegibilidad;
+7. **nueva revisión del dataset por PR + CI**.
+
+El mejor resultado previo al PR es `ELIGIBLE_FOR_PRIMARY_DATASET_PR`. No existe promoción automática y ese estado mantiene `professional_emission=false`.
+
+Además, el loader del catálogo aplica `validar_dataset_record()` y cruza cualquier `PRIMARY_VERIFIED` con `ampacity_primary_sources.json`. Exige fuente existente, oficial candidata, `PINNED`, hash idéntico, misma referencia normativa, páginas y registro de revisión. Una edición manual inconsistente hace fallar la carga y CI.
+
+Detalle del proceso: `docs/P3B_EVIDENCIA_PRIMARIA.md`.
+
 ## Benchmark reproducible
 
 `examples/run_benchmarks_p3b.py` genera:
@@ -115,10 +150,13 @@ Esto evita que un benchmark verde se interprete erróneamente como validación n
 
 ## Siguiente paso P3B
 
-1. obtener/archivar una fuente primaria reproducible para los subconjuntos CNE a automatizar;
-2. verificar hashes/versiones y transcripción independiente;
-3. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
-4. comparar contra casos manuales independientes;
-5. integrar factores primarios con `Ib/In/Iz`;
-6. construir el gate formal de salida P3;
-7. elevar madurez solo si la evidencia lo permite.
+1. obtener/archivar una copia primaria reproducible para los subconjuntos CNE a automatizar;
+2. fijar su SHA-256 oficial mediante una revisión versionada independiente;
+3. verificar que la copia de trabajo coincida byte a byte con ese pin;
+4. realizar comparación independiente de páginas/tablas;
+5. crear por PR una nueva revisión primaria del dataset, nunca mutar la secundaria en runtime;
+6. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
+7. comparar contra casos manuales independientes;
+8. integrar factores primarios con `Ib/In/Iz`;
+9. construir el gate formal de salida P3;
+10. elevar madurez solo si la evidencia lo permite.

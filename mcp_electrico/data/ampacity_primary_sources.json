@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "authority": "Ministerio de Energía y Minas del Perú",
+      "document_title": "Código Nacional de Electricidad - Utilización",
+      "legal_reference": "R.M. N.° 0037-2006-MEM",
+      "landing_url": "https://www.gob.pe/institucion/minem/normas-legales/108855-0037-2006-mem",
+      "direct_url": "https://cdn.www.gob.pe/uploads/document/file/898623/C%C3%B3digo_Nacional_de_Electricidad__Utilizaci%C3%B3n_.pdf",
+      "source_class": "OFFICIAL_PRIMARY_CANDIDATE",
+      "pin_status": "DISCOVERED_UNPINNED",
+      "expected_sha256": null,
+      "discovered_at": "2026-08-24",
+      "notes": "La página oficial de MINEM publica el CNE Utilización. El entorno de desarrollo actual descubre el PDF en CDN gob.pe pero no logra descargarlo de forma reproducible; por ello no se fija hash ni se promueve ningún dataset."
+    }
+  ]
+}
