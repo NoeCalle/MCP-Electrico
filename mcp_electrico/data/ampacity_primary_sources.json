@@ -10,10 +10,19 @@
       "landing_url": "https://www.gob.pe/institucion/minem/normas-legales/108855-0037-2006-mem",
       "direct_url": "https://cdn.www.gob.pe/uploads/document/file/898623/C%C3%B3digo_Nacional_de_Electricidad__Utilizaci%C3%B3n_.pdf",
       "source_class": "OFFICIAL_PRIMARY_CANDIDATE",
-      "pin_status": "DISCOVERED_UNPINNED",
-      "expected_sha256": null,
+      "pin_status": "PINNED",
+      "expected_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
       "discovered_at": "2026-08-24",
-      "notes": "La página oficial de MINEM publica el CNE Utilización. El entorno de desarrollo actual descubre el PDF en CDN gob.pe pero no logra descargarlo de forma reproducible; por ello no se fija hash ni se promueve ningún dataset."
+      "pinned_at": "2026-08-25",
+      "pin_evidence": {
+        "method": "github_actions_direct_official_url_capture",
+        "workflow_run_id": 32875620716,
+        "size_bytes": 10829258,
+        "etag": "\"02effdb1a8f5e1731d3f363afc0ea577\"",
+        "last_modified": "Sat, 29 Nov 2025 07:14:44 GMT",
+        "final_url": "https://cdn.www.gob.pe/uploads/document/file/898623/C%C3%B3digo_Nacional_de_Electricidad__Utilizaci%C3%B3n_.pdf"
+      },
+      "notes": "La copia PDF fue obtenida de forma reproducible desde la URL oficial registrada en un runner GitHub Actions y fijada por SHA-256. Este pin identifica byte a byte la fuente primaria de referencia, pero no verifica por sí mismo ninguna tabla ni promueve datasets."
     }
   ]
 }
