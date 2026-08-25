@@ -34,8 +34,9 @@ def _secondary_ready_model():
         circuitos_agrupados=2,
         disposicion_agrupamiento=ARRANGEMENT,
     )
-    resolved = ampacity_datasets.resolver_grouping_for_route(
-        route,
+    resolved = ampacity_datasets.resolver_factor(
+        "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+        installation_method="C",
         circuits_grouped=2,
         arrangement_id=ARRANGEMENT,
         allow_secondary=True,
@@ -54,7 +55,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c08_done_y_no_avanza_a_p4():
+def test_gate_p3_reconoce_p3c08_y_p3c09_done_sin_avanzar_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -65,13 +66,13 @@ def test_gate_p3_reconoce_p3c08_done_y_no_avanza_a_p4():
 
     pending = {item["id"] for item in result["pending_criteria"]}
     assert {
-        "P3C09",
         "P3C10",
         "P3C11",
         "P3C12",
         "P3C13",
     } <= pending
     assert "P3C08" not in pending
+    assert "P3C09" not in pending
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
     assert {
@@ -83,6 +84,7 @@ def test_gate_p3_reconoce_p3c08_done_y_no_avanza_a_p4():
         "P3C06",
         "P3C07",
         "P3C08",
+        "P3C09",
     } <= done
 
 
@@ -94,12 +96,33 @@ def test_p3c08_deriva_del_registro_pinneado():
     assert criterion["evidence"] == "ampacity_primary_sources.json"
 
 
+def test_p3c09_deriva_de_dataset_primary_verified_real():
+    result = p3_completion.evaluar_cierre_p3()
+    criterion = next(item for item in result["criteria"] if item["id"] == "P3C09")
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
+    assert criterion["evidence"] == "ampacity_p3b_numeric_datasets.json"
+
+
 def test_gate_expone_que_iz_base_normativa_sigue_pendiente():
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C10")
     assert criterion["status"] == "PENDING"
     assert "Iz_base" in criterion["blocking_reason"]
     assert "Tabla 1/2" in criterion["blocking_reason"]
+
+
+def test_p3c11_reconoce_5c_primaria_pero_cobertura_total_sigue_incompleta():
+    coverage = p3_completion._coverage_flags()
+    assert coverage["table_5c"] is True
+    assert coverage["table_5a"] is False
+    assert coverage["table_5b"] is False
+    assert coverage["table_5d"] is False
+    assert coverage["table_5e"] is False
+
+    result = p3_completion.evaluar_cierre_p3()
+    criterion = next(item for item in result["criteria"] if item["id"] == "P3C11")
+    assert criterion["status"] == "PENDING"
 
 
 def test_p3c12_deriva_del_registro_y_benchmark_secundario_no_lo_satisface():
