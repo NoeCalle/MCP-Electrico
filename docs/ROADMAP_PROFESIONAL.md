@@ -16,7 +16,7 @@ Este documento es la **guía maestra del proyecto**. Las fases no se consideran 
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **EN PROGRESO — FOUNDATION UNDER_VALIDATION** | `Ib <= In <= Iz` y factores de corrección trazables |
+| P3 — Ampacidad normativa | **EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION** | `Ib <= In <= Iz` y factores de corrección trazables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
@@ -178,11 +178,11 @@ P2 no adelanta P3/P4: `Iz` normativo e IEC 60909 permanecen respectivamente pend
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: EN PROGRESO — FOUNDATION UNDER_VALIDATION.**
+**Estado: EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION.**
 
 Objetivo: poder verificar selección térmica del conductor, no solo mostrar un rating de catálogo.
 
-Foundation ya implementada:
+Foundation P3 ya implementada:
 
 - contrato explícito `Ib <= In <= Iz` en la capa MCP;
 - `In` declarado con referencia, sin inferirlo del rating visual histórico;
@@ -195,17 +195,27 @@ Foundation ya implementada:
 - workspace V3 con valores ya calculados y sin cálculo eléctrico en JavaScript;
 - referencias versionadas registradas para IEC 60364-5-52 Ed. 3.1 y CNE–Utilización, sin afirmar que sus tablas estén automatizadas.
 
+P3A añade:
+
+- perfil `PERU_CNE_UTIL_2006_030_004` con routing A1/A2/B1/B2/C/D → Tabla 2 y E/F/G → Tabla 1;
+- identificación de ejes de corrección de temperatura, resistividad térmica y agrupamiento dentro del alcance modelado;
+- separación estricta entre perfil CNE 2006 e IEC 60364-5-52:2009+AMD1:2024;
+- IEC 2024 permanece `REFERENCE_ONLY` hasta disponer de dataset propio de esa edición;
+- restricción de 030-004(13) a transición subterránea → visible y 030-004(14) como revisión manual;
+- vínculo explícito entre factor manual y `axis` normativo requerido;
+- readiness bloqueante si el routing queda incompleto, cambia después de la ficha o conserva revisión manual pendiente;
+- casos patrón separados en `mcp_electrico/data/ampacity_p3a_reference_cases.json`.
+
 Pendiente para cerrar P3:
 
-- definir el alcance normativo exacto por conductor y método de instalación;
-- temperatura ambiente/suelo, agrupamiento y resistividad térmica cuando correspondan;
-- perfiles/tablas/factores normativos versionados y reproducibles;
-- casos manuales/independientes con resultados esperados fijados previamente;
-- benchmarks y casos límite;
+- datasets numéricos de ampacidades/factores con procedencia y alcance legal explícitos;
+- resolución por aislamiento, sección, método y configuración;
+- benchmarks independientes de valores numéricos y casos límite;
+- política explícita para valores no tabulados/interpolaciones cuando corresponda;
 - gate formal de salida P3;
 - elevar madurez solo cuando la evidencia lo permita.
 
-La foundation conserva `automatic_normative_lookup=false` y no habilita emisión profesional automática. Detalle: `docs/P3_AMPACIDAD.md`.
+P3 conserva `automatic_normative_lookup=false` y no habilita emisión profesional automática. Detalle: `docs/P3_AMPACIDAD.md` y `docs/P3A_PERFILES_NORMATIVOS.md`.
 
 ## Fase P4 — Cortocircuito IEC 60909
 

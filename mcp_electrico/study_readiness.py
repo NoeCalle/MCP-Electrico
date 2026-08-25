@@ -166,6 +166,7 @@ def _ampacity_requirements() -> list[dict[str, Any]]:
         protection = profile.get("protection", {})
         design = profile.get("design_current", {})
         norm = profile.get("norm", {})
+        route = profile.get("normative_applicability")
 
         assignment = conductor_library.obtener_asignacion(element)
         if not assignment:
@@ -186,14 +187,64 @@ def _ampacity_requirements() -> list[dict[str, Any]]:
             missing.append(_item("P3READY107", "No existe una fuente válida para Ib.", element))
         if not correction.get("installation_compatibility_reference"):
             missing.append(_item("P3READY108", "Falta referencia de compatibilidad de condiciones de instalación.", element))
+        factors = correction.get("factors", [])
         if correction.get("mode") == "EXPLICIT_FACTORS":
-            factors = correction.get("factors", [])
             if not factors or any(not item.get("reference") for item in factors):
                 missing.append(_item("P3READY109", "Factores de corrección sin trazabilidad completa.", element))
         elif correction.get("mode") != "BASE_CONDITIONS_CONFIRMED":
             missing.append(_item("P3READY110", "Modo de corrección P3 no reconocido.", element))
         if not norm.get("id") or not norm.get("reference_status"):
             missing.append(_item("P3READY111", "Referencia normativa P3 no registrada.", element))
+
+        if route:
+            if route.get("missing_parameters"):
+                missing.append(_item(
+                    "P3READY112",
+                    "Routing P3A incompleto: " + ", ".join(str(x) for x in route.get("missing_parameters", [])),
+                    element,
+                ))
+            if route.get("applicable") is False:
+                missing.append(_item(
+                    "P3READY113",
+                    "El perfil P3A vinculado está registrado solo como referencia y no puede resolver aplicabilidad/tablas.",
+                    element,
+                ))
+            if route.get("manual_review"):
+                missing.append(_item(
+                    "P3READY114",
+                    "El routing P3A conserva revisión manual pendiente: " + " | ".join(str(x) for x in route.get("manual_review", [])),
+                    element,
+                ))
+            route_norm = str(route.get("norm_reference_id") or "")
+            if route_norm and route_norm != str(norm.get("id") or ""):
+                missing.append(_item(
+                    "P3READY115",
+                    "El perfil normativo P3A no coincide con la referencia normativa de la ficha P3.",
+                    element,
+                ))
+            required_axes = {
+                str(item.get("axis") or "").strip().lower()
+                for item in route.get("required_axes", [])
+                if item.get("required") and str(item.get("axis") or "").strip()
+            }
+            linked_axes = {
+                str(item.get("axis") or "").strip().lower()
+                for item in factors
+                if str(item.get("axis") or "").strip()
+            }
+            uncovered = sorted(required_axes - linked_axes)
+            if uncovered:
+                missing.append(_item(
+                    "P3READY116",
+                    "Ejes P3A sin factor explícito vinculado: " + ", ".join(uncovered),
+                    element,
+                ))
+            if required_axes and correction.get("mode") == "BASE_CONDITIONS_CONFIRMED":
+                missing.append(_item(
+                    "P3READY117",
+                    "El router P3A exige correcciones y la ficha fue marcada como condición base.",
+                    element,
+                ))
 
     return missing
 

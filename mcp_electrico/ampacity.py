@@ -1,8 +1,11 @@
 """P3 — fundamento de ampacidad y coordinación Ib/In/Iz.
 
-No contiene todavía tablas automáticas IEC/CNE. Iz se calcula desde una
-ampacidad base P2 trazable y factores explícitos referenciados, o desde una
-confirmación explícita de coincidencia con las condiciones base publicadas.
+P3 foundation calcula Iz desde una ampacidad base P2 trazable y factores
+explícitos referenciados, o desde una confirmación explícita de coincidencia
+con las condiciones base publicadas. P3A añade un router normativo separado:
+identifica tabla base y ejes de corrección aplicables, pero no inventa ni copia
+factores numéricos de tablas que todavía no estén cargadas/validadas.
+
 In se declara expresamente; no se infiere de metadatos visuales históricos.
 """
 
@@ -14,10 +17,11 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import ampacity_norms, conductor_library, studies
+from . import ampacity_norms, ampacity_profiles, conductor_library, studies
 
 _circuit_name = ""
 _profiles: dict[str, dict[str, Any]] = {}
+_normative_routes: dict[str, dict[str, Any]] = {}
 
 
 def _active_circuit_name() -> str:
@@ -33,12 +37,14 @@ def _sync() -> None:
     if current != _circuit_name:
         _circuit_name = current
         _profiles.clear()
+        _normative_routes.clear()
 
 
 def reset() -> None:
     global _circuit_name
     _circuit_name = _active_circuit_name()
     _profiles.clear()
+    _normative_routes.clear()
 
 
 def _line_name(name: str) -> str:
@@ -60,13 +66,113 @@ def _factor(item: dict[str, Any], index: int) -> dict[str, Any]:
     reference = str(item.get("reference") or "").strip()
     if not reference:
         raise ValueError(f"P3A011: {factor_id} requiere referencia explícita")
+    axis = str(item.get("axis") or "").strip().lower() or None
     return {
         "id": factor_id,
+        "axis": axis,
         "value": value,
         "reference": reference,
         "table_or_clause": str(item.get("table_or_clause") or "").strip() or None,
         "condition": str(item.get("condition") or "").strip() or None,
     }
+
+
+def definir_aplicabilidad_normativa(
+    nombre_elemento: str,
+    perfil_normativo_id: str,
+    metodo_instalacion: str,
+    ambiente: str | None = None,
+    temperatura_ambiente_c: float | None = None,
+    resistividad_termica_suelo_k_m_w: float | None = None,
+    circuitos_agrupados: int = 1,
+    disposicion_agrupamiento: str | None = None,
+    numero_tramos: int = 1,
+    transicion_tramos: str | None = None,
+    solicitar_excepcion_tramo_corto: bool = False,
+) -> dict[str, Any]:
+    """Vincula a una línea el routing normativo P3A sin resolver tablas numéricas."""
+    _sync()
+    if not _circuit_name:
+        raise ValueError("P3A003: no existe circuito activo")
+    full = _line_name(nombre_elemento)
+    result = ampacity_profiles.evaluar_aplicabilidad(
+        profile_id=perfil_normativo_id,
+        installation_method=metodo_instalacion,
+        environment=ambiente,
+        ambient_temperature_c=temperatura_ambiente_c,
+        soil_thermal_resistivity_k_m_per_w=resistividad_termica_suelo_k_m_w,
+        circuits_grouped=circuitos_agrupados,
+        grouping_arrangement=disposicion_agrupamiento,
+        segment_count=numero_tramos,
+        segment_transition=transicion_tramos,
+        request_short_segment_exception=solicitar_excepcion_tramo_corto,
+    )
+    record = {"element": full, **deepcopy(result)}
+
+    existing = _profiles.get(full.lower())
+    if existing:
+        ampacity_profiles.validar_compatibilidad_norma(
+            record["profile_id"], existing.get("norm", {}).get("id")
+        )
+    _normative_routes[full.lower()] = record
+    return deepcopy(record)
+
+
+def obtener_aplicabilidad_normativa(nombre_elemento: str) -> dict[str, Any] | None:
+    _sync()
+    full = str(nombre_elemento or "").strip()
+    if "." not in full:
+        full = f"Line.{full}"
+    return deepcopy(_normative_routes.get(full.lower()))
+
+
+def _required_route_axes(route: dict[str, Any]) -> set[str]:
+    return {
+        str(item.get("axis") or "").strip().lower()
+        for item in route.get("required_axes", [])
+        if item.get("required") and str(item.get("axis") or "").strip()
+    }
+
+
+def _validate_route_for_profile(
+    route: dict[str, Any] | None,
+    norm_id: str,
+    validated_factors: list[dict[str, Any]],
+    confirmar_condiciones_base: bool,
+) -> None:
+    if not route:
+        return
+    ampacity_profiles.validar_compatibilidad_norma(route["profile_id"], norm_id)
+
+    if route.get("missing_parameters"):
+        raise ValueError(
+            "P3A030: la aplicabilidad normativa vinculada tiene datos faltantes: "
+            + ", ".join(str(item) for item in route["missing_parameters"])
+        )
+    if route.get("applicable") is False:
+        raise ValueError(
+            "P3A031: el perfil normativo vinculado no dispone todavía de un router/tablas aplicables; "
+            "mantenga el cálculo manual foundation sin vincular este perfil o cargue un dataset validado."
+        )
+
+    required_axes = _required_route_axes(route)
+    if required_axes and confirmar_condiciones_base:
+        raise ValueError(
+            "P3A032: el router normativo identifica correcciones requeridas; "
+            "no puede confirmarse silenciosamente condición base."
+        )
+    if required_axes:
+        linked_axes = {
+            str(item.get("axis") or "").strip().lower()
+            for item in validated_factors
+            if str(item.get("axis") or "").strip()
+        }
+        missing_axes = sorted(required_axes - linked_axes)
+        if missing_axes:
+            raise ValueError(
+                "P3A033: faltan factores explícitos vinculados a ejes requeridos por el router: "
+                + ", ".join(missing_axes)
+            )
 
 
 def definir_condiciones(
@@ -86,6 +192,11 @@ def definir_condiciones(
     ``referencia_condiciones_instalacion`` documenta por qué los factores
     declarados son compatibles con la ampacidad base de catálogo, o por qué
     las condiciones reales coinciden con las condiciones base publicadas.
+
+    Si existe un routing P3A vinculado al alimentador, se exige que la norma
+    coincida y que cada eje de corrección requerido tenga un factor explícito
+    etiquetado con ``axis``. El valor del factor sigue siendo dato manual
+    trazable; P3A no lo toma de tablas no cargadas.
     """
     _sync()
     if not _circuit_name:
@@ -113,6 +224,8 @@ def definir_condiciones(
             "P3A009: documente la compatibilidad entre condiciones reales, ampacidad base y factores aplicados"
         )
     validated = [_factor(item, idx) for idx, item in enumerate(raw_factors)]
+    route = _normative_routes.get(full.lower())
+    _validate_route_for_profile(route, norm["id"], validated, confirmar_condiciones_base)
 
     if ib_diseno_a is not None and usar_corriente_flujo_como_ib:
         raise ValueError("P3A012: declare Ib o use el flujo, no ambos")
@@ -152,6 +265,7 @@ def definir_condiciones(
             "ib_a": float(ib_diseno_a) if ib_diseno_a is not None else None,
             "reference": str(referencia_ib or "").strip() or None,
         },
+        "normative_applicability": deepcopy(route),
         "maturity": "UNDER_VALIDATION",
     }
     _profiles[full.lower()] = record
@@ -163,7 +277,10 @@ def obtener_condiciones(nombre_elemento: str) -> dict[str, Any] | None:
     full = str(nombre_elemento or "").strip()
     if "." not in full:
         full = f"Line.{full}"
-    return deepcopy(_profiles.get(full.lower()))
+    record = deepcopy(_profiles.get(full.lower()))
+    if record is not None:
+        record["normative_applicability"] = deepcopy(_normative_routes.get(full.lower()))
+    return record
 
 
 def _flow_ib(full: str) -> float:
@@ -216,6 +333,24 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "note": "La ficha P3 ya no coincide con la asignación P2 activa; debe redefinirse antes de evaluar.",
         }
 
+    route = _normative_routes.get(full.lower())
+    try:
+        _validate_route_for_profile(
+            route,
+            profile["norm"]["id"],
+            profile["correction"]["factors"],
+            profile["correction"]["base_conditions_confirmed"],
+        )
+    except ValueError as exc:
+        return {
+            "element": full,
+            "status": "DATOS_INSUFICIENTES",
+            "missing": ["consistencia_aplicabilidad_normativa"],
+            "maturity": "UNDER_VALIDATION",
+            "normative_applicability": deepcopy(route),
+            "note": str(exc),
+        }
+
     design = profile["design_current"]
     if design["mode"] == "EXPLICIT_DESIGN_CURRENT":
         ib = float(design["ib_a"])
@@ -256,9 +391,13 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "catalog_conditions": deepcopy(profile["base"]["catalog_conditions"]),
             "correction_mode": profile["correction"]["mode"],
         },
+        "normative_applicability": deepcopy(route),
         "maturity": "UNDER_VALIDATION",
         "automatic_normative_lookup": False,
-        "note": "Iz usa ampacidad base trazable y factores explícitos; tablas automáticas IEC/CNE aún no implementadas.",
+        "note": (
+            "Iz usa ampacidad base trazable y factores explícitos. P3A puede identificar qué correcciones "
+            "aplican, pero los valores de tablas normativas siguen sin automatizarse."
+        ),
     }
 
 
@@ -285,16 +424,27 @@ def evaluar_todos() -> dict[str, Any]:
         "summary": {"total": len(results), **counts},
         "maturity": "UNDER_VALIDATION",
         "automatic_normative_lookup": False,
-        "note": "Foundation P3: no se declara validación normativa automática hasta incorporar tablas/factores versionados y benchmarks.",
+        "note": (
+            "P3/P3A: el router normativo no equivale a tablas automáticas ni eleva la madurez; "
+            "los factores numéricos siguen siendo explícitos y trazables."
+        ),
     }
 
 
 def snapshot() -> dict[str, Any]:
     _sync()
+    profiles: list[dict[str, Any]] = []
+    for key, value in sorted(_profiles.items()):
+        item = deepcopy(value)
+        item["normative_applicability"] = deepcopy(_normative_routes.get(key))
+        profiles.append(item)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "circuit": _circuit_name,
-        "profiles": [deepcopy(value) for _, value in sorted(_profiles.items())],
+        "profiles": profiles,
+        "normative_routes": [deepcopy(value) for _, value in sorted(_normative_routes.items())],
         "normative_references": ampacity_norms.listar_referencias(),
+        "normative_profiles": ampacity_profiles.listar_perfiles(),
         "maturity": "UNDER_VALIDATION",
+        "automatic_normative_lookup": False,
     }

@@ -57,12 +57,13 @@ _MODULES = {
     },
     "ampacity": {
         "status": "UNDER_VALIDATION",
-        "basis": "Foundation P3 MCP: Ib/In/Iz + ampacidad base P2 + factores explícitos trazables",
+        "basis": "P3/P3A MCP: Ib/In/Iz + ampacidad base P2 + factores explícitos + routing normativo versionado",
         "limitations": [
-            "No existen todavía tablas/factores normativos automáticos versionados",
-            "Los factores deben ser introducidos con referencia explícita o confirmarse las condiciones base",
+            "P3A identifica tabla base y ejes de corrección del CNE 2006, pero no carga todavía valores numéricos de tablas",
+            "IEC 60364-5-52:2009+AMD1:2024 permanece REFERENCE_ONLY hasta disponer de dataset propio de esa edición",
+            "Los factores deben ser introducidos con referencia explícita y, cuando existe routing P3A, vinculados al eje aplicable",
             "La compatibilidad entre ampacidad base de fabricante y factores aplicados debe documentarse",
-            "Pendientes benchmarks normativos antes de elevar madurez",
+            "Pendientes benchmarks numéricos normativos y gate de salida P3 antes de elevar madurez",
         ],
     },
     "short_circuit": {
