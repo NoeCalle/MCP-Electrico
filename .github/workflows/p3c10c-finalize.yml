@@ -1,0 +1,33 @@
+name: p3c10c-finalize
+
+on:
+  push:
+    branches:
+      - feat/p3c10c-base-table-evidence
+    paths:
+      - .github/workflows/p3c10c-finalize.yml
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c10c-base-table-evidence
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Finalize P3C10C documentation
+        run: python scripts/_finalize_p3c10c.py
+      - name: Commit persistent evidence and remove temporary machinery
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ROADMAP_PROFESIONAL.md docs/P3C10_BASE_AMPACITY_STRATEGY.md
+          git rm -f scripts/_finalize_p3c10c.py \
+                    .github/workflows/p3c10c-discover-base-tables.yml \
+                    .github/workflows/p3c10c-finalize.yml
+          git commit -m "docs: registrar avance P3C10C y siguiente bloque P3C11A"
+          git push origin HEAD:feat/p3c10c-base-table-evidence
