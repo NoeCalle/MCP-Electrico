@@ -1,15 +1,21 @@
 """Tools MCP para P3/P3A/P3B ampacidad.
 
 Las tools de este módulo no convierten tablas de fabricante en norma. Exponen
-la configuración trazable Ib/In/Iz, el router normativo P3A y datasets
-numéricos P3B con política de procedencia explícita.
+la configuración trazable Ib/In/Iz, el router P3A, datasets P3B y el gate de
+evidencia primaria. No existe una tool que promueva automáticamente datasets.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from . import ampacity, ampacity_datasets, ampacity_norms, ampacity_profiles
+from . import (
+    ampacity,
+    ampacity_datasets,
+    ampacity_evidence,
+    ampacity_norms,
+    ampacity_profiles,
+)
 
 
 def _record_default(name: str, result: dict, action: str) -> None:
@@ -46,6 +52,46 @@ def register(mcp, on_study=None) -> None:
     def listar_datasets_numericos_ampacidad() -> list[dict]:
         """Lista datasets P3B con procedencia y política de uso visibles."""
         return ampacity_datasets.listar_datasets()
+
+    @mcp.tool()
+    def listar_fuentes_primarias_ampacidad() -> list[dict]:
+        """Lista fuentes oficiales candidatas y su estado de pin/hash."""
+        return ampacity_evidence.listar_fuentes()
+
+    @mcp.tool()
+    def verificar_archivo_fuente_ampacidad(source_id: str, ruta_archivo: str) -> dict:
+        """Calcula SHA-256 de una copia local de fuente; no verifica tablas ni promueve datasets."""
+        return ampacity_evidence.verificar_archivo(source_id, ruta_archivo)
+
+    @mcp.tool()
+    def construir_evidencia_primaria_ampacidad(
+        source_id: str,
+        ruta_archivo: str,
+        tablas_verificadas: list[str],
+        referencias_pagina: list[str],
+        revisor: str,
+        comparacion_manual_confirmada: bool,
+        notas: str | None = None,
+    ) -> dict:
+        """Hashea el PDF local y construye un paquete de evidencia para revisión por PR."""
+        file_evidence = ampacity_evidence.verificar_archivo(source_id, ruta_archivo)
+        return ampacity_evidence.construir_paquete_evidencia(
+            source_id=source_id,
+            file_evidence=file_evidence,
+            tables_checked=tablas_verificadas,
+            page_references=referencias_pagina,
+            reviewer=revisor,
+            manual_comparison_confirmed=comparacion_manual_confirmada,
+            notes=notas,
+        )
+
+    @mcp.tool()
+    def evaluar_promocion_dataset_ampacidad(dataset_id: str, evidencia: dict) -> dict:
+        """Evalúa si la evidencia permite proponer una nueva revisión PRIMARY_VERIFIED.
+
+        Nunca modifica el dataset existente ni habilita emisión por sí sola.
+        """
+        return ampacity_evidence.evaluar_promocion_dataset(dataset_id, evidencia)
 
     @mcp.tool()
     def resolver_factor_agrupamiento_ampacidad(
@@ -132,8 +178,7 @@ def register(mcp, on_study=None) -> None:
         """Configura Ib/In/Iz con referencias explícitas; no asume factores ni In.
 
         Si existe un routing P3A vinculado, cada factor requerido debe declarar
-        ``axis`` (por ejemplo ``ambient_temperature`` o ``grouping``) para
-        demostrar que cubre el eje normativo identificado.
+        ``axis`` para demostrar que cubre el eje normativo identificado.
         """
         result = ampacity.definir_condiciones(
             nombre_elemento=nombre_elemento,
