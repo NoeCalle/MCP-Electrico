@@ -55,6 +55,16 @@ _MODULES = {
             "R0/X0 y geometrías avanzadas pendientes",
         ],
     },
+    "ampacity": {
+        "status": "UNDER_VALIDATION",
+        "basis": "Foundation P3 MCP: Ib/In/Iz + ampacidad base P2 + factores explícitos trazables",
+        "limitations": [
+            "No existen todavía tablas/factores normativos automáticos versionados",
+            "Los factores deben ser introducidos con referencia explícita o confirmarse las condiciones base",
+            "La compatibilidad entre ampacidad base de fabricante y factores aplicados debe documentarse",
+            "Pendientes benchmarks normativos antes de elevar madurez",
+        ],
+    },
     "short_circuit": {
         "status": "UNDER_VALIDATION",
         "basis": "OpenDSS FaultStudy",
