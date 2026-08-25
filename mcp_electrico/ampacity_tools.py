@@ -1,15 +1,15 @@
-"""Tools MCP para P3/P3A ampacidad.
+"""Tools MCP para P3/P3A/P3B ampacidad.
 
 Las tools de este módulo no convierten tablas de fabricante en norma. Exponen
-la configuración trazable Ib/In/Iz, el router normativo P3A y registran
-resultados estructurados para el workspace V3.
+la configuración trazable Ib/In/Iz, el router normativo P3A y datasets
+numéricos P3B con política de procedencia explícita.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from . import ampacity, ampacity_norms, ampacity_profiles
+from . import ampacity, ampacity_datasets, ampacity_norms, ampacity_profiles
 
 
 def _record_default(name: str, result: dict, action: str) -> None:
@@ -41,6 +41,40 @@ def register(mcp, on_study=None) -> None:
     def listar_perfiles_normativos_ampacidad() -> list[dict]:
         """Lista perfiles P3A y su madurez de routing/tablas."""
         return ampacity_profiles.listar_perfiles()
+
+    @mcp.tool()
+    def listar_datasets_numericos_ampacidad() -> list[dict]:
+        """Lista datasets P3B con procedencia y política de uso visibles."""
+        return ampacity_datasets.listar_datasets()
+
+    @mcp.tool()
+    def resolver_factor_agrupamiento_ampacidad(
+        nombre_elemento: str,
+        circuitos_agrupados: int,
+        disposicion_id: str,
+        permitir_dataset_secundario: bool = False,
+    ) -> dict:
+        """Resuelve factor de agrupamiento P3B para el routing P3A vinculado.
+
+        Por defecto no devuelve valores de transcripciones secundarias. El opt-in
+        explícito permite usarlas únicamente para desarrollo/benchmark y el
+        resultado conserva ``professional_emission=false``.
+        """
+        route = ampacity.obtener_aplicabilidad_normativa(nombre_elemento)
+        if not route:
+            raise ValueError("P3B010: el alimentador no tiene routing P3A vinculado")
+        result = ampacity_datasets.resolver_grouping_for_route(
+            route=route,
+            circuits_grouped=circuitos_agrupados,
+            arrangement_id=disposicion_id,
+            allow_secondary=permitir_dataset_secundario,
+        )
+        record(
+            "ampacity_numeric_lookup",
+            result,
+            f"resolver_factor_agrupamiento_ampacidad:{nombre_elemento}",
+        )
+        return result
 
     @mcp.tool()
     def definir_aplicabilidad_normativa_ampacidad(
