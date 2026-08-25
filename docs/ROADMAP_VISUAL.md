@@ -101,7 +101,7 @@ El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se e
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
-**Estado: EN PROGRESO — FOUNDATION V3 + P3A + EVIDENCIA P3B.**
+**Estado: EN PROGRESO — FOUNDATION V3 + P3A + EVIDENCIA P3B + BASE NORMATIVA P3C10.**
 
 La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados preparados por Python y permite distinguir:
 
@@ -111,12 +111,16 @@ La vista ya incorpora una pestaña específica de ampacidad que consume exclusiv
 - `Ib` corriente de diseño o corriente de flujo aceptada expresamente como Ib;
 - `In` de protección declarado;
 - `Iz_base` trazable;
+- origen de `Iz_base` como `CATÁLOGO P2`, `PRIMARIA`, `SECUNDARIA` o `INCOMPLETA`;
+- **Tabla / dataset base** cuando existe base normativa P3B;
 - producto de factores `∏k`;
 - `Iz` calculada;
 - estado `CUMPLE` / `NO_CUMPLE` / `DATOS_INSUFICIENTES`;
-- calidad de evidencia resumida como `PRIMARIA`, `SECUNDARIA`, `MANUAL`, `BASE`, `MIXTA` o `INCOMPLETA`;
+- calidad de evidencia de factores resumida como `PRIMARIA`, `SECUNDARIA`, `MANUAL`, `BASE`, `MIXTA` o `INCOMPLETA`;
 - aviso visible de madurez `UNDER_VALIDATION`;
 - separación visual entre cálculo técnicamente ejecutable y evidencia normativa profesional suficiente.
+
+La primera base normativa primaria P3C10 permite que V3 muestre de forma explícita, sin recalcular, la procedencia de `Iz_base=229 A` para el caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm² mediante `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`. La ampacidad de catálogo P2 permanece separada y no se presenta como la misma magnitud.
 
 La clasificación de evidencia se calcula en Python a partir de la procedencia de factores y datasets. **El JavaScript no decide si una evidencia es primaria o secundaria.** Solo presenta la etiqueta ya estructurada.
 
@@ -126,15 +130,15 @@ La selección de una fila sincroniza el alimentador con el inspector. **El JavaS
 
 ### Vínculo con el gate P3
 
-El gate formal P3 ya existe en backend y distingue `phase` de `model`. V3 debe evolucionar para representar progresivamente esa separación sin convertir el workspace en un panel de administración interna.
+El gate formal P3 ya existe en backend y distingue `phase` de `model`. P3C10 cierra la estrategia de base normativa, pero P3 y V3 continúan en progreso mientras falten cobertura primaria, benchmarks y madurez final.
 
 Pendiente para cerrar V3 junto con P3:
 
-- mostrar de forma compacta referencias de fuente, tabla/dataset y nivel de evidencia sin saturar la tabla principal;
+- mostrar de forma compacta referencia de fuente/página y nivel de evidencia sin saturar la tabla principal; la tabla/dataset de `Iz_base` ya es visible;
 - mostrar motivos de `MISSING_DATA`, revisión manual o bloqueo de evidencia de manera legible;
 - decidir overlay del unifilar para `NO_CUMPLE` sin convertirlo en sustituto del panel de estudio;
 - representar de forma compacta el estado de fase P3 cuando aporte valor al usuario (`NOT_READY`, criterios bloqueantes), manteniendo el detalle completo en la tool/gate;
-- ampliar pruebas visuales/regresiones estructurales conforme entren datasets `PRIMARY_VERIFIED`;
+- ampliar pruebas visuales/regresiones estructurales conforme crezca la cobertura `PRIMARY_VERIFIED`;
 - conservar impresión/PDF legible y trazable.
 
 El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo ni presentar evidencia secundaria como primaria.
