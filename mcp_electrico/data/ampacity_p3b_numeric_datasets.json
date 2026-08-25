@@ -93,6 +93,98 @@
       }
     },
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_2_COL15_A1_XLPE_3C_CU_70MM2_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 2",
+      "axis": "base_ampacity",
+      "scope": {
+        "installation_methods": ["A1"],
+        "conductor_materials": ["Cu"],
+        "insulation": ["XLPE_EPR"],
+        "temperature_c": [90],
+        "loaded_conductors": [3],
+        "section_mm2": [70.0],
+        "table_column": 15,
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "verified_subset_only": true,
+        "note": "Subconjunto P3C11A3 creado para demostrar una cadena primaria completa A1 / Tabla 2 Col. 15 -> Tabla 5A -> Iz; no representa cobertura completa de Tabla 2."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "installation_method",
+          "conductor_material",
+          "insulation",
+          "temperature_c",
+          "loaded_conductors",
+          "section_mm2"
+        ],
+        "value_field": "ampacity_a"
+      },
+      "rows": [
+        {
+          "query": {
+            "installation_method": "A1",
+            "conductor_material": "Cu",
+            "insulation": "XLPE_EPR",
+            "temperature_c": 90,
+            "loaded_conductors": 3,
+            "section_mm2": 70.0
+          },
+          "ampacity_a": 179.0,
+          "metadata": {
+            "table_column": 15,
+            "routing_table": "Tabla 3",
+            "routing": "Método A1, XLPE/EPR, 3 conductores de carga -> Tabla 2 Col. 15"
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 2 Col. 15; routing por Tabla 3",
+        "page_references": [
+          "PDF 552; Tablas - Pág. 5 de 82; Tabla 2; A1; columna 15; Cu 70 mm2 = 179 A",
+          "PDF 555; Tablas - Pág. 8 de 82; Tabla 3; A1 + XLPE/EPR + 3 conductores -> Tabla 2 Col. 15"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11A3_TABLE_2_XLPE_A1_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "reviewed_query": {
+            "installation_method": "A1",
+            "conductor_material": "Cu",
+            "insulation": "XLPE_EPR",
+            "temperature_c": 90,
+            "loaded_conductors": 3,
+            "section_mm2": 70.0
+          },
+          "reviewed_value": {
+            "ampacity_a": 179.0
+          }
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": true,
+        "p3c11_chain_support": true,
+        "note": "Apto como Iz_base primaria únicamente para A1/Cu/XLPE-EPR/3 conductores/70 mm2. Permite validar la cadena real con Tabla 5A, sin cerrar cobertura de Tabla 2 ni P3C11."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5A_XLPE_AIR_A1_COL15_PRIMARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
@@ -198,8 +290,8 @@
         "requires_explicit_secondary_opt_in": false,
         "verified_subset_only": true,
         "p3c11_family_coverage": false,
-        "automatic_binding_to_iz": false,
-        "note": "Apto como evidencia primaria únicamente para las dos consultas exactas revisadas. No se generaliza a otras columnas ni cierra la familia 5A de P3C11; el binding hacia Iz se implementará solo con validación explícita de compatibilidad de base/routing."
+        "automatic_binding_to_iz": true,
+        "note": "Apto como evidencia primaria únicamente para las dos consultas exactas revisadas. El binding hacia Iz está implementado y solo acepta una Iz_base/routing compatible; no se generaliza a otras columnas ni cierra la familia 5A de P3C11."
       }
     },
     {
