@@ -8,7 +8,7 @@ Este bloque evita que un dataset numérico pase de una transcripción secundaria
 
 La promoción normativa se trata como un proceso reproducible, versionado y de dos etapas: primero se fija la **fuente primaria**, después se verifica el **dataset** contra esa fuente.
 
-## Fuente oficial candidata registrada
+## Fuente oficial registrada y pinneada
 
 `MINEM_CNE_UTIL_2006_OFFICIAL_PDF`
 
@@ -16,41 +16,37 @@ La promoción normativa se trata como un proceso reproducible, versionado y de d
 - documento: Código Nacional de Electricidad — Utilización;
 - referencia: R.M. N.° 0037-2006-MEM;
 - landing oficial: `https://www.gob.pe/institucion/minem/normas-legales/108855-0037-2006-mem`;
-- PDF descubierto en CDN oficial `gob.pe`;
-- estado actual: `DISCOVERED_UNPINNED`;
-- `expected_sha256 = null`.
+- PDF en CDN oficial `gob.pe`;
+- estado actual: `PINNED`;
+- `expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64`.
 
-El entorno de desarrollo logró descubrir la ubicación oficial, pero no descargar el PDF de forma reproducible. Por eso **no existe todavía una huella oficial fijada y ningún dataset se promueve**.
+La copia fue obtenida directamente desde la URL oficial registrada mediante GitHub Actions run `32875620716` y produjo de forma reproducible:
 
-Conocer una URL oficial no basta. Tampoco basta con calcular el hash de un archivo local cualquiera.
+```text
+size_bytes = 10829258
+sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
+ETag = "02effdb1a8f5e1731d3f363afc0ea577"
+Last-Modified = Sat, 29 Nov 2025 07:14:44 GMT
+```
+
+El SHA-256 es el **pin versionado del proyecto para la copia obtenida desde la fuente oficial**. No se afirma que MINEM publique oficialmente esa huella. El pin identifica byte a byte el archivo de referencia y satisface P3C08, pero **no verifica todavía ninguna tabla ni convierte ningún dataset en `PRIMARY_VERIFIED`**.
+
+Conocer una URL oficial no basta. Tampoco basta con calcular el hash de un archivo local cualquiera: la copia usada para evidencia debe coincidir exactamente con el pin registrado.
 
 ## Dos etapas obligatorias
 
 ### Etapa A — fijar la fuente oficial
 
-Mientras una fuente esté:
-
-```text
-pin_status = DISCOVERED_UNPINNED
-expected_sha256 = null
-```
-
-puede calcularse un SHA-256 candidato para diagnóstico, pero:
-
-```text
-eligible_as_primary_file = false
-PRIMARY_EVIDENCE_READY_FOR_REVIEW = imposible
-ELIGIBLE_FOR_PRIMARY_DATASET_PR = imposible
-```
-
-La huella de la copia oficial debe incorporarse mediante una revisión separada del registro de fuentes. El estado esperado después de esa revisión será:
+Esta etapa está completada para `MINEM_CNE_UTIL_2006_OFFICIAL_PDF`:
 
 ```text
 pin_status = PINNED
-expected_sha256 = <64 hex>
+expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
 ```
 
-El pin no certifica todavía ninguna tabla. Solo fija exactamente qué archivo/versionado se considera la fuente primaria de referencia.
+El pin no certifica ninguna tabla. Solo fija exactamente qué archivo/versionado se considera la fuente primaria de referencia.
+
+La infraestructura conserva el estado `DISCOVERED_UNPINNED` para futuras fuentes que todavía no hayan pasado este proceso. Una fuente en ese estado nunca puede sostener evidencia primaria suficiente.
 
 ### Etapa B — verificar el dataset contra la fuente pinneada
 
@@ -73,11 +69,11 @@ Si el archivo difiere byte a byte, la evidencia queda bloqueada aunque tenga el 
 - valida cabecera PDF;
 - limita tamaño;
 - calcula SHA-256;
-- compara con el hash pinneado cuando exista;
+- compara con el hash pinneado;
 - no inspecciona ni certifica tablas;
 - devuelve siempre `professional_emission=false`.
 
-Un hash calculado sobre una fuente `DISCOVERED_UNPINNED` es únicamente un **hash candidato**.
+Una copia que no coincida con el pin registrado no puede utilizarse como archivo primario elegible.
 
 ### 2. Construir paquete de evidencia
 
@@ -148,7 +144,7 @@ Un dataset que no sea `PRIMARY_VERIFIED` tampoco puede declarar `professional_em
 
 ## Lo que este gate no demuestra
 
-Superar todas estas barreras no demuestra por sí solo:
+Superar el pin de fuente no demuestra por sí solo:
 
 - que la transcripción numérica sea correcta;
 - que la interpretación de la tabla sea correcta;
@@ -160,10 +156,14 @@ Después de crear una revisión primaria todavía se requieren benchmarks indepe
 
 ## Estado actual
 
-A la fecha de implementación de este bloque:
+A partir del cierre de P3C08:
 
-- fuente oficial: descubierta, **no pinneada**;
+- fuente oficial CNE: `PINNED` con SHA-256 reproducible;
+- `P3C08`: `DONE`;
 - dataset 5C inicial: `PENDING_PRIMARY_VERIFICATION`;
+- `P3C09`: pendiente — todavía no existe dataset `PRIMARY_VERIFIED`;
 - benchmark P3B: evidencia `SECONDARY`;
 - `ampacity`: `UNDER_VALIDATION`;
 - emisión profesional automática: deshabilitada.
+
+El siguiente bloque de trabajo es verificar un subconjunto pequeño contra páginas/tablas de esta copia pinneada y crear, mediante PR + CI, la primera revisión `PRIMARY_VERIFIED`.
