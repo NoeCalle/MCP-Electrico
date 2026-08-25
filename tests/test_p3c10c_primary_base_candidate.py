@@ -1,13 +1,14 @@
 import json
 from pathlib import Path
 
-from mcp_electrico import p3_completion
+from mcp_electrico import ampacity_datasets, p3_completion
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_review_candidates.json"
 SOURCES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_sources.json"
 CANDIDATE_ID = "P3C10C_TABLE_2_XLPE_C_3C_70MM2_PRIMARY_REVIEW_CANDIDATE_V1"
+PRIMARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1"
 
 
 def _candidate():
@@ -51,8 +52,10 @@ def test_p3c10c_routing_y_dimension_candidata_quedan_explicitos():
     assert candidate["candidate_value"] == {"ampacity_a": 229.0}
 
 
-def test_p3c10c_revision_visual_aprobada_habilita_pr_pero_no_cierra_p3c10():
+def test_p3c10c_revision_visual_aprobada_queda_promovida_sin_fingir_revision_humana():
     candidate = _candidate()
+    dataset = ampacity_datasets.obtener_dataset(PRIMARY_DATASET)
+    record = dataset["provenance"]["verification_record"]
 
     assert candidate["manual_comparison_confirmed"] is True
     assert candidate["human_reviewer"] is None
@@ -63,8 +66,20 @@ def test_p3c10c_revision_visual_aprobada_habilita_pr_pero_no_cierra_p3c10():
     assert candidate["eligible_for_primary_dataset_pr"] is True
     assert candidate["professional_emission"] is False
 
+    assert dataset["provenance"]["verification_status"] == "PRIMARY_VERIFIED"
+    assert dataset["provenance"]["source_sha256"] == candidate["source_sha256"]
+    assert dataset["usage_policy"]["professional_emission"] is True
+    assert dataset["rows"][0]["query"] == candidate["candidate_query"]
+    assert dataset["rows"][0]["ampacity_a"] == candidate["candidate_value"]["ampacity_a"]
+    assert record["candidate_id"] == CANDIDATE_ID
+    assert record["reviewer"] == candidate["reviewer"]
+    assert record["review_mode"] == candidate["review_mode"]
+    assert record["review_authorized_by_user"] is True
+    assert record["manual_comparison_confirmed"] is True
+
     gate = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C10")
-    assert criterion["status"] == "PENDING"
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
     assert gate["ready_for_next_phase"] is False
     assert gate["professional_emission"] is False
