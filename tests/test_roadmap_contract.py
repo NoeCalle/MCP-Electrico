@@ -144,7 +144,9 @@ def test_p3b_doc_keeps_evidence_levels_and_no_false_validation():
     assert "ELIGIBLE_FOR_PRIMARY_DATASET_PR" in text
     assert "docs/P3B_EVIDENCIA_PRIMARIA.md" in text
     assert "pin_status = PINNED" in text
-    assert "P3C08 ya está completado" in text
+    assert "P3C09 queda cerrado" in text
+    assert "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1" in text
+    assert "P3C10" in text
     assert "no prueban" in text.lower() or "no valida" in text.lower()
 
 
