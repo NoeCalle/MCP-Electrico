@@ -22,6 +22,14 @@ def _snapshot():
                                     "factor_total": 0.728,
                                     "iz_a": 215.488,
                                 },
+                                "sources": {
+                                    "norm": {"id": "PERU_CNE_UTILIZACION_2006"}
+                                },
+                                "normative_applicability": {
+                                    "profile_id": "PERU_CNE_UTIL_2006_030_004",
+                                    "installation_method": "C",
+                                    "status": "REQUIREMENTS_IDENTIFIED",
+                                },
                             }
                         ],
                         "summary": {
@@ -58,6 +66,8 @@ def test_v3_renderiza_resultados_calculados_y_madurez():
     assert "220 A" in html
     assert "215.49 A" in html
     assert "NO_CUMPLE" in html
+    assert "PERU_CNE_UTIL_2006_030_004 / C" in html
+    assert "REQUIREMENTS_IDENTIFIED" in html
     assert workspace_p3_view.MARKER in html
 
 
@@ -70,10 +80,12 @@ def test_v3_es_idempotente():
     assert twice.count(tab_html) == 1
 
 
-def test_javascript_v3_no_recalcula_ampacidad():
+def test_javascript_v3_no_recalcula_ampacidad_ni_routing_normativo():
     script = workspace_p3_view._script()
     assert "Math." not in script
     assert "factor_total" not in script
     assert "iz_a" not in script
     assert "ib_a" not in script
     assert "in_a" not in script
+    assert "required_axes" not in script
+    assert "TABLE_DATA_NOT_LOADED" not in script
