@@ -4,6 +4,10 @@ Este módulo no promueve datasets automáticamente. Construye evidencia
 reproducible (archivo + SHA-256 + referencias de tabla/página + revisión
 humana) y evalúa si existe información suficiente para crear por PR una
 nueva revisión de dataset marcada PRIMARY_VERIFIED.
+
+Regla de seguridad: una fuente descubierta pero no pinneada nunca es evidencia
+primaria suficiente. La huella oficial debe fijarse primero en el registro de
+fuentes y la copia local debe coincidir byte a byte con ese SHA-256.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from . import ampacity_datasets
 _DATA_FILE = Path(__file__).with_name("data") / "ampacity_primary_sources.json"
 
 DISCOVERED_UNPINNED = "DISCOVERED_UNPINNED"
+PINNED = "PINNED"
 FILE_HASHED = "FILE_HASHED"
 PRIMARY_EVIDENCE_INCOMPLETE = "PRIMARY_EVIDENCE_INCOMPLETE"
 PRIMARY_EVIDENCE_READY_FOR_REVIEW = "PRIMARY_EVIDENCE_READY_FOR_REVIEW"
@@ -27,10 +32,34 @@ NOT_ELIGIBLE = "NOT_ELIGIBLE"
 _MAX_SOURCE_BYTES = 100 * 1024 * 1024
 
 
+def _valid_sha256(value: Any) -> bool:
+    digest = str(value or "").strip().lower()
+    return len(digest) == 64 and all(ch in "0123456789abcdef" for ch in digest)
+
+
+def _validate_source(source: dict[str, Any]) -> None:
+    pin_status = str(source.get("pin_status") or "")
+    expected = source.get("expected_sha256")
+    if pin_status not in {DISCOVERED_UNPINNED, PINNED}:
+        raise ValueError(
+            f"P3EV003: pin_status no soportado en fuente {source.get('id')}: {pin_status}"
+        )
+    if pin_status == DISCOVERED_UNPINNED and expected not in {None, ""}:
+        raise ValueError(
+            f"P3EV004: fuente {source.get('id')} está UNPINNED pero declara expected_sha256"
+        )
+    if pin_status == PINNED and not _valid_sha256(expected):
+        raise ValueError(
+            f"P3EV005: fuente {source.get('id')} está PINNED sin SHA-256 válido"
+        )
+
+
 def _load() -> dict[str, Any]:
     payload = json.loads(_DATA_FILE.read_text(encoding="utf-8"))
     if int(payload.get("schema_version") or 0) != 1:
         raise ValueError("P3EV001: schema de fuentes primarias no soportado")
+    for source in payload.get("sources", []):
+        _validate_source(source)
     return payload
 
 
@@ -47,10 +76,10 @@ def obtener_fuente(source_id: str) -> dict[str, Any]:
 
 
 def verificar_archivo(source_id: str, ruta_archivo: str) -> dict[str, Any]:
-    """Calcula SHA-256 de una copia local y valida que parezca PDF.
+    """Calcula SHA-256 de una copia local y comprueba el pin si existe.
 
-    No descarga de Internet ni altera el registro. El hash devuelto es evidencia
-    candidata que debe fijarse luego por revisión/PR si corresponde.
+    No descarga de Internet ni altera el registro. Para una fuente UNPINNED el
+    hash devuelto es solo un candidato: no puede sostener promoción primaria.
     """
     source = obtener_fuente(source_id)
     path = Path(str(ruta_archivo or "")).expanduser()
@@ -77,7 +106,8 @@ def verificar_archivo(source_id: str, ruta_archivo: str) -> dict[str, Any]:
 
     actual = digest.hexdigest()
     expected = str(source.get("expected_sha256") or "").strip().lower() or None
-    pinned_match = expected is not None and actual == expected
+    pinned = source.get("pin_status") == PINNED
+    pinned_match = actual == expected if pinned and expected else None
     return {
         "status": FILE_HASHED,
         "source_id": source["id"],
@@ -87,10 +117,15 @@ def verificar_archivo(source_id: str, ruta_archivo: str) -> dict[str, Any]:
         "size_bytes": size,
         "sha256": actual,
         "expected_sha256": expected,
-        "pinned_hash_match": pinned_match if expected else None,
+        "pinned_hash_match": pinned_match,
         "source_pin_status": source.get("pin_status"),
+        "eligible_as_primary_file": bool(pinned and pinned_match is True),
         "professional_emission": False,
-        "note": "Hash calculado. Esto no verifica todavía contenido de tablas ni promueve datasets.",
+        "note": (
+            "Archivo coincide con la huella primaria pinneada; aún falta verificar tablas/páginas y revisión humana."
+            if pinned_match is True
+            else "Hash calculado, pero la fuente no está pinneada o la copia no coincide; no constituye evidencia primaria suficiente."
+        ),
     }
 
 
@@ -108,13 +143,19 @@ def construir_paquete_evidencia(
     if str(file_evidence.get("source_id") or "") != source["id"]:
         raise ValueError("P3EV020: evidencia de archivo corresponde a otra fuente")
     digest = str(file_evidence.get("sha256") or "").lower()
-    if len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest):
+    if not _valid_sha256(digest):
         raise ValueError("P3EV021: SHA-256 inválido")
+
+    expected = str(source.get("expected_sha256") or "").strip().lower()
     tables = sorted({str(item).strip() for item in tables_checked if str(item).strip()})
     pages = sorted({str(item).strip() for item in page_references if str(item).strip()})
     reviewer_name = str(reviewer or "").strip()
 
     missing: list[str] = []
+    if source.get("pin_status") != PINNED or not _valid_sha256(expected):
+        missing.append("source_pinned_sha256")
+    elif digest != expected or file_evidence.get("pinned_hash_match") is not True:
+        missing.append("source_hash_match")
     if not tables:
         missing.append("tables_checked")
     if not pages:
@@ -130,7 +171,10 @@ def construir_paquete_evidencia(
         "source_id": source["id"],
         "norm_reference_id": source["norm_reference_id"],
         "source_class": source["source_class"],
+        "source_pin_status": source.get("pin_status"),
+        "expected_sha256": expected or None,
         "file_sha256": digest,
+        "pinned_hash_match": file_evidence.get("pinned_hash_match"),
         "file_size_bytes": file_evidence.get("size_bytes"),
         "tables_checked": tables,
         "page_references": pages,
@@ -143,7 +187,7 @@ def construir_paquete_evidencia(
         "note": (
             "Evidencia suficiente para revisión por PR; el dataset aún no es PRIMARY_VERIFIED."
             if not missing
-            else "Faltan campos de evidencia antes de revisar una promoción primaria."
+            else "Faltan condiciones de pin/verificación antes de revisar una promoción primaria."
         ),
     }
 
@@ -159,8 +203,15 @@ def evaluar_promocion_dataset(dataset_id: str, evidence_packet: dict[str, Any]) 
     source = obtener_fuente(source_id)
     reasons: list[str] = []
 
+    expected = str(source.get("expected_sha256") or "").strip().lower()
+    evidence_digest = str(evidence_packet.get("file_sha256") or "").strip().lower()
+
     if evidence_packet.get("status") != PRIMARY_EVIDENCE_READY_FOR_REVIEW:
         reasons.append("paquete_evidencia_incompleto")
+    if source.get("pin_status") != PINNED or not _valid_sha256(expected):
+        reasons.append("fuente_sin_hash_primario_fijado")
+    elif evidence_digest != expected or evidence_packet.get("pinned_hash_match") is not True:
+        reasons.append("hash_fuente_no_coincide")
     if str(dataset.get("norm_reference_id") or "") != str(source.get("norm_reference_id") or ""):
         reasons.append("norm_reference_id_no_coincide")
     table = str(dataset.get("table") or "").strip()
@@ -169,8 +220,7 @@ def evaluar_promocion_dataset(dataset_id: str, evidence_packet: dict[str, Any]) 
         reasons.append("tabla_dataset_no_verificada")
     if str(source.get("source_class") or "") != "OFFICIAL_PRIMARY_CANDIDATE":
         reasons.append("fuente_no_oficial_candidata")
-    digest = str(evidence_packet.get("file_sha256") or "")
-    if len(digest) != 64:
+    if not _valid_sha256(evidence_digest):
         reasons.append("sha256_invalido")
 
     eligible = not reasons
@@ -186,7 +236,7 @@ def evaluar_promocion_dataset(dataset_id: str, evidence_packet: dict[str, Any]) 
         "required_next_action": (
             "Crear una nueva revisión del dataset con source_sha256, páginas/tablas verificadas y someterla a PR+CI."
             if eligible
-            else "Completar/corregir evidencia antes de proponer una revisión primaria."
+            else "Fijar/verificar la fuente primaria y completar/corregir evidencia antes de proponer una revisión primaria."
         ),
         "note": "La elegibilidad no cambia el estado del dataset existente ni habilita emisión.",
     }
