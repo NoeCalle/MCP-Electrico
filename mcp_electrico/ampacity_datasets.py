@@ -5,9 +5,10 @@ Cada dataset declara procedencia, estado de verificación y política de uso.
 Los datasets secundarios pueden usarse para desarrollo/benchmark de la
 infraestructura únicamente con opt-in explícito.
 
-La carga del catálogo también aplica un gate estructural: un registro no puede
-presentarse como ``PRIMARY_VERIFIED`` sin huella SHA-256, páginas/tablas
-verificadas y un registro explícito de revisión humana.
+La carga del catálogo aplica defensa en profundidad: un registro no puede
+presentarse como ``PRIMARY_VERIFIED`` sin huella SHA-256, páginas verificadas,
+revisión humana y correspondencia exacta con una fuente oficial PINNED del
+registro de evidencia primaria.
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 _DATA_FILE = Path(__file__).with_name("data") / "ampacity_p3b_numeric_datasets.json"
+_PRIMARY_SOURCES_FILE = Path(__file__).with_name("data") / "ampacity_primary_sources.json"
 
 PRIMARY_VERIFIED = "PRIMARY_VERIFIED"
 SECONDARY_TRANSCRIPTION = "SECONDARY_TRANSCRIPTION"
@@ -37,12 +39,30 @@ def _valid_sha256(value: Any) -> bool:
     return len(text) == 64 and all(ch in "0123456789abcdef" for ch in text)
 
 
+def _primary_source_for_gate(source_id: str) -> dict[str, Any] | None:
+    """Lee el registro mínimo de fuentes sin importar ampacity_evidence.
+
+    Evita una dependencia circular y permite que el propio catálogo de datasets
+    bloquee una falsa promoción PRIMARY_VERIFIED.
+    """
+    if not _PRIMARY_SOURCES_FILE.exists():
+        return None
+    payload = json.loads(_PRIMARY_SOURCES_FILE.read_text(encoding="utf-8"))
+    if int(payload.get("schema_version") or 0) != 1:
+        raise ValueError("P3B015: schema de fuentes primarias no soportado")
+    key = str(source_id or "").strip().upper()
+    for source in payload.get("sources", []):
+        if str(source.get("id") or "").strip().upper() == key:
+            return source
+    return None
+
+
 def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
     """Valida que la política de evidencia sea coherente con el estado declarado.
 
-    Esta función comprueba *estructura de evidencia*, no la corrección del valor
-    normativo. Un dataset que supera este gate aún necesita sus benchmarks y el
-    resto del proceso de revisión declarado por P3.
+    Comprueba estructura y vínculo con fuente primaria pinneada. Esto no valida
+    por sí solo la corrección del valor normativo: siguen siendo necesarios los
+    benchmarks y el proceso de revisión declarado por P3.
     """
     dataset_id = str(item.get("id") or "").strip()
     if not dataset_id:
@@ -64,7 +84,8 @@ def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(
                 f"P3B007: {dataset_id} PRIMARY_VERIFIED requiere source_type=primary_official"
             )
-        if not _valid_sha256(provenance.get("source_sha256")):
+        source_digest = str(provenance.get("source_sha256") or "").strip().lower()
+        if not _valid_sha256(source_digest):
             raise ValueError(
                 f"P3B008: {dataset_id} PRIMARY_VERIFIED requiere source_sha256 válido"
             )
@@ -82,9 +103,35 @@ def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(
                 f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación manual confirmada"
             )
-        if not str(provenance.get("primary_source_id") or "").strip():
+        primary_source_id = str(provenance.get("primary_source_id") or "").strip()
+        if not primary_source_id:
             raise ValueError(
                 f"P3B012: {dataset_id} PRIMARY_VERIFIED requiere primary_source_id"
+            )
+
+        source = _primary_source_for_gate(primary_source_id)
+        if source is None:
+            raise ValueError(
+                f"P3B016: {dataset_id} referencia fuente primaria no registrada: {primary_source_id}"
+            )
+        if str(source.get("source_class") or "") != "OFFICIAL_PRIMARY_CANDIDATE":
+            raise ValueError(
+                f"P3B017: {dataset_id} requiere fuente oficial candidata registrada"
+            )
+        expected = str(source.get("expected_sha256") or "").strip().lower()
+        if source.get("pin_status") != "PINNED" or not _valid_sha256(expected):
+            raise ValueError(
+                f"P3B018: {dataset_id} no puede ser PRIMARY_VERIFIED con fuente no PINNED"
+            )
+        if expected != source_digest:
+            raise ValueError(
+                f"P3B019: {dataset_id} source_sha256 no coincide con hash pinneado de la fuente"
+            )
+        source_norm = str(source.get("norm_reference_id") or "").strip()
+        dataset_norm = str(item.get("norm_reference_id") or "").strip()
+        if source_norm != dataset_norm:
+            raise ValueError(
+                f"P3B020: {dataset_id} norm_reference_id no coincide con su fuente primaria"
             )
     elif professional:
         raise ValueError(
