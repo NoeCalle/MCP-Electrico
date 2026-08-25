@@ -101,9 +101,9 @@ El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se e
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
-**Estado: EN PROGRESO — FOUNDATION V3 + METADATOS P3A.**
+**Estado: EN PROGRESO — FOUNDATION V3 + P3A + EVIDENCIA P3B.**
 
-La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados calculados por Python y permite distinguir:
+La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados preparados por Python y permite distinguir:
 
 - perfil normativo asociado cuando existe;
 - método de instalación P3A;
@@ -114,20 +114,30 @@ La vista ya incorpora una pestaña específica de ampacidad que consume exclusiv
 - producto de factores `∏k`;
 - `Iz` calculada;
 - estado `CUMPLE` / `NO_CUMPLE` / `DATOS_INSUFICIENTES`;
-- aviso visible de madurez `UNDER_VALIDATION` y de que P3A no resuelve valores de tablas normativas no cargadas.
+- calidad de evidencia resumida como `PRIMARIA`, `SECUNDARIA`, `MANUAL`, `BASE`, `MIXTA` o `INCOMPLETA`;
+- aviso visible de madurez `UNDER_VALIDATION`;
+- separación visual entre cálculo técnicamente ejecutable y evidencia normativa profesional suficiente.
+
+La clasificación de evidencia se calcula en Python a partir de la procedencia de factores y datasets. **El JavaScript no decide si una evidencia es primaria o secundaria.** Solo presenta la etiqueta ya estructurada.
 
 Si no existe routing P3A, la vista identifica el cálculo como foundation manual y conserva la referencia normativa de la ficha P3 cuando está disponible.
 
-La selección de una fila sincroniza el alimentador con el inspector. **El JavaScript de V3 no calcula** `Ib`, `In`, factores, `Iz`, tablas ni routing: únicamente presenta datos ya estructurados por Python y gestiona navegación.
+La selección de una fila sincroniza el alimentador con el inspector. **El JavaScript de V3 no calcula** `Ib`, `In`, factores, `Iz`, tablas, routing ni clasificación normativa: únicamente presenta datos ya estructurados por Python y gestiona navegación.
+
+### Vínculo con el gate P3
+
+El gate formal P3 ya existe en backend y distingue `phase` de `model`. V3 debe evolucionar para representar progresivamente esa separación sin convertir el workspace en un panel de administración interna.
 
 Pendiente para cerrar V3 junto con P3:
 
-- representar con más detalle las referencias de factores y fuentes normativas sin saturar la tabla principal;
+- mostrar de forma compacta referencias de fuente, tabla/dataset y nivel de evidencia sin saturar la tabla principal;
+- mostrar motivos de `MISSING_DATA`, revisión manual o bloqueo de evidencia de manera legible;
 - decidir overlay del unifilar para `NO_CUMPLE` sin convertirlo en sustituto del panel de estudio;
-- mostrar de forma compacta los motivos de `MISSING_DATA`/revisión manual cuando se consolide el gate P3;
-- ampliar pruebas visuales una vez exista el gate formal de salida P3.
+- representar de forma compacta el estado de fase P3 cuando aporte valor al usuario (`NOT_READY`, criterios bloqueantes), manteniendo el detalle completo en la tool/gate;
+- ampliar pruebas visuales/regresiones estructurales conforme entren datasets `PRIMARY_VERIFIED`;
+- conservar impresión/PDF legible y trazable.
 
-El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo.
+El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo ni presentar evidencia secundaria como primaria.
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 
@@ -209,6 +219,7 @@ Cuando un PR modifica el workspace/unifilar o añade una nueva vista, debe compr
 - JavaScript válido;
 - ausencia de cálculos eléctricos en navegador;
 - representación explícita de datos faltantes, no inferidos;
+- procedencia/evidencia visible cuando afecte la interpretación del estudio;
 - salida imprimible razonable;
 - regresión de vistas ya existentes.
 

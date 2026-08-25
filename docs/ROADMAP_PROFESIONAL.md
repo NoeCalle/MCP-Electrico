@@ -16,14 +16,14 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION** | `Ib <= In <= Iz`, routing normativo y factores verificables |
+| P3 — Ampacidad normativa | **EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE** | `Ib <= In <= Iz`, routing normativo y factores verificables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está en progreso y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar cobertura normativa, evidencia numérica primaria suficiente, benchmarks y gate de salida P3. Los ejes transversales V y E evolucionan en paralelo.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está en progreso y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar cobertura normativa, evidencia numérica primaria suficiente, benchmarks normativos primarios y el gate de salida P3 en estado `DONE`. Los ejes transversales V y E evolucionan en paralelo.
 
 ## Principio rector
 
@@ -62,7 +62,7 @@ Base ya implementada:
 - selección sincronizada;
 - vistas de flujo y caída de tensión;
 - V2 con fuente, transformadores y conductores trazables;
-- V3 foundation con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado y metadata P3A.
+- V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado, metadata P3A y calidad de evidencia normativa preparada por Python.
 
 Regla: el navegador **no recalcula ingeniería**. Consume resultados producidos por Python/MCP y conserva trazabilidad a `model_revision`, elemento, motor y estudio.
 
@@ -169,7 +169,7 @@ Detalle: `docs/P2_EXIT_GATE.md`.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION.**
+**Estado: EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE.**
 
 Objetivo: verificar selección térmica del conductor mediante:
 
@@ -200,7 +200,7 @@ sin convertir un rating de catálogo en `Iz` final por simple etiqueta.
 - temperatura → 5A;
 - resistividad térmica para D en ducto enterrado → 5B;
 - agrupamiento A1/A2/B1/B2/C → 5C;
-- **agrupamiento D enterrado → 5D**;
+- **agrupamiento D enterrado → Tabla 5D**;
 - E/F/G → 5C/5E según disposición;
 - 030-004(13) restringida a transición subterránea → visible;
 - 030-004(14) siempre manual;
@@ -210,16 +210,20 @@ sin convertir un rating de catálogo en `Iz` final por simple etiqueta.
 
 Detalle: `docs/P3A_PERFILES_NORMATIVOS.md`.
 
-### P3B — datasets numéricos en implementación
+### P3B — infraestructura numérica y de evidencia implementada
 
-P3B añade:
+P3B ya dispone de:
 
-- registro versionado de datasets;
-- procedencia y nivel de evidencia por dataset;
-- lookup exacto sin interpolación/extrapolación;
+- registro versionado de datasets y procedencia;
+- lookup exacto sin interpolación, extrapolación ni vecino más cercano;
 - coherencia obligatoria con el routing P3A;
-- tool de consulta de datasets;
-- tool de lookup de agrupamiento;
+- gate de fuente primaria con SHA-256 esperado;
+- binding trazable dataset → factor → `Iz`;
+- separación entre `READY_DATA` y calidad de evidencia normativa;
+- evidencia visible en V3 preparada por Python;
+- gate formal P3 con criterios `P3C01`–`P3C13`;
+- registro versionado de evidencia de benchmarks;
+- motor genérico `exact_rows_v1` para futuros datasets primarios;
 - benchmark reproducible `benchmark_p3b.json` en CI.
 
 Primer dataset cargado:
@@ -236,20 +240,35 @@ automatic_normative_lookup = false
 
 El benchmark P3B fija casos 2→0.80, 3→0.70 y 12→0.45 para verificar lookup exacto y trazabilidad. Un CI verde **no valida la tabla normativa primaria**.
 
-La auditoría P3B corrigió además el routing de agrupamiento del método D hacia **Tabla 5D**; el dataset inicial 5C excluye expresamente D.
+La fuente oficial MINEM/CNE está identificada en el registro de fuentes, pero mientras no exista una copia reproducible con SHA-256 fijado debe permanecer `DISCOVERED_UNPINNED`. La infraestructura no permite que ese estado produzca `PRIMARY_VERIFIED`.
 
-Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.
+Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `docs/P3_EXIT_GATE.md` y `docs/P3_BENCHMARK_EVIDENCE.md`.
+
+### Gate formal de salida P3 — implementado
+
+`evaluar_cierre_p3()` separa el estado de la fase del estado del modelo y bloquea el paso formal a P4 mientras exista algún criterio P3-v1 pendiente.
+
+Infraestructura `P3C01`–`P3C07`: implementada.
+
+Bloqueantes actuales:
+
+- `P3C08` — fuente oficial primaria pinneada por SHA-256;
+- `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`;
+- `P3C10` — estrategia validada de `Iz_base`;
+- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E;
+- `P3C12` — benchmarks normativos independientes contra fuente primaria;
+- `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
 ### Pendiente para cerrar P3
 
-- obtener/archivar fuentes primarias reproducibles para datasets automatizados;
-- cargar y verificar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance;
-- incorporar selección de ampacidad base normativa cuando corresponda por conductor/aislamiento/método/sección;
+- obtener una copia reproducible de la fuente oficial MINEM/CNE y fijar su SHA-256 (`P3C08`);
+- cargar y revisar el primer subconjunto `PRIMARY_VERIFIED`, preferentemente pequeño y auditable (`P3C09`);
+- validar la estrategia normativa de ampacidad base mediante Tablas 1/2 o equivalente formalmente validado (`P3C10`);
+- completar subconjuntos primarios de 5A/5B/5C/5D/5E según alcance (`P3C11`);
+- incorporar benchmarks independientes primarios por familia (`P3C12`);
 - mantener BT/MT y ámbitos normativos separados;
-- benchmarks independientes contra fuente primaria y cálculos manuales;
-- política de valores no tabulados;
-- gate formal de salida P3;
-- elevar madurez solo si la evidencia lo permite.
+- mantener política explícita de valores no tabulados;
+- elevar madurez solo si la evidencia lo permite (`P3C13`).
 
 P3 permanece `UNDER_VALIDATION` y no habilita emisión profesional automática.
 

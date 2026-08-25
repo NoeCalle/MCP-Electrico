@@ -36,7 +36,7 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION**" in text
+    assert "P3 — Ampacidad normativa | **EN PROGRESO — INFRAESTRUCTURA P3B + GATE P3 IMPLEMENTADOS; EVIDENCIA PRIMARIA PENDIENTE**" in text
     assert "P3 permanece `UNDER_VALIDATION`" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
