@@ -7,13 +7,13 @@ from mcp_electrico import p3_completion
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_review_candidates.json"
 SOURCES = ROOT / "mcp_electrico" / "data" / "ampacity_primary_sources.json"
+CANDIDATE_ID = "P3C09_TABLE_5C_ITEM1_PRIMARY_REVIEW_CANDIDATE_V1"
 
 
 def _candidate():
     data = json.loads(CANDIDATES.read_text(encoding="utf-8"))
     assert data["schema_version"] == 1
-    assert len(data["candidates"]) == 1
-    return data["candidates"][0]
+    return next(item for item in data["candidates"] if item["id"] == CANDIDATE_ID)
 
 
 def _source():
@@ -43,12 +43,16 @@ def test_candidato_tabla_5c_preserva_subconjunto_y_pagina():
     assert candidate["automated_extraction"]["page_render_generated"] is True
 
 
-def test_candidato_no_sustituye_revision_humana_ni_cierra_p3c09():
+def test_candidato_tiene_revision_visual_autorizada_pero_aun_no_cierra_p3c09():
     candidate = _candidate()
 
-    assert candidate["manual_comparison_confirmed"] is False
+    assert candidate["manual_comparison_confirmed"] is True
     assert candidate["human_reviewer"] is None
-    assert candidate["eligible_for_primary_dataset_pr"] is False
+    assert candidate["reviewer"] == "GPT-5.6 Sol"
+    assert candidate["review_mode"] == "AI_VISUAL_REVIEW_USER_AUTHORIZED"
+    assert candidate["review_authorized_by_user"] is True
+    assert candidate["review_result"] == "APPROVED"
+    assert candidate["eligible_for_primary_dataset_pr"] is True
     assert candidate["professional_emission"] is False
 
     gate = p3_completion.evaluar_cierre_p3()
