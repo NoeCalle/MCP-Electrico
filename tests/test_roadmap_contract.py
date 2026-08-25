@@ -7,6 +7,7 @@ VISUAL = ROOT / "docs" / "ROADMAP_VISUAL.md"
 ENGINE = ROOT / "docs" / "ENGINE_SELECTION.md"
 P2_EXIT = ROOT / "docs" / "P2_EXIT_GATE.md"
 P3_AMPACITY = ROOT / "docs" / "P3_AMPACIDAD.md"
+P3A_PROFILES = ROOT / "docs" / "P3A_PERFILES_NORMATIVOS.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -32,9 +33,10 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — FOUNDATION UNDER_VALIDATION**" in text
+    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION**" in text
     assert "automatic_normative_lookup=false" in text
     assert "docs/P3_AMPACIDAD.md" in text
+    assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
     assert "evaluar_cierre_p2()" in text
     assert "docs/P2_EXIT_GATE.md" in text
     assert "docs/ROADMAP_VISUAL.md" in text
@@ -100,4 +102,19 @@ def test_p3_foundation_doc_preserves_under_validation_scope():
     assert "automatic_tables=false" in text
     assert "P3 no asume silenciosamente `product(k_i)=1`" in text
     assert "automatic_normative_lookup=false" in text
-    assert "no cierra p3" in text.lower()
+    assert "no cierran p3" in text.lower()
+    assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
+
+
+def test_p3a_doc_preserves_router_without_claiming_numeric_tables():
+    text = P3A_PROFILES.read_text(encoding="utf-8")
+
+    assert "UNDER_VALIDATION" in text
+    assert "PERU_CNE_UTIL_2006_030_004" in text
+    assert "IEC_60364_5_52_2009_A1_2024" in text
+    assert "REFERENCE_ONLY" in text
+    assert "TABLE_DATA_NOT_LOADED" in text
+    assert "030-004(13)" in text
+    assert "030-004(14)" in text
+    assert "no se automatiza" in text.lower()
+    assert "no reutiliza" in text.lower()
