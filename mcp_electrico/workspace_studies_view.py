@@ -11,7 +11,7 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
-from . import workspace_p2_view
+from . import workspace_p2_view, workspace_p3_view
 
 MARKER = "<!-- MCP-STUDIES-V1 -->"
 
@@ -222,11 +222,16 @@ def _script() -> str:
 '''
 
 
+def _enhance_transversal(html: str, snapshot: dict[str, Any]) -> str:
+    html = workspace_p2_view.enhance_html(html, snapshot)
+    return workspace_p3_view.enhance_html(html, snapshot)
+
+
 def enhance_html(html: str, snapshot: dict[str, Any]) -> str:
-    """Añade pestañas de estudios y extensiones P2 al HTML base idempotentemente."""
+    """Añade pestañas de estudios y extensiones P2/P3 al HTML base idempotentemente."""
     html = _repair_base_javascript(html)
     if MARKER in html:
-        return workspace_p2_view.enhance_html(html, snapshot)
+        return _enhance_transversal(html, snapshot)
 
     tabs_anchor = '      <button type="button" class="tab" data-tab="datos">Datos</button>'
     tabs = tabs_anchor + '\n      <button type="button" class="tab" data-tab="flujo">Flujo</button>\n      <button type="button" class="tab" data-tab="caida">Caída V</button>'
@@ -242,7 +247,7 @@ def enhance_html(html: str, snapshot: dict[str, Any]) -> str:
 
     html = html.replace('</style>', _css() + '\n</style>', 1)
     html = html.replace('</body>', MARKER + _script() + '\n</body>', 1)
-    return workspace_p2_view.enhance_html(html, snapshot)
+    return _enhance_transversal(html, snapshot)
 
 
 def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
@@ -258,5 +263,7 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "archivo_html": str(target.resolve()),
         "flujo_vigente": bool(_study(snapshot, "flow")),
         "caida_tension_vigente": bool(_study(snapshot, "voltage_drop")),
+        "ampacidad_vigente": bool(_study(snapshot, "ampacity")),
         "p2_cable_inspector": workspace_p2_view.MARKER in enhanced,
+        "p3_ampacity_view": workspace_p3_view.MARKER in enhanced,
     }
