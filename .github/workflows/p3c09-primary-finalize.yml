@@ -1,0 +1,111 @@
+name: p3c09-primary-finalize
+
+on:
+  push:
+    branches: [feat/p3c09-primary-5c-v1]
+    paths:
+      - '.github/workflows/p3c09-primary-finalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c09-primary-5c-v1
+      - name: Patch semantic contracts and docs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # Loader: traceable explicit review, not fictitious human review.
+          p = Path('mcp_electrico/ampacity_datasets.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              'revisión humana y correspondencia exacta con una fuente oficial PINNED del',
+              'revisión explícita trazable y correspondencia exacta con una fuente oficial PINNED del',
+              1,
+          )
+          anchor = '''        if record.get("manual_comparison_confirmed") is not True:\n            raise ValueError(\n                f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación manual confirmada"\n            )\n        primary_source_id = str(provenance.get("primary_source_id") or "").strip()\n'''
+          replacement = '''        if record.get("manual_comparison_confirmed") is not True:\n            raise ValueError(\n                f"P3B011: {dataset_id} PRIMARY_VERIFIED requiere comparación explícita confirmada"\n            )\n        review_mode = str(record.get("review_mode") or "").strip()\n        if not review_mode:\n            raise ValueError(\n                f"P3B021: {dataset_id} PRIMARY_VERIFIED requiere review_mode trazable"\n            )\n        if (\n            review_mode == "AI_VISUAL_REVIEW_USER_AUTHORIZED"\n            and record.get("review_authorized_by_user") is not True\n        ):\n            raise ValueError(\n                f"P3B022: {dataset_id} revisión visual IA requiere autorización explícita del usuario"\n            )\n        primary_source_id = str(provenance.get("primary_source_id") or "").strip()\n'''
+          if anchor not in text:
+              raise SystemExit('ampacity_datasets validation anchor missing')
+          text = text.replace(anchor, replacement, 1)
+          p.write_text(text, encoding='utf-8')
+
+          # P3B docs.
+          p = Path('docs/P3B_DATASETS_NUMERICOS.md')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              '4. revisor identificado;\n5. confirmación de comparación manual;\n6. evaluación de elegibilidad;\n7. **nueva revisión del dataset por PR + CI**.',
+              '4. revisor identificado y modalidad de revisión trazable;\n5. confirmación de comparación explícita; si la modalidad es IA visual, debe conservar autorización expresa del usuario;\n6. evaluación de elegibilidad;\n7. **nueva revisión del dataset por PR + CI**.',
+              1,
+          )
+          marker = '## Siguiente paso P3B\n\n'
+          if marker not in text:
+              raise SystemExit('P3B next-step marker missing')
+          before, _ = text.split(marker, 1)
+          text = before + marker + '''P3C09 queda cerrado con la nueva revisión `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`. La revisión primaria contiene deliberadamente **solo** los valores 2→0.80, 3→0.70 y 12→0.45 que fueron contrastados contra la copia oficial pinneada; la revisión secundaria histórica se conserva sin mutarla.\n\nEl siguiente bloque principal es **P3C10**:\n\n1. crear la primera revisión primaria de `Iz_base` desde el candidato Tabla 2 ya aprobado (método C, Cu, XLPE/EPR, 3 conductores cargados, 70 mm² → 229 A);\n2. mantener Tabla 1/2 separadas de la ampacidad de catálogo P2;\n3. después ampliar cobertura primaria 5A/5B/5D/5E para P3C11;\n4. incorporar benchmarks normativos primarios independientes para P3C12;\n5. elevar madurez únicamente cuando la evidencia permita cerrar P3C13.\n\nP3 permanece `UNDER_VALIDATION`: que un dataset puntual tenga `professional_emission=true` significa que **ese subconjunto exacto** puede sustentar evidencia normativa; no habilita por sí mismo la emisión profesional automática del estudio completo.\n'''
+          p.write_text(text, encoding='utf-8')
+
+          # Master roadmap.
+          p = Path('docs/ROADMAP_PROFESIONAL.md')
+          text = p.read_text(encoding='utf-8')
+          replacements = {
+              'La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08. El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C ya fue comparado visualmente y aprobado bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED`; el dataset secundario todavía no ha sido promovido a una revisión `PRIMARY_VERIFIED`.':
+              'La copia fue capturada desde la URL oficial registrada mediante GitHub Actions run `32875620716`. Este pin cierra P3C08. El subconjunto 2→0.80, 3→0.70 y 12→0.45 de Tabla 5C fue comparado visualmente bajo revisión `AI_VISUAL_REVIEW_USER_AUTHORIZED` y promovido mediante PR+CI a la nueva revisión `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`, sin mutar el dataset secundario histórico.',
+              'Infraestructura y fuente `P3C01`–`P3C08`: implementadas.':
+              'Infraestructura, fuente y primer dataset primario `P3C01`–`P3C09`: implementados.',
+              '- `P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`;\n': '',
+              '- cargar y revisar el primer subconjunto `PRIMARY_VERIFIED`, preferentemente pequeño y auditable (`P3C09`);\n':
+              '- `P3C09` cerrado con una revisión primaria limitada a las celdas efectivamente verificadas de Tabla 5C;\n',
+              '**Revisión explícita actual:** P3C09 (Tabla 5C) y el primer candidato P3C10C (Tabla 2) ya fueron comparados visualmente y aprobados mediante `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null` para no atribuir revisión humana al modelo. Ambos están habilitados para el siguiente PR de dataset primario, pero aún no son `PRIMARY_VERIFIED` ni habilitan emisión profesional. El eje visual V3 permanece en paralelo y ya distingue el origen de `Iz_base` de la evidencia de factores.':
+              '**Estado actual:** P3C09 ya dispone de una revisión `PRIMARY_VERIFIED` limitada a 2, 3 y 12 circuitos de Tabla 5C. El candidato P3C10C de Tabla 2 permanece visualmente aprobado y elegible para su propio PR primario. La revisión se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`, con `human_reviewer=null`; la madurez global P3 continúa `UNDER_VALIDATION` y la emisión profesional automática sigue bloqueada. El eje visual V3 permanece en paralelo y distingue el origen de `Iz_base` de la evidencia de factores.'
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f'roadmap anchor missing: {old[:90]}')
+              text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+
+          # Roadmap contract test.
+          p = Path('tests/test_roadmap_p3_contract.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              'assert "Infraestructura y fuente `P3C01`–`P3C08`: implementadas" in text\n    assert "`P3C09` — al menos una revisión numérica `PRIMARY_VERIFIED`" in text',
+              'assert "Infraestructura, fuente y primer dataset primario `P3C01`–`P3C09`: implementados" in text\n    assert "`PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`" in text',
+              1,
+          )
+          text = text.replace(
+              'assert "**Revisión explícita actual:**" in text\n    assert "AI_VISUAL_REVIEW_USER_AUTHORIZED" in text\n    assert "habilitados para el siguiente PR de dataset primario" in text',
+              'assert "**Estado actual:**" in text\n    assert "AI_VISUAL_REVIEW_USER_AUTHORIZED" in text\n    assert "candidato P3C10C" in text\n    assert "UNDER_VALIDATION" in text',
+              1,
+          )
+          p.write_text(text, encoding='utf-8')
+
+          # Schema test now makes review mode explicit.
+          p = Path('tests/test_ampacity_dataset_evidence_schema.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              '"reviewer": "Ingeniero revisor",\n            "manual_comparison_confirmed": True,',
+              '"reviewer": "Ingeniero revisor",\n            "review_mode": "HUMAN_MANUAL_REVIEW",\n            "manual_comparison_confirmed": True,',
+              1,
+          )
+          insert = '''\n\ndef test_primary_verified_requiere_modalidad_de_revision_trazable(tmp_path, monkeypatch):\n    _set_source_registry(tmp_path, monkeypatch)\n    item = _primary_candidate()\n    item["provenance"]["verification_record"].pop("review_mode")\n    with pytest.raises(ValueError, match="P3B021"):\n        ampacity_datasets.validar_dataset_record(item)\n\n\ndef test_revision_visual_ia_requiere_autorizacion_usuario(tmp_path, monkeypatch):\n    _set_source_registry(tmp_path, monkeypatch)\n    item = _primary_candidate()\n    record = item["provenance"]["verification_record"]\n    record["review_mode"] = "AI_VISUAL_REVIEW_USER_AUTHORIZED"\n    record["reviewer"] = "GPT-5.6 Sol"\n    record["review_authorized_by_user"] = False\n    with pytest.raises(ValueError, match="P3B022"):\n        ampacity_datasets.validar_dataset_record(item)\n\n'''
+          target = '\ndef test_primary_verified_no_pasa_con_fuente_real_si_hash_no_coincide():'
+          if target not in text:
+              raise SystemExit('schema test insertion anchor missing')
+          text = text.replace(target, insert + target, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit finalization and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mcp_electrico/ampacity_datasets.py docs/P3B_DATASETS_NUMERICOS.md docs/ROADMAP_PROFESIONAL.md tests/test_roadmap_p3_contract.py tests/test_ampacity_dataset_evidence_schema.py
+          git rm .github/workflows/p3c09-primary-finalize.yml
+          git commit -m 'docs: cerrar P3C09 y reforzar revision trazable'
+          git push origin HEAD:feat/p3c09-primary-5c-v1
