@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "id": "P3B_TABLE_5C_SECONDARY_INFRA_V1",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "family": "Table_5C_grouping_air",
+      "table": "Tabla 5C",
+      "axis": "grouping",
+      "benchmark_kind": "INFRASTRUCTURE_LOOKUP",
+      "result": "PASS",
+      "evidence_level": "SECONDARY",
+      "independent_reference": false,
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
+      "dataset_verification_status": "PENDING_PRIMARY_VERIFICATION",
+      "source_sha256": null,
+      "cases": [
+        "2_circuits_factor_0.80",
+        "3_circuits_factor_0.70",
+        "12_circuits_factor_0.45"
+      ],
+      "ci_artifact": "benchmark_p3b.json",
+      "professional_normative_coverage": false,
+      "notes": "Benchmark reproducible de infraestructura. Los valores de referencia proceden de la misma reproducción secundaria usada para desarrollo; no constituye benchmark normativo primario independiente."
+    }
+  ]
+}
