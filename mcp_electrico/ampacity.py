@@ -3,8 +3,9 @@
 P3 foundation calcula Iz desde una ampacidad base P2 trazable y factores
 explícitos referenciados, o desde una confirmación explícita de coincidencia
 con las condiciones base publicadas. P3A añade un router normativo separado:
-identifica tabla base y ejes de corrección aplicables, pero no inventa ni copia
-factores numéricos de tablas que todavía no estén cargadas/validadas.
+identifica tabla base y ejes de corrección aplicables. P3B puede aportar
+factores numéricos versionados; su procedencia se conserva y se revalida antes
+de entrar al cálculo.
 
 In se declara expresamente; no se infiere de metadatos visuales históricos.
 """
@@ -17,7 +18,13 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import ampacity_norms, ampacity_profiles, conductor_library, studies
+from . import (
+    ampacity_factor_binding,
+    ampacity_norms,
+    ampacity_profiles,
+    conductor_library,
+    studies,
+)
 
 _circuit_name = ""
 _profiles: dict[str, dict[str, Any]] = {}
@@ -58,7 +65,21 @@ def _line_name(name: str) -> str:
     return full
 
 
-def _factor(item: dict[str, Any], index: int) -> dict[str, Any]:
+def _factor(
+    item: dict[str, Any],
+    index: int,
+    permitir_dataset_secundario: bool = False,
+) -> dict[str, Any]:
+    if str(item.get("origin") or "") == ampacity_factor_binding.DATASET_ORIGIN:
+        normalized = ampacity_factor_binding.validar_factor_dataset(
+            item,
+            permitir_secundario=permitir_dataset_secundario,
+        )
+        value = float(normalized["value"])
+        if value <= 0 or value > 2.0:
+            raise ValueError(f"P3A010: {normalized['id']} debe ser >0 y <=2.0")
+        return normalized
+
     factor_id = str(item.get("id") or item.get("name") or f"factor_{index+1}").strip()
     value = float(item.get("value"))
     if value <= 0 or value > 2.0:
@@ -74,6 +95,7 @@ def _factor(item: dict[str, Any], index: int) -> dict[str, Any]:
         "reference": reference,
         "table_or_clause": str(item.get("table_or_clause") or "").strip() or None,
         "condition": str(item.get("condition") or "").strip() or None,
+        "origin": ampacity_factor_binding.MANUAL_ORIGIN,
     }
 
 
@@ -186,17 +208,15 @@ def definir_condiciones(
     referencia_in: str | None = None,
     referencia_ib: str | None = None,
     referencia_condiciones_instalacion: str | None = None,
+    permitir_factores_dataset_secundarios: bool = False,
 ) -> dict[str, Any]:
     """Configura datos P3 sin asumir factor 1, In ni Ib silenciosamente.
 
-    ``referencia_condiciones_instalacion`` documenta por qué los factores
-    declarados son compatibles con la ampacidad base de catálogo, o por qué
-    las condiciones reales coinciden con las condiciones base publicadas.
-
-    Si existe un routing P3A vinculado al alimentador, se exige que la norma
-    coincida y que cada eje de corrección requerido tenga un factor explícito
-    etiquetado con ``axis``. El valor del factor sigue siendo dato manual
-    trazable; P3A no lo toma de tablas no cargadas.
+    Los factores manuales mantienen el comportamiento histórico. Los factores
+    con ``origin=P3B_DATASET`` se revalidan contra el catálogo activo. Si el
+    dataset no es primario/verificado se exige ``permitir_factores_dataset_secundarios=True``;
+    incluso entonces el cálculo conserva evidencia no profesional y no se
+    presenta como lookup normativo automático.
     """
     _sync()
     if not _circuit_name:
@@ -223,7 +243,10 @@ def definir_condiciones(
         raise ValueError(
             "P3A009: documente la compatibilidad entre condiciones reales, ampacidad base y factores aplicados"
         )
-    validated = [_factor(item, idx) for idx, item in enumerate(raw_factors)]
+    validated = [
+        _factor(item, idx, permitir_factores_dataset_secundarios)
+        for idx, item in enumerate(raw_factors)
+    ]
     route = _normative_routes.get(full.lower())
     _validate_route_for_profile(route, norm["id"], validated, confirmar_condiciones_base)
 
@@ -240,6 +263,7 @@ def definir_condiciones(
     if base <= 0:
         raise ValueError("P3A016: ampacidad base P2 no disponible")
     total = prod(item["value"] for item in validated) if validated else 1.0
+    evidence = ampacity_factor_binding.resumen_evidencia_factores(validated)
 
     record = {
         "element": full,
@@ -257,7 +281,8 @@ def definir_condiciones(
             "factor_total": total,
             "base_conditions_confirmed": bool(confirmar_condiciones_base),
             "installation_compatibility_reference": installation_reference,
-            "automatic_normative_lookup": False,
+            "factor_evidence": evidence,
+            "automatic_normative_lookup": bool(evidence["automatic_normative_lookup"]),
         },
         "protection": {"in_a": in_value, "reference": str(referencia_in).strip()},
         "design_current": {
@@ -365,6 +390,8 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
     iz = iz_base * factor_total
     c1 = ib <= in_a
     c2 = in_a <= iz
+    evidence = deepcopy(profile["correction"].get("factor_evidence") or {})
+    automatic_lookup = bool(profile["correction"].get("automatic_normative_lookup"))
 
     return {
         "element": full,
@@ -391,12 +418,15 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "catalog_conditions": deepcopy(profile["base"]["catalog_conditions"]),
             "correction_mode": profile["correction"]["mode"],
         },
+        "factor_evidence": evidence,
         "normative_applicability": deepcopy(route),
         "maturity": "UNDER_VALIDATION",
-        "automatic_normative_lookup": False,
+        "automatic_normative_lookup": automatic_lookup,
+        "professional_emission": False,
         "note": (
-            "Iz usa ampacidad base trazable y factores explícitos. P3A puede identificar qué correcciones "
-            "aplican, pero los valores de tablas normativas siguen sin automatizarse."
+            "Iz usa ampacidad base trazable y factores P3 con procedencia estructurada. "
+            "Un factor P3B secundario puede evaluarse solo con opt-in explícito y no habilita emisión; "
+            "automatic_normative_lookup solo puede ser true cuando todos los factores provienen de datasets primarios verificados."
         ),
     }
 
@@ -416,6 +446,9 @@ def evaluar_todos() -> dict[str, Any]:
         status = "NO_CUMPLE"
     else:
         status = "CUMPLE"
+    automatic_lookup = bool(results) and all(
+        bool(item.get("automatic_normative_lookup")) for item in results
+    )
     return {
         "study": "ampacity",
         "status": status,
@@ -423,10 +456,11 @@ def evaluar_todos() -> dict[str, Any]:
         "alimentadores": results,
         "summary": {"total": len(results), **counts},
         "maturity": "UNDER_VALIDATION",
-        "automatic_normative_lookup": False,
+        "automatic_normative_lookup": automatic_lookup,
+        "professional_emission": False,
         "note": (
-            "P3/P3A: el router normativo no equivale a tablas automáticas ni eleva la madurez; "
-            "los factores numéricos siguen siendo explícitos y trazables."
+            "P3/P3A/P3B: la procedencia de factores ya puede viajar hasta Ib/In/Iz, pero la madurez "
+            "continúa UNDER_VALIDATION y el dataset CNE actual sigue siendo secundario."
         ),
     }
 
@@ -439,12 +473,15 @@ def snapshot() -> dict[str, Any]:
         item["normative_applicability"] = deepcopy(_normative_routes.get(key))
         profiles.append(item)
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "circuit": _circuit_name,
         "profiles": profiles,
         "normative_routes": [deepcopy(value) for _, value in sorted(_normative_routes.items())],
         "normative_references": ampacity_norms.listar_referencias(),
         "normative_profiles": ampacity_profiles.listar_perfiles(),
         "maturity": "UNDER_VALIDATION",
-        "automatic_normative_lookup": False,
+        "automatic_normative_lookup": bool(profiles) and all(
+            bool((item.get("correction") or {}).get("automatic_normative_lookup"))
+            for item in profiles
+        ),
     }
