@@ -10,6 +10,7 @@ P3_AMPACITY = ROOT / "docs" / "P3_AMPACIDAD.md"
 P3A_PROFILES = ROOT / "docs" / "P3A_PERFILES_NORMATIVOS.md"
 P3B_DATASETS = ROOT / "docs" / "P3B_DATASETS_NUMERICOS.md"
 P3B_EVIDENCE = ROOT / "docs" / "P3B_EVIDENCIA_PRIMARIA.md"
+P3_EXIT = ROOT / "docs" / "P3_EXIT_GATE.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -157,3 +158,23 @@ def test_p3b_primary_evidence_doc_prevents_automatic_promotion():
     assert "source_sha256" in text
     assert "manual_comparison_confirmed" in text
     assert "PR + CI" in text
+
+
+def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
+    text = P3_EXIT.read_text(encoding="utf-8")
+
+    assert "**NOT_READY.**" in text
+    assert "phase" in text
+    assert "model" in text
+    assert "P3C08" in text
+    assert "P3C09" in text
+    assert "P3C10" in text
+    assert "P3C11" in text
+    assert "P3C12" in text
+    assert "P3C13" in text
+    assert "Tabla 5D" in text
+    assert "READY_TO_EXECUTE" in text
+    assert "SECONDARY_EVIDENCE_ONLY" in text
+    assert "ready_for_next_phase = false" in text
+    assert "P4_IEC_60909" in text
+    assert "no promueve datasets" in text

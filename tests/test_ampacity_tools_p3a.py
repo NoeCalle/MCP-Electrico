@@ -25,6 +25,7 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
         "construir_evidencia_primaria_ampacidad",
         "evaluar_promocion_dataset_ampacidad",
         "evaluar_evidencia_normativa_ampacidad",
+        "evaluar_cierre_p3",
         "resolver_factor_agrupamiento_ampacidad",
         "definir_aplicabilidad_normativa_ampacidad",
         "obtener_estado_ampacidad",
@@ -58,3 +59,9 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
         "MIXED_EVIDENCE",
         "EVIDENCE_INCOMPLETE",
     }
+
+    gate = mcp.tools["evaluar_cierre_p3"]()
+    assert gate["phase"] == "P3"
+    assert gate["phase_status"] == "NOT_READY"
+    assert gate["ready_for_next_phase"] is False
+    assert gate["professional_emission"] is False
