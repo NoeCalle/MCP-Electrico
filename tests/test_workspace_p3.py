@@ -66,7 +66,8 @@ def test_v3_es_idempotente():
     twice = workspace_p3_view.enhance_html(once, _snapshot())
     assert twice == once
     assert twice.count(workspace_p3_view.MARKER) == 1
-    assert twice.count('data-tab="ampacidad"') == 1
+    tab_html = '<button type="button" class="tab" data-tab="ampacidad">Ampacidad</button>'
+    assert twice.count(tab_html) == 1
 
 
 def test_javascript_v3_no_recalcula_ampacidad():
