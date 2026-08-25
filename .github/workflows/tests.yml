@@ -29,6 +29,19 @@ jobs:
         with:
           name: mcp-electrico-benchmarks-p1
           path: benchmark_p1.json
+      - name: Generate P3B numeric dataset benchmark
+        run: |
+          python examples/run_benchmarks_p3b.py
+          test -s benchmark_p3b.json
+          grep -q '"failed": 0' benchmark_p3b.json
+          grep -q '"pass": true' benchmark_p3b.json
+          grep -q '"evidence_level": "SECONDARY"' benchmark_p3b.json
+          grep -q '"professional_emission": false' benchmark_p3b.json
+      - name: Upload P3B benchmark report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-benchmarks-p3b
+          path: benchmark_p3b.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
