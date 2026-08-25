@@ -16,14 +16,14 @@ Este documento es la **guía maestra del proyecto**. Las fases no se consideran 
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **SIGUIENTE FASE** | `Ib <= In <= Iz` y factores de corrección trazables |
+| P3 — Ampacidad normativa | **EN PROGRESO — FOUNDATION UNDER_VALIDATION** | `Ib <= In <= Iz` y factores de corrección trazables |
 | P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. Con P2 v1 cerrada mediante gate reproducible, el siguiente bloque principal es **P3 — ampacidad normativa**. Los ejes transversales V y E continúan evolucionando en paralelo porque sirven a todas las fases.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está ahora **en progreso** y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar su cobertura normativa, benchmarks y gate de salida. Los ejes transversales V y E continúan evolucionando en paralelo porque sirven a todas las fases.
 
 ### P2 — evidencia de cierre v1
 
@@ -178,22 +178,34 @@ P2 no adelanta P3/P4: `Iz` normativo e IEC 60909 permanecen respectivamente pend
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: SIGUIENTE FASE.**
+**Estado: EN PROGRESO — FOUNDATION UNDER_VALIDATION.**
 
 Objetivo: poder verificar selección térmica del conductor, no solo mostrar un rating de catálogo.
 
-Entregables:
+Foundation ya implementada:
 
-- métodos de instalación;
-- temperatura ambiente/suelo;
-- agrupamiento;
-- resistividad térmica del terreno cuando corresponda;
-- factores de corrección;
-- corriente admisible `Iz` trazable;
-- chequeos `Ib <= In <= Iz`;
-- distinción entre dato de fabricante y valor derivado por norma.
+- contrato explícito `Ib <= In <= Iz` en la capa MCP;
+- `In` declarado con referencia, sin inferirlo del rating visual histórico;
+- `Ib` explícita o uso de corriente OpenDSS únicamente mediante aceptación expresa del escenario como corriente de diseño;
+- `Iz_base` proveniente de una asignación P2 trazable;
+- factores de corrección explícitos con referencia, o confirmación documentada de coincidencia con condiciones base;
+- prohibición de asumir silenciosamente un factor total igual a 1;
+- invalidación del perfil si cambia conductor, instalación o ampacidad base P2;
+- readiness específico P3 y madurez `UNDER_VALIDATION`;
+- workspace V3 con valores ya calculados y sin cálculo eléctrico en JavaScript;
+- referencias versionadas registradas para IEC 60364-5-52 Ed. 3.1 y CNE–Utilización, sin afirmar que sus tablas estén automatizadas.
 
-La norma de referencia deberá versionarse explícitamente en cada release.
+Pendiente para cerrar P3:
+
+- definir el alcance normativo exacto por conductor y método de instalación;
+- temperatura ambiente/suelo, agrupamiento y resistividad térmica cuando correspondan;
+- perfiles/tablas/factores normativos versionados y reproducibles;
+- casos manuales/independientes con resultados esperados fijados previamente;
+- benchmarks y casos límite;
+- gate formal de salida P3;
+- elevar madurez solo cuando la evidencia lo permita.
+
+La foundation conserva `automatic_normative_lookup=false` y no habilita emisión profesional automática. Detalle: `docs/P3_AMPACIDAD.md`.
 
 ## Fase P4 — Cortocircuito IEC 60909
 
