@@ -13,6 +13,7 @@ from mcp_electrico import (
 
 
 ARRANGEMENT = "grouped_air_surface_embedded_enclosed"
+SECONDARY_DATASET = "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1"
 
 
 def _base_line():
@@ -41,12 +42,14 @@ def _route_grouped():
 
 
 def _secondary_factor(route):
-    result = ampacity_datasets.resolver_grouping_for_route(
-        route,
+    result = ampacity_datasets.resolver_factor(
+        SECONDARY_DATASET,
+        installation_method=route["installation_method"],
         circuits_grouped=2,
         arrangement_id=ARRANGEMENT,
         allow_secondary=True,
     )
+    assert result["status"] == "RESOLVED_SECONDARY"
     return ampacity_factor_binding.construir_factor_desde_resultado(result)
 
 
