@@ -130,7 +130,22 @@ def definir_aplicabilidad_normativa(
         segment_transition=transicion_tramos,
         request_short_segment_exception=solicitar_excepcion_tramo_corto,
     )
-    record = {"element": full, **deepcopy(result)}
+    record = {
+        "element": full,
+        **deepcopy(result),
+        "declared_conditions": {
+            "ambient_temperature_c": (
+                float(temperatura_ambiente_c) if temperatura_ambiente_c is not None else None
+            ),
+            "soil_thermal_resistivity_k_m_per_w": (
+                float(resistividad_termica_suelo_k_m_w)
+                if resistividad_termica_suelo_k_m_w is not None
+                else None
+            ),
+            "circuits_grouped": int(circuitos_agrupados),
+            "grouping_arrangement": str(disposicion_agrupamiento or "").strip() or None,
+        },
+    }
 
     existing = _profiles.get(full.lower())
     if existing:
@@ -196,6 +211,17 @@ def _validate_route_for_profile(
                 "P3A033: faltan factores explícitos vinculados a ejes requeridos por el router: "
                 + ", ".join(missing_axes)
             )
+
+
+def _validar_contexto_factores(
+    factors: list[dict[str, Any]],
+    route: dict[str, Any] | None,
+    normative_base: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    return [
+        ampacity_factor_binding.validar_compatibilidad_contexto(item, route, normative_base)
+        for item in factors
+    ]
 
 
 def definir_condiciones(
@@ -280,6 +306,7 @@ def definir_condiciones(
     else:
         base = catalog_base
 
+    compatibility_checks = _validar_contexto_factores(validated, route, normative_base)
     base_evidence = ampacity_base_binding.resumen_evidencia_base(normative_base)
     total = prod(item["value"] for item in validated) if validated else 1.0
     evidence = ampacity_factor_binding.resumen_evidencia_factores(validated)
@@ -306,6 +333,8 @@ def definir_condiciones(
             "base_conditions_confirmed": bool(confirmar_condiciones_base),
             "installation_compatibility_reference": installation_reference,
             "factor_evidence": evidence,
+            "compatibility_checks": deepcopy(compatibility_checks),
+            "allow_secondary": bool(permitir_factores_dataset_secundarios),
             "automatic_normative_lookup": bool(evidence["automatic_normative_lookup"]),
         },
         "protection": {"in_a": in_value, "reference": str(referencia_in).strip()},
@@ -373,6 +402,19 @@ def _revalidar_base_normativa(profile: dict[str, Any]) -> dict[str, Any] | None:
     )
 
 
+def _revalidar_factores(
+    profile: dict[str, Any],
+    route: dict[str, Any] | None,
+    normative_base: dict[str, Any] | None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    active: list[dict[str, Any]] = []
+    allow_secondary = bool((profile.get("correction") or {}).get("allow_secondary"))
+    for index, item in enumerate((profile.get("correction") or {}).get("factors") or []):
+        active.append(_factor(item, index, allow_secondary))
+    checks = _validar_contexto_factores(active, route, normative_base)
+    return active, checks
+
+
 def evaluar(nombre_elemento: str) -> dict[str, Any]:
     """Evalúa el criterio Ib <= In <= Iz dentro del alcance P3 foundation."""
     _sync()
@@ -409,17 +451,22 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
 
     route = _normative_routes.get(full.lower())
     try:
+        active_factors, compatibility_checks = _revalidar_factores(
+            profile,
+            route,
+            active_normative_base,
+        )
         _validate_route_for_profile(
             route,
             profile["norm"]["id"],
-            profile["correction"]["factors"],
+            active_factors,
             profile["correction"]["base_conditions_confirmed"],
         )
     except ValueError as exc:
         return {
             "element": full,
             "status": "DATOS_INSUFICIENTES",
-            "missing": ["consistencia_aplicabilidad_normativa"],
+            "missing": ["consistencia_factores_normativos"],
             "maturity": "UNDER_VALIDATION",
             "normative_applicability": deepcopy(route),
             "note": str(exc),
@@ -439,15 +486,15 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         if active_normative_base is not None
         else profile["base"]["ampacity_a"]
     )
-    factor_total = float(profile["correction"]["factor_total"])
+    factor_total = prod(item["value"] for item in active_factors) if active_factors else 1.0
     iz = iz_base * factor_total
     c1 = ib <= in_a
     c2 = in_a <= iz
-    evidence = deepcopy(profile["correction"].get("factor_evidence") or {})
+    evidence = ampacity_factor_binding.resumen_evidencia_factores(active_factors)
     base_evidence = ampacity_base_binding.resumen_evidencia_base(active_normative_base)
     automatic_lookup = bool(
         base_evidence.get("professional_emission")
-        and profile["correction"].get("automatic_normative_lookup")
+        and evidence.get("automatic_normative_lookup")
     )
 
     return {
@@ -472,7 +519,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             ),
             "iz_base_catalog_p2": deepcopy(profile["base"]["source"]),
             "norm": deepcopy(profile["norm"]),
-            "factors": deepcopy(profile["correction"]["factors"]),
+            "factors": deepcopy(active_factors),
             "installation_compatibility": profile["correction"]["installation_compatibility_reference"],
         },
         "installation": {
@@ -483,15 +530,16 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "iz_base_table": base_evidence.get("table"),
         },
         "base_evidence": deepcopy(base_evidence),
-        "factor_evidence": evidence,
+        "factor_evidence": deepcopy(evidence),
+        "factor_compatibility": deepcopy(compatibility_checks),
         "normative_applicability": deepcopy(route),
         "maturity": "UNDER_VALIDATION",
         "automatic_normative_lookup": automatic_lookup,
         "professional_emission": False,
         "note": (
-            "Iz usa ampacidad base trazable y factores P3 con procedencia estructurada. "
-            "Un factor P3B secundario puede evaluarse solo con opt-in explícito y no habilita emisión; "
-            "automatic_normative_lookup solo puede ser true cuando todos los factores provienen de datasets primarios verificados."
+            "Iz usa ampacidad base trazable y factores P3 revalidados contra el catálogo activo. "
+            "Los factores exact_rows_v1 solo entran a Iz cuando su política de compatibilidad con routing y base normativa pasa completa. "
+            "La madurez P3 continúa UNDER_VALIDATION y professional_emission permanece false."
         ),
     }
 
@@ -524,8 +572,8 @@ def evaluar_todos() -> dict[str, Any]:
         "automatic_normative_lookup": automatic_lookup,
         "professional_emission": False,
         "note": (
-            "P3/P3A/P3B: la procedencia de factores ya puede viajar hasta Ib/In/Iz, pero la madurez "
-            "continúa UNDER_VALIDATION y el dataset CNE actual sigue siendo secundario."
+            "P3/P3A/P3B: la procedencia y compatibilidad contextual de factores viajan hasta Ib/In/Iz; "
+            "la madurez continúa UNDER_VALIDATION y P3C11 sigue con cobertura normativa parcial."
         ),
     }
 

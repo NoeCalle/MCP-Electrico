@@ -130,6 +130,32 @@ def register(mcp, on_study=None) -> None:
         return result
 
     @mcp.tool()
+    def resolver_factor_normativo_ampacidad(
+        dataset_id: str,
+        consulta: dict,
+        permitir_dataset_secundario: bool = False,
+    ) -> dict:
+        """Resuelve un factor ``exact_rows_v1`` y devuelve ``factor_p3`` portable.
+
+        La resolución exacta no basta para aplicarlo: ``definir_condiciones_ampacidad``
+        revalida después su compatibilidad con routing P3A e Iz_base normativa.
+        """
+        result = ampacity_exact_lookup.resolver_catalogo(
+            dataset_id,
+            consulta,
+            allow_secondary=permitir_dataset_secundario,
+        )
+        if result.get("status") == ampacity_exact_lookup.RESOLVED_EXACT:
+            result = dict(result)
+            result["factor_p3"] = ampacity_factor_binding.construir_factor_desde_resultado(result)
+        record(
+            "ampacity_factor_lookup",
+            result,
+            f"resolver_factor_normativo_ampacidad:{dataset_id}",
+        )
+        return result
+
+    @mcp.tool()
     def resolver_base_normativa_ampacidad(
         dataset_id: str,
         consulta: dict,
