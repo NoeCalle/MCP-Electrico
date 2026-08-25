@@ -78,7 +78,7 @@ def test_panel_muestra_evidencia_secundaria_y_valores_ya_calculados():
     assert "236.8 A" in html
     assert "0.8" in html
     assert "UNDER_VALIDATION" in html
-    assert "colspan=\"10\"" in html
+    assert html.count("<th>") == 10
 
 
 def test_javascript_v3_no_contiene_logica_de_clasificacion_evidencia():
