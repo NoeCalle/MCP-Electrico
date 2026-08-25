@@ -1,0 +1,89 @@
+name: p3c08-source-candidate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p3c08-source-candidate.yml"
+      - "mcp_electrico/data/ampacity_primary_sources.json"
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Capture official source hash candidate
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+          from urllib.request import Request, urlopen
+
+          registry = json.loads(Path("mcp_electrico/data/ampacity_primary_sources.json").read_text(encoding="utf-8"))
+          source = next(item for item in registry["sources"] if item["id"] == "MINEM_CNE_UTIL_2006_OFFICIAL_PDF")
+          url = source["direct_url"]
+          parsed = urlparse(url)
+          if parsed.scheme != "https" or not (parsed.hostname or "").endswith("gob.pe"):
+              raise SystemExit("P3C08 capture refused: source URL is not an HTTPS gob.pe host")
+
+          request = Request(
+              url,
+              headers={
+                  "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36",
+                  "Accept": "application/pdf,application/octet-stream;q=0.9,*/*;q=0.8",
+                  "Referer": source["landing_url"],
+              },
+          )
+          digest = sha256()
+          prefix = b""
+          size = 0
+          max_bytes = 100 * 1024 * 1024
+          with urlopen(request, timeout=60) as response:
+              final_url = response.geturl()
+              headers = response.headers
+              while True:
+                  chunk = response.read(1024 * 1024)
+                  if not chunk:
+                      break
+                  if not prefix:
+                      prefix = chunk[:8]
+                  size += len(chunk)
+                  if size > max_bytes:
+                      raise SystemExit("P3C08 capture refused: source exceeds 100 MB")
+                  digest.update(chunk)
+
+          if not prefix.startswith(b"%PDF-"):
+              raise SystemExit("P3C08 capture refused: downloaded object is not a PDF")
+
+          payload = {
+              "schema_version": 1,
+              "status": "SOURCE_PIN_CANDIDATE_CAPTURED",
+              "source_id": source["id"],
+              "norm_reference_id": source["norm_reference_id"],
+              "authority": source["authority"],
+              "landing_url": source["landing_url"],
+              "requested_url": url,
+              "final_url": final_url,
+              "size_bytes": size,
+              "sha256": digest.hexdigest(),
+              "http_etag": headers.get("ETag"),
+              "http_last_modified": headers.get("Last-Modified"),
+              "http_content_length": headers.get("Content-Length"),
+              "automatic_pin": False,
+              "professional_emission": False,
+              "note": "Hash candidato capturado desde la URL oficial registrada. Requiere revisión separada antes de fijar expected_sha256.",
+          }
+          Path("source_pin_candidate.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          print(json.dumps(payload, ensure_ascii=False))
+          PY
+      - name: Upload source pin candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: p3c08-source-pin-candidate
+          path: source_pin_candidate.json
