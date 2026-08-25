@@ -25,6 +25,16 @@ El registro P3 incluye, como referencias versionadas:
 
 Registrar una norma **no significa** que sus tablas estén implementadas o verificadas. Cada dataset debe declarar su procedencia y política de uso.
 
+La copia oficial de referencia del CNE–Utilización 2006 ya está fijada por el proyecto con:
+
+```text
+source_id = MINEM_CNE_UTIL_2006_OFFICIAL_PDF
+pin_status = PINNED
+expected_sha256 = 2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64
+```
+
+Esto completa P3C08. El pin identifica el archivo de referencia byte a byte, pero no valida por sí solo ninguna tabla.
+
 ## P3A — perfiles normativos
 
 Se registran dos perfiles separados:
@@ -76,6 +86,8 @@ automatic_normative_lookup = false
 El valor secundario no se devuelve por defecto. Requiere un opt-in explícito y aun así continúa marcado como no apto para emisión.
 
 P3B tampoco interpola ni extrapola valores no tabulados.
+
+El siguiente paso de evidencia es P3C09: contrastar un subconjunto pequeño contra la copia oficial pinneada y crear una revisión nueva `PRIMARY_VERIFIED` mediante PR + CI. La revisión secundaria existente no se transforma silenciosamente.
 
 Detalle: `docs/P3B_DATASETS_NUMERICOS.md`.
 
@@ -196,9 +208,12 @@ La vista Ampacidad muestra resultados ya calculados por Python:
 - producto de factores;
 - Iz;
 - estado;
-- perfil/método/routing P3A cuando existe.
+- perfil/método/routing P3A cuando existe;
+- calidad de evidencia normativa preparada por Python.
 
-El navegador sigue sin calcular corrientes, factores ni criterios.
+El navegador sigue sin calcular corrientes, factores, criterios ni clasificación de evidencia.
+
+El cierre de P3C08 por sí solo no cambia visualmente un factor secundario a primario. V3 solo mostrará evidencia primaria cuando exista un dataset `PRIMARY_VERIFIED` real y esa procedencia llegue al cálculo.
 
 ## Casos patrón y benchmarks
 
@@ -225,17 +240,27 @@ professional_emission = false
 
 Así un benchmark verde no puede confundirse con validación normativa primaria.
 
+## Gate formal de salida
+
+`evaluar_cierre_p3()` ya implementa los criterios `P3C01`–`P3C13` y separa el estado de la fase del estado de un modelo concreto.
+
+A partir del pin de fuente:
+
+- `P3C01`–`P3C08`: `DONE`;
+- `P3C09`–`P3C13`: pendientes.
+
+P4 solo aparece como siguiente fase cuando todos los criterios estén completos.
+
 ## Qué falta para cerrar P3
 
 P3/P3A/P3B **no cierran todavía P3**. Permanecen pendientes:
 
-1. verificar/cargar datasets primarios reproducibles para los subconjuntos CNE que se automaticen;
-2. incorporar temperatura, agrupamiento y resistividad con alcance exacto por método/disposición;
-3. cargar el dataset específico de Tabla 5D antes de automatizar método D agrupado;
-4. mantener BT/MT y ámbitos normativos claramente separados;
-5. construir benchmarks independientes contra fuentes primarias y casos manuales;
+1. crear el primer dataset `PRIMARY_VERIFIED` contra la copia CNE pinneada (`P3C09`);
+2. validar la estrategia normativa de `Iz_base` mediante Tablas 1/2 o equivalente formalmente validado (`P3C10`);
+3. completar la cobertura primaria 5A/5B/5C/5D/5E (`P3C11`);
+4. construir benchmarks independientes primarios por familia (`P3C12`);
+5. mantener BT/MT y ámbitos normativos claramente separados;
 6. validar casos límite y política de valores no tabulados;
-7. definir el gate formal de salida P3;
-8. solo entonces considerar `VALIDATED_WITH_LIMITATIONS`.
+7. elevar la madurez solo si la evidencia lo permite (`P3C13`).
 
 Hasta ese cierre, cualquier resultado P3 debe conservar visible `UNDER_VALIDATION`.
