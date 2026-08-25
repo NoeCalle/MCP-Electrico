@@ -28,38 +28,49 @@ def _valid_sha256(value: Any) -> bool:
     return len(text) == 64 and all(ch in "0123456789abcdef" for ch in text)
 
 
-def _primary_source_hashes() -> set[str]:
-    result: set[str] = set()
+def _primary_source_hashes_by_norm() -> dict[str, set[str]]:
+    result: dict[str, set[str]] = {}
     try:
         sources = ampacity_evidence.listar_fuentes()
     except Exception:
         return result
     for source in sources:
         digest = str(source.get("expected_sha256") or "").strip().lower()
+        norm_id = str(source.get("norm_reference_id") or "").strip()
         if (
             source.get("source_class") == "OFFICIAL_PRIMARY_CANDIDATE"
             and source.get("pin_status") == "PINNED"
+            and norm_id
             and _valid_sha256(digest)
         ):
-            result.add(digest)
+            result.setdefault(norm_id, set()).add(digest)
     return result
 
 
 def validar_record(record: dict[str, Any], *, check_live_sources: bool = True) -> dict[str, Any]:
     rid = str(record.get("id") or "").strip()
     family = str(record.get("family") or "").strip()
+    norm_id = str(record.get("norm_reference_id") or "").strip()
     if not rid:
         raise ValueError("P3BEN001: benchmark sin id")
     if not family:
         raise ValueError(f"P3BEN002: {rid} sin family")
+    if not norm_id:
+        raise ValueError(f"P3BEN006: {rid} sin norm_reference_id")
     if str(record.get("result") or "") != PASS:
-        return {"valid": True, "id": rid, "qualifies_primary": False, "reason": "benchmark_not_passed"}
+        return {
+            "valid": True,
+            "id": rid,
+            "family": family,
+            "qualifies_primary": False,
+            "status": DOES_NOT_QUALIFY,
+            "reasons": ["benchmark_not_passed"],
+        }
 
     evidence_level = str(record.get("evidence_level") or "").upper()
     if evidence_level not in {PRIMARY, SECONDARY}:
         raise ValueError(f"P3BEN003: {rid} evidence_level no soportado")
 
-    qualifies = evidence_level == PRIMARY
     reasons: list[str] = []
     if evidence_level != PRIMARY:
         reasons.append("evidence_not_primary")
@@ -67,11 +78,15 @@ def validar_record(record: dict[str, Any], *, check_live_sources: bool = True) -
         reasons.append("reference_not_independent")
     if str(record.get("dataset_verification_status") or "") != ampacity_datasets.PRIMARY_VERIFIED:
         reasons.append("dataset_not_primary_verified")
+
     digest = str(record.get("source_sha256") or "").strip().lower()
     if not _valid_sha256(digest):
         reasons.append("source_sha256_missing_or_invalid")
-    elif check_live_sources and digest not in _primary_source_hashes():
-        reasons.append("source_sha256_not_pinned")
+    elif check_live_sources:
+        allowed = _primary_source_hashes_by_norm().get(norm_id, set())
+        if digest not in allowed:
+            reasons.append("source_sha256_not_pinned_for_norm")
+
     review = record.get("review_record") or {}
     if not str(review.get("reviewer") or "").strip():
         reasons.append("reviewer_missing")
@@ -80,11 +95,12 @@ def validar_record(record: dict[str, Any], *, check_live_sources: bool = True) -
     if record.get("professional_normative_coverage") is not True:
         reasons.append("professional_normative_coverage_false")
 
-    qualifies = qualifies and not reasons
+    qualifies = evidence_level == PRIMARY and not reasons
     return {
         "valid": True,
         "id": rid,
         "family": family,
+        "norm_reference_id": norm_id,
         "qualifies_primary": qualifies,
         "status": QUALIFIES_PRIMARY if qualifies else DOES_NOT_QUALIFY,
         "reasons": reasons,
