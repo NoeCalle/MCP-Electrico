@@ -1,0 +1,29 @@
+name: p3c11d2-apply
+
+on:
+  push:
+    branches:
+      - feat/p3c11d2-table5d-binding
+    paths:
+      - .github/workflows/p3c11d2-apply.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c11d2-table5d-binding
+          fetch-depth: 0
+      - name: Apply P3C11D2
+        run: python scripts/p3c11d2_apply.py
+      - name: Commit generated changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mcp_electrico tests docs
+          git commit -m "P3C11D2: habilitar binding seguro Tabla 5D hasta Iz" || exit 0
+          git push
