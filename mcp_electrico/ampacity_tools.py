@@ -1,8 +1,9 @@
 """Tools MCP para P3/P3A/P3B ampacidad.
 
 Las tools de este módulo no convierten tablas de fabricante en norma. Exponen
-la configuración trazable Ib/In/Iz, el router P3A, datasets P3B y el gate de
-evidencia primaria. No existe una tool que promueva automáticamente datasets.
+la configuración trazable Ib/In/Iz, el router P3A, datasets P3B, evidencia y
+el gate formal de salida P3. No existe una tool que promueva automáticamente
+datasets ni eleve la madurez del módulo.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from . import (
     ampacity_factor_binding,
     ampacity_norms,
     ampacity_profiles,
+    p3_completion,
 )
 
 
@@ -89,6 +91,11 @@ def register(mcp, on_study=None) -> None:
     def evaluar_evidencia_normativa_ampacidad() -> dict:
         """Clasifica evidencia de factores sin cambiar READY_DATA ni madurez P3."""
         return ampacity_evidence_readiness.evaluar()
+
+    @mcp.tool()
+    def evaluar_cierre_p3() -> dict:
+        """Evalúa el gate formal P3; hoy debe bloquear avance mientras falte evidencia/cobertura normativa."""
+        return p3_completion.evaluar_cierre_p3()
 
     @mcp.tool()
     def resolver_factor_agrupamiento_ampacidad(
