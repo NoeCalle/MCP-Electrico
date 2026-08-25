@@ -8,6 +8,7 @@ ENGINE = ROOT / "docs" / "ENGINE_SELECTION.md"
 P2_EXIT = ROOT / "docs" / "P2_EXIT_GATE.md"
 P3_AMPACITY = ROOT / "docs" / "P3_AMPACIDAD.md"
 P3A_PROFILES = ROOT / "docs" / "P3A_PERFILES_NORMATIVOS.md"
+P3B_DATASETS = ROOT / "docs" / "P3B_DATASETS_NUMERICOS.md"
 
 
 def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
@@ -33,16 +34,19 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3A ROUTER NORMATIVO UNDER_VALIDATION**" in text
-    assert "automatic_normative_lookup=false" in text
+    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3B DATASETS NUMÉRICOS UNDER_VALIDATION**" in text
+    assert "P3 permanece `UNDER_VALIDATION`" in text
+    assert "professional_emission = false" in text
+    assert "automatic_normative_lookup = false" in text
+    assert "Tabla 5D" in text
     assert "docs/P3_AMPACIDAD.md" in text
     assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
-    assert "evaluar_cierre_p2()" in text
+    assert "docs/P3B_DATASETS_NUMERICOS.md" in text
     assert "docs/P2_EXIT_GATE.md" in text
     assert "docs/ROADMAP_VISUAL.md" in text
     assert "docs/ENGINE_SELECTION.md" in text
     assert "no despacha automáticamente la ejecución" in text
-    assert "cross-check" in text
+    assert "crosscheck=false" in text
     assert "P4 — Cortocircuito IEC 60909" in text
     assert "P5 — Protección del conductor y coordinación" in text
     assert "P6 — Arc Flash IEEE 1584" in text
@@ -94,19 +98,22 @@ def test_p2_exit_gate_preserves_scope_and_next_phase():
     assert "P3 — ampacidad normativa" in text
 
 
-def test_p3_foundation_doc_preserves_under_validation_scope():
+def test_p3_doc_preserves_under_validation_and_secondary_barrier():
     text = P3_AMPACITY.read_text(encoding="utf-8")
 
     assert "UNDER_VALIDATION" in text
     assert "Ib <= In <= Iz" in text
-    assert "automatic_tables=false" in text
     assert "P3 no asume silenciosamente `product(k_i)=1`" in text
-    assert "automatic_normative_lookup=false" in text
-    assert "no cierran p3" in text.lower()
+    assert "PENDING_PRIMARY_VERIFICATION" in text
+    assert "professional_emission = false" in text
+    assert "automatic_normative_lookup = false" in text
+    assert "no cierran todavía p3" in text.lower()
     assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
+    assert "docs/P3B_DATASETS_NUMERICOS.md" in text
+    assert "Tabla 5D" in text
 
 
-def test_p3a_doc_preserves_router_without_claiming_numeric_tables():
+def test_p3a_doc_preserves_router_and_method_d_route():
     text = P3A_PROFILES.read_text(encoding="utf-8")
 
     assert "UNDER_VALIDATION" in text
@@ -114,7 +121,22 @@ def test_p3a_doc_preserves_router_without_claiming_numeric_tables():
     assert "IEC_60364_5_52_2009_A1_2024" in text
     assert "REFERENCE_ONLY" in text
     assert "TABLE_DATA_NOT_LOADED" in text
+    assert "Tabla 5D" in text
     assert "030-004(13)" in text
     assert "030-004(14)" in text
     assert "no se automatiza" in text.lower()
     assert "no reutiliza" in text.lower()
+
+
+def test_p3b_doc_keeps_evidence_levels_and_no_false_validation():
+    text = P3B_DATASETS.read_text(encoding="utf-8")
+
+    assert "UNDER_VALIDATION" in text
+    assert "PENDING_PRIMARY_VERIFICATION" in text
+    assert "professional_emission = false" in text
+    assert "automatic_normative_lookup = false" in text
+    assert "sin interpolación" in text.lower()
+    assert "ROUTE_MISMATCH" in text
+    assert "Tabla 5D" in text
+    assert "evidence_level = SECONDARY" in text
+    assert "no prueban" in text.lower() or "no valida" in text.lower()
