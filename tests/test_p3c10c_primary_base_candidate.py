@@ -51,12 +51,16 @@ def test_p3c10c_routing_y_dimension_candidata_quedan_explicitos():
     assert candidate["candidate_value"] == {"ampacity_a": 229.0}
 
 
-def test_p3c10c_sigue_bloqueado_hasta_revision_humana_y_no_cierra_p3c10():
+def test_p3c10c_revision_visual_aprobada_habilita_pr_pero_no_cierra_p3c10():
     candidate = _candidate()
 
-    assert candidate["manual_comparison_confirmed"] is False
+    assert candidate["manual_comparison_confirmed"] is True
     assert candidate["human_reviewer"] is None
-    assert candidate["eligible_for_primary_dataset_pr"] is False
+    assert candidate["reviewer"] == "GPT-5.6 Sol"
+    assert candidate["review_mode"] == "AI_VISUAL_REVIEW_USER_AUTHORIZED"
+    assert candidate["review_authorized_by_user"] is True
+    assert candidate["review_result"] == "APPROVED"
+    assert candidate["eligible_for_primary_dataset_pr"] is True
     assert candidate["professional_emission"] is False
 
     gate = p3_completion.evaluar_cierre_p3()
