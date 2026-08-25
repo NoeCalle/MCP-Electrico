@@ -53,11 +53,27 @@ El gate no interpola ni amplía el alcance normativo.
 - `P3C12` — benchmarks normativos independientes contra fuente primaria;
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
-`P3C12` está intencionalmente pendiente mientras el benchmark P3B use evidencia secundaria. No es un error del gate.
+## P3C12 — evidencia de benchmark, no constante
+
+`P3C12` se deriva de `mcp_electrico/data/ampacity_benchmark_evidence.json` mediante `ampacity_benchmark_evidence.evaluar_cobertura()`.
+
+Un benchmark solo cuenta para una familia P3-v1 si es `PASS`, tiene evidencia `PRIMARY`, usa una referencia independiente, está asociado a un dataset `PRIMARY_VERIFIED`, conserva el SHA-256 de una fuente primaria pinneada y tiene revisión humana confirmada.
+
+El benchmark P3B actual permanece:
+
+```text
+PASS
+SECONDARY
+professional_normative_coverage = false
+```
+
+Por tanto, **no satisface P3C12**. Que CI esté verde demuestra reproducibilidad de infraestructura, no validación normativa primaria.
+
+Detalle: `docs/P3_BENCHMARK_EVIDENCE.md`.
 
 ## Estado de fase vs. estado de modelo
 
-`evaluar_cierre_p3()` devuelve ambos planos.
+`evaluar_cierre_p3()` devuelve ambos planos y además `benchmark_evidence`.
 
 ### Fase
 

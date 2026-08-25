@@ -14,13 +14,6 @@ from mcp_electrico import (
 ARRANGEMENT = "grouped_air_surface_embedded_enclosed"
 
 
-def _reset_without_circuit():
-    core.crear_circuito("p3_gate_reset", 22.9)
-    visual_state.reset()
-    conductor_library.reset()
-    ampacity.reset()
-
-
 def _secondary_ready_model():
     core.crear_circuito("p3_gate_model", 22.9)
     visual_state.reset()
@@ -63,6 +56,7 @@ def _secondary_ready_model():
 
 def test_gate_p3_declara_pendientes_reales_y_no_avanza_a_p4():
     result = p3_completion.evaluar_cierre_p3()
+    assert result["schema_version"] == 2
     assert result["phase"] == "P3"
     assert result["phase_status"] == "NOT_READY"
     assert result["ready_for_next_phase"] is False
@@ -71,12 +65,12 @@ def test_gate_p3_declara_pendientes_reales_y_no_avanza_a_p4():
 
     pending = {item["id"] for item in result["pending_criteria"]}
     assert {
-        "P3C08",  # fuente oficial pinneada
-        "P3C09",  # dataset primario
-        "P3C10",  # estrategia normativa de Iz_base
-        "P3C11",  # cobertura factores primarios
-        "P3C12",  # benchmarks normativos primarios
-        "P3C13",  # madurez
+        "P3C08",
+        "P3C09",
+        "P3C10",
+        "P3C11",
+        "P3C12",
+        "P3C13",
     } <= pending
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
@@ -89,6 +83,19 @@ def test_gate_expone_que_iz_base_normativa_sigue_pendiente():
     assert criterion["status"] == "PENDING"
     assert "Iz_base" in criterion["blocking_reason"]
     assert "Tabla 1/2" in criterion["blocking_reason"]
+
+
+def test_p3c12_deriva_del_registro_y_benchmark_secundario_no_lo_satisface():
+    result = p3_completion.evaluar_cierre_p3()
+    criterion = next(item for item in result["criteria"] if item["id"] == "P3C12")
+    coverage = result["benchmark_evidence"]
+
+    assert criterion["status"] == "PENDING"
+    assert coverage["ready"] is False
+    assert coverage["status"] == "PRIMARY_BENCHMARK_COVERAGE_INCOMPLETE"
+    assert set(coverage["missing_families"]) == set(result["scope"]["required_numeric_families"])
+    assert "PRIMARY_BENCHMARK_COVERAGE_INCOMPLETE" in criterion["evidence"]
+    assert coverage["professional_emission"] is False
 
 
 def test_alcance_candidato_hace_visible_tabla_5d_y_base_normativa():

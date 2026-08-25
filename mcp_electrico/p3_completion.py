@@ -20,6 +20,7 @@ from typing import Any
 from opendssdirect import dss
 
 from . import (
+    ampacity_benchmark_evidence,
     ampacity_datasets,
     ampacity_evidence,
     ampacity_evidence_readiness,
@@ -35,8 +36,6 @@ MODEL_NOT_READY = "MODEL_NOT_READY"
 
 _ACCEPTABLE_MATURITY = {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"}
 
-# Alcance candidato P3-v1. No se declara cerrado: esta lista hace explícito qué
-# debe estar cubierto antes de considerar VALIDATED_WITH_LIMITATIONS.
 P3_V1_SCOPE = {
     "jurisdiction": "PE",
     "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
@@ -112,14 +111,14 @@ def _primary_datasets() -> list[dict[str, Any]]:
 
 
 def _coverage_flags() -> dict[str, bool]:
-    """Cobertura primaria exacta actualmente cargada por familia normativa."""
-    tables = {str(item.get("table") or "").strip() for item in _primary_datasets()}
-    axes = {str(item.get("axis") or "").strip() for item in _primary_datasets()}
+    primary = _primary_datasets()
+    tables = {str(item.get("table") or "").strip() for item in primary}
+    axes = {str(item.get("axis") or "").strip() for item in primary}
     return {
         "base_ampacity_strategy": any(
             str(item.get("axis") or "") == "base_ampacity"
             and str(item.get("table") or "") in {"Tabla 1", "Tabla 2"}
-            for item in _primary_datasets()
+            for item in primary
         ),
         "table_5a": "Tabla 5A" in tables and "ambient_temperature" in axes,
         "table_5b": "Tabla 5B" in tables and "soil_thermal_resistivity" in axes,
@@ -129,93 +128,79 @@ def _coverage_flags() -> dict[str, bool]:
     }
 
 
+def _benchmark_coverage() -> dict[str, Any]:
+    try:
+        return ampacity_benchmark_evidence.evaluar_cobertura(
+            P3_V1_SCOPE["required_numeric_families"]
+        )
+    except Exception as exc:
+        return {
+            "status": "PRIMARY_BENCHMARK_COVERAGE_ERROR",
+            "ready": False,
+            "required_families": deepcopy(P3_V1_SCOPE["required_numeric_families"]),
+            "missing_families": deepcopy(P3_V1_SCOPE["required_numeric_families"]),
+            "coverage": {},
+            "error": str(exc),
+            "professional_emission": False,
+        }
+
+
 def _capabilities() -> list[dict[str, Any]]:
     maturity = validation_status.get_module_status("ampacity")
     coverage = _coverage_flags()
+    benchmark_coverage = _benchmark_coverage()
     has_primary = bool(_primary_datasets())
     pinned = _primary_source_pinned()
 
+    benchmark_evidence = (
+        f"{benchmark_coverage.get('status')}; "
+        f"missing={benchmark_coverage.get('missing_families', [])}"
+    )
+
     return [
+        _criterion("P3C01", "ib_in_iz_contract", True,
+                   "ampacity.definir_condiciones/evaluar: Ib <= In <= Iz"),
+        _criterion("P3C02", "normative_applicability_router", True,
+                   "ampacity_profiles P3A: métodos CNE, tablas/ejes y separación IEC"),
+        _criterion("P3C03", "versioned_numeric_dataset_infrastructure", True,
+                   "ampacity_datasets: lookup exacto, sin interpolación/extrapolación y ROUTE_MISMATCH"),
+        _criterion("P3C04", "primary_evidence_gate", True,
+                   "ampacity_evidence + defensa del loader contra falsas promociones"),
+        _criterion("P3C05", "factor_binding_to_calculation", True,
+                   "ampacity_factor_binding: procedencia P3B conservada y revalidada hasta Iz"),
+        _criterion("P3C06", "normative_evidence_readiness", True,
+                   "ampacity_evidence_readiness: evidencia separada de READY_DATA"),
+        _criterion("P3C07", "workspace_v3_evidence_visibility", True,
+                   "workspace_p3_view: Ib/In/Iz + evidencia normativa preparada en Python"),
         _criterion(
-            "P3C01",
-            "ib_in_iz_contract",
-            True,
-            "ampacity.definir_condiciones/evaluar: Ib <= In <= Iz",
-        ),
-        _criterion(
-            "P3C02",
-            "normative_applicability_router",
-            True,
-            "ampacity_profiles P3A: métodos CNE, tablas/ejes y separación IEC",
-        ),
-        _criterion(
-            "P3C03",
-            "versioned_numeric_dataset_infrastructure",
-            True,
-            "ampacity_datasets: lookup exacto, sin interpolación/extrapolación y ROUTE_MISMATCH",
-        ),
-        _criterion(
-            "P3C04",
-            "primary_evidence_gate",
-            True,
-            "ampacity_evidence + defensa del loader contra falsas promociones",
-        ),
-        _criterion(
-            "P3C05",
-            "factor_binding_to_calculation",
-            True,
-            "ampacity_factor_binding: procedencia P3B conservada y revalidada hasta Iz",
-        ),
-        _criterion(
-            "P3C06",
-            "normative_evidence_readiness",
-            True,
-            "ampacity_evidence_readiness: evidencia separada de READY_DATA",
-        ),
-        _criterion(
-            "P3C07",
-            "workspace_v3_evidence_visibility",
-            True,
-            "workspace_p3_view: Ib/In/Iz + evidencia normativa preparada en Python",
-        ),
-        _criterion(
-            "P3C08",
-            "official_primary_source_pinned",
-            pinned,
+            "P3C08", "official_primary_source_pinned", pinned,
             "ampacity_primary_sources.json",
             "La fuente oficial CNE está descubierta pero aún no existe un SHA-256 primario reproducible fijado.",
         ),
         _criterion(
-            "P3C09",
-            "primary_verified_numeric_dataset",
-            has_primary,
+            "P3C09", "primary_verified_numeric_dataset", has_primary,
             "ampacity_p3b_numeric_datasets.json",
             "El dataset numérico actualmente cargado es secundario; no existe todavía una revisión PRIMARY_VERIFIED apta para emisión.",
         ),
         _criterion(
-            "P3C10",
-            "validated_base_ampacity_strategy",
-            coverage["base_ampacity_strategy"],
+            "P3C10", "validated_base_ampacity_strategy", coverage["base_ampacity_strategy"],
             "Tabla 1/2 CNE o estrategia equivalente formalmente validada",
             "Iz_base proviene hoy de catálogo de fabricante P2; falta validar su uso normativo con factores CNE o cargar la base normativa Tabla 1/2.",
         ),
         _criterion(
-            "P3C11",
-            "primary_correction_factor_coverage",
+            "P3C11", "primary_correction_factor_coverage",
             all(coverage[key] for key in ("table_5a", "table_5b", "table_5c", "table_5d", "table_5e")),
             "Cobertura primaria de Tablas 5A/5B/5C/5D/5E dentro del alcance P3-v1",
             "La cobertura numérica primaria de temperatura, suelo y agrupamiento/disposición todavía está incompleta.",
         ),
         _criterion(
-            "P3C12",
-            "independent_primary_normative_benchmarks",
-            False,
-            "Benchmark P3B actual valida infraestructura sobre evidencia secundaria",
-            "Faltan benchmarks independientes contra valores de fuente primaria para base y factores normativos.",
+            "P3C12", "independent_primary_normative_benchmarks",
+            bool(benchmark_coverage.get("ready")),
+            benchmark_evidence,
+            "Faltan benchmarks PASS con referencia independiente y evidencia primaria para todas las familias numéricas P3-v1.",
         ),
         _criterion(
-            "P3C13",
-            "acceptable_module_maturity",
+            "P3C13", "acceptable_module_maturity",
             maturity.get("status") in _ACCEPTABLE_MATURITY,
             f"validation_status.ampacity={maturity.get('status')}",
             "Ampacidad permanece UNDER_VALIDATION y no puede cerrar P3 todavía.",
@@ -224,7 +209,6 @@ def _capabilities() -> list[dict[str, Any]]:
 
 
 def evaluar_modelo_actual() -> dict[str, Any]:
-    """Evalúa el modelo activo sin confundirlo con el cierre del producto P3."""
     try:
         circuit = str(dss.Circuit.Name() or "")
     except Exception:
@@ -259,12 +243,12 @@ def evaluar_modelo_actual() -> dict[str, Any]:
 
 
 def evaluar_cierre_p3() -> dict[str, Any]:
-    """Devuelve el gate formal P3 y el estado independiente del modelo activo."""
     criteria = _capabilities()
     pending = [deepcopy(item) for item in criteria if item["status"] != "DONE"]
     phase_status = PHASE_READY_WITH_LIMITATIONS if not pending else PHASE_NOT_READY
+    benchmark_coverage = _benchmark_coverage()
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "phase": "P3",
         "phase_version": "P3-v1-candidate",
         "phase_status": phase_status,
@@ -272,11 +256,12 @@ def evaluar_cierre_p3() -> dict[str, Any]:
         "scope": deepcopy(P3_V1_SCOPE),
         "criteria": [deepcopy(item) for item in criteria],
         "pending_criteria": pending,
+        "benchmark_evidence": benchmark_coverage,
         "model": evaluar_modelo_actual(),
         "next_phase": "P4_IEC_60909" if phase_status == PHASE_READY_WITH_LIMITATIONS else None,
         "professional_emission": False,
         "note": (
-            "El gate P3 separa la infraestructura/cobertura normativa del producto de la preparación de un modelo concreto. "
-            "No promueve datasets, no eleva madurez y no permite avanzar a P4 mientras existan criterios pendientes."
+            "El gate P3 separa infraestructura/cobertura normativa del producto de la preparación de un modelo concreto. "
+            "P3C12 se deriva de evidencia versionada de benchmarks; no de una constante manual."
         ),
     }
