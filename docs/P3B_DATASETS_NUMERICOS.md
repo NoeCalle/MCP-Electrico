@@ -133,6 +133,48 @@ Además, el loader del catálogo aplica `validar_dataset_record()` y cruza cualq
 
 Detalle del proceso: `docs/P3B_EVIDENCIA_PRIMARIA.md`.
 
+## Binding P3B → Ib/In/Iz
+
+P3B ya puede transportar un factor resuelto hasta el cálculo P3 sin convertirlo en un simple número anónimo. `ampacity_factor_binding.py` genera una entrada de factor que conserva:
+
+- `dataset_id`;
+- `axis`;
+- valor exacto;
+- tabla;
+- consulta de método/circuitos/disposición;
+- `verification_status`;
+- procedencia del dataset;
+- `professional_emission`;
+- `automatic_normative_lookup`.
+
+Al configurar `Ib/In/Iz`, P3 **revalida** el factor contra el catálogo activo. Si alguien modifica el valor o la consulta después del lookup, la configuración se bloquea.
+
+Para un dataset secundario se requieren dos consentimientos explícitos distintos:
+
+1. `permitir_dataset_secundario=true` para obtener el valor desde P3B;
+2. `permitir_factores_dataset_secundarios=true` para permitir que ese factor entre al cálculo P3.
+
+Esto evita que un valor secundario obtenido para inspección/desarrollo termine accidentalmente dentro de `Iz`.
+
+Ejemplo de desarrollo con el dataset actual:
+
+```text
+Iz_base = 296 A
+k_group = 0.80
+Iz = 296 × 0.80 = 236.8 A
+```
+
+El resultado puede evaluarse técnicamente, pero conserva:
+
+```text
+factor_evidence.contains_secondary = true
+automatic_normative_lookup = false
+professional_emission = false
+maturity = UNDER_VALIDATION
+```
+
+Un futuro conjunto de factores podrá reportar `automatic_normative_lookup=true` únicamente si **todos** los factores aplicados provienen de datasets P3B primarios/verificados y ninguno es manual o secundario. Ese indicador no cambia por sí solo la madurez global P3 ni habilita emisión mientras el módulo continúe `UNDER_VALIDATION`.
+
 ## Benchmark reproducible
 
 `examples/run_benchmarks_p3b.py` genera:
@@ -157,6 +199,6 @@ Esto evita que un benchmark verde se interprete erróneamente como validación n
 5. crear por PR una nueva revisión primaria del dataset, nunca mutar la secundaria en runtime;
 6. cargar datasets primarios pequeños por eje (temperatura, agrupamiento y, cuando aplique, suelo);
 7. comparar contra casos manuales independientes;
-8. integrar factores primarios con `Ib/In/Iz`;
+8. usar el binding P3B → P3 ya implementado con datasets primarios reales;
 9. construir el gate formal de salida P3;
 10. elevar madurez solo si la evidencia lo permite.
