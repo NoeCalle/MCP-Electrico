@@ -1,10 +1,9 @@
-"""Guardas de runtime para datos profesionales P2.
+"""Guardas de runtime para datos profesionales P2/P3.
 
-Se instalan al registrar las tools MCP. Mantienen dos invariantes que no debe
-romper una llamada directa desde la interfaz:
+Se instalan al registrar las tools MCP. Mantienen invariantes de estado:
 
-1. crear un circuito nuevo limpia todos los estados auxiliares aunque el nuevo
-   circuito reutilice exactamente el mismo nombre;
+1. crear un circuito nuevo limpia estados auxiliares P2/P3 aunque reutilice
+   exactamente el mismo nombre;
 2. OpenDSS FaultStudy no se ejecuta en un contexto P2 si la representación de
    secuencia cero del escenario/modelo no está lista para OpenDSS.
 
@@ -19,7 +18,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import conductor_library, core, professional_data, visual_state, zero_sequence
+from . import ampacity, conductor_library, core, professional_data, visual_state, zero_sequence
 
 
 def _professional_transformers() -> list[dict[str, Any]]:
@@ -112,6 +111,7 @@ def _reset_auxiliary_state() -> None:
     conductor_library.reset()
     professional_data.reset()
     zero_sequence.reset()
+    ampacity.reset()
 
 
 def install() -> None:
