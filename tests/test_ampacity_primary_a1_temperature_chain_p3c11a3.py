@@ -143,11 +143,11 @@ def test_base_a1_no_extrapola_a_otra_seccion():
     assert result["professional_emission"] is False
 
 
-def test_cadena_5a_real_convive_con_p3c11_done_sin_habilitar_p4():
+def test_cadena_5a_real_convive_con_p3c12_done_sin_habilitar_p4():
     gate = p3_completion.evaluar_cierre_p3()
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P3C11"]["status"] == "DONE"
-    assert criteria["P3C12"]["status"] == "PENDING"
+    assert criteria["P3C12"]["status"] == "DONE"
     assert criteria["P3C13"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["ready_for_next_phase"] is False
