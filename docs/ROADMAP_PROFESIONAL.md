@@ -16,14 +16,14 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **EN PROGRESO — P3C01–P3C10 DONE; COBERTURA Y VALIDACIÓN FINAL PENDIENTES** | `Ib <= In <= Iz`, routing normativo y factores verificables |
-| P4 — IEC 60909 | PENDIENTE | cortocircuito formal validado |
+| P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing normativo, evidencia primaria y benchmarks independientes |
+| P4 — IEC 60909 | **PENDIENTE — SIGUIENTE FASE PRINCIPAL** | cortocircuito formal validado |
 | P5 — Protección y TCC | PENDIENTE | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3 está en progreso y conserva `UNDER_VALIDATION`; no se avanzará formalmente a P4 hasta completar cobertura normativa, evidencia numérica primaria suficiente, benchmarks normativos primarios y el gate de salida P3 en estado `DONE`. Los ejes transversales V y E evolucionan en paralelo.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 queda cerrado en `READY_WITH_LIMITATIONS` con `P3C01–P3C13 = DONE`; P4 IEC 60909 pasa a ser la siguiente fase principal. Los ejes transversales V y E continúan evolucionando en paralelo y P3 puede ampliar cobertura de Tablas 1/2 de forma incremental sin reabrir el gate v1.
 
 ## Principio rector
 
@@ -170,7 +170,7 @@ Detalle: `docs/P2_EXIT_GATE.md`.
 
 ## Fase P3 — Ampacidad normativa y conductor
 
-**Estado: EN PROGRESO — P3C01–P3C10 DONE; P3C11–P3C13 PENDIENTES.**
+**Estado: COMPLETA CON LIMITACIONES (P3 v1) — P3C01–P3C13 DONE.**
 
 Objetivo: verificar selección térmica del conductor mediante:
 
@@ -281,21 +281,23 @@ Detalle: `docs/P3B_DATASETS_NUMERICOS.md`, `docs/P3B_EVIDENCIA_PRIMARIA.md`, `do
 
 ### Gate formal de salida P3 — implementado
 
-`evaluar_cierre_p3()` separa el estado de la fase del estado del modelo y bloquea el paso formal a P4 mientras exista algún criterio P3-v1 pendiente.
+`evaluar_cierre_p3()` separa el estado de la fase del estado del modelo. Con `P3C01–P3C13 = DONE` devuelve `READY_WITH_LIMITATIONS` y habilita formalmente `P4_IEC_60909` como siguiente fase.
 
 Infraestructura, fuente, primera revisión primaria de factores y estrategia de base normativa `P3C01`–`P3C10`: implementados.
 
-Bloqueantes actuales:
+Cierre final P3-v1:
 
-- `P3C11` — cobertura primaria de 5A/5B/5C/5D/5E (**5B, 5D y 5E ya disponen de cobertura primaria completa; 5B/5D además tienen binding seguro hacia Iz; 5A/5C permanecen parciales**);
-- `P3C12` — benchmarks normativos independientes contra fuente primaria;
-- `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
+- `P3C11` — `DONE`: cobertura primaria declarada de Tablas 5A/5B/5C/5D/5E;
+- `P3C12` — `DONE`: suite independiente primaria P3C12A con 29/29 casos PASS y seis familias cubiertas;
+- `P3C13` — `DONE`: `validation_status.ampacity = VALIDATED_WITH_LIMITATIONS`.
 
-### Pendiente para cerrar P3
+El cierre P3-v1 no implica que toda fila de Tablas 1/2 esté cargada ni que cualquier combinación física tenga binding automático. Los casos fuera de evidencia exacta continúan `VALUE_NOT_TABULATED`, manuales o fail-closed según corresponda.
+
+### Limitaciones y trabajo incremental después de P3 v1
 
 - completar cobertura primaria pendiente de 5A/5C/5E y habilitar bindings seguros de las familias ya cubiertas según el alcance formal P3-v1 (`P3C11`);
 - extender Tablas 1/2 incrementalmente cuando nuevos casos lo requieran, manteniendo lookup exacto y evidencia primaria; P3C10 no se reabre por falta de cobertura exhaustiva;
-- incorporar benchmarks independientes primarios por familia (`P3C12`);
+- ampliar benchmarks independientes cuando se amplíe el alcance de datasets/base;
 - mantener BT/MT y ámbitos normativos separados;
 - mantener política explícita de valores no tabulados;
 - elevar madurez solo si la evidencia lo permite (`P3C13`).

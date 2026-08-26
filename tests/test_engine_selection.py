@@ -76,7 +76,7 @@ def test_ampacity_foundation_is_mcp_owned_under_validation():
     assert result["professional_execution_ready"] is False
     assert result["professional_emission"] is False
     assert result["readiness"]["data_status"] == "MISSING_DATA"
-    assert result["module_status"]["status"] == "UNDER_VALIDATION"
+    assert result["module_status"]["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert result["decision"] == "EJECUTABLE_CON_DATOS_PROFESIONALES_INCOMPLETOS"
 
 

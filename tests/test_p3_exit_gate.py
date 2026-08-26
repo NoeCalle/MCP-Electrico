@@ -7,6 +7,7 @@ from mcp_electrico import (
     conductor_library,
     core,
     p3_completion,
+    validation_status,
     visual_state,
 )
 
@@ -56,20 +57,18 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c01_a_p3c12_done_sin_avanzar_a_p4():
+def test_gate_p3_cierra_p3c01_a_p3c13_y_habilita_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
-    assert result["phase_status"] == "NOT_READY"
-    assert result["ready_for_next_phase"] is False
-    assert result["next_phase"] is None
+    assert result["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert result["ready_for_next_phase"] is True
+    assert result["next_phase"] == "P4_IEC_60909"
     assert result["professional_emission"] is False
-
-    pending = {item["id"] for item in result["pending_criteria"]}
-    assert pending == {"P3C13"}
+    assert result["pending_criteria"] == []
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
-    assert {f"P3C{index:02d}" for index in range(1, 13)} <= done
+    assert {f"P3C{index:02d}" for index in range(1, 14)} <= done
 
 
 def test_p3c08_deriva_del_registro_pinneado():
@@ -135,21 +134,29 @@ def test_alcance_candidato_hace_visible_tabla_5d_y_base_normativa():
     assert "base_ampacity_strategy_Table_1_2_or_validated_equivalent" in scope["required_numeric_families"]
 
 
-def test_modelo_secundario_puede_ser_tecnicamente_ready_sin_cerrar_p3():
+def test_modelo_secundario_no_impide_cierre_de_fase_pero_no_es_apto_profesionalmente():
     _secondary_ready_model()
     result = p3_completion.evaluar_cierre_p3()
 
-    assert result["phase_status"] == "NOT_READY"
+    assert result["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert result["ready_for_next_phase"] is True
+    assert result["next_phase"] == "P4_IEC_60909"
     assert result["model"]["status"] == "MODEL_TECHNICALLY_READY"
     assert result["model"]["technical_readiness"]["overall_status"] == "READY_TO_EXECUTE"
     assert result["model"]["normative_evidence"]["status"] == "SECONDARY_EVIDENCE_ONLY"
     assert result["model"]["professional_normative_evidence_ready"] is False
-    assert result["ready_for_next_phase"] is False
+    assert result["professional_emission"] is False
 
 
-def test_madurez_actual_under_validation_es_unico_bloqueante():
+def test_p3c13_deriva_de_madurez_validated_with_limitations():
+    module = validation_status.get_module_status("ampacity")
+    assert module["status"] == "VALIDATED_WITH_LIMITATIONS"
+    assert any("Tablas 1/2" in item for item in module["limitations"])
+    assert any("fail-closed" in item for item in module["limitations"])
+
     result = p3_completion.evaluar_cierre_p3()
     maturity = next(item for item in result["criteria"] if item["id"] == "P3C13")
-    assert maturity["status"] == "PENDING"
-    assert "UNDER_VALIDATION" in maturity["evidence"]
-    assert {item["id"] for item in result["pending_criteria"]} == {"P3C13"}
+    assert maturity["status"] == "DONE"
+    assert maturity["blocking_reason"] is None
+    assert "VALIDATED_WITH_LIMITATIONS" in maturity["evidence"]
+    assert result["pending_criteria"] == []

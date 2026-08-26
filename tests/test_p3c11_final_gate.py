@@ -15,9 +15,9 @@ def test_p3c11_permanece_done_y_p3c12_cierra_sin_desbloquear_p4():
 
     assert criteria["P3C11"]["status"] == "DONE"
     assert criteria["P3C12"]["status"] == "DONE"
-    assert criteria["P3C13"]["status"] == "PENDING"
+    assert criteria["P3C13"]["status"] == "DONE"
 
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
-    assert gate["next_phase"] is None
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P4_IEC_60909"
     assert gate["professional_emission"] is False

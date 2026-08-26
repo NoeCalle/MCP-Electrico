@@ -56,16 +56,20 @@ _MODULES = {
         ],
     },
     "ampacity": {
-        "status": "UNDER_VALIDATION",
-        "basis": "P3/P3A/P3B MCP: Ib/In/Iz + routing normativo + datasets numéricos con procedencia y política de uso",
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": (
+            "P3-v1 CNE Utilización 2006: Ib/In/Iz + routing P3A + datasets PRIMARY_VERIFIED "
+            "+ cobertura 5A/5B/5C/5D/5E + benchmarks primarios independientes P3C12"
+        ),
         "limitations": [
-            "P3A identifica tabla base y ejes de corrección del CNE 2006; método D agrupado se enruta a Tabla 5D y permanece manual hasta cargar su dataset específico",
-            "P3B contiene inicialmente solo un subconjunto numérico de Tabla 5C como SECONDARY_TRANSCRIPTION para desarrollo/benchmark de infraestructura",
-            "Los datasets secundarios requieren opt-in explícito y mantienen professional_emission=false",
-            "IEC 60364-5-52:2009+AMD1:2024 permanece REFERENCE_ONLY hasta disponer de dataset propio de esa edición",
-            "Temperatura, resistividad del suelo y demás ramas numéricas siguen pendientes de datasets primarios/verificados",
-            "La compatibilidad entre ampacidad base de fabricante y factores aplicados debe documentarse",
-            "Pendientes verificación primaria, benchmarks normativos independientes y gate de salida P3 antes de elevar madurez",
+            "El alcance validado corresponde a PERU_CNE_UTIL_2006_030_004 y no generaliza automáticamente a otras normas o ediciones",
+            "Tablas 1/2 no están transcritas exhaustivamente: Iz_base profesional solo se resuelve para filas PRIMARY_VERIFIED con coincidencia exacta",
+            "No se permite interpolación, extrapolación ni vecino más cercano en datasets normativos",
+            "Cobertura primaria completa de una tabla no implica binding automático para toda combinación física; configuraciones no demostradas permanecen manuales o fail-closed",
+            "Tabla 5A conserva fail-closed para columnas 20-25 por la inconsistencia editorial detectada entre el alcance literal de la tabla y el routing de Tabla 3",
+            "Los datasets secundarios históricos permanecen disponibles solo con opt-in explícito y professional_emission=false",
+            "IEC 60364-5-52:2009+AMD1:2024 permanece REFERENCE_ONLY hasta disponer de un dataset validado para esa edición",
+            "La aptitud profesional de un modelo concreto depende además de sus datos, evidencia, QA y revisión del ingeniero responsable",
         ],
     },
     "short_circuit": {
