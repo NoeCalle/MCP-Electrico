@@ -174,3 +174,17 @@ caso_minimo       -> ok=true
 ```
 
 Con los cuatro pasos en verde, ya existe una base controlada para empezar a sustituir la plantilla por datos de un caso real pequeño, conservando siempre la revisión de ingeniería y sin saltarnos los límites publicados del roadmap.
+
+## 10. Atajo: validar toda la línea base con un comando
+
+Si se quiere ejecutar los cuatro pasos anteriores de forma aislada pero orquestada, usar:
+
+```bash
+python examples/validar_linea_base.py
+```
+
+El comando crea `salida_validacion_local/`, ejecuta cada etapa en un proceso Python separado y genera `manifiesto_linea_base.json`. El resultado esperado es `status=PASS`, con `passed=4` y `failed=0`.
+
+El manifiesto registra el commit Git disponible, schemas, códigos de retorno, artefactos y sus SHA-256. El orquestador no añade lógica eléctrica, mantiene `automatic_dispatch=false`, `crosscheck=false` y `professional_emission=false`. Los hashes identifican los archivos de una ejecución; no sustituyen a REF-01 como criterio de equivalencia numérica entre equipos.
+
+La especificación completa está en `docs/VALIDACION_LINEA_BASE_LOCAL.md`.
