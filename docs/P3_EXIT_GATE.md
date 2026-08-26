@@ -30,11 +30,13 @@ professional_emission = false
 - P3C08: fuente oficial MINEM/CNE pinneada por SHA-256;
 - P3C09: datasets numéricos `PRIMARY_VERIFIED`;
 - P3C10: estrategia `Iz_base` primaria exacta de Tablas 1/2 demostrada;
-  caso de referencia: `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1` (método C, 70 mm², 229 A);
+  caso de referencia: `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`, método C, 70 mm², `ampacity_a = 229 A`;
 - P3C11: cobertura primaria declarada de 5A/5B/5C/5D/5E;
 - P3C12: referencias primarias independientes, 29/29 casos PASS, seis familias;
   el gate deriva esta cobertura mediante `ampacity_benchmark_evidence.evaluar_cobertura()` y vuelve a comprobar la suite independiente viva;
 - P3C13: módulo `ampacity` elevado a `VALIDATED_WITH_LIMITATIONS`.
+
+El benchmark histórico P3B con evidencia `SECONDARY` se conserva como regresión de infraestructura, pero no califica para P3C12 ni habilita cobertura normativa profesional. El objeto `benchmark_evidence` del gate distingue explícitamente esta evidencia secundaria de los benchmarks `PRIMARY` independientes.
 
 Fuente primaria pinneada:
 
