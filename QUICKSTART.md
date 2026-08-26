@@ -72,6 +72,8 @@ voltage_drop
 outputs
 ```
 
+El criterio configurado de caída de tensión queda explícito en `voltage_drop.criterio.limite_pct`; el mismo bloque declara `origen=configurable_por_usuario` y `normativo_universal=false`.
+
 En `workspace_primer_uso.html` revisa el unifilar, el inspector y las vistas de flujo, caída de tensión y ampacidad disponibles en el workspace.
 
 ## 5. Qué NO demuestra
