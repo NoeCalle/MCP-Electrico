@@ -51,20 +51,20 @@ def test_5b_no_interpola_ni_sale_del_alcance_de_ducto_hasta_08m():
         assert result["professional_emission"] is False
 
 
-def test_5b_cuenta_como_familia_primaria_completa_pero_p3c11_sigue_pendiente():
+def test_5b_permanece_completa_y_p3c11_global_esta_done():
     dataset = ampacity_datasets.obtener_dataset(DATASET)
     assert dataset["usage_policy"]["p3c11_family_coverage"] is True
     assert dataset["usage_policy"]["automatic_binding_to_iz"] is True
     assert dataset["scope"]["complete_table_verified"] is True
     flags = p3_completion._coverage_flags()
     assert flags["table_5b"] is True
-    assert flags["table_5a"] is False
-    assert flags["table_5c"] is False
+    assert flags["table_5a"] is True
+    assert flags["table_5c"] is True
     assert flags["table_5d"] is True
-    assert flags["table_5e"] is False
+    assert flags["table_5e"] is True
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(item for item in gate["criteria"] if item["id"] == "P3C11")
-    assert c11["status"] == "PENDING"
+    assert c11["status"] == "DONE"
     assert gate["ready_for_next_phase"] is False
     assert gate["next_phase"] is None
 
