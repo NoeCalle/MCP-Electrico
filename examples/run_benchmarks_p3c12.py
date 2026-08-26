@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from mcp_electrico import ampacity_independent_benchmarks
 
 
-OUTPUT = Path("benchmark_p3c12.json")
+OUTPUT = ROOT / "benchmark_p3c12.json"
 
 
 def main() -> int:
