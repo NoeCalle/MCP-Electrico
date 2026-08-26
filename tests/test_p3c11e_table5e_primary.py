@@ -81,16 +81,16 @@ def test_evidencia_5e_preserva_paginas_conteos_y_notas():
     assert item["review_mode"] == "AI_VISUAL_REVIEW_USER_AUTHORIZED"
 
 
-def test_5e_cierra_su_familia_pero_p3c11_sigue_pendiente_por_5a():
+def test_5e_permanece_completa_y_p3c11_global_esta_done():
     flags = p3_completion._coverage_flags()
-    assert flags["table_5a"] is False
+    assert flags["table_5a"] is True
     assert flags["table_5b"] is True
     assert flags["table_5c"] is True
     assert flags["table_5d"] is True
     assert flags["table_5e"] is True
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(x for x in gate["criteria"] if x["id"] == "P3C11")
-    assert c11["status"] == "PENDING"
+    assert c11["status"] == "DONE"
     assert gate["ready_for_next_phase"] is False
     assert gate["next_phase"] is None
 

@@ -22,6 +22,7 @@ _DATA_DIR = Path(__file__).with_name("data")
 _DATA_FILE = _DATA_DIR / "ampacity_p3b_numeric_datasets.json"
 _DATA_SHARDS = (
     _DATA_DIR / "ampacity_p3c11c_table5c_primary.json",
+    _DATA_DIR / "ampacity_p3c11a_table5a_complete_primary.json",
 )
 _PRIMARY_SOURCES_FILE = _DATA_DIR / "ampacity_primary_sources.json"
 
