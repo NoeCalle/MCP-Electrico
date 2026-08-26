@@ -117,7 +117,7 @@ def test_p3c11_reconoce_5b_completa_y_subconjuntos_restantes_sin_cerrar_fase():
     assert coverage["table_5b"] is True
     assert coverage["table_5c"] is False
     assert coverage["table_5d"] is True
-    assert coverage["table_5e"] is False
+    assert coverage["table_5e"] is True
 
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C11")
