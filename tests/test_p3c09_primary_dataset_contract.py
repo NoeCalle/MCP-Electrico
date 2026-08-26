@@ -14,7 +14,7 @@ def test_revision_primary_verified_cierra_p3c09_sin_cerrar_p3():
     status = {criterion["id"]: criterion["status"] for criterion in gate["criteria"]}
     assert status["P3C09"] == "DONE"
     assert status["P3C10"] == "DONE"
-    assert status["P3C11"] == "PENDING"
+    assert status["P3C11"] == "DONE"
     assert status["P3C12"] == "PENDING"
     assert status["P3C13"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"

@@ -79,4 +79,5 @@ def test_p3c09_cierra_pero_p3_global_sigue_bloqueada():
     pending = {item["id"] for item in gate["pending_criteria"]}
     assert "P3C09" not in pending
     assert "P3C10" not in pending
-    assert {"P3C11", "P3C12", "P3C13"} <= pending
+    assert "P3C11" not in pending
+    assert {"P3C12", "P3C13"} <= pending

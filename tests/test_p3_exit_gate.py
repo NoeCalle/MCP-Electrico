@@ -56,7 +56,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c08_p3c09_y_p3c10_done_sin_avanzar_a_p4():
+def test_gate_p3_reconoce_p3c01_a_p3c11_done_sin_avanzar_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -66,7 +66,8 @@ def test_gate_p3_reconoce_p3c08_p3c09_y_p3c10_done_sin_avanzar_a_p4():
     assert result["professional_emission"] is False
 
     pending = {item["id"] for item in result["pending_criteria"]}
-    assert {"P3C11", "P3C12", "P3C13"} <= pending
+    assert {"P3C12", "P3C13"} <= pending
+    assert "P3C11" not in pending
     assert "P3C08" not in pending
     assert "P3C09" not in pending
     assert "P3C10" not in pending
@@ -83,6 +84,7 @@ def test_gate_p3_reconoce_p3c08_p3c09_y_p3c10_done_sin_avanzar_a_p4():
         "P3C08",
         "P3C09",
         "P3C10",
+        "P3C11",
     } <= done
 
 
@@ -110,10 +112,10 @@ def test_gate_reconoce_iz_base_normativa_primary_verified():
     assert "Tabla 1/2" in criterion["evidence"]
 
 
-def test_p3c11_reconoce_5b_completa_y_subconjuntos_restantes_sin_cerrar_fase():
+def test_p3c11_reconoce_cobertura_completa_5a_5b_5c_5d_5e():
     coverage = p3_completion._coverage_flags()
     assert coverage["base_ampacity_strategy"] is True
-    assert coverage["table_5a"] is False
+    assert coverage["table_5a"] is True
     assert coverage["table_5b"] is True
     assert coverage["table_5c"] is True
     assert coverage["table_5d"] is True
@@ -121,8 +123,8 @@ def test_p3c11_reconoce_5b_completa_y_subconjuntos_restantes_sin_cerrar_fase():
 
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C11")
-    assert criterion["status"] == "PENDING"
-    assert "subconjuntos primarios" in criterion["blocking_reason"]
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
 
 
 def test_p3c12_deriva_del_registro_y_benchmark_secundario_no_lo_satisface():

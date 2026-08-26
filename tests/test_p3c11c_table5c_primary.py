@@ -127,22 +127,20 @@ def test_shards_rechazan_dataset_id_duplicado(tmp_path, monkeypatch):
     shard = tmp_path / "duplicate.json"
     shard.write_text(json.dumps({"schema_version": 1, "datasets": [duplicate]}), encoding="utf-8")
     monkeypatch.setattr(ampacity_datasets, "_DATA_SHARDS", (shard,))
-    # El mismo ID existe en el catálogo base solo si se parchea también el base. Para probar la
-    # defensa entre shards, se duplica dos veces el shard válido y se excluye el shard real.
     monkeypatch.setattr(ampacity_datasets, "_DATA_SHARDS", (shard, shard))
     with pytest.raises(ValueError, match="P3B023"):
         ampacity_datasets.listar_datasets()
 
 
-def test_5c_cierra_su_familia_pero_p3c11_aun_espera_5a():
+def test_5c_cierra_su_familia_y_p3c11_global_esta_done():
     flags = p3_completion._coverage_flags()
-    assert flags["table_5a"] is False
+    assert flags["table_5a"] is True
     assert flags["table_5b"] is True
     assert flags["table_5c"] is True
     assert flags["table_5d"] is True
     assert flags["table_5e"] is True
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(item for item in gate["criteria"] if item["id"] == "P3C11")
-    assert c11["status"] == "PENDING"
+    assert c11["status"] == "DONE"
     assert gate["ready_for_next_phase"] is False
     assert gate["next_phase"] is None
