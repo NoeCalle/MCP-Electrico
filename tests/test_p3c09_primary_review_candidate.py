@@ -80,4 +80,5 @@ def test_p3c09_cierra_pero_p3_global_sigue_bloqueada():
     assert "P3C09" not in pending
     assert "P3C10" not in pending
     assert "P3C11" not in pending
-    assert {"P3C12", "P3C13"} <= pending
+    assert "P3C12" not in pending
+    assert pending == {"P3C13"}
