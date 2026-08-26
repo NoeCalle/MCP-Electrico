@@ -98,5 +98,5 @@ def test_subconjunto_5a_conserva_binding_aunque_familia_completa_cierra_p3c11():
     gate = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C11")
     assert criterion["status"] == "DONE"
-    assert gate["ready_for_next_phase"] is False
+    assert gate["ready_for_next_phase"] is True
     assert gate["professional_emission"] is False

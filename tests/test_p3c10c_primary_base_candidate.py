@@ -81,5 +81,5 @@ def test_p3c10c_revision_visual_aprobada_queda_promovida_sin_fingir_revision_hum
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C10")
     assert criterion["status"] == "DONE"
     assert criterion["blocking_reason"] is None
-    assert gate["ready_for_next_phase"] is False
+    assert gate["ready_for_next_phase"] is True
     assert gate["professional_emission"] is False

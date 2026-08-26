@@ -16,6 +16,6 @@ def test_revision_primary_verified_cierra_p3c09_sin_cerrar_p3():
     assert status["P3C10"] == "DONE"
     assert status["P3C11"] == "DONE"
     assert status["P3C12"] == "DONE"
-    assert status["P3C13"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
+    assert status["P3C13"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
     assert gate["professional_emission"] is False

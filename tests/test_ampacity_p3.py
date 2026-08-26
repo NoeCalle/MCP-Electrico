@@ -82,7 +82,7 @@ def test_base_confirmada_evalua_ib_in_iz_sin_confundir_rating_visual_con_in():
     assert result["values"]["iz_base_a"] == pytest.approx(296.0)
     assert result["values"]["factor_total"] == pytest.approx(1.0)
     assert result["values"]["iz_a"] == pytest.approx(296.0)
-    assert result["maturity"] == "UNDER_VALIDATION"
+    assert result["maturity"] == "VALIDATED_WITH_LIMITATIONS"
     assert result["automatic_normative_lookup"] is False
 
 
@@ -135,7 +135,7 @@ def test_readiness_ampacidad_es_especifico_y_no_habilita_emision():
     assert ready["data_status"] == "READY_DATA"
     assert ready["engine_status"] == "READY_ENGINE"
     assert ready["overall_status"] == "READY_TO_EXECUTE"
-    assert ready["module_status"]["status"] == "UNDER_VALIDATION"
+    assert ready["module_status"]["status"] == "VALIDATED_WITH_LIMITATIONS"
 
     selection = engine_selection.seleccionar_motor_estudio("ampacidad")
     assert selection["technical_executable"] is True
@@ -146,7 +146,7 @@ def test_readiness_ampacidad_es_especifico_y_no_habilita_emision():
 
 def test_matriz_validacion_declara_ampacidad_under_validation_y_barrera_p3b():
     status = validation_status.get_module_status("ampacity")
-    assert status["status"] == "UNDER_VALIDATION"
+    assert status["status"] == "VALIDATED_WITH_LIMITATIONS"
     limitations = " ".join(status["limitations"]).lower()
     assert "secund" in limitations
     assert "professional_emission=false" in limitations

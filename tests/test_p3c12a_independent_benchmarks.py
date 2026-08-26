@@ -47,8 +47,8 @@ def test_p3c12a_permanece_base_viva_y_registro_p3c12b_la_promueve_sin_cerrar_p3(
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P3C11"]["status"] == "DONE"
     assert criteria["P3C12"]["status"] == "DONE"
-    assert criteria["P3C13"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
-    assert gate["next_phase"] is None
+    assert criteria["P3C13"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P4_IEC_60909"
     assert gate["professional_emission"] is False

@@ -36,7 +36,7 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3C01–P3C10 DONE; COBERTURA Y VALIDACIÓN FINAL PENDIENTES**" in text
+    assert "P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)**" in text
     assert "P3 permanece `UNDER_VALIDATION`" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
@@ -65,7 +65,7 @@ def test_visual_roadmap_keeps_cross_phase_deliverables():
         assert heading in text, f"Falta del roadmap visual: {heading}"
 
     assert "COMPLETA CON LIMITACIONES (V2/P2 v1)" in text
-    assert "EN PROGRESO — FOUNDATION V3" in text
+    assert "COMPLETA CON LIMITACIONES (V3/P3-v1)" in text
     assert "BASE NORMATIVA P3C10" in text
     assert "Tabla / dataset base" in text
     assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
@@ -175,7 +175,7 @@ def test_p3b_primary_evidence_doc_prevents_automatic_promotion():
 def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
     text = P3_EXIT.read_text(encoding="utf-8")
 
-    assert "**NOT_READY.**" in text
+    assert "**READY_WITH_LIMITATIONS — P3-v1 CERRADA.**" in text
     assert "phase" in text
     assert "model" in text
     assert "P3C08" in text
