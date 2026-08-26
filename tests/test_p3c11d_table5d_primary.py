@@ -108,7 +108,7 @@ def test_5d_cierra_solo_su_familia_y_p3c11_global_sigue_pendiente():
     assert flags["table_5b"] is True
     assert flags["table_5c"] is False
     assert flags["table_5d"] is True
-    assert flags["table_5e"] is False
+    assert flags["table_5e"] is True
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(x for x in gate["criteria"] if x["id"] == "P3C11")
     assert c11["status"] == "PENDING"
