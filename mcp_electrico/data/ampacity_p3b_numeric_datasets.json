@@ -2199,6 +2199,3272 @@
       }
     },
     {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5E",
+      "axis": "grouping",
+      "scope": {
+        "installation_methods": [
+          "E",
+          "F"
+        ],
+        "environment": [
+          "air"
+        ],
+        "table5e_branches": [
+          "A_MULTICORE_CABLE_GROUPS",
+          "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS"
+        ],
+        "support_families": [
+          "perforated_trays",
+          "vertical_perforated_trays",
+          "ladder_trays_clamps_supports"
+        ],
+        "contact_modes": [
+          "contact",
+          "spaced_as_figure"
+        ],
+        "tray_counts": [
+          1,
+          2,
+          3
+        ],
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "complete_table_verified": true,
+        "numeric_row_count": 134,
+        "explicit_not_tabulated_count": 10,
+        "accuracy_note": "Los valores son promedios; la extensión de valores es generalmente menor de ±5% según Nota 1.",
+        "single_layer_only": true,
+        "closer_spacing_policy": "Los factores deben reducirse para espaciamientos más cerrados que los publicados; MCP no infiere esa reducción.",
+        "note": "Cobertura completa de Tabla 5E páginas 21-22: rama A método E y rama B método F, preservando disposiciones físicas y celdas '-'."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": [
+          "installation_method",
+          "environment",
+          "table5e_branch",
+          "support_family",
+          "contact_mode",
+          "cable_formation",
+          "tray_count",
+          "grouped_units"
+        ],
+        "value_field": "factor"
+      },
+      "rows": [
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.88,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.82,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 0.79,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 0.76,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "factor": 0.73,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.8,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.77,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.73,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "factor": 0.68,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.79,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 4
+          },
+          "factor": 0.76,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 6
+          },
+          "factor": 0.71,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 9
+          },
+          "factor": 0.66,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 0.95,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.99,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.92,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.99,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.95,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 4
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 6
+          },
+          "factor": 0.85,
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.88,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.82,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 0.78,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 0.73,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "factor": 0.72,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.88,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.81,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.76,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.71,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "factor": 0.7,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_CONTACT",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.89,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 0.88,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.88,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.85,
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.82,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 0.8,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 0.79,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "factor": 0.78,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.8,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.78,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.76,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "factor": 0.73,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.85,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.79,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 4
+          },
+          "factor": 0.76,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 6
+          },
+          "factor": 0.73,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 9
+          },
+          "factor": 0.7,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_CONTACT",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 4
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 6
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.99,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 4
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 6
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 4
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 6
+          },
+          "factor": 0.93,
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.87,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.81,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 0.95,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.85,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.78,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 0.95,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.84,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.93,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.89,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.9,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_horizontal",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_CONTACT_HORIZONTAL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.98,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.93,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.89,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.92,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "B_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 0.91,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 0.89,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.9,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.86,
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 1
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 2
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "factor": 1.0,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 1
+          },
+          "factor": 0.97,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 2
+          },
+          "factor": 0.95,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "factor": 0.93,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 1
+          },
+          "factor": 0.96,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 2
+          },
+          "factor": 0.94,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "three_single_core_trefoil",
+            "tray_count": 3,
+            "grouped_units": 3
+          },
+          "factor": 0.9,
+          "metadata": {
+            "arrangement_id": "B_LADDER_TRAYS_SPACED_TREFOIL",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        }
+      ],
+      "not_tabulated_cells": [
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_VERTICAL_PERFORATED_TRAYS_SPACED",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 1,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 2,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "E",
+            "environment": "air",
+            "table5e_branch": "A_MULTICORE_CABLE_GROUPS",
+            "support_family": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "cable_formation": "not_applicable_multicore",
+            "tray_count": 3,
+            "grouped_units": 9
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "A_LADDER_TRAYS_SPACED",
+            "installation_reference_items": "14_15_16",
+            "group_unit_label": "number_of_multicore_cables",
+            "source_pages": [
+              568
+            ],
+            "document_page_marker": "Tablas - Pág. 21 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 1,
+            "grouped_units": 3
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        },
+        {
+          "query": {
+            "installation_method": "F",
+            "environment": "air",
+            "table5e_branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support_family": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "cable_formation": "three_single_core_vertical",
+            "tray_count": 2,
+            "grouped_units": 3
+          },
+          "source_token": "-",
+          "metadata": {
+            "arrangement_id": "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL",
+            "installation_reference_items": "13",
+            "group_unit_label": "number_of_three_phase_circuits",
+            "source_pages": [
+              569
+            ],
+            "document_page_marker": "Tablas - Pág. 22 de 82"
+          }
+        }
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 5E",
+        "page_references": [
+          "PDF 548-549; Tabla 1: métodos E/F y remisión a Tabla 5E para grupos al aire libre",
+          "PDF 568; Tablas - Pág. 21 de 82; Tabla 5E rama A",
+          "PDF 569; Tablas - Pág. 22 de 82; Tabla 5E rama B"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11E_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_REVIEW_CANDIDATE_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-25",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "complete_table_reviewed": true,
+          "reviewed_numeric_row_count": 134,
+          "reviewed_not_tabulated_count": 10,
+          "human_reviewer": null
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": false,
+        "p3c11_family_coverage": true,
+        "automatic_binding_to_iz": false,
+        "note": "Tabla 5E completa por lookup exacto. El binding automático se mantiene bloqueado hasta P3C11E2, que clasificará soporte/formación/separación en P3A."
+      }
+    },
+    {
       "id": "PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_SECONDARY_V1",
       "profile_id": "PERU_CNE_UTIL_2006_030_004",
       "norm_reference_id": "PERU_CNE_UTILIZACION_2006",

@@ -555,6 +555,478 @@
       "eligible_for_primary_dataset_pr": true,
       "professional_emission": false,
       "notes": "Ramas A/B/C revisadas visualmente desde páginas renderizadas de la fuente oficial pinneada. Binding a Iz reservado para P3C11D2."
+    },
+    {
+      "id": "P3C11E_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_REVIEW_CANDIDATE_V1",
+      "status": "PRIMARY_TABLE_EVIDENCE_REVIEWED",
+      "purpose": "grouping_correction_air_methods_e_f",
+      "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+      "source_hash_match": true,
+      "table": "Tabla 5E",
+      "axis": "grouping",
+      "pdf_pages": [
+        568,
+        569
+      ],
+      "document_page_markers": [
+        "Tablas - Pág. 21 de 82",
+        "Tablas - Pág. 22 de 82"
+      ],
+      "routing_evidence": {
+        "pdf_pages": [
+          548,
+          549
+        ],
+        "reference": "Tabla 1",
+        "text_scope": "Métodos E/F al aire libre; Nota 5 remite a Tabla 5E para factores de reducción por grupos de circuitos al aire libre."
+      },
+      "candidate_structure": {
+        "branch_a_method": "E",
+        "branch_b_method": "F",
+        "variant_count": 12,
+        "numeric_row_count": 134,
+        "explicit_not_tabulated_count": 10,
+        "variants": {
+          "A_PERFORATED_TRAYS_CONTACT": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "perforated_trays",
+            "contact_mode": "contact",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.88,
+                0.82,
+                0.79,
+                0.76,
+                0.73
+              ],
+              "2": [
+                1.0,
+                0.87,
+                0.8,
+                0.77,
+                0.73,
+                0.68
+              ],
+              "3": [
+                1.0,
+                0.86,
+                0.79,
+                0.76,
+                0.71,
+                0.66
+              ]
+            }
+          },
+          "A_PERFORATED_TRAYS_SPACED": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                1.0,
+                0.98,
+                0.95,
+                0.91,
+                null
+              ],
+              "2": [
+                1.0,
+                0.99,
+                0.96,
+                0.92,
+                0.87,
+                null
+              ],
+              "3": [
+                1.0,
+                0.99,
+                0.95,
+                0.91,
+                0.85,
+                null
+              ]
+            }
+          },
+          "A_VERTICAL_PERFORATED_TRAYS_CONTACT": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.88,
+                0.82,
+                0.78,
+                0.73,
+                0.72
+              ],
+              "2": [
+                1.0,
+                0.88,
+                0.81,
+                0.76,
+                0.71,
+                0.7
+              ]
+            }
+          },
+          "A_VERTICAL_PERFORATED_TRAYS_SPACED": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.91,
+                0.89,
+                0.88,
+                0.87,
+                null
+              ],
+              "2": [
+                1.0,
+                0.91,
+                0.88,
+                0.87,
+                0.85,
+                null
+              ]
+            }
+          },
+          "A_LADDER_TRAYS_CONTACT": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "14_15_16",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.87,
+                0.82,
+                0.8,
+                0.79,
+                0.78
+              ],
+              "2": [
+                1.0,
+                0.86,
+                0.8,
+                0.78,
+                0.76,
+                0.73
+              ],
+              "3": [
+                1.0,
+                0.85,
+                0.79,
+                0.76,
+                0.73,
+                0.7
+              ]
+            }
+          },
+          "A_LADDER_TRAYS_SPACED": {
+            "method": "E",
+            "branch": "A_MULTICORE_CABLE_GROUPS",
+            "support": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "formation": "not_applicable_multicore",
+            "installation_reference_items": "14_15_16",
+            "columns": [
+              1,
+              2,
+              3,
+              4,
+              6,
+              9
+            ],
+            "values": {
+              "1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                null
+              ],
+              "2": [
+                1.0,
+                0.99,
+                0.98,
+                0.97,
+                0.96,
+                null
+              ],
+              "3": [
+                1.0,
+                0.98,
+                0.97,
+                0.96,
+                0.93,
+                null
+              ]
+            }
+          },
+          "B_PERFORATED_TRAYS_CONTACT_HORIZONTAL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "perforated_trays",
+            "contact_mode": "contact",
+            "formation": "three_single_core_horizontal",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                0.98,
+                0.91,
+                0.87
+              ],
+              "2": [
+                0.96,
+                0.87,
+                0.81
+              ],
+              "3": [
+                0.95,
+                0.85,
+                0.78
+              ]
+            }
+          },
+          "B_VERTICAL_PERFORATED_TRAYS_CONTACT_VERTICAL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "vertical_perforated_trays",
+            "contact_mode": "contact",
+            "formation": "three_single_core_vertical",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                0.96,
+                0.86,
+                null
+              ],
+              "2": [
+                0.95,
+                0.84,
+                null
+              ]
+            }
+          },
+          "B_LADDER_TRAYS_CONTACT_HORIZONTAL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "ladder_trays_clamps_supports",
+            "contact_mode": "contact",
+            "formation": "three_single_core_horizontal",
+            "installation_reference_items": "14_15_16",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.97,
+                0.96
+              ],
+              "2": [
+                0.98,
+                0.93,
+                0.89
+              ],
+              "3": [
+                0.97,
+                0.9,
+                0.86
+              ]
+            }
+          },
+          "B_PERFORATED_TRAYS_SPACED_TREFOIL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "formation": "three_single_core_trefoil",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.98,
+                0.96
+              ],
+              "2": [
+                0.97,
+                0.93,
+                0.89
+              ],
+              "3": [
+                0.96,
+                0.92,
+                0.86
+              ]
+            }
+          },
+          "B_VERTICAL_PERFORATED_TRAYS_SPACED_TREFOIL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "vertical_perforated_trays",
+            "contact_mode": "spaced_as_figure",
+            "formation": "three_single_core_trefoil",
+            "installation_reference_items": "13",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                1.0,
+                0.91,
+                0.89
+              ],
+              "2": [
+                1.0,
+                0.9,
+                0.86
+              ]
+            }
+          },
+          "B_LADDER_TRAYS_SPACED_TREFOIL": {
+            "method": "F",
+            "branch": "B_SINGLE_CORE_3PH_CIRCUIT_GROUPS",
+            "support": "ladder_trays_clamps_supports",
+            "contact_mode": "spaced_as_figure",
+            "formation": "three_single_core_trefoil",
+            "installation_reference_items": "14_15_16",
+            "columns": [
+              1,
+              2,
+              3
+            ],
+            "values": {
+              "1": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "2": [
+                0.97,
+                0.95,
+                0.93
+              ],
+              "3": [
+                0.96,
+                0.94,
+                0.9
+              ]
+            }
+          }
+        }
+      },
+      "reviewed_notes": {
+        "single_layer_only": true,
+        "average_value_spread": "generalmente menor de ±5%",
+        "note2_page568": "300 mm de espaciamiento vertical entre bandejas y al menos 20 mm entre bandeja y pared; menor espaciamiento requiere reducción.",
+        "note3_page568": "225 mm de espaciamiento horizontal entre bandejas espalda a espalda; menor espaciamiento requiere reducción.",
+        "note2_page569": "Cada juego trifásico cuenta como un circuito cuando existen cables en paralelo por fase.",
+        "note3_page569": "300 mm de espaciamiento vertical entre bandejas; menor espaciamiento requiere reducción.",
+        "note4_page569": "225 mm horizontal entre bandejas espalda a espalda y al menos 20 mm a pared; menor espaciamiento requiere reducción."
+      },
+      "automated_extraction": {
+        "workflow_run_id": 32912314189,
+        "artifact_id": 9586942706,
+        "artifact_digest": "sha256:ab88f4455ee09ed2332a878ddb06044515224635136fff1c5e34e69ed8cada8e",
+        "page_render_generated": true,
+        "page_text_extracted": true,
+        "source_pin_verified": true
+      },
+      "manual_comparison_confirmed": true,
+      "human_reviewer": null,
+      "reviewer": "GPT-5.6 Sol",
+      "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+      "review_authorized_by_user": true,
+      "review_date": "2026-08-25",
+      "review_result": "APPROVED",
+      "review_confidence": "HIGH",
+      "complete_table_reviewed": true,
+      "eligible_for_primary_dataset_pr": true,
+      "professional_emission": false,
+      "notes": "Tabla 5E completa revisada visualmente desde las páginas 568-569 de la fuente oficial pinneada. Binding reservado para E2."
     }
   ]
 }
