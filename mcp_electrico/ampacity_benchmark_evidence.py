@@ -2,17 +2,19 @@
 
 Un benchmark verde no implica cobertura normativa primaria. Este módulo separa
 el resultado de ejecución de la calidad de evidencia que puede satisfacer el
-gate P3C12.
+gate P3C12. Los registros PRIMARY del producto deben enlazar además con la
+suite independiente P3C12A y superar su validación en vivo.
 """
 
 from __future__ import annotations
 
 from copy import deepcopy
+from functools import lru_cache
 import json
 from pathlib import Path
 from typing import Any
 
-from . import ampacity_datasets, ampacity_evidence
+from . import ampacity_datasets, ampacity_evidence, ampacity_independent_benchmarks
 
 _DATA_FILE = Path(__file__).with_name("data") / "ampacity_benchmark_evidence.json"
 
@@ -47,7 +49,18 @@ def _primary_source_hashes_by_norm() -> dict[str, set[str]]:
     return result
 
 
-def validar_record(record: dict[str, Any], *, check_live_sources: bool = True) -> dict[str, Any]:
+@lru_cache(maxsize=1)
+def _live_independent_suite() -> dict[str, Any]:
+    """Ejecuta una vez por proceso la suite P3C12A usada por el gate real."""
+    return ampacity_independent_benchmarks.run_suite()
+
+
+def validar_record(
+    record: dict[str, Any],
+    *,
+    check_live_sources: bool = True,
+    check_live_benchmarks: bool = True,
+) -> dict[str, Any]:
     rid = str(record.get("id") or "").strip()
     family = str(record.get("family") or "").strip()
     norm_id = str(record.get("norm_reference_id") or "").strip()
@@ -95,6 +108,30 @@ def validar_record(record: dict[str, Any], *, check_live_sources: bool = True) -
     if record.get("professional_normative_coverage") is not True:
         reasons.append("professional_normative_coverage_false")
 
+    if evidence_level == PRIMARY and check_live_benchmarks:
+        suite_id = str(record.get("benchmark_suite_id") or "").strip()
+        benchmark_family = str(record.get("benchmark_family") or "").strip()
+        if not suite_id:
+            reasons.append("benchmark_suite_missing")
+        elif suite_id != "P3C12_PRIMARY_INDEPENDENT_REFERENCE_V1":
+            reasons.append("benchmark_suite_not_supported")
+        if benchmark_family != family:
+            reasons.append("benchmark_family_mismatch")
+
+        if suite_id == "P3C12_PRIMARY_INDEPENDENT_REFERENCE_V1" and benchmark_family == family:
+            try:
+                suite = _live_independent_suite()
+            except Exception:
+                reasons.append("independent_suite_error")
+            else:
+                if suite.get("pass") is not True:
+                    reasons.append("independent_suite_not_passed")
+                family_result = (suite.get("family_results") or {}).get(family) or {}
+                if family_result.get("pass") is not True:
+                    reasons.append("independent_family_not_passed")
+                if str(suite.get("source_sha256") or "").strip().lower() != digest:
+                    reasons.append("independent_suite_source_hash_mismatch")
+
     qualifies = evidence_level == PRIMARY and not reasons
     return {
         "valid": True,
@@ -130,12 +167,13 @@ def evaluar_cobertura(
     *,
     records: list[dict[str, Any]] | None = None,
     check_live_sources: bool = True,
+    check_live_benchmarks: bool = True,
 ) -> dict[str, Any]:
     """Evalúa cobertura primaria independiente por familia normativa.
 
     ``records`` existe para probar la lógica con fixtures sintéticos. El gate del
     producto llama esta función sin override y consume exclusivamente el registro
-    versionado del repositorio.
+    versionado del repositorio y la suite independiente viva P3C12A.
     """
     source_records = listar_registros() if records is None else deepcopy(records)
     required = list(dict.fromkeys(str(item) for item in required_families))
@@ -143,7 +181,11 @@ def evaluar_cobertura(
     for record in source_records:
         family = str(record.get("family") or "")
         if family in by_family:
-            check = validar_record(record, check_live_sources=check_live_sources)
+            check = validar_record(
+                record,
+                check_live_sources=check_live_sources,
+                check_live_benchmarks=check_live_benchmarks,
+            )
             by_family[family].append({"record": deepcopy(record), "validation": check})
 
     coverage: dict[str, dict[str, Any]] = {}

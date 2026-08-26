@@ -56,7 +56,7 @@ def _secondary_ready_model():
     )
 
 
-def test_gate_p3_reconoce_p3c01_a_p3c11_done_sin_avanzar_a_p4():
+def test_gate_p3_reconoce_p3c01_a_p3c12_done_sin_avanzar_a_p4():
     result = p3_completion.evaluar_cierre_p3()
     assert result["schema_version"] == 2
     assert result["phase"] == "P3"
@@ -66,26 +66,10 @@ def test_gate_p3_reconoce_p3c01_a_p3c11_done_sin_avanzar_a_p4():
     assert result["professional_emission"] is False
 
     pending = {item["id"] for item in result["pending_criteria"]}
-    assert {"P3C12", "P3C13"} <= pending
-    assert "P3C11" not in pending
-    assert "P3C08" not in pending
-    assert "P3C09" not in pending
-    assert "P3C10" not in pending
+    assert pending == {"P3C13"}
 
     done = {item["id"] for item in result["criteria"] if item["status"] == "DONE"}
-    assert {
-        "P3C01",
-        "P3C02",
-        "P3C03",
-        "P3C04",
-        "P3C05",
-        "P3C06",
-        "P3C07",
-        "P3C08",
-        "P3C09",
-        "P3C10",
-        "P3C11",
-    } <= done
+    assert {f"P3C{index:02d}" for index in range(1, 13)} <= done
 
 
 def test_p3c08_deriva_del_registro_pinneado():
@@ -127,16 +111,19 @@ def test_p3c11_reconoce_cobertura_completa_5a_5b_5c_5d_5e():
     assert criterion["blocking_reason"] is None
 
 
-def test_p3c12_deriva_del_registro_y_benchmark_secundario_no_lo_satisface():
+def test_p3c12_deriva_de_seis_benchmarks_primarios_independientes_vivos():
     result = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in result["criteria"] if item["id"] == "P3C12")
     coverage = result["benchmark_evidence"]
 
-    assert criterion["status"] == "PENDING"
-    assert coverage["ready"] is False
-    assert coverage["status"] == "PRIMARY_BENCHMARK_COVERAGE_INCOMPLETE"
-    assert set(coverage["missing_families"]) == set(result["scope"]["required_numeric_families"])
-    assert "PRIMARY_BENCHMARK_COVERAGE_INCOMPLETE" in criterion["evidence"]
+    assert criterion["status"] == "DONE"
+    assert criterion["blocking_reason"] is None
+    assert coverage["ready"] is True
+    assert coverage["status"] == "PRIMARY_BENCHMARK_COVERAGE_READY"
+    assert coverage["missing_families"] == []
+    assert set(coverage["coverage"]) == set(result["scope"]["required_numeric_families"])
+    assert all(item["covered"] for item in coverage["coverage"].values())
+    assert "PRIMARY_BENCHMARK_COVERAGE_READY" in criterion["evidence"]
     assert coverage["professional_emission"] is False
 
 
@@ -160,8 +147,9 @@ def test_modelo_secundario_puede_ser_tecnicamente_ready_sin_cerrar_p3():
     assert result["ready_for_next_phase"] is False
 
 
-def test_madurez_actual_under_validation_es_bloqueante():
+def test_madurez_actual_under_validation_es_unico_bloqueante():
     result = p3_completion.evaluar_cierre_p3()
     maturity = next(item for item in result["criteria"] if item["id"] == "P3C13")
     assert maturity["status"] == "PENDING"
     assert "UNDER_VALIDATION" in maturity["evidence"]
+    assert {item["id"] for item in result["pending_criteria"]} == {"P3C13"}
