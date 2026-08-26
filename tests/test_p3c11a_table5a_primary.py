@@ -86,17 +86,17 @@ def test_dataset_5a_no_se_puede_reutilizar_para_metodo_c_columna_23():
     assert result["extrapolation"] is False
 
 
-def test_5a_y_5c_siguen_parciales_aunque_5b_ya_esta_completa():
+def test_subconjunto_5a_conserva_binding_aunque_familia_completa_cierra_p3c11():
     flags = p3_completion._coverage_flags()
     assert flags["base_ampacity_strategy"] is True
-    assert flags["table_5a"] is False
+    assert flags["table_5a"] is True
     assert flags["table_5b"] is True
-    assert flags["table_5c"] is False
+    assert flags["table_5c"] is True
     assert flags["table_5d"] is True
-    assert flags["table_5e"] is False
+    assert flags["table_5e"] is True
 
     gate = p3_completion.evaluar_cierre_p3()
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C11")
-    assert criterion["status"] == "PENDING"
+    assert criterion["status"] == "DONE"
     assert gate["ready_for_next_phase"] is False
     assert gate["professional_emission"] is False
