@@ -46,7 +46,7 @@ También puedes elegir otra carpeta:
 python examples/primer_uso.py --output-dir mi_prueba
 ```
 
-## 3. Qué comprueba
+## 3. Qué comprueba el smoke
 
 El resultado debe terminar con `"ok": true` y verifica de forma explícita:
 
@@ -78,20 +78,49 @@ El criterio configurado de caída de tensión queda explícito en `voltage_drop.
 
 En `workspace_primer_uso.html` revisa el unifilar, el inspector y las vistas de flujo, caída de tensión y ampacidad disponibles en el workspace.
 
-## 5. Qué NO demuestra
+## 5. Segundo paso: comprobar números contra REF-01
 
-Este smoke test no es un estudio eléctrico profesional ni una validación de un proyecto real. El caso usa parámetros deliberadamente simples para probar que toda la cadena funciona.
+Después de que el smoke pase, ejecuta el primer patrón oro numérico:
+
+```bash
+python examples/caso_referencia_01.py
+```
+
+Genera `resultado_caso_referencia_01.json`. REF-01 es una red radial trifásica balanceada de 480 V con una línea de 0.1 km y una carga PQ de 80 kW + 40 kvar. La solución de referencia se obtiene mediante una iteración compleja independiente de dos barras y sus valores esperados están congelados en `mcp_electrico/data/reference_case_01.json`.
+
+Magnitudes de referencia aproximadas:
+
+```text
+V receptor = 0.987694 pu
+I          = 108.923 A
+Pérdidas P = 1.06778 kW
+Pérdidas Q = 0.35593 kvar
+ΔV         = 1.23057 %
+```
+
+El script comprueba simultáneamente que:
+
+- la solución analítica recalculada sigue coincidiendo con el patrón congelado;
+- las tolerancias coinciden con las tolerancias P1 publicadas;
+- OpenDSS permanece dentro de tolerancia para tensión, corriente, pérdidas P/Q y caída de tensión.
+
+Una ejecución sana devuelve `"pass": true` y exit code 0. Esta comparación es deliberadamente independiente: los valores de referencia congelados **no dependen de OpenDSS**.
+
+## 6. Qué NO demuestran estas pruebas
+
+Ni el smoke ni REF-01 son estudios eléctricos profesionales ni validaciones de un proyecto real. Son pruebas reproducibles de instalación, integración y regresión numérica.
 
 En particular:
 
-- el límite de caída de tensión de 3 % es un parámetro del ejemplo, no una regla universal;
-- no ejecuta IEC 60909;
-- no ejecuta coordinación/TCC;
-- no ejecuta IEEE 1584;
-- no habilita `professional_emission` del resultado global.
+- el límite de caída de tensión de 3 % del smoke es un parámetro del ejemplo, no una regla universal;
+- REF-01 cubre únicamente un sistema radial trifásico balanceado de dos barras;
+- el smoke no ejecuta IEC 60909 y REF-01 tampoco;
+- no ejecutan coordinación/TCC;
+- no ejecutan IEEE 1584;
+- no habilitan `professional_emission` del resultado global.
 
-## 6. Si falla
+## 7. Si algo falla
 
-El script sale con código distinto de cero cuando algún chequeo esencial falla. Conserva la salida de consola y el JSON si llegó a generarse: ambos sirven para identificar si el problema está en dependencias, OpenDSS, el gate de madurez o la generación visual.
+Los scripts terminan con código distinto de cero cuando un chequeo esencial falla. Conserva la salida de consola y los JSON generados: sirven para diferenciar un problema de dependencias, OpenDSS, madurez/gates, postproceso o regresión numérica.
 
-Una vez que este smoke test pase localmente, el siguiente paso recomendado es probar un caso real pequeño y comparar sus magnitudes con una referencia independiente antes de escalar a redes mayores.
+Con **primer_uso = OK** y **REF-01 = PASS**, el entorno local queda en una buena línea base para empezar con un caso real pequeño y comparar después sus magnitudes con una referencia independiente antes de escalar a redes mayores.
