@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "datasets": [
+    {
+      "id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "profile_id": "PERU_CNE_UTIL_2006_030_004",
+      "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+      "table": "Tabla 5C",
+      "axis": "grouping",
+      "scope": {
+        "installation_methods_routed": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C",
+          "E",
+          "F"
+        ],
+        "method_d_excluded": "Método D se enruta a Tabla 5D.",
+        "method_g_not_claimed": "Tabla 5C no se generaliza automáticamente a método G; P3A decidirá 5E/otra rama según disposición.",
+        "table_items": [1, 2, 3, 4, 5],
+        "explicit_column_counts_item1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16, 20],
+        "items_2_to_5_more_than_nine_policy": "Published categorical band 9_or_more; same published factor as column 9, not numerical extrapolation.",
+        "exact_lookup_only": true,
+        "interpolation": false,
+        "extrapolation": false,
+        "complete_table_verified": true,
+        "numeric_row_count": 48,
+        "uniform_equally_loaded_groups": true,
+        "horizontal_spacing_exception": "Si la separación horizontal entre cables adyacentes excede el doble de su diámetro total, no es necesario aplicar factor de reducción (Nota 2); automatización queda para C2.",
+        "single_core_counting_rule": "Notas 3-5 preservadas: grupos de 2/3 cables unipolares y cables multipolares; n unipolares -> n/2 o n/3 circuitos según conductores de carga.",
+        "accuracy_note": "Valores promediados; precisión total dentro de ±5% según Nota 6.",
+        "note": "Cobertura completa de la Tabla 5C publicada en PDF 565, con cinco ítems y regla categórica >9 de los ítems 2-5."
+      },
+      "lookup_schema": {
+        "type": "exact_rows_v1",
+        "dimensions": ["table5c_item", "arrangement_id", "reference_set", "group_count_key"],
+        "value_field": "factor"
+      },
+      "rows": [
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"1"},"factor":1.0,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":1}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"2"},"factor":0.8,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":2}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"3"},"factor":0.7,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":3}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"4"},"factor":0.65,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":4}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"5"},"factor":0.6,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":5}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"6"},"factor":0.57,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":6}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"7"},"factor":0.54,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":7}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"8"},"factor":0.52,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":8}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"9"},"factor":0.5,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":9}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"12"},"factor":0.45,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":12}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"16"},"factor":0.41,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":16}},
+        {"query":{"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"20"},"factor":0.38,"metadata":{"table5c_item":1,"arrangement_label":"Agrupados en el aire, sobre una superficie, empotrados o encerrados","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":20}},
+
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"1"},"factor":1.0,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":1}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"2"},"factor":0.85,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":2}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"3"},"factor":0.79,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":3}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"4"},"factor":0.75,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":4}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"5"},"factor":0.73,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":5}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"6"},"factor":0.72,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":6}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"7"},"factor":0.72,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":7}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"8"},"factor":0.71,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":8}},
+        {"query":{"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"9_or_more"},"factor":0.7,"metadata":{"table5c_item":2,"arrangement_label":"En una capa sobre una pared, piso o bandeja no perforada","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":9,"normative_band_min_grouped_units":9,"source_rule":"No más factores de reducción para más de nueve circuitos o cables multipolares","categorical_rule_not_extrapolation":true}},
+
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"1"},"factor":0.95,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":1}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"2"},"factor":0.81,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":2}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"3"},"factor":0.72,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":3}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"4"},"factor":0.68,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":4}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"5"},"factor":0.66,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":5}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"6"},"factor":0.64,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":6}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"7"},"factor":0.63,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":7}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"8"},"factor":0.62,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":8}},
+        {"query":{"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"9_or_more"},"factor":0.61,"metadata":{"table5c_item":3,"arrangement_label":"En una capa fijado directamente bajo un techo de madera","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":9,"normative_band_min_grouped_units":9,"source_rule":"No más factores de reducción para más de nueve circuitos o cables multipolares","categorical_rule_not_extrapolation":true}},
+
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"1"},"factor":1.0,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":1}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"2"},"factor":0.88,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":2}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"3"},"factor":0.82,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":3}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"4"},"factor":0.77,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":4}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"5"},"factor":0.75,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":5}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"6"},"factor":0.73,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":6}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"7"},"factor":0.73,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":7}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"8"},"factor":0.72,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":8}},
+        {"query":{"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"9_or_more"},"factor":0.72,"metadata":{"table5c_item":4,"arrangement_label":"En una capa sobre una bandeja perforada horizontal o vertical","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":9,"normative_band_min_grouped_units":9,"source_rule":"No más factores de reducción para más de nueve circuitos o cables multipolares","categorical_rule_not_extrapolation":true}},
+
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"1"},"factor":1.0,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":1}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"2"},"factor":0.87,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":2}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"3"},"factor":0.82,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":3}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"4"},"factor":0.8,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":4}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"5"},"factor":0.8,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":5}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"6"},"factor":0.79,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":6}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"7"},"factor":0.79,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":7}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"8"},"factor":0.78,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":8}},
+        {"query":{"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"9_or_more"},"factor":0.78,"metadata":{"table5c_item":5,"arrangement_label":"En una capa sobre un soporte de bandeja de escaleras, o listones, etc.","document_page_marker":"Tablas - Pág. 18 de 82","source_pdf_page":565,"factor_accuracy_note":"±5% según Nota 6 de Tabla 5C","published_column":9,"normative_band_min_grouped_units":9,"source_rule":"No más factores de reducción para más de nueve circuitos o cables multipolares","categorical_rule_not_extrapolation":true}}
+      ],
+      "provenance": {
+        "source_type": "primary_official",
+        "verification_status": "PRIMARY_VERIFIED",
+        "primary_source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+        "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+        "authority": "Ministerio de Energía y Minas del Perú",
+        "reference": "Código Nacional de Electricidad - Utilización, Tabla 5C completa",
+        "page_references": [
+          "PDF 565; Tablas - Pág. 18 de 82; Tabla 5C completa, ítems 1-5 y Notas 1-7",
+          "Artifact de revisión P3C09: workflow 32877141382 / artifact 9574334684 / render completo de la página"
+        ],
+        "verification_record": {
+          "candidate_id": "P3C11C_TABLE_5C_COMPLETE_PRIMARY_REVIEW_V1",
+          "reviewer": "GPT-5.6 Sol",
+          "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+          "review_authorized_by_user": true,
+          "review_date": "2026-08-26",
+          "review_result": "APPROVED",
+          "review_confidence": "HIGH",
+          "manual_comparison_confirmed": true,
+          "complete_table_reviewed": true,
+          "reviewed_numeric_row_count": 48,
+          "human_reviewer": null,
+          "source_artifact_workflow_run_id": 32877141382,
+          "source_artifact_id": 9574334684,
+          "source_artifact_digest": "sha256:484dc013f71dfe7974df88815f364cf6c93dc8233e5b1d7b855e07a36577aefb"
+        }
+      },
+      "usage_policy": {
+        "development_lookup": true,
+        "professional_emission": true,
+        "requires_explicit_secondary_opt_in": false,
+        "verified_subset_only": false,
+        "p3c11_family_coverage": true,
+        "automatic_binding_to_iz": false,
+        "note": "Cobertura numérica primaria completa de Tabla 5C. C1 no interpreta automáticamente la disposición física ni vincula 5C a Iz; C2 implementará routing/binding contextual."
+      }
+    }
+  ],
+  "evidence": {
+    "id": "P3C11C_TABLE_5C_COMPLETE_PRIMARY_REVIEW_V1",
+    "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+    "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+    "pdf_page": 565,
+    "document_page_marker": "Tablas - Pág. 18 de 82",
+    "table": "Tabla 5C",
+    "items_reviewed": [1, 2, 3, 4, 5],
+    "numeric_rows": 48,
+    "special_rule_items_2_to_5": "No más factores de reducción para más de nueve circuitos o cables multipolares",
+    "notes_reviewed": [1, 2, 3, 4, 5, 6, 7],
+    "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+    "reviewer": "GPT-5.6 Sol",
+    "human_reviewer": null
+  }
+}
