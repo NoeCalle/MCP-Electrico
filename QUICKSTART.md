@@ -114,7 +114,7 @@ En particular:
 
 - el límite de caída de tensión de 3 % del smoke es un parámetro del ejemplo, no una regla universal;
 - REF-01 cubre únicamente un sistema radial trifásico balanceado de dos barras;
-- no ejecutan IEC 60909;
+- el smoke no ejecuta IEC 60909 y REF-01 tampoco;
 - no ejecutan coordinación/TCC;
 - no ejecutan IEEE 1584;
 - no habilitan `professional_emission` del resultado global.
