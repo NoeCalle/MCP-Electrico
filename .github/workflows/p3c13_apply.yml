@@ -1,0 +1,33 @@
+name: p3c13-apply-docs
+
+on:
+  push:
+    branches:
+      - feat/p3c13-close-p3
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c13-close-p3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply P3C13 documentation sync
+        run: python scripts/_apply_p3c13_docs.py
+      - name: Commit generated changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ROADMAP_PROFESIONAL.md docs/P3_EXIT_GATE.md docs/ROADMAP_VISUAL.md README.md
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "P3C13: sincronizar roadmap y documentación de cierre P3"
+            git push
+          fi
