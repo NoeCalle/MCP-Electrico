@@ -112,7 +112,7 @@ def test_dataset_completo_no_reemplaza_binding_5a_parcial_ya_validado():
     assert partial["usage_policy"]["p3c11_family_coverage"] is False
 
 
-def test_p3c11_queda_done_con_5a_5b_5c_5d_5e_completas_pero_p4_sigue_bloqueada():
+def test_p3c11_y_p3c12_done_pero_p4_sigue_bloqueada_por_p3c13():
     flags = p3_completion._coverage_flags()
     assert flags["base_ampacity_strategy"] is True
     assert flags["table_5a"] is True
@@ -126,7 +126,7 @@ def test_p3c11_queda_done_con_5a_5b_5c_5d_5e_completas_pero_p4_sigue_bloqueada()
     c12 = next(item for item in gate["criteria"] if item["id"] == "P3C12")
     c13 = next(item for item in gate["criteria"] if item["id"] == "P3C13")
     assert c11["status"] == "DONE"
-    assert c12["status"] == "PENDING"
+    assert c12["status"] == "DONE"
     assert c13["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["ready_for_next_phase"] is False
