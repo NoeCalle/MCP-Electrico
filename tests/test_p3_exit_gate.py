@@ -115,7 +115,7 @@ def test_p3c11_reconoce_5b_completa_y_subconjuntos_restantes_sin_cerrar_fase():
     assert coverage["base_ampacity_strategy"] is True
     assert coverage["table_5a"] is False
     assert coverage["table_5b"] is True
-    assert coverage["table_5c"] is False
+    assert coverage["table_5c"] is True
     assert coverage["table_5d"] is True
     assert coverage["table_5e"] is True
 

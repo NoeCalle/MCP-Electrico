@@ -106,7 +106,7 @@ def test_5d_cierra_solo_su_familia_y_p3c11_global_sigue_pendiente():
     flags = p3_completion._coverage_flags()
     assert flags["table_5a"] is False
     assert flags["table_5b"] is True
-    assert flags["table_5c"] is False
+    assert flags["table_5c"] is True
     assert flags["table_5d"] is True
     assert flags["table_5e"] is True
     gate = p3_completion.evaluar_cierre_p3()
