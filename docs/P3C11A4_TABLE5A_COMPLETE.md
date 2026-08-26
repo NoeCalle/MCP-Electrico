@@ -85,3 +85,17 @@ Esto **no cierra P3**. Permanecen bloqueantes:
 - `P3C13` — madurez de ampacidad al menos `VALIDATED_WITH_LIMITATIONS`.
 
 P4 IEC 60909 continúa bloqueada hasta cerrar formalmente P3.
+
+## Contrato de cierre P3C11
+
+El estado esperado después de integrar este bloque es explícitamente:
+
+```text
+P3C01-P3C11 = DONE
+P3C12       = PENDING
+P3C13       = PENDING
+P3          = NOT_READY
+P4          = BLOQUEADA
+```
+
+Este contrato evita confundir cobertura normativa completa con validación independiente o madurez profesional de la fase.
