@@ -1,0 +1,33 @@
+name: local-diagnostics-validation
+
+on:
+  push:
+    branches:
+      - feat/local-diagnostics-v1
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Full regression suite
+        run: python -m pytest -q
+      - name: Execute local diagnostic
+        run: |
+          python examples/diagnostico_local.py --output /tmp/diagnostico_local.json
+          test -s /tmp/diagnostico_local.json
+          grep -q '"ok": true' /tmp/diagnostico_local.json
+          grep -q '"fatal_failures": 0' /tmp/diagnostico_local.json
+          grep -q '"converged": true' /tmp/diagnostico_local.json
+          grep -q '"automatic_dispatch": false' /tmp/diagnostico_local.json
+          grep -q '"crosscheck": false' /tmp/diagnostico_local.json
+          grep -q '"iec60909_preferred": "pandapower"' /tmp/diagnostico_local.json
+          grep -q '"iec60909_implemented": false' /tmp/diagnostico_local.json
+          grep -q '"phase_status": "READY_WITH_LIMITATIONS"' /tmp/diagnostico_local.json
+          grep -q '"professional_emission": false' /tmp/diagnostico_local.json
