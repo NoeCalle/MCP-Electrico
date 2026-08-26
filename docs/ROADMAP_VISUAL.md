@@ -103,6 +103,8 @@ El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se e
 
 **Estado: COMPLETA CON LIMITACIONES (V3/P3-v1).**
 
+Hito conservado: **BASE NORMATIVA P3C10** visible y trazable en V3; el cierre P3C13 no elimina esa evidencia histórica.
+
 La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados preparados por Python y permite distinguir:
 
 - perfil normativo asociado cuando existe;

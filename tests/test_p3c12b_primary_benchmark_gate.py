@@ -30,7 +30,7 @@ def test_p3c12_coverage_ready_y_p3c13_es_unico_bloqueante():
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P3C12"]["status"] == "DONE"
     assert criteria["P3C13"]["status"] == "DONE"
-    assert {item["id"] for item in gate["pending_criteria"]} == {"P3C13"}
+    assert {item["id"] for item in gate["pending_criteria"]} == set()
     assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
     assert gate["ready_for_next_phase"] is True
     assert gate["next_phase"] == "P4_IEC_60909"

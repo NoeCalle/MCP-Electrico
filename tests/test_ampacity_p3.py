@@ -150,7 +150,8 @@ def test_matriz_validacion_declara_ampacidad_under_validation_y_barrera_p3b():
     limitations = " ".join(status["limitations"]).lower()
     assert "secund" in limitations
     assert "professional_emission=false" in limitations
-    assert "verificación primaria" in limitations
+    assert "tablas 1/2" in limitations
+    assert "fail-closed" in limitations
 
 
 def test_evaluar_todos_resume_estados():
