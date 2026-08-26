@@ -38,6 +38,8 @@ professional_emission = false
 
 El benchmark histórico P3B con evidencia `SECONDARY` se conserva como regresión de infraestructura, pero **no satisface P3C12** ni habilita cobertura normativa profesional. El objeto `benchmark_evidence` del gate distingue explícitamente esta evidencia secundaria de los benchmarks `PRIMARY` independientes.
 
+La política, estructura y criterios de calificación de esa evidencia se mantienen documentados en `docs/P3_BENCHMARK_EVIDENCE.md`.
+
 Fuente primaria pinneada:
 
 ```text
