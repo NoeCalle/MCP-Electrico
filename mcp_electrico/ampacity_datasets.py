@@ -18,8 +18,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-_DATA_FILE = Path(__file__).with_name("data") / "ampacity_p3b_numeric_datasets.json"
-_PRIMARY_SOURCES_FILE = Path(__file__).with_name("data") / "ampacity_primary_sources.json"
+_DATA_DIR = Path(__file__).with_name("data")
+_DATA_FILE = _DATA_DIR / "ampacity_p3b_numeric_datasets.json"
+_DATA_SHARDS = (
+    _DATA_DIR / "ampacity_p3c11c_table5c_primary.json",
+)
+_PRIMARY_SOURCES_FILE = _DATA_DIR / "ampacity_primary_sources.json"
 
 PRIMARY_VERIFIED = "PRIMARY_VERIFIED"
 SECONDARY_TRANSCRIPTION = "SECONDARY_TRANSCRIPTION"
@@ -164,12 +168,21 @@ def validar_dataset_record(item: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load() -> dict[str, Any]:
-    payload = json.loads(_DATA_FILE.read_text(encoding="utf-8"))
-    if int(payload.get("schema_version") or 0) != 1:
-        raise ValueError("P3B001: schema de datasets numéricos no soportado")
-    for item in payload.get("datasets", []):
-        validar_dataset_record(item)
-    return payload
+    """Carga el catálogo base y shards normativos explícitos sin permitir IDs duplicados."""
+    datasets: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    for data_file in (_DATA_FILE, *_DATA_SHARDS):
+        payload = json.loads(data_file.read_text(encoding="utf-8"))
+        if int(payload.get("schema_version") or 0) != 1:
+            raise ValueError(f"P3B001: schema de datasets numéricos no soportado en {data_file.name}")
+        for item in payload.get("datasets", []):
+            validar_dataset_record(item)
+            key = str(item.get("id") or "").strip().upper()
+            if key in seen_ids:
+                raise ValueError(f"P3B023: dataset_id duplicado entre shards: {item.get('id')}")
+            seen_ids.add(key)
+            datasets.append(item)
+    return {"schema_version": 1, "datasets": datasets}
 
 
 def listar_datasets() -> list[dict[str, Any]]:
