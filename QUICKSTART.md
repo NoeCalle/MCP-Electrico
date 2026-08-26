@@ -1,6 +1,6 @@
 # MCP Eléctrico — Primer uso
 
-Este quickstart está pensado para el **primer clon local** del repositorio. Antes de probar casos reales, la secuencia recomendada separa diagnóstico del entorno, smoke de integración y patrón numérico independiente.
+Este quickstart está pensado para el **primer clon local** del repositorio. Antes de probar casos reales, la secuencia recomendada separa diagnóstico del entorno, smoke de integración, patrón numérico independiente y, recién después, un caso editable definido por datos.
 
 ## 1. Crear entorno
 
@@ -118,29 +118,59 @@ El script comprueba simultáneamente que:
 
 Una ejecución sana devuelve `"pass": true` y exit code 0. Esta comparación es deliberadamente independiente: los valores de referencia congelados **no dependen de OpenDSS**.
 
-## 7. Qué NO demuestran estas pruebas
+## 7. Cuarto paso: ejecutar el primer caso JSON editable
 
-El diagnóstico, el smoke y REF-01 no son estudios eléctricos profesionales ni validaciones de un proyecto real. Son pruebas reproducibles del entorno, integración y regresión numérica.
+Con diagnóstico, smoke y REF-01 en verde, ya se puede pasar a una red pequeña definida sin editar Python:
+
+```bash
+python examples/ejecutar_caso_minimo.py
+```
+
+El comando usa `examples/caso_minimo.json`. Para trabajar sobre una copia:
+
+```bash
+python examples/ejecutar_caso_minimo.py mi_caso.json --output-dir salida_mi_caso
+```
+
+La carpeta genera:
+
+```text
+workspace_caso_minimo.html
+caso_entrada_normalizado.json
+resultado_caso_minimo.json
+```
+
+`caso_entrada_normalizado.json` conserva la entrada efectiva después de validarla; su representación canónica recibe un SHA-256 que queda escrito como `input_sha256` en el resultado. Así el flujo, la caída de tensión y el workspace quedan vinculados a una entrada concreta y reproducible.
+
+El formato `MCP_ELECTRICO_MINIMAL_CASE_V1` es deliberadamente fail-closed: solo admite red radial trifásica balanceada de una sola tensión, con líneas y cargas PQ. No admite transformadores, generadores, lazos, desbalance ni secuencia cero. Mantiene OpenDSS explícito, `automatic_dispatch=false`, `crosscheck=false` y `pandapower_executed=false`.
+
+La especificación completa y los campos editables están en `docs/CASO_MINIMO_JSON.md`.
+
+## 8. Qué NO demuestran estas pruebas ni el caso mínimo
+
+El diagnóstico, el smoke, REF-01 y el caso JSON V1 no son por sí solos estudios eléctricos profesionales ni validaciones de un proyecto real. Son una cadena reproducible para comprobar entorno, integración, regresión numérica y una primera entrada declarativa controlada.
 
 En particular:
 
-- el límite de caída de tensión de 3 % del smoke es un parámetro del ejemplo, no una regla universal;
+- el límite de caída de tensión de 3 % del smoke y de la plantilla es un parámetro configurable, no una regla universal;
 - REF-01 cubre únicamente un sistema radial trifásico balanceado de dos barras;
-- el diagnóstico y el smoke no ejecutan IEC 60909 y REF-01 tampoco;
+- el diagnóstico y el smoke no ejecutan IEC 60909 y el caso mínimo tampoco;
+- el caso mínimo V1 no ejecuta ampacidad normativa P3 automáticamente;
 - no ejecutan coordinación/TCC;
 - no ejecutan IEEE 1584;
 - no habilitan `professional_emission` del resultado global.
 
-## 8. Si algo falla
+## 9. Si algo falla
 
-Los scripts terminan con código distinto de cero cuando un chequeo esencial falla. Conserva la salida de consola y los JSON generados: sirven para diferenciar un problema de dependencias, OpenDSS, API pública, madurez/gates, postproceso, generación visual o regresión numérica.
+Los scripts terminan con código distinto de cero cuando un chequeo esencial falla. Conserva la salida de consola y los JSON generados: sirven para diferenciar un problema de dependencias, OpenDSS, API pública, madurez/gates, validación de entrada, postproceso, generación visual o regresión numérica.
 
-La línea base antes de un caso real queda así:
+La línea base antes de escalar a modelos más completos queda así:
 
 ```text
 diagnostico_local -> OK u OK_WITH_WARNINGS, con ok=true
 primer_uso        -> ok=true
 REF-01            -> pass=true
+caso_minimo       -> ok=true
 ```
 
-Con los tres pasos en verde, el entorno local queda en una buena línea base para empezar con un caso real pequeño y comparar después sus magnitudes con una referencia independiente antes de escalar a redes mayores.
+Con los cuatro pasos en verde, ya existe una base controlada para empezar a sustituir la plantilla por datos de un caso real pequeño, conservando siempre la revisión de ingeniería y sin saltarnos los límites publicados del roadmap.
