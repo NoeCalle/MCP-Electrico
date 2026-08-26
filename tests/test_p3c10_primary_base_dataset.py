@@ -106,14 +106,14 @@ def test_229a_entra_como_iz_base_normativa_y_catalogo_p2_se_conserva():
     assert result["professional_emission"] is False
 
 
-def test_gate_cierra_p3c10_sin_abrir_p4_ni_sobrestimar_cobertura():
+def test_gate_cierra_p3c10_y_p3c11_sin_abrir_p4():
     gate = p3_completion.evaluar_cierre_p3()
     criteria = {item["id"]: item for item in gate["criteria"]}
 
     assert criteria["P3C08"]["status"] == "DONE"
     assert criteria["P3C09"]["status"] == "DONE"
     assert criteria["P3C10"]["status"] == "DONE"
-    assert criteria["P3C11"]["status"] == "PENDING"
+    assert criteria["P3C11"]["status"] == "DONE"
     assert criteria["P3C12"]["status"] == "PENDING"
     assert criteria["P3C13"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
