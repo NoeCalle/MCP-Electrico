@@ -91,8 +91,8 @@ def test_5e_permanece_completa_y_p3c11_global_esta_done():
     gate = p3_completion.evaluar_cierre_p3()
     c11 = next(x for x in gate["criteria"] if x["id"] == "P3C11")
     assert c11["status"] == "DONE"
-    assert gate["ready_for_next_phase"] is False
-    assert gate["next_phase"] is None
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P4_IEC_60909"
 
 
 def test_5e_permanece_fail_closed_para_binding_hasta_e2():

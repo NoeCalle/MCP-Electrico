@@ -36,8 +36,9 @@ def test_professional_roadmap_keeps_core_phases_and_transversal_axes():
         assert heading in text, f"Falta del roadmap profesional: {heading}"
 
     assert "P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)**" in text
-    assert "P3 — Ampacidad normativa | **EN PROGRESO — P3C01–P3C10 DONE; COBERTURA Y VALIDACIÓN FINAL PENDIENTES**" in text
-    assert "P3 permanece `UNDER_VALIDATION`" in text
+    assert "P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)**" in text
+    assert "P3C01–P3C13 = DONE" in text or "P3C01–P3C13 DONE" in text
+    assert "P4_IEC_60909" in text or "P4 — IEC 60909" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
     assert "Tabla 5D" in text
@@ -65,11 +66,11 @@ def test_visual_roadmap_keeps_cross_phase_deliverables():
         assert heading in text, f"Falta del roadmap visual: {heading}"
 
     assert "COMPLETA CON LIMITACIONES (V2/P2 v1)" in text
-    assert "EN PROGRESO — FOUNDATION V3" in text
+    assert "COMPLETA CON LIMITACIONES (V3/P3-v1)" in text
     assert "BASE NORMATIVA P3C10" in text
     assert "Tabla / dataset base" in text
     assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
-    assert "UNDER_VALIDATION" in text
+    assert "VALIDATED_WITH_LIMITATIONS" in text
     assert "El JavaScript de V3 no calcula" in text
     assert "no es `Iz` normativo P3" in text
     assert "panel TCC" in text
@@ -106,16 +107,16 @@ def test_p2_exit_gate_preserves_scope_and_next_phase():
     assert "P3 — ampacidad normativa" in text
 
 
-def test_p3_doc_preserves_under_validation_and_secondary_barrier():
+def test_p3_doc_preserves_validated_with_limitations_and_secondary_barrier():
     text = P3_AMPACITY.read_text(encoding="utf-8")
 
-    assert "UNDER_VALIDATION" in text
+    assert "VALIDATED_WITH_LIMITATIONS" in text
     assert "Ib <= In <= Iz" in text
     assert "P3 no asume silenciosamente `product(k_i)=1`" in text
     assert "PENDING_PRIMARY_VERIFICATION" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
-    assert "no cierran todavía p3" in text.lower()
+    assert "P3C01" in text and "P3C13" in text
     assert "docs/P3A_PERFILES_NORMATIVOS.md" in text
     assert "docs/P3B_DATASETS_NUMERICOS.md" in text
     assert "Tabla 5D" in text
@@ -124,7 +125,6 @@ def test_p3_doc_preserves_under_validation_and_secondary_barrier():
 def test_p3a_doc_preserves_router_and_method_d_route():
     text = P3A_PROFILES.read_text(encoding="utf-8")
 
-    assert "UNDER_VALIDATION" in text
     assert "PERU_CNE_UTIL_2006_030_004" in text
     assert "IEC_60364_5_52_2009_A1_2024" in text
     assert "REFERENCE_ONLY" in text
@@ -139,7 +139,6 @@ def test_p3a_doc_preserves_router_and_method_d_route():
 def test_p3b_doc_keeps_evidence_levels_and_no_false_validation():
     text = P3B_DATASETS.read_text(encoding="utf-8")
 
-    assert "UNDER_VALIDATION" in text
     assert "PENDING_PRIMARY_VERIFICATION" in text
     assert "professional_emission = false" in text
     assert "automatic_normative_lookup = false" in text
@@ -172,24 +171,21 @@ def test_p3b_primary_evidence_doc_prevents_automatic_promotion():
     assert "P3C09" in text
 
 
-def test_p3_exit_gate_doc_preserves_blockers_and_separation_of_concerns():
+def test_p3_exit_gate_doc_preserves_closure_and_separation_of_concerns():
     text = P3_EXIT.read_text(encoding="utf-8")
 
-    assert "**NOT_READY.**" in text
+    assert "**READY_WITH_LIMITATIONS — P3-v1 CERRADA.**" in text
     assert "phase" in text
     assert "model" in text
-    assert "P3C08" in text
-    assert "P3C09" in text
-    assert "P3C10" in text
-    assert "P3C11" in text
-    assert "P3C12" in text
-    assert "P3C13" in text
+    for criterion in ["P3C08", "P3C09", "P3C10", "P3C11", "P3C12", "P3C13"]:
+        assert criterion in text
     assert "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1" in text
     assert "ampacity_a = 229 A" in text
-    assert "pin_status = PINNED" in text
-    assert "Tabla 5D" in text
-    assert "READY_TO_EXECUTE" in text
-    assert "SECONDARY_EVIDENCE_ONLY" in text
-    assert "ready_for_next_phase = false" in text
+    assert "SECONDARY" in text
+    assert "PRIMARY" in text
+    assert "MODEL_NOT_READY" in text
+    assert "MODEL_TECHNICALLY_READY" in text
+    assert "ready_for_next_phase = true" in text
     assert "P4_IEC_60909" in text
-    assert "no promueve datasets" in text
+    assert "short_circuit" in text
+    assert "UNDER_VALIDATION" in text

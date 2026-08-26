@@ -22,7 +22,7 @@ def test_benchmark_doc_separa_pass_de_evidencia_primaria():
 
 def test_exit_gate_declara_p3c12_evidence_driven():
     text = EXIT_DOC.read_text(encoding="utf-8")
-    assert "P3C12 — evidencia de benchmark, no constante" in text
+    assert "P3C12: referencias primarias independientes, 29/29 casos PASS, seis familias" in text
     assert "ampacity_benchmark_evidence.evaluar_cobertura()" in text
     assert "benchmark_evidence" in text
     assert "SECONDARY" in text

@@ -115,8 +115,8 @@ def test_gate_cierra_p3c10_p3c11_p3c12_sin_abrir_p4():
     assert criteria["P3C10"]["status"] == "DONE"
     assert criteria["P3C11"]["status"] == "DONE"
     assert criteria["P3C12"]["status"] == "DONE"
-    assert criteria["P3C13"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
-    assert gate["next_phase"] is None
+    assert criteria["P3C13"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P4_IEC_60909"
     assert gate["professional_emission"] is False

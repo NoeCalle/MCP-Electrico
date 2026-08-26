@@ -101,7 +101,9 @@ El readiness específico (`READY_DATA`, `MISSING_DATA`, `ENGINE_NOT_READY`) se e
 
 ## V3 — Acompañamiento visual de P3: ampacidad
 
-**Estado: EN PROGRESO — FOUNDATION V3 + P3A + EVIDENCIA P3B + BASE NORMATIVA P3C10.**
+**Estado: COMPLETA CON LIMITACIONES (V3/P3-v1).**
+
+Hito conservado: **BASE NORMATIVA P3C10** visible y trazable en V3; el cierre P3C13 no elimina esa evidencia histórica.
 
 La vista ya incorpora una pestaña específica de ampacidad que consume exclusivamente resultados preparados por Python y permite distinguir:
 
@@ -117,7 +119,7 @@ La vista ya incorpora una pestaña específica de ampacidad que consume exclusiv
 - `Iz` calculada;
 - estado `CUMPLE` / `NO_CUMPLE` / `DATOS_INSUFICIENTES`;
 - calidad de evidencia de factores resumida como `PRIMARIA`, `SECUNDARIA`, `MANUAL`, `BASE`, `MIXTA` o `INCOMPLETA`;
-- aviso visible de madurez `UNDER_VALIDATION`;
+- aviso visible de madurez `VALIDATED_WITH_LIMITATIONS` y límites del alcance P3-v1;
 - separación visual entre cálculo técnicamente ejecutable y evidencia normativa profesional suficiente.
 
 La primera base normativa primaria P3C10 permite que V3 muestre de forma explícita, sin recalcular, la procedencia de `Iz_base=229 A` para el caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm² mediante `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`. La ampacidad de catálogo P2 permanece separada y no se presenta como la misma magnitud.

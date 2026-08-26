@@ -15,9 +15,11 @@ El HTML no contiene un segundo chatbot ni usa una API de modelos: ChatGPT sigue
 siendo la interfaz conversacional, OpenDSS sigue siendo el motor eléctrico y el
 workspace es una vista estructurada del estado, propiedades y estudios.
 
-> **Estado:** proyecto educativo / experimental. No sustituye un estudio
-> eléctrico profesional ni software validado para diseño, coordinación de
-> protecciones o seguridad de arco eléctrico.
+> **Estado:** plataforma en desarrollo con módulos en distintos niveles de madurez.
+> Flujo de potencia, caída de tensión, biblioteca de conductores y ampacidad P3-v1
+> están `VALIDATED_WITH_LIMITATIONS` dentro de alcances publicados. IEC 60909,
+> coordinación/TCC, IEEE 1584 y expediente profesional completo continúan pendientes.
+> La herramienta no sustituye la revisión ni responsabilidad del ingeniero.
 
 ## 1. Instalación
 

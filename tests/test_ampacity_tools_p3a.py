@@ -73,6 +73,6 @@ def test_p3_tools_quedan_registradas_con_gate_de_evidencia():
 
     gate = mcp.tools["evaluar_cierre_p3"]()
     assert gate["phase"] == "P3"
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
     assert gate["professional_emission"] is False

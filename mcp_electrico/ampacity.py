@@ -25,11 +25,16 @@ from . import (
     ampacity_profiles,
     conductor_library,
     studies,
+    validation_status,
 )
 
 _circuit_name = ""
 _profiles: dict[str, dict[str, Any]] = {}
 _normative_routes: dict[str, dict[str, Any]] = {}
+
+
+def _maturity() -> str:
+    return str(validation_status.get_module_status("ampacity")["status"])
 
 
 def _active_circuit_name() -> str:
@@ -357,7 +362,7 @@ def definir_condiciones(
             "reference": str(referencia_ib or "").strip() or None,
         },
         "normative_applicability": deepcopy(route),
-        "maturity": "UNDER_VALIDATION",
+        "maturity": _maturity(),
     }
     _profiles[full.lower()] = record
     return deepcopy(record)
@@ -438,7 +443,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "element": full,
             "status": "DATOS_INSUFICIENTES",
             "missing": ["condiciones_ampacidad_p3"],
-            "maturity": "UNDER_VALIDATION",
+            "maturity": _maturity(),
         }
 
     current, stale = _profile_is_current(profile)
@@ -447,7 +452,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "element": full,
             "status": "DATOS_INSUFICIENTES",
             "missing": stale,
-            "maturity": "UNDER_VALIDATION",
+            "maturity": _maturity(),
             "note": "La ficha P3 ya no coincide con la asignación P2 activa; debe redefinirse antes de evaluar.",
         }
 
@@ -458,7 +463,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "element": full,
             "status": "DATOS_INSUFICIENTES",
             "missing": ["iz_base_normativa"],
-            "maturity": "UNDER_VALIDATION",
+            "maturity": _maturity(),
             "note": str(exc),
         }
 
@@ -480,7 +485,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "element": full,
             "status": "DATOS_INSUFICIENTES",
             "missing": ["consistencia_factores_normativos"],
-            "maturity": "UNDER_VALIDATION",
+            "maturity": _maturity(),
             "normative_applicability": deepcopy(route),
             "note": str(exc),
         }
@@ -546,13 +551,13 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         "factor_evidence": deepcopy(evidence),
         "factor_compatibility": deepcopy(compatibility_checks),
         "normative_applicability": deepcopy(route),
-        "maturity": "UNDER_VALIDATION",
+        "maturity": _maturity(),
         "automatic_normative_lookup": automatic_lookup,
         "professional_emission": False,
         "note": (
             "Iz usa ampacidad base trazable y factores P3 revalidados contra el catálogo activo. "
             "Los factores exact_rows_v1 solo entran a Iz cuando su política de compatibilidad con routing y base normativa pasa completa. "
-            "La madurez P3 continúa UNDER_VALIDATION y professional_emission permanece false."
+            f"La madurez P3-v1 es {_maturity()} dentro de su alcance y professional_emission permanece false para el resultado global."
         ),
     }
 
@@ -581,12 +586,12 @@ def evaluar_todos() -> dict[str, Any]:
         "criterion": "Ib <= In <= Iz",
         "alimentadores": results,
         "summary": {"total": len(results), **counts},
-        "maturity": "UNDER_VALIDATION",
+        "maturity": _maturity(),
         "automatic_normative_lookup": automatic_lookup,
         "professional_emission": False,
         "note": (
             "P3/P3A/P3B: la procedencia y compatibilidad contextual de factores viajan hasta Ib/In/Iz; "
-            "la madurez continúa UNDER_VALIDATION y P3C11 sigue con cobertura normativa parcial."
+            f"la madurez P3-v1 es {_maturity()} con límites explícitos; la aptitud profesional depende del modelo concreto."
         ),
     }
 
@@ -605,7 +610,7 @@ def snapshot() -> dict[str, Any]:
         "normative_routes": [deepcopy(value) for _, value in sorted(_normative_routes.items())],
         "normative_references": ampacity_norms.listar_referencias(),
         "normative_profiles": ampacity_profiles.listar_perfiles(),
-        "maturity": "UNDER_VALIDATION",
+        "maturity": _maturity(),
         "automatic_normative_lookup": bool(profiles) and all(
             bool((item.get("base") or {}).get("evidence", {}).get("professional_emission"))
             and bool((item.get("correction") or {}).get("automatic_normative_lookup"))

@@ -73,7 +73,7 @@ def test_p3c09_cierra_pero_p3_global_sigue_bloqueada():
     criterion = next(item for item in gate["criteria"] if item["id"] == "P3C09")
     assert criterion["status"] == "DONE"
     assert criterion["blocking_reason"] is None
-    assert gate["ready_for_next_phase"] is False
+    assert gate["ready_for_next_phase"] is True
     assert gate["professional_emission"] is False
 
     pending = {item["id"] for item in gate["pending_criteria"]}
@@ -81,4 +81,4 @@ def test_p3c09_cierra_pero_p3_global_sigue_bloqueada():
     assert "P3C10" not in pending
     assert "P3C11" not in pending
     assert "P3C12" not in pending
-    assert pending == {"P3C13"}
+    assert pending == set()
