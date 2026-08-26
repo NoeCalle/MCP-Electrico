@@ -42,11 +42,11 @@ def test_mutacion_de_referencia_esperada_hace_fallar_suite_y_no_se_autojustifica
     assert report["case_results"][0]["result"] == "FAIL"
 
 
-def test_p3c12a_no_promueve_gate_antes_del_registro_formal_de_evidencia():
+def test_p3c12a_permanece_base_viva_y_registro_p3c12b_la_promueve_sin_cerrar_p3():
     gate = p3_completion.evaluar_cierre_p3()
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P3C11"]["status"] == "DONE"
-    assert criteria["P3C12"]["status"] == "PENDING"
+    assert criteria["P3C12"]["status"] == "DONE"
     assert criteria["P3C13"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["ready_for_next_phase"] is False
