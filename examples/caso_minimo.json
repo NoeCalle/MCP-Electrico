@@ -1,0 +1,73 @@
+{
+  "schema": "MCP_ELECTRICO_MINIMAL_CASE_V1",
+  "project": {
+    "id": "CASO_BT_01",
+    "title": "MCP Eléctrico — Caso mínimo BT editable",
+    "notes": "Plantilla radial trifásica balanceada de una sola tensión. Editar valores antes de usar con un proyecto real."
+  },
+  "circuit": {
+    "name": "caso_bt_01",
+    "base_kv_ll": 0.48,
+    "frequency_hz": 60,
+    "source_bus": "sourcebus"
+  },
+  "lines": [
+    {
+      "name": "f_panel_a",
+      "bus1": "sourcebus",
+      "bus2": "panel_a",
+      "length_km": 0.06,
+      "r1_ohm_km": 0.2,
+      "x1_ohm_km": 0.08,
+      "visual": {
+        "label": "F-01",
+        "protection": "mccb",
+        "conductor": "3x70 mm2 Cu XLPE",
+        "nominal_current_a": 160,
+        "breaking_capacity_ka": 25
+      }
+    },
+    {
+      "name": "f_panel_b",
+      "bus1": "sourcebus",
+      "bus2": "panel_b",
+      "length_km": 0.08,
+      "r1_ohm_km": 0.25,
+      "x1_ohm_km": 0.1,
+      "visual": {
+        "label": "F-02",
+        "protection": "mccb",
+        "conductor": "3x50 mm2 Cu XLPE",
+        "nominal_current_a": 125,
+        "breaking_capacity_ka": 25
+      }
+    }
+  ],
+  "loads": [
+    {
+      "name": "carga_panel_a",
+      "bus": "panel_a",
+      "kw": 40,
+      "kvar": 15,
+      "visual": {
+        "label": "TABLERO A",
+        "type": "tablero",
+        "critical": false
+      }
+    },
+    {
+      "name": "carga_panel_b",
+      "bus": "panel_b",
+      "kw": 50,
+      "kvar": 20,
+      "visual": {
+        "label": "TABLERO B",
+        "type": "tablero",
+        "critical": true
+      }
+    }
+  ],
+  "study": {
+    "voltage_drop_limit_pct": 3.0
+  }
+}
