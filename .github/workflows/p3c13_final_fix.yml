@@ -1,0 +1,33 @@
+name: p3c13-final-fix
+
+on:
+  push:
+    branches:
+      - feat/p3c13-close-p3
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/p3c13-close-p3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply final P3C13 fixes
+        run: python scripts/_p3c13_final_fix.py
+      - name: Commit final fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mcp_electrico/ampacity.py tests/test_ampacity_p3.py tests/test_p3c12b_primary_benchmark_gate.py docs/P3_EXIT_GATE.md docs/ROADMAP_VISUAL.md
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "P3C13: alinear madurez runtime y contratos finales"
+            git push
+          fi
