@@ -30,6 +30,8 @@ pip install -r requirements.txt
 python examples/primer_uso.py
 ```
 
+Una ejecución sana termina con `"ok": true` y **exit code 0**. Si falla algún chequeo esencial, el script termina con código distinto de cero.
+
 Por defecto se crea:
 
 ```text
