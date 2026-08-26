@@ -55,7 +55,9 @@ def test_primer_uso_smoke_generates_workspace_and_json(tmp_path: Path):
     assert result["maturity"]["ampacity"]["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert result["maturity"]["short_circuit"]["status"] == "UNDER_VALIDATION"
     assert result["power_flow"]["convergio"] is True
-    assert result["voltage_drop"]["limite_pct"] == 3.0
+    assert result["voltage_drop"]["criterio"]["limite_pct"] == 3.0
+    assert result["voltage_drop"]["criterio"]["origen"] == "configurable_por_usuario"
+    assert result["voltage_drop"]["criterio"]["normativo_universal"] is False
 
     html = workspace.read_text(encoding="utf-8")
     assert "MCP Eléctrico — Primer uso" in html
