@@ -33,7 +33,7 @@ La publicación contiene:
 10 celdas marcadas "-"
 ```
 
-Las 134 celdas numéricas se almacenan como filas `exact_rows_v1`. Las 10 posiciones no tabuladas se preservan explícitamente en `not_tabulated_cells`; no se inventa valor ni se interpola.
+Las 134 celdas numéricas se almacenan como filas `exact_rows_v1`. Las 10 posiciones no tabuladas se preservan explícitamente en `not_tabulated_cells`; no se inventa valor ni se interpola. Una celda `-` **no equivale a factor 1,0 ni autoriza extrapolación**: la consulta permanece no resuelta y debe tratarse fuera del lookup automático.
 
 ## Límites
 
