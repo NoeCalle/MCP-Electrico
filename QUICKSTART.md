@@ -1,6 +1,6 @@
 # MCP Eléctrico — Primer uso
 
-Este quickstart está pensado para el **primer clon local** del repositorio. Antes de probar casos reales, ejecuta un smoke test integral que comprueba instalación, OpenDSS, madurez declarada, gate P3, flujo de potencia, caída de tensión y generación del workspace.
+Este quickstart está pensado para el **primer clon local** del repositorio. Antes de probar casos reales, la secuencia recomendada separa diagnóstico del entorno, smoke de integración y patrón numérico independiente.
 
 ## 1. Crear entorno
 
@@ -24,7 +24,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Ejecutar el primer smoke test
+## 2. Diagnóstico local antes del smoke
+
+```bash
+python examples/diagnostico_local.py
+```
+
+Genera `diagnostico_local.json`. Una instalación apta para continuar debe devolver `ok=true` y `overall_status=OK` u `OK_WITH_WARNINGS`. Un `WARN` es no bloqueante; un chequeo esencial en `FAIL` termina con exit code 2.
+
+Este preflight verifica Python/arquitectura, dependencias, OpenDSSDirect, API pública `server.py`, permisos de escritura, gate P3 y la matriz determinista de motores. No ejecuta pandapower como solver, conserva `automatic_dispatch=false` y `crosscheck=false`, y confirma que el MCP todavía **no ejecuta IEC 60909** como módulo validado.
+
+La explicación completa y matriz de fallos está en `docs/DIAGNOSTICO_LOCAL.md`.
+
+## 3. Ejecutar el primer smoke test
 
 ```bash
 python examples/primer_uso.py
@@ -46,7 +58,7 @@ También puedes elegir otra carpeta:
 python examples/primer_uso.py --output-dir mi_prueba
 ```
 
-## 3. Qué comprueba el smoke
+## 4. Qué comprueba el smoke
 
 El resultado debe terminar con `"ok": true` y verifica de forma explícita:
 
@@ -59,7 +71,7 @@ El resultado debe terminar con `"ok": true` y verifica de forma explícita:
 - `automatic_dispatch=false` y `crosscheck=false`;
 - pandapower no se ejecuta silenciosamente durante este smoke test.
 
-## 4. Qué resultados mirar primero
+## 5. Qué resultados mirar primero
 
 En `resultado_primer_uso.json` revisa:
 
@@ -78,7 +90,7 @@ El criterio configurado de caída de tensión queda explícito en `voltage_drop.
 
 En `workspace_primer_uso.html` revisa el unifilar, el inspector y las vistas de flujo, caída de tensión y ampacidad disponibles en el workspace.
 
-## 5. Segundo paso: comprobar números contra REF-01
+## 6. Tercer paso: comprobar números contra REF-01
 
 Después de que el smoke pase, ejecuta el primer patrón oro numérico:
 
@@ -106,21 +118,29 @@ El script comprueba simultáneamente que:
 
 Una ejecución sana devuelve `"pass": true` y exit code 0. Esta comparación es deliberadamente independiente: los valores de referencia congelados **no dependen de OpenDSS**.
 
-## 6. Qué NO demuestran estas pruebas
+## 7. Qué NO demuestran estas pruebas
 
-Ni el smoke ni REF-01 son estudios eléctricos profesionales ni validaciones de un proyecto real. Son pruebas reproducibles de instalación, integración y regresión numérica.
+El diagnóstico, el smoke y REF-01 no son estudios eléctricos profesionales ni validaciones de un proyecto real. Son pruebas reproducibles del entorno, integración y regresión numérica.
 
 En particular:
 
 - el límite de caída de tensión de 3 % del smoke es un parámetro del ejemplo, no una regla universal;
 - REF-01 cubre únicamente un sistema radial trifásico balanceado de dos barras;
-- el smoke no ejecuta IEC 60909 y REF-01 tampoco;
+- el diagnóstico y el smoke no ejecutan IEC 60909 y REF-01 tampoco;
 - no ejecutan coordinación/TCC;
 - no ejecutan IEEE 1584;
 - no habilitan `professional_emission` del resultado global.
 
-## 7. Si algo falla
+## 8. Si algo falla
 
-Los scripts terminan con código distinto de cero cuando un chequeo esencial falla. Conserva la salida de consola y los JSON generados: sirven para diferenciar un problema de dependencias, OpenDSS, madurez/gates, postproceso o regresión numérica.
+Los scripts terminan con código distinto de cero cuando un chequeo esencial falla. Conserva la salida de consola y los JSON generados: sirven para diferenciar un problema de dependencias, OpenDSS, API pública, madurez/gates, postproceso, generación visual o regresión numérica.
 
-Con **primer_uso = OK** y **REF-01 = PASS**, el entorno local queda en una buena línea base para empezar con un caso real pequeño y comparar después sus magnitudes con una referencia independiente antes de escalar a redes mayores.
+La línea base antes de un caso real queda así:
+
+```text
+diagnostico_local -> OK u OK_WITH_WARNINGS, con ok=true
+primer_uso        -> ok=true
+REF-01            -> pass=true
+```
+
+Con los tres pasos en verde, el entorno local queda en una buena línea base para empezar con un caso real pequeño y comparar después sus magnitudes con una referencia independiente antes de escalar a redes mayores.
