@@ -36,7 +36,7 @@ professional_emission = false
   el gate deriva esta cobertura mediante `ampacity_benchmark_evidence.evaluar_cobertura()` y vuelve a comprobar la suite independiente viva;
 - P3C13: módulo `ampacity` elevado a `VALIDATED_WITH_LIMITATIONS`.
 
-El benchmark histórico P3B con evidencia `SECONDARY` se conserva como regresión de infraestructura, pero no califica para P3C12 ni habilita cobertura normativa profesional. El objeto `benchmark_evidence` del gate distingue explícitamente esta evidencia secundaria de los benchmarks `PRIMARY` independientes.
+El benchmark histórico P3B con evidencia `SECONDARY` se conserva como regresión de infraestructura, pero **no satisface P3C12** ni habilita cobertura normativa profesional. El objeto `benchmark_evidence` del gate distingue explícitamente esta evidencia secundaria de los benchmarks `PRIMARY` independientes.
 
 Fuente primaria pinneada:
 
