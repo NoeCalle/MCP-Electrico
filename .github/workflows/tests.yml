@@ -42,6 +42,19 @@ jobs:
         with:
           name: mcp-electrico-benchmarks-p3b
           path: benchmark_p3b.json
+      - name: Generate P3C12 independent primary benchmark
+        run: |
+          python examples/run_benchmarks_p3c12.py
+          test -s benchmark_p3c12.json
+          grep -q '"failed": 0' benchmark_p3c12.json
+          grep -q '"pass": true' benchmark_p3c12.json
+          grep -q '"reference_evidence": "PRIMARY_INDEPENDENT"' benchmark_p3c12.json
+          grep -q '"independent_reference": true' benchmark_p3c12.json
+      - name: Upload P3C12 independent benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-benchmarks-p3c12
+          path: benchmark_p3c12.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
