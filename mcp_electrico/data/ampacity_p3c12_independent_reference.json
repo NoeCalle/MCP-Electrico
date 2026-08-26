@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "suite_id": "P3C12_PRIMARY_INDEPENDENT_REFERENCE_V1",
+  "norm_reference_id": "PERU_CNE_UTILIZACION_2006",
+  "source_id": "MINEM_CNE_UTIL_2006_OFFICIAL_PDF",
+  "source_sha256": "2b3cbd457c519bf9d9aa2cf2754c72b6e531708e45ea2fdf91f839b1acccfd64",
+  "reference_evidence": "PRIMARY_INDEPENDENT",
+  "reference_origin": "PRIMARY_SOURCE_PAGE_TRANSCRIPTION_INDEPENDENT_OF_PRODUCTION_DATASET",
+  "review_record": {
+    "reviewer": "GPT-5.6 Sol",
+    "human_reviewer": null,
+    "review_mode": "AI_VISUAL_REVIEW_USER_AUTHORIZED",
+    "review_authorized_by_user": true,
+    "manual_comparison_confirmed": true
+  },
+  "cases": [
+    {
+      "id": "P3C12_BASE_C70_229A",
+      "family": "base_ampacity_strategy_Table_1_2_or_validated_equivalent",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1",
+      "source_pages": [552, 555],
+      "source_table": "Tabla 2 / Tabla 3",
+      "query": {"installation_method":"C","conductor_material":"Cu","insulation":"XLPE_EPR","temperature_c":90,"loaded_conductors":3,"section_mm2":70.0},
+      "expected_value": 229.0,
+      "tolerance": 1e-9
+    },
+
+    {
+      "id": "P3C12_5A_XLPE_AIR_35C",
+      "family": "Table_5A_temperature",
+      "resolver": "table5a_cell",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5A_COMPLETE_PRIMARY_V1",
+      "source_pages": [563],
+      "source_table": "Tabla 5A",
+      "query": {"table_block":"NORMAL","base_table_column":15,"factor_column_id":"XLPE_EPR_AIR","ambient_temperature_key":"35"},
+      "expected_value": 0.96,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5A_XLPE_AIR_40C",
+      "family": "Table_5A_temperature",
+      "resolver": "table5a_cell",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5A_COMPLETE_PRIMARY_V1",
+      "source_pages": [563],
+      "source_table": "Tabla 5A",
+      "query": {"table_block":"NORMAL","base_table_column":15,"factor_column_id":"XLPE_EPR_AIR","ambient_temperature_key":"40"},
+      "expected_value": 0.91,
+      "tolerance": 1e-9
+    },
+
+    {
+      "id": "P3C12_5B_RHO_1_0",
+      "family": "Table_5B_soil_thermal_resistivity_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "source_pages": [564],
+      "source_table": "Tabla 5B",
+      "query": {"base_table":"Tabla 2","installation_method":"D","environment":"buried_duct","burial_depth_scope":"up_to_0_8_m","soil_thermal_resistivity_k_m_per_w":1.0},
+      "expected_value": 1.18,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5B_RHO_1_5",
+      "family": "Table_5B_soil_thermal_resistivity_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "source_pages": [564],
+      "source_table": "Tabla 5B",
+      "query": {"base_table":"Tabla 2","installation_method":"D","environment":"buried_duct","burial_depth_scope":"up_to_0_8_m","soil_thermal_resistivity_k_m_per_w":1.5},
+      "expected_value": 1.10,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5B_RHO_2_0",
+      "family": "Table_5B_soil_thermal_resistivity_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "source_pages": [564],
+      "source_table": "Tabla 5B",
+      "query": {"base_table":"Tabla 2","installation_method":"D","environment":"buried_duct","burial_depth_scope":"up_to_0_8_m","soil_thermal_resistivity_k_m_per_w":2.0},
+      "expected_value": 1.05,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5B_RHO_2_5",
+      "family": "Table_5B_soil_thermal_resistivity_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "source_pages": [564],
+      "source_table": "Tabla 5B",
+      "query": {"base_table":"Tabla 2","installation_method":"D","environment":"buried_duct","burial_depth_scope":"up_to_0_8_m","soil_thermal_resistivity_k_m_per_w":2.5},
+      "expected_value": 1.00,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5B_RHO_3_0",
+      "family": "Table_5B_soil_thermal_resistivity_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5B_SOIL_THERMAL_RESISTIVITY_METHOD_D_PRIMARY_V1",
+      "source_pages": [564],
+      "source_table": "Tabla 5B",
+      "query": {"base_table":"Tabla 2","installation_method":"D","environment":"buried_duct","burial_depth_scope":"up_to_0_8_m","soil_thermal_resistivity_k_m_per_w":3.0},
+      "expected_value": 0.96,
+      "tolerance": 1e-9
+    },
+
+    {
+      "id": "P3C12_5C_ITEM1_2",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"2"},
+      "expected_value": 0.80,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5C_ITEM1_20",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":1,"arrangement_id":"grouped_air_surface_embedded_enclosed","reference_set":"COLS_4_8_METHODS_A_TO_F","group_count_key":"20"},
+      "expected_value": 0.38,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5C_ITEM2_9PLUS",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":2,"arrangement_id":"single_layer_wall_floor_nonperforated_tray","reference_set":"COLS_4_7_METHOD_C","group_count_key":"9_or_more"},
+      "expected_value": 0.70,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5C_ITEM3_1",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":3,"arrangement_id":"single_layer_direct_under_wood_ceiling","reference_set":"COLS_4_7_METHOD_C","group_count_key":"1"},
+      "expected_value": 0.95,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5C_ITEM4_3",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":4,"arrangement_id":"single_layer_perforated_tray_horizontal_vertical","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"3"},
+      "expected_value": 0.82,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5C_ITEM5_9PLUS",
+      "family": "Table_5C_grouping_air",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5C_GROUPING_COMPLETE_PRIMARY_V1",
+      "source_pages": [565],
+      "source_table": "Tabla 5C",
+      "query": {"table5c_item":5,"arrangement_id":"single_layer_ladder_tray_support_slats","reference_set":"COLS_8_9_METHODS_E_F","group_count_key":"9_or_more"},
+      "expected_value": 0.78,
+      "tolerance": 1e-9
+    },
+
+    {
+      "id": "P3C12_5D_A_C2_CONTACT",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"direct_buried","table5d_branch":"A_DIRECT_BURIED_CABLES","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":2,"spacing_id":"contact"},
+      "expected_value": 0.75,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5D_A_C6_CONTACT",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"direct_buried","table5d_branch":"A_DIRECT_BURIED_CABLES","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":6,"spacing_id":"contact"},
+      "expected_value": 0.50,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5D_A_C3_05M",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"direct_buried","table5d_branch":"A_DIRECT_BURIED_CABLES","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":3,"spacing_id":"0_5_m"},
+      "expected_value": 0.85,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5D_B_C3_025M",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"buried_duct","table5d_branch":"B_MULTICORE_SINGLE_WAY_DUCTS","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":3,"spacing_id":"0_25_m"},
+      "expected_value": 0.85,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5D_B_C6_1M",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"buried_duct","table5d_branch":"B_MULTICORE_SINGLE_WAY_DUCTS","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":6,"spacing_id":"1_0_m"},
+      "expected_value": 0.90,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5D_C_C6_1M",
+      "family": "Table_5D_grouping_buried_method_D",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5D_GROUPING_METHOD_D_PRIMARY_V1",
+      "source_pages": [566,567],
+      "source_table": "Tabla 5D",
+      "query": {"installation_method":"D","environment":"buried_duct","table5d_branch":"C_SINGLE_CORE_SINGLE_WAY_DUCT_CIRCUITS","burial_depth_m":0.7,"soil_thermal_resistivity_k_m_per_w":2.5,"circuits_grouped":6,"spacing_id":"1_0_m"},
+      "expected_value": 0.90,
+      "tolerance": 1e-9
+    },
+
+    {
+      "id": "P3C12_5E_E_PERF_CONTACT_T1_U9",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"E","environment":"air","table5e_branch":"A_MULTICORE_CABLE_GROUPS","support_family":"perforated_trays","contact_mode":"contact","cable_formation":"not_applicable_multicore","tray_count":1,"grouped_units":9},
+      "expected_value": 0.73,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_E_PERF_CONTACT_T3_U9",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"E","environment":"air","table5e_branch":"A_MULTICORE_CABLE_GROUPS","support_family":"perforated_trays","contact_mode":"contact","cable_formation":"not_applicable_multicore","tray_count":3,"grouped_units":9},
+      "expected_value": 0.66,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_E_LADDER_SPACED_T1_U6",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"E","environment":"air","table5e_branch":"A_MULTICORE_CABLE_GROUPS","support_family":"ladder_trays_clamps_supports","contact_mode":"spaced_as_figure","cable_formation":"not_applicable_multicore","tray_count":1,"grouped_units":6},
+      "expected_value": 1.00,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_E_VERTICAL_SPACED_T2_U4",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"E","environment":"air","table5e_branch":"A_MULTICORE_CABLE_GROUPS","support_family":"vertical_perforated_trays","contact_mode":"spaced_as_figure","cable_formation":"not_applicable_multicore","tray_count":2,"grouped_units":4},
+      "expected_value": 0.87,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_F_PERF_CONTACT_H_T3_U3",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"F","environment":"air","table5e_branch":"B_SINGLE_CORE_3PH_CIRCUIT_GROUPS","support_family":"perforated_trays","contact_mode":"contact","cable_formation":"three_single_core_horizontal","tray_count":3,"grouped_units":3},
+      "expected_value": 0.78,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_F_VERTICAL_CONTACT_V_T2_U2",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"F","environment":"air","table5e_branch":"B_SINGLE_CORE_3PH_CIRCUIT_GROUPS","support_family":"vertical_perforated_trays","contact_mode":"contact","cable_formation":"three_single_core_vertical","tray_count":2,"grouped_units":2},
+      "expected_value": 0.84,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_F_LADDER_CONTACT_H_T1_U1",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"F","environment":"air","table5e_branch":"B_SINGLE_CORE_3PH_CIRCUIT_GROUPS","support_family":"ladder_trays_clamps_supports","contact_mode":"contact","cable_formation":"three_single_core_horizontal","tray_count":1,"grouped_units":1},
+      "expected_value": 1.00,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_F_PERF_SPACED_TREFOIL_T3_U3",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"F","environment":"air","table5e_branch":"B_SINGLE_CORE_3PH_CIRCUIT_GROUPS","support_family":"perforated_trays","contact_mode":"spaced_as_figure","cable_formation":"three_single_core_trefoil","tray_count":3,"grouped_units":3},
+      "expected_value": 0.86,
+      "tolerance": 1e-9
+    },
+    {
+      "id": "P3C12_5E_F_LADDER_SPACED_TREFOIL_T3_U3",
+      "family": "Table_5E_arrangement_branches_when_applicable",
+      "resolver": "exact_catalog",
+      "dataset_id": "PERU_CNE_UTIL_2006_TABLE_5E_GROUPING_AIR_METHODS_E_F_PRIMARY_V1",
+      "source_pages": [568,569],
+      "source_table": "Tabla 5E",
+      "query": {"installation_method":"F","environment":"air","table5e_branch":"B_SINGLE_CORE_3PH_CIRCUIT_GROUPS","support_family":"ladder_trays_clamps_supports","contact_mode":"spaced_as_figure","cable_formation":"three_single_core_trefoil","tray_count":3,"grouped_units":3},
+      "expected_value": 0.90,
+      "tolerance": 1e-9
+    }
+  ]
+}
