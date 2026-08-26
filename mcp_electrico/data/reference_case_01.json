@@ -1,0 +1,45 @@
+{
+  "schema": "MCP_ELECTRICO_REFERENCE_CASE_V1",
+  "id": "REF01_BT_480V_RADIAL_HEAVY_V1",
+  "title": "BT 480 V radial balanceado — carga PQ alta",
+  "purpose": "golden_numeric_reference",
+  "scope": "radial_balanced_three_phase_two_bus_constant_pq",
+  "engine_under_test": "OpenDSS",
+  "reference_method": "balanced_two_bus_constant_pq_independent_complex_iteration",
+  "inputs": {
+    "source_kv_ll": 0.48,
+    "length_km": 0.1,
+    "r_ohm_km": 0.3,
+    "x_ohm_km": 0.1,
+    "load_kw": 80.0,
+    "load_kvar": 40.0
+  },
+  "expected_reference": {
+    "vpu_receiving": 0.9876942652973213,
+    "current_a": 108.92325136220022,
+    "loss_kw": 1.0677847218581746,
+    "loss_kvar": 0.35592824061939166,
+    "drop_pct": 1.2305734702678706
+  },
+  "tolerances": {
+    "vpu_abs": 0.0002,
+    "current_a_abs": 0.15,
+    "current_rel_pct": 0.3,
+    "loss_kw_abs": 0.005,
+    "loss_kvar_abs": 0.005,
+    "drop_pct_abs": 0.02
+  },
+  "reference_freeze": {
+    "origin": "P1 independent analytical benchmark bt_radial_heavy",
+    "reference_depends_on_opendss": false,
+    "frozen_values": true,
+    "change_policy": "Any modification of inputs, expected values or tolerances requires explicit review and regression evidence."
+  },
+  "professional_emission": false,
+  "limitations": [
+    "Caso trifásico balanceado de dos barras; no cubre desbalance.",
+    "Fuente casi ideal, línea serie sin capacitancia shunt y carga PQ constante.",
+    "No cubre transformadores, regulación, contingencias, cortocircuito ni ampacidad normativa.",
+    "Es una referencia de regresión numérica, no un estudio profesional de diseño."
+  ]
+}
