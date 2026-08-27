@@ -1,6 +1,7 @@
 from mcp_electrico import (
     core,
     iec60909_suite,
+    p4_completion,
     professional_data,
     visual_state,
     workspace_p4_view,
@@ -110,3 +111,14 @@ def test_p4c11a_view_renders_registered_values_without_recalculation():
     assert "SIN EMISIÓN PROFESIONAL" in enhanced
     assert "UNVERIFIED_AGAINST_TARGET_EDITION" in enhanced
     assert "overlay-short-circuit-bus" in enhanced
+
+
+def test_p4c11a_does_not_close_global_p4c11_or_p4():
+    gate = p4_completion.evaluar_cierre_p4()
+    criteria = {item["id"]: item for item in gate["criteria"]}
+
+    assert criteria["P4C11"]["status"] == "PENDING"
+    assert "P4C11A DONE" in criteria["P4C11"]["evidence"]
+    assert gate["phase_status"] == "NOT_READY"
+    assert gate["ready_for_next_phase"] is False
+    assert gate["professional_emission"] is False
