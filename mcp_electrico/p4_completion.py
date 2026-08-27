@@ -9,7 +9,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from . import iec60909_contract, validation_status
+from . import iec60909, iec60909_contract, validation_status
 
 PHASE_NOT_READY = "NOT_READY"
 PHASE_READY_WITH_LIMITATIONS = "READY_WITH_LIMITATIONS"
@@ -29,6 +29,7 @@ def _criteria() -> list[dict[str, Any]]:
     contract = iec60909_contract.obtener_contrato_p4()
     target = contract["target_standard"]
     backend = contract["backend"]
+    capabilities = iec60909.CAPABILITIES
     maturity = validation_status.get_module_status("short_circuit")
 
     return [
@@ -51,42 +52,42 @@ def _criteria() -> list[dict[str, Any]]:
         _criterion(
             "P4C03",
             "p2_to_iec60909_positive_sequence_adapter",
-            False,
-            "Pendiente: source/line/transformer adapter con X/R→R/X explícito",
+            bool(capabilities.get("positive_sequence_adapter")),
+            "iec60909: fuente P2 Scc/X-R -> ext_grid Ssc/R-X + líneas R1/X1 + transformadores P2",
             "La red P2 todavía no se proyecta a un modelo IEC 60909 dedicado y probado.",
         ),
         _criterion(
             "P4C04",
             "three_phase_max_min_ikss_skss",
-            False,
-            "Pendiente: calc_sc 3ph max/min + resultados normalizados",
+            bool(capabilities.get("three_phase_max_min")),
+            "iec60909.ejecutar_3ph: calc_sc 3ph max/min + Ik''/Sk'' normalizados",
             "Falta implementación 3F max/min reproducible.",
         ),
         _criterion(
             "P4C05",
             "peak_and_thermal_currents",
-            False,
+            bool(capabilities.get("peak_thermal")),
             "Pendiente: ip/Ith con tk y topología explícitos",
             "Falta estrategia validada para ip e Ith.",
         ),
         _criterion(
             "P4C06",
             "two_phase_fault",
-            False,
+            bool(capabilities.get("two_phase")),
             "Pendiente: 2F",
             "Falta implementar y validar falla fase-fase.",
         ),
         _criterion(
             "P4C07",
             "single_phase_ground_zero_sequence",
-            False,
+            bool(capabilities.get("single_phase_ground")),
             "Pendiente: 1F-T + cadena Z0",
             "La falla a tierra requiere secuencia cero validada de fuente/líneas/transformadores.",
         ),
         _criterion(
             "P4C08",
             "two_phase_ground_strategy",
-            False,
+            bool(capabilities.get("two_phase_ground")),
             "Pendiente: estrategia 2F-T; calc_sc no expone token directo",
             "No existe todavía estrategia validada para 2F-T y no se permite aproximarla silenciosamente.",
         ),
