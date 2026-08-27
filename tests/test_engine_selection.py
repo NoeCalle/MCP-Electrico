@@ -18,6 +18,8 @@ def test_matrix_preserves_no_dispatch_no_crosscheck():
     assert matrix["crosscheck"] is False
     assert matrix["studies"]["power_flow"]["preferred"] == "opendss"
     assert matrix["studies"]["iec60909"]["preferred"] == "pandapower"
+    assert matrix["studies"]["iec60909"]["implemented"] is True
+    assert matrix["studies"]["iec60909"]["professional_emission_candidate"] is False
     assert matrix["studies"]["ampacity"]["preferred"] == "mcp"
     assert "READY_DATA" in matrix["readiness_states"]["data"]
     assert "ENGINE_NOT_READY" in matrix["readiness_states"]["engine"]
@@ -53,17 +55,20 @@ def test_power_flow_prefers_opendss_and_only_enables_pandapower_explicitly():
     assert experimental["automatic_dispatch"] is False
 
 
-def test_iec60909_is_routed_to_pandapower_but_blocked_until_p4():
+def test_iec60909_is_routed_as_experimental_but_not_professional():
     _balanced_case()
     result = engine_selection.seleccionar_motor_estudio(
-        "cortocircuito", norma="IEC 60909"
+        "cortocircuito", norma="IEC 60909", tipo_falla="three_phase"
     )
 
     assert result["study"] == "iec60909"
     assert result["selected_engine"] == "pandapower"
-    assert result["executable"] is False
+    assert result["executable"] is True
+    assert result["technical_executable"] is True
+    assert result["professional_execution_ready"] is False
     assert result["professional_emission"] is False
-    assert result["decision"] == "NO_APTO_PARA_EJECUCION"
+    assert result["readiness"]["data_status"] == "MISSING_DATA"
+    assert result["decision"] == "EJECUTABLE_CON_DATOS_PROFESIONALES_INCOMPLETOS"
 
 
 def test_ampacity_foundation_is_mcp_owned_under_validation():
