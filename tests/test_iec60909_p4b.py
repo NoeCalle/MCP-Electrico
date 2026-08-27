@@ -1,5 +1,7 @@
 import math
 
+import pytest
+
 from mcp_electrico import core, iec60909, professional_data, visual_state
 
 
@@ -99,7 +101,6 @@ def test_p4b_source_bus_current_is_consistent_with_declared_short_circuit_power(
 
     expected_ka = 500.0 / (math.sqrt(3.0) * 22.9)
     assert result["ok"] is True
-    # En la barra de red equivalente, Scc3 declarada fija la magnitud del caso.
     assert result["results"]["ikss_ka"] == pytest.approx(expected_ka, rel=1e-6)
     assert result["results"]["skss_mva"] == pytest.approx(500.0, rel=1e-6)
 
