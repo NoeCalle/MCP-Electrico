@@ -185,6 +185,7 @@ def ejecutar_2ph(
         "bus": str(net.bus.at[bus_idx, "name"]),
         "vn_kv": float(net.bus.at[bus_idx, "vn_kv"]),
         "results": results,
+        "negative_sequence_policy": prep["negative_sequence_policy"],
         "backend_raw": {
             "skss_field": "skss_mw" if backend_skss is not None else None,
             "skss_value": backend_skss,
