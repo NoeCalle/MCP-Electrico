@@ -55,6 +55,20 @@ jobs:
         with:
           name: mcp-electrico-benchmarks-p3c12
           path: benchmark_p3c12.json
+      - name: Generate P4C09A independent 3PH benchmark
+        run: |
+          python examples/benchmark_p4_3ph.py --output benchmark_p4_3ph.json
+          test -s benchmark_p4_3ph.json
+          grep -q '"pass": true' benchmark_p4_3ph.json
+          grep -q '"depends_on_pandapower": false' benchmark_p4_3ph.json
+          grep -q '"depends_on_opendss": false' benchmark_p4_3ph.json
+          grep -q '"p4c09_complete": false' benchmark_p4_3ph.json
+          grep -q '"professional_emission": false' benchmark_p4_3ph.json
+      - name: Upload P4C09A independent 3PH benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-benchmarks-p4-3ph
+          path: benchmark_p4_3ph.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
