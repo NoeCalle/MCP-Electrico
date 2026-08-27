@@ -1,0 +1,63 @@
+name: p4c11a-workspace-v4
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  workspace-v4:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P4C11A tests
+        run: python -m pytest -q tests/test_iec60909_p4c11a.py
+      - name: Generate workspace V4
+        run: python examples/workspace_p4_3ph.py
+      - name: Validate V4 artifacts
+        run: |
+          test -s workspace_p4_3ph.html
+          test -s workspace_p4_3ph_unifilar.svg
+          grep -q 'data-tab="cortocircuito"' workspace_p4_3ph.html
+          grep -q 'id="panel-cortocircuito"' workspace_p4_3ph.html
+          grep -q 'data-p4-fault-bus="bus1"' workspace_p4_3ph.html
+          grep -q "Ik'' MAX" workspace_p4_3ph.html
+          grep -q 'EXPERIMENTAL_P4' workspace_p4_3ph.html
+          grep -q 'SIN EMISIÓN PROFESIONAL' workspace_p4_3ph.html
+          grep -q 'UNVERIFIED_AGAINST_TARGET_EDITION' workspace_p4_3ph.html
+          grep -q '"iec60909_3ph"' workspace_p4_3ph.html
+          grep -q '"professional_emission":false' workspace_p4_3ph.html
+          grep -q 'overlay-short-circuit-bus' workspace_p4_3ph.html
+      - name: Validate V4 JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("workspace_p4_3ph.html").read_text(encoding="utf-8")
+          scripts = []
+          for match in re.finditer(r'<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>', html, re.S):
+              if 'application/json' in match.group('attrs'):
+                  continue
+              path = Path(f"/tmp/p4-v4-script-{len(scripts)}.js")
+              path.write_text(match.group('body'), encoding="utf-8")
+              scripts.append(path)
+          if not scripts:
+              raise SystemExit("No executable scripts found")
+          print("\n".join(str(path) for path in scripts))
+          PY
+          for script in /tmp/p4-v4-script-*.js; do
+            node --check "$script"
+          done
+      - name: Upload V4 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-p4c11a-workspace-v4
+          path: |
+            workspace_p4_3ph.html
+            workspace_p4_3ph_unifilar.svg
