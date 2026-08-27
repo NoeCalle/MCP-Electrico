@@ -230,7 +230,7 @@ Objetivos:
 
 ## Regla para pandapower
 
-P1.5 no crea una interfaz visual separada. Los resultados pandapower se registran como estudios independientes y deben identificar explícitamente:
+P1.5 no crea por ahora una segunda interfaz visual. Los resultados pandapower se registran como estudios independientes y deben identificar explícitamente:
 
 - `engine = pandapower`;
 - versión;
