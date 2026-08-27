@@ -98,20 +98,48 @@ def test_1f_t_exige_z0_explicita_de_fuente_y_linea():
     assert "P2READY410" in codes
 
 
-def test_iec60909_puede_tener_datos_listos_aunque_p4_siga_no_implementada():
-    _radial("ready_60909")
+def test_iec60909_1ft_puede_tener_datos_listos_pero_fault_scope_sigue_bloqueado():
+    _radial("ready_60909_ground")
     _source()
     zero_sequence.definir_fuente(0.30, 0.90, 0.50, 1.20)
     zero_sequence.definir_linea("l1", 0.65, 0.32)
 
-    result = engine_selection.evaluar_preparacion_estudio(
+    normal = engine_selection.evaluar_preparacion_estudio(
         "iec60909", tipo_falla="single_phase_ground"
     )
+    experimental = engine_selection.evaluar_preparacion_estudio(
+        "iec60909",
+        tipo_falla="single_phase_ground",
+        permitir_experimental=True,
+    )
 
-    assert result["data_status"] == "READY_DATA"
-    assert result["engine_status"] == "MODULE_NOT_READY"
-    assert result["overall_status"] == "MODULE_NOT_READY"
-    assert result["selected_engine"] == "pandapower"
+    for result in (normal, experimental):
+        assert result["data_status"] == "READY_DATA"
+        assert result["engine_status"] == "ENGINE_NOT_READY"
+        assert result["overall_status"] == "ENGINE_NOT_READY"
+        assert result["selected_engine"] == "pandapower"
+        assert any(item["code"] == "P4READY803" for item in result["engine_reasons"])
+
+
+def test_iec60909_3f_solo_queda_ready_con_habilitacion_experimental_explicita():
+    _radial("ready_60909_3f")
+    _source()
+
+    normal = engine_selection.evaluar_preparacion_estudio(
+        "iec60909", tipo_falla="three_phase"
+    )
+    experimental = engine_selection.evaluar_preparacion_estudio(
+        "iec60909", tipo_falla="three_phase", permitir_experimental=True
+    )
+
+    assert normal["data_status"] == "READY_DATA"
+    assert normal["engine_status"] == "ENGINE_NOT_READY"
+    assert any(item["code"] == "P2READY802" for item in normal["engine_reasons"])
+
+    assert experimental["data_status"] == "READY_DATA"
+    assert experimental["engine_status"] == "READY_ENGINE"
+    assert experimental["overall_status"] == "READY_TO_EXECUTE"
+    assert experimental["selected_engine"] == "pandapower"
 
 
 def test_selector_distingue_ejecucion_tecnica_de_readiness_profesional():

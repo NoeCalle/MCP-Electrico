@@ -1,16 +1,18 @@
-"""Primer motor numérico P4: cortocircuito 3F max/min con pandapower.
+"""Motor numérico P4 para cortocircuito trifásico IEC 60909.
 
-Alcance deliberadamente limitado:
+Alcance actual:
 - IEC 60909 objetivo: IEC 60909-0:2026;
 - backend candidato: pandapower 3.5.x;
 - falla: trifásica (3ph) únicamente;
 - escenarios: max/min;
+- Ik'', Sk'' y, opcionalmente, ip/Ith;
 - datos P2 de secuencia positiva;
 - sin emisión profesional;
 - sin afirmar todavía conformidad de edición 2026.
 
 Para cálculo mínimo con líneas se exige `endtemp_degree` explícita por línea.
-No se introduce una temperatura final por defecto.
+Para ip/Ith se exigen `topology` y `tk_s` explícitos. No se introduce un valor
+oculto para ninguno de estos parámetros.
 """
 
 from __future__ import annotations
@@ -26,11 +28,14 @@ from . import iec60909_contract, pandapower_engine, professional_data
 CAPABILITIES = {
     "positive_sequence_adapter": True,
     "three_phase_max_min": True,
-    "peak_thermal": False,
+    "peak_thermal": True,
     "two_phase": False,
     "single_phase_ground": False,
     "two_phase_ground": False,
 }
+
+SUPPORTED_DUTY_TOPOLOGIES = {"radial", "meshed"}
+SUPPORTED_KAPPA_METHODS = {"C"}
 
 
 def _issue(code: str, message: str, element: str | None = None) -> dict[str, Any]:
@@ -39,11 +44,57 @@ def _issue(code: str, message: str, element: str | None = None) -> dict[str, Any
 
 def _normalize_case(case: str) -> str:
     value = str(case or "").strip().lower()
-    aliases = {"max": "max", "maximum": "max", "maximo": "max", "máximo": "max",
-               "min": "min", "minimum": "min", "minimo": "min", "mínimo": "min"}
+    aliases = {
+        "max": "max", "maximum": "max", "maximo": "max", "máximo": "max",
+        "min": "min", "minimum": "min", "minimo": "min", "mínimo": "min",
+    }
     if value not in aliases:
         raise ValueError("P4SC001: case debe ser 'max' o 'min'.")
     return aliases[value]
+
+
+def _normalize_duty_request(
+    calcular_ip_ith: bool,
+    topology: str | None,
+    tk_s: float | None,
+    kappa_method: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not calcular_ip_ith:
+        return {
+            "requested": False,
+            "topology": None,
+            "tk_s": None,
+            "kappa_method": None,
+        }, []
+
+    issues: list[dict[str, Any]] = []
+    topology_value = str(topology or "").strip().lower()
+    if topology_value not in SUPPORTED_DUTY_TOPOLOGIES:
+        issues.append(_issue(
+            "P4SC301",
+            "ip/Ith exige topology explícita 'radial' o 'meshed'; no se acepta 'auto'.",
+        ))
+
+    try:
+        tk_value = float(tk_s) if tk_s is not None else float("nan")
+    except (TypeError, ValueError):
+        tk_value = float("nan")
+    if not isfinite(tk_value) or tk_value <= 0:
+        issues.append(_issue("P4SC302", "ip/Ith exige tk_s finito y > 0 s."))
+
+    kappa_value = str(kappa_method or "").strip().upper()
+    if kappa_value not in SUPPORTED_KAPPA_METHODS:
+        issues.append(_issue(
+            "P4SC303",
+            "P4C05 v1 admite únicamente kappa_method='C'; otros métodos requieren validación separada.",
+        ))
+
+    return {
+        "requested": True,
+        "topology": topology_value or None,
+        "tk_s": tk_value if isfinite(tk_value) else None,
+        "kappa_method": kappa_value or None,
+    }, issues
 
 
 def _source_projection(case: str) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
@@ -86,12 +137,19 @@ def _line_temperature_map(
     if case != "min" or not model.get("lines"):
         return {}, []
 
-    supplied = {str(k).strip().lower(): float(v) for k, v in (line_endtemp_degree_c or {}).items()}
+    supplied = {
+        str(k).strip().lower(): float(v)
+        for k, v in (line_endtemp_degree_c or {}).items()
+    }
     normalized: dict[str, float] = {}
     issues: list[dict[str, Any]] = []
     for line in model["lines"]:
         full = str(line["id"])
-        candidates = {full.lower(), str(line["name"]).lower(), f"line.{line['name']}".lower()}
+        candidates = {
+            full.lower(),
+            str(line["name"]).lower(),
+            f"line.{line['name']}".lower(),
+        }
         value = next((supplied[key] for key in candidates if key in supplied), None)
         if value is None:
             issues.append(_issue(
@@ -101,7 +159,11 @@ def _line_temperature_map(
             ))
             continue
         if not isfinite(value) or value < 20.0:
-            issues.append(_issue("P4SC202", "endtemp_degree debe ser finita y >=20 °C.", full))
+            issues.append(_issue(
+                "P4SC202",
+                "endtemp_degree debe ser finita y >=20 °C.",
+                full,
+            ))
             continue
         normalized[full.lower()] = float(value)
     return normalized, issues
@@ -111,6 +173,10 @@ def evaluar_preparacion_3ph(
     case: str,
     bus: str,
     line_endtemp_degree_c: dict[str, float] | None = None,
+    calcular_ip_ith: bool = False,
+    topology: str | None = None,
+    tk_s: float | None = None,
+    kappa_method: str = "C",
 ) -> dict[str, Any]:
     try:
         normalized_case = _normalize_case(case)
@@ -134,6 +200,11 @@ def evaluar_preparacion_3ph(
     )
     issues.extend(temperature_issues)
 
+    duty, duty_issues = _normalize_duty_request(
+        calcular_ip_ith, topology, tk_s, kappa_method
+    )
+    issues.extend(duty_issues)
+
     return {
         "ready": not issues,
         "case": normalized_case,
@@ -141,6 +212,7 @@ def evaluar_preparacion_3ph(
         "issues": issues,
         "source_projection": source_projection,
         "line_endtemp_degree_c": temperatures,
+        "duty": duty,
         "pandapower_compatibility": compatibility,
     }
 
@@ -152,7 +224,11 @@ def _set_source_short_circuit(net, projection: dict[str, Any]) -> None:
     net.ext_grid.at[idx, f"rx_{case}"] = projection["r_x_pandapower"]
 
 
-def _set_min_line_temperatures(net, line_meta: dict[int, dict[str, Any]], temperatures: dict[str, float]) -> None:
+def _set_min_line_temperatures(
+    net,
+    line_meta: dict[int, dict[str, Any]],
+    temperatures: dict[str, float],
+) -> None:
     for idx, meta in line_meta.items():
         key = str(meta["id"]).lower()
         net.line.at[idx, "endtemp_degree"] = temperatures[key]
@@ -162,8 +238,20 @@ def ejecutar_3ph(
     case: str,
     bus: str,
     line_endtemp_degree_c: dict[str, float] | None = None,
+    calcular_ip_ith: bool = False,
+    topology: str | None = None,
+    tk_s: float | None = None,
+    kappa_method: str = "C",
 ) -> dict[str, Any]:
-    prep = evaluar_preparacion_3ph(case, bus, line_endtemp_degree_c)
+    prep = evaluar_preparacion_3ph(
+        case,
+        bus,
+        line_endtemp_degree_c,
+        calcular_ip_ith=calcular_ip_ith,
+        topology=topology,
+        tk_s=tk_s,
+        kappa_method=kappa_method,
+    )
     contract = iec60909_contract.obtener_contrato_p4()
     if not prep["ready"]:
         return {
@@ -174,6 +262,7 @@ def ejecutar_3ph(
             "case": prep.get("case"),
             "bus": str(bus),
             "issues": prep["issues"],
+            "requested_duty": prep.get("duty"),
             "engine": contract["backend"],
             "target_standard": contract["target_standard"],
             "professional_emission": False,
@@ -186,22 +275,31 @@ def ejecutar_3ph(
         _set_min_line_temperatures(net, line_meta, prep["line_endtemp_degree_c"])
 
     bus_idx = next(
-        int(idx) for idx, row in net.bus.iterrows()
+        int(idx)
+        for idx, row in net.bus.iterrows()
         if str(row["name"]).lower() == str(bus).strip().lower()
     )
 
+    duty = prep["duty"]
+    calc_kwargs: dict[str, Any] = {
+        "bus": bus_idx,
+        "fault": "3ph",
+        "case": prep["case"],
+        "ip": bool(duty["requested"]),
+        "ith": bool(duty["requested"]),
+        "branch_results": False,
+        "check_connectivity": True,
+        "use_pre_fault_voltage": False,
+    }
+    if duty["requested"]:
+        calc_kwargs.update({
+            "topology": duty["topology"],
+            "tk_s": duty["tk_s"],
+            "kappa_method": duty["kappa_method"],
+        })
+
     try:
-        calc_sc(
-            net,
-            bus=bus_idx,
-            fault="3ph",
-            case=prep["case"],
-            ip=False,
-            ith=False,
-            branch_results=False,
-            check_connectivity=True,
-            use_pre_fault_voltage=False,
-        )
+        calc_sc(net, **calc_kwargs)
     except Exception as exc:
         return {
             "schema": "MCP_ELECTRICO_IEC60909_3PH_V1",
@@ -211,6 +309,7 @@ def ejecutar_3ph(
             "case": prep["case"],
             "bus": str(bus),
             "issues": [_issue("P4SC900", f"{type(exc).__name__}: {exc}")],
+            "requested_duty": duty,
             "engine": contract["backend"],
             "target_standard": contract["target_standard"],
             "professional_emission": False,
@@ -223,7 +322,17 @@ def ejecutar_3ph(
     backend_skss = float(row["skss_mw"])
     skss_abs_error = abs(skss_mva - backend_skss)
 
-    result = {
+    results: dict[str, float] = {
+        "ikss_ka": ikss_ka,
+        "skss_mva": skss_mva,
+        "rk_ohm": float(row["rk_ohm"]),
+        "xk_ohm": float(row["xk_ohm"]),
+    }
+    if duty["requested"]:
+        results["ip_ka"] = float(row["ip_ka"])
+        results["ith_ka"] = float(row["ith_ka"])
+
+    return {
         "schema": "MCP_ELECTRICO_IEC60909_3PH_V1",
         "ok": True,
         "study": "iec60909",
@@ -231,12 +340,7 @@ def ejecutar_3ph(
         "case": prep["case"],
         "bus": str(net.bus.at[bus_idx, "name"]),
         "vn_kv": vn_kv,
-        "results": {
-            "ikss_ka": ikss_ka,
-            "skss_mva": skss_mva,
-            "rk_ohm": float(row["rk_ohm"]),
-            "xk_ohm": float(row["xk_ohm"]),
-        },
+        "results": results,
         "backend_raw": {
             "skss_field": "skss_mw",
             "skss_value": backend_skss,
@@ -245,6 +349,7 @@ def ejecutar_3ph(
         "input_projection": {
             "source": prep["source_projection"],
             "line_endtemp_degree_c": prep["line_endtemp_degree_c"],
+            "duty": duty,
         },
         "engine": {
             **contract["backend"],
@@ -254,10 +359,9 @@ def ejecutar_3ph(
         "maturity": "EXPERIMENTAL_P4",
         "professional_emission": False,
         "limitations": [
-            "Solo falla trifásica 3F en P4B.",
+            "Solo falla trifásica 3F en el alcance numérico actual.",
             "La conformidad específica con IEC 60909-0:2026 permanece sin verificar.",
-            "Ib e Ik no se calculan en P4B.",
-            "ip e Ith se incorporan en un criterio P4 posterior.",
+            "Ib e Ik todavía no se calculan.",
+            "ip/Ith P4C05 se limitan a kappa_method C y requieren topology/tk_s explícitos.",
         ],
     }
-    return result

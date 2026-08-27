@@ -47,7 +47,7 @@ def test_p4_result_contract_does_not_invent_ib_or_ik():
     assert results["ik_ka"]["status"] == "PENDING_P4_STRATEGY"
 
 
-def test_p4_gate_recognizes_p4b_adapter_and_three_phase_without_closing_phase():
+def test_p4_gate_recognizes_p4c05_without_closing_phase():
     gate = p4_completion.evaluar_cierre_p4()
     states = {item["id"]: item["status"] for item in gate["criteria"]}
 
@@ -57,7 +57,7 @@ def test_p4_gate_recognizes_p4b_adapter_and_three_phase_without_closing_phase():
     assert gate["next_phase"] is None
     assert gate["professional_emission"] is False
 
-    for cid in ("P4C01", "P4C02", "P4C03", "P4C04"):
+    for cid in ("P4C01", "P4C02", "P4C03", "P4C04", "P4C05"):
         assert states[cid] == "DONE"
-    for cid in [f"P4C{i:02d}" for i in range(5, 13)]:
+    for cid in [f"P4C{i:02d}" for i in range(6, 13)]:
         assert states[cid] == "PENDING"

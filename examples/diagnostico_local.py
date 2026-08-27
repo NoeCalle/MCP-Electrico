@@ -339,18 +339,20 @@ def run(output: str | Path = "diagnostico_local.json") -> dict[str, Any]:
             "default_engine": capabilities.get("default_engine"),
             "iec60909_preferred": iec60909.get("preferred"),
             "iec60909_implemented": iec60909.get("implemented"),
+            "iec60909_professional_emission_candidate": iec60909.get("professional_emission_candidate"),
         }
         policy_ok = (
             engine_policy["automatic_dispatch"] is False
             and engine_policy["crosscheck"] is False
             and engine_policy["default_engine"] == "opendss"
             and engine_policy["iec60909_preferred"] == "pandapower"
-            and engine_policy["iec60909_implemented"] is False
+            and engine_policy["iec60909_implemented"] is True
+            and engine_policy["iec60909_professional_emission_candidate"] is False
         )
         checks.append(_check(
             "engine_policy", "Política determinista de motores",
             "OK" if policy_ok else "FAIL", True,
-            "Matriz E coherente: OpenDSS default, sin despacho/cross-check y IEC 60909 aún no implementado."
+            "Matriz E coherente: OpenDSS default, sin despacho/cross-check e IEC 60909 implementado solo en alcance experimental no apto para emisión profesional."
             if policy_ok else f"Política inesperada: {engine_policy}",
             None if policy_ok else "No ejecutes estudios hasta confirmar la revisión instalada.",
         ))
@@ -399,9 +401,9 @@ def run(output: str | Path = "diagnostico_local.json") -> dict[str, Any]:
         checks.append(_check(
             "maturity_barrier", "Barrera de madurez",
             "OK" if maturity_ok else "FAIL", True,
-            "Ampacidad validada con limitaciones; cortocircuito continúa UNDER_VALIDATION hasta P4."
+            "Ampacidad validada con limitaciones; cortocircuito continúa UNDER_VALIDATION durante P4."
             if maturity_ok else f"Madurez inesperada: {maturity}",
-            None if maturity_ok else "No presentes FaultStudy como IEC 60909.",
+            None if maturity_ok else "No presentes el alcance P4 experimental como validación IEC 60909 completa.",
         ))
     except Exception as exc:
         p3_gate = {"error": _exc(exc)}

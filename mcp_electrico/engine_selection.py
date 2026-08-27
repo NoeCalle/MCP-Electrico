@@ -33,19 +33,30 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
     "short_circuit_exploratory": {
         "preferred": "opendss", "alternatives": [], "module": "short_circuit",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "FaultStudy existe, pero todavía no constituye IEC 60909 formal.",
+        "reason": "FaultStudy existe, pero no constituye IEC 60909 formal.",
         "requirements": ["circuito activo", "barra de falla válida", "tipo de falla explícito para readiness profesional"],
     },
     "iec60909": {
         "preferred": "pandapower", "alternatives": [], "module": "short_circuit",
-        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "P4 define pandapower como candidato principal para IEC 60909; el módulo formal aún no está implementado.",
-        "requirements": ["P2 completo para datos de fuente/transformadores", "secuencia cero cuando la falla la requiera", "backend P4 validado"],
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": (
+            "P4 implementa experimentalmente IEC 60909 con pandapower para falla 3F max/min; "
+            "Ik''/Sk'' tienen benchmark independiente P4C09A e ip/Ith requieren parámetros explícitos. "
+            "El alcance completo, la revisión de edición 2026 y la madurez profesional siguen pendientes."
+        ),
+        "requirements": [
+            "P2 suficiente para fuente/líneas/transformadores del alcance 3F",
+            "escenario max/min explícito",
+            "endtemp_degree explícita por línea en cálculo mínimo",
+            "topology y tk_s explícitos cuando se solicitan ip/Ith",
+            "permitir_experimental=true para readiness del backend pandapower",
+            "secuencia cero validada antes de cualquier falla a tierra",
+        ],
     },
     "ampacity": {
         "preferred": "mcp", "alternatives": [], "module": "ampacity",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "La foundation P3 evalúa Ib/In/Iz en la capa MCP con trazabilidad explícita; continúa UNDER_VALIDATION.",
+        "reason": "P3-v1 evalúa Ib/In/Iz en la capa MCP con trazabilidad explícita y madurez VALIDATED_WITH_LIMITATIONS.",
         "requirements": [
             "conductor P2 trazable",
             "ampacidad base y condición de instalación",
