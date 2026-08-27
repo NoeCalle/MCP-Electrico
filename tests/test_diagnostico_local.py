@@ -56,7 +56,8 @@ def test_diagnostico_local_end_to_end(tmp_path: Path):
         "crosscheck": False,
         "default_engine": "opendss",
         "iec60909_preferred": "pandapower",
-        "iec60909_implemented": False,
+        "iec60909_implemented": True,
+        "iec60909_professional_emission_candidate": False,
     }
     assert result["p3_gate"]["phase_status"] == "READY_WITH_LIMITATIONS"
     assert result["p3_gate"]["ready_for_next_phase"] is True
