@@ -127,5 +127,6 @@ def test_p4c11b_view_can_show_3ph_and_2ph_without_overwriting_either_study():
     assert 'data-p4-study="iec60909_2ph"' in enhanced
     assert "Falla 3PH" in enhanced
     assert "Falla 2PH" in enhanced
-    assert enhanced.count('data-tab="cortocircuito"') == 1
+    button = '<button type="button" class="tab" data-tab="cortocircuito">Cortocircuito</button>'
+    assert enhanced.count(button) == 1
     assert "faultBuses.forEach" in enhanced
