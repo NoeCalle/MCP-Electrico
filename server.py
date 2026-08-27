@@ -15,6 +15,7 @@ from mcp_electrico import (
     conductor_tools,
     core,
     iec60909_suite,
+    iec60909_two_phase_suite,
     pandapower_engine,
     professional_tools,
     studies,
@@ -343,6 +344,38 @@ def ejecutar_cortocircuito_iec60909_3ph(
     )
     workspace_state.record_study(
         "iec60909_3ph", result, action="ejecutar_cortocircuito_iec60909_3ph"
+    )
+    _regenerate_workspace()
+    return result
+
+
+@mcp.tool()
+def ejecutar_cortocircuito_iec60909_2ph(
+    bus_falla: str,
+    line_endtemp_degree_c: dict[str, float] | None = None,
+    calcular_ip_ith: bool = False,
+    topology: str | None = None,
+    tk_s: float | None = None,
+    kappa_method: str = "C",
+) -> dict:
+    """Ejecuta IEC 60909 2F MAX/MIN explícitamente con pandapower experimental.
+
+    La falla es fase-fase sin tierra. P4C06 declara Z2=Z1 solo para la red
+    simétrica pasiva actualmente soportada; no es un supuesto universal. MIN
+    exige ``endtemp_degree`` explícita por línea e ip/Ith conservan los mismos
+    gates de topología/tiempo/método κ. El resultado se registra en V4 sin
+    habilitar emisión profesional.
+    """
+    result = iec60909_two_phase_suite.ejecutar_2ph_max_min(
+        bus=bus_falla,
+        line_endtemp_degree_c=line_endtemp_degree_c,
+        calcular_ip_ith=calcular_ip_ith,
+        topology=topology,
+        tk_s=tk_s,
+        kappa_method=kappa_method,
+    )
+    workspace_state.record_study(
+        "iec60909_2ph", result, action="ejecutar_cortocircuito_iec60909_2ph"
     )
     _regenerate_workspace()
     return result
