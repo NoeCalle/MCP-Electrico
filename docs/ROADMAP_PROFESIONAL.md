@@ -25,9 +25,10 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 
 **Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 queda cerrado en `READY_WITH_LIMITATIONS`; **P4 es la fase principal activa**. Los ejes transversales V y E evolucionan en paralelo. P3 puede ampliar cobertura normativa de forma incremental sin reabrir su gate v1.
 
-Estado de control actual:
+**Estado actual:**
 
 ```text
+P3C01–P3C13 DONE
 P4C01  DONE     objetivo IEC 60909-0:2026 versionado
 P4C02  DONE     backend pandapower determinista
 P4C03  DONE     adaptador P2 -> secuencia positiva IEC 60909
@@ -48,6 +49,7 @@ P4C12  PENDING  madurez final del módulo
 P4 = NOT_READY
 P5 = BLOQUEADA
 professional_emission = false
+automatic_normative_lookup = false
 ```
 
 ## Principio rector
@@ -91,6 +93,8 @@ Base implementada:
 - V4 experimental con cortocircuito IEC 60909 **3F y 2F MAX/MIN**, barra de falla, magnitudes calculadas, motor/versión/madurez y política Z2 visible en 2F.
 
 Regla: el navegador **no recalcula ingeniería**. Consume resultados producidos por Python/MCP y conserva trazabilidad a `model_revision`, elemento, motor y estudio.
+
+La revisión visual humana autorizada del cierre P3 queda identificada por `AI_VISUAL_REVIEW_USER_AUTHORIZED`; esta evidencia no sustituye los checks estructurales ni los benchmarks.
 
 Detalle: `docs/ROADMAP_VISUAL.md`.
 
@@ -202,14 +206,34 @@ Detalle: `docs/P2_EXIT_GATE.md` y `docs/SECUENCIA_CERO_P2.md`.
 
 **Estado: COMPLETA CON LIMITACIONES (P3 v1) — P3C01–P3C13 DONE.**
 
-Objetivo: verificar selección térmica del conductor mediante:
+**Gate formal de salida P3 — implementado.** El gate diferencia cierre de fase, readiness del modelo activo y suficiencia de evidencia normativa; el cierre P3-v1 no equivale a cobertura normativa exhaustiva.
+
+Estado de criterios finales preservado:
+
+- `P3C11` — `DONE` — benchmark numérico/dataset y contratos de lookup exacto;
+- `P3C12` — `DONE` — benchmark independiente primario;
+- `P3C13` — `DONE` — cierre de madurez/visual y gate de salida.
+
+La base normativa primaria validada incluye, entre otras evidencias versionadas:
+
+- `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`;
+- `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`;
+- para el caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm²: **Iz_base = 229 A**.
+
+La **Tabla 5D** permanece documentada como ruta normativa de correcciones/condiciones donde aplica; no se inventan valores tabulados ausentes. La política del motor normativo sigue siendo:
+
+```text
+automatic_normative_lookup = false
+```
+
+Es decir, los datasets cargados resuelven únicamente coincidencias exactas y validadas; no realizan interpolación, extrapolación ni búsqueda normativa silenciosa.
+
+Objetivo térmico:
 
 ```text
 Ib <= In <= Iz
 Iz = Iz_base * product(k_i)
 ```
-
-sin convertir un rating de catálogo en `Iz` final por simple etiqueta.
 
 Entregables consolidados:
 
@@ -224,9 +248,15 @@ Entregables consolidados:
 - V3 read-only con origen de `Iz_base`, tabla/dataset y calidad de evidencia;
 - `validation_status.ampacity = VALIDATED_WITH_LIMITATIONS`.
 
-P3-v1 no implica cobertura exhaustiva de toda fila normativa. Los casos fuera de evidencia exacta continúan `VALUE_NOT_TABULATED`, manuales o fail-closed. La cobertura puede ampliarse incrementalmente sin bloquear P4.
+Documentación canónica P3:
 
-Detalle: `docs/P3_AMPACIDAD.md`, `docs/P3_EXIT_GATE.md` y documentación P3A/P3B.
+- `docs/P3_AMPACIDAD.md`;
+- `docs/P3A_PERFILES_NORMATIVOS.md`;
+- `docs/P3B_DATASETS_NUMERICOS.md`;
+- `docs/P3C10_BASE_AMPACITY_STRATEGY.md`;
+- `docs/P3_EXIT_GATE.md`.
+
+P3-v1 no implica cobertura exhaustiva de toda fila normativa. Los casos fuera de evidencia exacta continúan `VALUE_NOT_TABULATED`, manuales o fail-closed. La cobertura puede ampliarse incrementalmente sin bloquear P4.
 
 ## Fase P4 — Cortocircuito IEC 60909
 
