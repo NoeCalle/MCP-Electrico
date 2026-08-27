@@ -44,6 +44,13 @@ FAULT_ALIASES = {
     "three_phase": "three_phase",
     "trifasica": "three_phase",
     "trifásica": "three_phase",
+    "2f": "two_phase",
+    "2ph": "two_phase",
+    "two_phase": "two_phase",
+    "bifasica": "two_phase",
+    "bifásica": "two_phase",
+    "fase_fase": "two_phase",
+    "phase_phase": "two_phase",
     "1f_t": "single_phase_ground",
     "1ft": "single_phase_ground",
     "1ph_ground": "single_phase_ground",
@@ -77,7 +84,7 @@ def _fault_type(study: str, value: str | None) -> tuple[str | None, list[dict[st
     if normalized is None:
         return None, [_item(
             "P2READY011",
-            "P2 readiness v1 solo clasifica three_phase y single_phase_ground; otros tipos se habilitarán con P4.",
+            "P2 readiness clasifica three_phase, two_phase y single_phase_ground; 2F-T permanece fuera del alcance P4 actual.",
         )]
     return normalized, []
 
