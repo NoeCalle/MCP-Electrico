@@ -142,6 +142,29 @@ def test_iec60909_3f_solo_queda_ready_con_habilitacion_experimental_explicita():
     assert experimental["selected_engine"] == "pandapower"
 
 
+def test_iec60909_2f_solo_queda_ready_con_habilitacion_experimental_explicita():
+    _radial("ready_60909_2f")
+    _source()
+
+    normal = engine_selection.evaluar_preparacion_estudio(
+        "iec60909", tipo_falla="2f"
+    )
+    experimental = engine_selection.evaluar_preparacion_estudio(
+        "iec60909", tipo_falla="2ph", permitir_experimental=True
+    )
+
+    assert normal["fault_type"] == "two_phase"
+    assert normal["data_status"] == "READY_DATA"
+    assert normal["engine_status"] == "ENGINE_NOT_READY"
+    assert any(item["code"] == "P2READY802" for item in normal["engine_reasons"])
+
+    assert experimental["fault_type"] == "two_phase"
+    assert experimental["data_status"] == "READY_DATA"
+    assert experimental["engine_status"] == "READY_ENGINE"
+    assert experimental["overall_status"] == "READY_TO_EXECUTE"
+    assert experimental["selected_engine"] == "pandapower"
+
+
 def test_selector_distingue_ejecucion_tecnica_de_readiness_profesional():
     _radial("ready_selector")
     _source()

@@ -52,7 +52,14 @@ FAULT_SCOPE = {
         "backend_api_supported": True,
         "p4_v1_candidate": True,
         "sequence_requirements": ["positive", "negative"],
-        "status": "PENDING_VALIDATION",
+        "negative_sequence_policy": {
+            "id": "P4C06_Z2_EQUALS_Z1_SYMMETRIC_PASSIVE_SCOPE",
+            "relation": "Z2 = Z1",
+            "scope": "red simétrica pasiva P4C06 v1; sin generadores ni motores",
+            "explicit": True,
+            "universal_assumption": False,
+        },
+        "status": "FOUNDATION_READY",
     },
     "single_phase_ground": {
         "pandapower_fault": "1ph",
@@ -81,7 +88,11 @@ RESULT_CONTRACT = {
         "iec_symbol": "Sk''",
         "pandapower_field": "skss_mw",
         "status": "DIRECT_BACKEND_RESULT_WITH_UNIT_LABEL_NORMALIZATION_PENDING",
-        "note": "Pandapower denomina el campo skss_mw; P4 debe normalizar/justificar la unidad antes de emisión profesional.",
+        "scope": "3ph_normalized_only_in_current_p4",
+        "note": (
+            "Pandapower denomina el campo skss_mw. P4 3F lo normaliza como magnitud derivada; "
+            "P4C06 2F conserva el campo backend sin promoverlo a Sk'' contractual."
+        ),
     },
     "ip_ka": {
         "iec_symbol": "ip",

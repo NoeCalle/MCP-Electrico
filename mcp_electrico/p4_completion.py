@@ -74,7 +74,7 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C06",
             "two_phase_fault",
             bool(capabilities.get("two_phase")),
-            "Pendiente: 2F",
+            "iec60909_two_phase.ejecutar_2ph + benchmark independiente 2F max/min; Z2=Z1 declarada solo para red simétrica pasiva P4C06 v1",
             "Falta implementar y validar falla fase-fase.",
         ),
         _criterion(
@@ -95,7 +95,7 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C09",
             "independent_normative_benchmarks",
             False,
-            "Pendiente: casos independientes/versionados; P4C09A 3F ya PASS",
+            "Pendiente: benchmark global; P4C09A 3F PASS y benchmark independiente P4C06 2F incorporado",
             "Faltan benchmarks independientes para el alcance P4-v1.",
         ),
         _criterion(
