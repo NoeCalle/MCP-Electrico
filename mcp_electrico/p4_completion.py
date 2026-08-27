@@ -67,7 +67,7 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C05",
             "peak_and_thermal_currents",
             bool(capabilities.get("peak_thermal")),
-            "Pendiente: ip/Ith con tk y topología explícitos",
+            "iec60909.ejecutar_3ph: ip/Ith con topology radial|meshed, tk_s>0 y kappa_method=C explícitos; tests P4C05 fail-closed y sensibilidad temporal",
             "Falta estrategia validada para ip e Ith.",
         ),
         _criterion(
