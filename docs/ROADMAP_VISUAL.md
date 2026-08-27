@@ -20,7 +20,8 @@ La línea visual actual ya incluye:
 - pestañas de flujo y caída de tensión;
 - overlays visuales sobre el unifilar para flujo/cargabilidad y caída de tensión;
 - exportación SVG e impresión/PDF;
-- validación de JavaScript en CI mediante `node --check`.
+- validación de JavaScript en CI mediante `node --check`;
+- V4 experimental de cortocircuito con 3F y 2F MAX/MIN versionados, barra de falla y madurez visible.
 
 ## Principios visuales no negociables
 
@@ -132,32 +133,55 @@ La selección de una fila sincroniza el alimentador con el inspector. **El JavaS
 
 ### Vínculo con el gate P3
 
-El gate formal P3 ya existe en backend y distingue `phase` de `model`. P3C10 cierra la estrategia de base normativa, pero P3 y V3 continúan en progreso mientras falten cobertura primaria, benchmarks y madurez final.
+El gate formal P3 ya existe en backend y distingue `phase` de `model`. El cierre P3-v1 mantiene visible la evidencia exacta y no convierte cobertura limitada en cobertura exhaustiva.
 
-Pendiente para cerrar V3 junto con P3:
+Trabajo visual incremental de V3:
 
-- mostrar de forma compacta referencia de fuente/página y nivel de evidencia sin saturar la tabla principal; la tabla/dataset de `Iz_base` ya es visible;
+- mostrar de forma compacta referencia de fuente/página y nivel de evidencia sin saturar la tabla principal;
 - mostrar motivos de `MISSING_DATA`, revisión manual o bloqueo de evidencia de manera legible;
 - decidir overlay del unifilar para `NO_CUMPLE` sin convertirlo en sustituto del panel de estudio;
-- representar de forma compacta el estado de fase P3 cuando aporte valor al usuario (`NOT_READY`, criterios bloqueantes), manteniendo el detalle completo en la tool/gate;
-- ampliar pruebas visuales/regresiones estructurales conforme crezca la cobertura `PRIMARY_VERIFIED`;
+- ampliar pruebas visuales conforme crezca cobertura `PRIMARY_VERIFIED`;
 - conservar impresión/PDF legible y trazable.
-
-El overlay futuro podrá resaltar alimentadores fuera de criterio, pero nunca debe convertir un rating de catálogo sin correcciones en `Iz` normativo ni presentar evidencia secundaria como primaria.
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 
-La vista de cortocircuito deberá contemplar:
+**Estado: EN DESARROLLO — P4C11A 3F DONE + P4C11B 2F DONE.**
 
-- punto de falla seleccionado;
-- tipo de falla;
-- `Ik''`, `ip`, `Ib`, `Ik` y `Sk''` según el alcance implementado;
-- escenario máximo/mínimo;
-- contribuciones de fuentes cuando se disponga de ellas;
-- motor utilizado y versión;
-- estado de validación del módulo.
+La vista V4 ya reutiliza el mismo workspace/unifilar/inspector de V3; no crea una aplicación paralela ni realiza cálculos IEC 60909 en JavaScript.
 
-El unifilar podrá mostrar un marcador de falla y valores resumidos por barra. No debe saturarse mostrando todas las magnitudes simultáneamente.
+### P4C11A — 3F
+
+Implementado:
+
+- tool pública `ejecutar_cortocircuito_iec60909_3ph`;
+- snapshot versionado `iec60909_3ph`;
+- escenarios MAX/MIN;
+- `Ik''`, `Sk''`, `ip`, `Ith`, Rk y Xk según datos disponibles;
+- topología, `tk_s` y κ efectivos;
+- motor y versión;
+- edición objetivo y estado de conformidad;
+- madurez `EXPERIMENTAL_P4`;
+- `professional_emission=false`;
+- barra de falla resaltada en el unifilar;
+- fail-closed visual si MIN no puede calcularse.
+
+### P4C11B — 2F
+
+Implementado:
+
+- tool pública `ejecutar_cortocircuito_iec60909_2ph`;
+- snapshot versionado `iec60909_2ph`;
+- escenarios MAX/MIN;
+- `Ik''`, `ip`, `Ith`, Rk y Xk según datos disponibles;
+- política `Z2 = Z1` visible con alcance simétrico pasivo y `universal_assumption=false`;
+- `Sk''` 2F no normalizado se muestra como ausencia de dato; el navegador no lo deriva;
+- coexistencia 3F + 2F en la misma pestaña y `model_revision` sin sobrescribir estudios;
+- overlay de todas las barras de falla vigentes;
+- generación de artefactos 3F/2F y validación JavaScript en CI.
+
+La pestaña **Cortocircuito** muestra únicamente estudios vigentes para la revisión actual. Si cambia el modelo, la infraestructura de `workspace_state` invalida los resultados anteriores.
+
+P4C11 global permanece `PENDING`: V4 deberá incorporar el alcance final que efectivamente cierre P4-v1, especialmente la falla a tierra cuando P4C07 esté validada. No se forzará una representación 2F-T mientras P4C08 no defina una estrategia numérica válida.
 
 ## V5 — Acompañamiento visual de P5: protección y TCC
 
@@ -206,11 +230,11 @@ Objetivos:
 
 ## Regla para pandapower
 
-P1.5 no crea por ahora una segunda interfaz visual. Los resultados pandapower se registran como estudio independiente y deben identificar explícitamente:
+P1.5 no crea por ahora una segunda interfaz visual. Los resultados pandapower se registran como estudios independientes y deben identificar explícitamente:
 
 - `engine = pandapower`;
 - versión;
-- estado `EXPERIMENTAL`;
+- estado de madurez;
 - alcance/compatibilidad.
 
 No habrá overlay comparativo con OpenDSS ni cross-check visual mientras esa función no exista formalmente.
