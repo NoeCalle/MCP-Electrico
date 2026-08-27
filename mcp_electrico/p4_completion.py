@@ -95,7 +95,7 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C09",
             "independent_normative_benchmarks",
             False,
-            "Pendiente: casos independientes/versionados",
+            "Pendiente: casos independientes/versionados; P4C09A 3F ya PASS",
             "Faltan benchmarks independientes para el alcance P4-v1.",
         ),
         _criterion(
@@ -109,8 +109,8 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C11",
             "workspace_v4",
             False,
-            "Pendiente: V4 cortocircuito",
-            "Falta vista V4 con barra/tipo/escenario/magnitudes/motor/madurez.",
+            "P4C11A DONE: V4 3F MAX/MIN con barra de falla, Ik''/Sk'', ip/Ith, Rk/Xk, motor, versión, edición, madurez y emisión bloqueada",
+            "La primera vista V4 3F está implementada, pero P4C11 global debe completar el alcance final de fallas que cierre P4-v1.",
         ),
         _criterion(
             "P4C12",

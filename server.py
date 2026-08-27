@@ -14,13 +14,14 @@ from pathlib import Path
 from mcp_electrico import (
     conductor_tools,
     core,
+    iec60909_suite,
     pandapower_engine,
     professional_tools,
     studies,
     visual_state,
     workspace,
     workspace_state,
-    workspace_studies_view,
+    workspace_v4,
 )
 from mcp_electrico.visualization import generar_diagrama_unifilar as _generar_unifilar
 
@@ -34,12 +35,12 @@ mcp = _MCPServerClass("opendss-mcp")
 
 
 def _enhance_workspace_if_present() -> dict:
-    """Añade las vistas de estudios después de regenerar el HTML base."""
+    """Añade las vistas de estudios V3/V4 después de regenerar el HTML base."""
     state = workspace.get_state()
     path = Path(state["config"]["ruta_salida"]).expanduser()
     if not path.exists():
         return {"ok": True, "skipped": True, "reason": "workspace aún no generado"}
-    return workspace_studies_view.enhance_file(path, workspace_state.snapshot())
+    return workspace_v4.enhance_file(path, workspace_state.snapshot())
 
 
 def _regenerate_workspace() -> dict:
@@ -314,6 +315,37 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict:
     _record_flow(flow, "restaurar_flujo_tras_cortocircuito")
     _regenerate_workspace()
     return resultado
+
+
+@mcp.tool()
+def ejecutar_cortocircuito_iec60909_3ph(
+    bus_falla: str,
+    line_endtemp_degree_c: dict[str, float] | None = None,
+    calcular_ip_ith: bool = False,
+    topology: str | None = None,
+    tk_s: float | None = None,
+    kappa_method: str = "C",
+) -> dict:
+    """Ejecuta IEC 60909 3F MAX/MIN explícitamente con pandapower experimental.
+
+    No hay despacho automático ni cross-check. El escenario MIN conserva la
+    exigencia de ``endtemp_degree`` explícita por línea y ``ip/Ith`` solo se
+    calculan con topología, tiempo de despeje y método κ declarados. El estudio
+    se registra en V4, pero ``professional_emission`` permanece en false.
+    """
+    result = iec60909_suite.ejecutar_3ph_max_min(
+        bus=bus_falla,
+        line_endtemp_degree_c=line_endtemp_degree_c,
+        calcular_ip_ith=calcular_ip_ith,
+        topology=topology,
+        tk_s=tk_s,
+        kappa_method=kappa_method,
+    )
+    workspace_state.record_study(
+        "iec60909_3ph", result, action="ejecutar_cortocircuito_iec60909_3ph"
+    )
+    _regenerate_workspace()
+    return result
 
 
 @mcp.tool()
