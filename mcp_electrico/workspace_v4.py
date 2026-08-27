@@ -22,10 +22,13 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
     enhanced = workspace_p4_view.enhance_html(html, snapshot)
     target.write_text(enhanced, encoding="utf-8")
 
-    study = snapshot.get("status", {}).get("studies", {}).get("iec60909_3ph") or {}
+    studies = snapshot.get("status", {}).get("studies", {})
+    study_3ph = studies.get("iec60909_3ph") or {}
+    study_2ph = studies.get("iec60909_2ph") or {}
     return {
         **base,
         "workspace_version": 4,
         "p4_short_circuit_view": workspace_p4_view.MARKER in enhanced,
-        "iec60909_3ph_vigente": bool(study and study.get("valid")),
+        "iec60909_3ph_vigente": bool(study_3ph and study_3ph.get("valid")),
+        "iec60909_2ph_vigente": bool(study_2ph and study_2ph.get("valid")),
     }
