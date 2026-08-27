@@ -109,8 +109,8 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C11",
             "workspace_v4",
             False,
-            "P4C11A DONE: V4 3F MAX/MIN con barra de falla, Ik''/Sk'', ip/Ith, Rk/Xk, motor, versión, edición, madurez y emisión bloqueada",
-            "La primera vista V4 3F está implementada, pero P4C11 global debe completar el alcance final de fallas que cierre P4-v1.",
+            "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN, política Z2 visible, convivencia 3F+2F y tool MCP 2F versionada.",
+            "Workspace V4 ya cubre 3F y 2F, pero P4C11 global debe completar el alcance final de fallas que cierre P4-v1.",
         ),
         _criterion(
             "P4C12",
