@@ -40,12 +40,15 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "preferred": "pandapower", "alternatives": [], "module": "short_circuit",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": (
-            "P4 implementa experimentalmente IEC 60909 con pandapower para falla 3F max/min; "
-            "Ik''/Sk'' tienen benchmark independiente P4C09A e ip/Ith requieren parámetros explícitos. "
+            "P4 implementa experimentalmente IEC 60909 con pandapower para fallas 3F y 2F max/min; "
+            "3F tiene benchmark independiente P4C09A y 2F benchmark P4C06 con Z2=Z1 explícita "
+            "solo para el alcance simétrico pasivo. ip/Ith requieren parámetros explícitos. "
             "El alcance completo, la revisión de edición 2026 y la madurez profesional siguen pendientes."
         ),
         "requirements": [
-            "P2 suficiente para fuente/líneas/transformadores del alcance 3F",
+            "P2 suficiente para fuente/líneas/transformadores del alcance 3F/2F",
+            "tipo de falla 3F o 2F explícito",
+            "para 2F: política Z2=Z1 explícita limitada a red simétrica pasiva",
             "escenario max/min explícito",
             "endtemp_degree explícita por línea en cálculo mínimo",
             "topology y tk_s explícitos cuando se solicitan ip/Ith",
