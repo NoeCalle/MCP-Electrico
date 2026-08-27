@@ -22,6 +22,7 @@ from opendssdirect import dss
 from . import (
     ampacity,
     conductor_library,
+    iec60909_contract,
     pandapower_engine,
     professional_data,
     runtime_safety,
@@ -305,6 +306,20 @@ def _engine_readiness(
             "engine": preferred or None,
             "reasons": [_item("P2READY801", "El módulo del estudio todavía no está implementado en el roadmap actual.")],
         }
+
+    if study == "iec60909" and fault_type:
+        fault_scope = iec60909_contract.FAULT_SCOPE.get(fault_type)
+        fault_status = (fault_scope or {}).get("status")
+        if fault_status != "FOUNDATION_READY":
+            return {
+                "status": ENGINE_NOT_READY,
+                "engine": preferred or None,
+                "reasons": [_item(
+                    "P4READY803",
+                    f"IEC 60909 {fault_type} no está habilitada en el alcance P4 actual; fault_scope={fault_status or 'UNDECLARED'}.",
+                )],
+                "note": "La implementación global de IEC 60909 no habilita automáticamente tipos de falla pendientes.",
+            }
 
     if preferred == "opendss" and study == "short_circuit_exploratory":
         preflight = runtime_safety.evaluar_faultstudy_opendss()
