@@ -37,6 +37,7 @@ SCHEMA = "MCP_ELECTRICO_P7A_PROJECT_SNAPSHOT_V1"
 HASH_ALGORITHM = "sha256"
 HASH_SCOPE = "canonical_payload_without_export_paths_or_transient_timestamps"
 TRANSIENT_KEYS = {"last_update", "recorded_at"}
+SAVE_COMMENT_PLACEHOLDER = "<P7A_TRANSIENT_TIMESTAMP_REMOVED>"
 
 
 def _package_version(distribution: str) -> str | None:
@@ -73,6 +74,29 @@ def _strip_transient(value: Any) -> Any:
     return deepcopy(value)
 
 
+def _normalize_dss_content(name: str, content: str) -> str:
+    """Normaliza solo metadatos transitorios conocidos de ``Save Circuit``.
+
+    AltDSS/DSS C-API agrega en ``Master.dss`` un comentario con el instante
+    exacto de guardado. Ese instante no representa un cambio de ingeniería y
+    rompería el hash de dos exportaciones equivalentes. Se conserva toda la
+    información anterior al último `` on `` (incluidas versión/revisión del
+    motor) y se sustituye únicamente el timestamp final por un marcador.
+    """
+    text = str(content)
+    if str(name).lower() != "master.dss":
+        return text
+    normalized: list[str] = []
+    for line in text.splitlines(keepends=True):
+        raw = line.rstrip("\r\n")
+        ending = line[len(raw):]
+        if raw.startswith("! Last saved by ") and " on " in raw:
+            prefix, _timestamp = raw.rsplit(" on ", 1)
+            line = f"{prefix} on {SAVE_COMMENT_PLACEHOLDER}{ending}"
+        normalized.append(line)
+    return "".join(normalized)
+
+
 def _canonical_json(payload: dict[str, Any]) -> str:
     return json.dumps(
         payload,
@@ -92,7 +116,10 @@ def _netlist_payload(directorio: str) -> dict[str, Any]:
     files = [
         {
             "name": str(item["nombre"]),
-            "content": str(item["contenido"]),
+            "content": _normalize_dss_content(
+                str(item["nombre"]),
+                str(item["contenido"]),
+            ),
         }
         for item in exported.get("archivos", [])
     ]
@@ -104,6 +131,11 @@ def _netlist_payload(directorio: str) -> dict[str, Any]:
         "file_count": len(files),
         "files": files,
         "paths_included": False,
+        "canonicalization": {
+            "save_circuit_master_timestamp_comment": "NORMALIZED",
+            "placeholder": SAVE_COMMENT_PLACEHOLDER,
+            "other_dss_content_modified": False,
+        },
     }
 
 
