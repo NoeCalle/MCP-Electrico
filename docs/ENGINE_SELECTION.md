@@ -22,7 +22,7 @@ La matriz recomienda/selecciona el backend y evalúa readiness; las tools de eje
 | Flujo de potencia | OpenDSS | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
 | Caída de tensión | OpenDSS + MCP | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
 | Cortocircuito exploratorio | OpenDSS FaultStudy | técnico/legacy; no equivale a IEC 60909 formal |
-| IEC 60909 P4-v1 | pandapower 3.5.x | 3F/2F/1F-T experimentales; P4 aún `NOT_READY` |
+| IEC 60909 P4-v1 | pandapower 3.5.x | 3F/2F/1F-T experimentales; revisión 2026 completada con limitaciones; P4 aún `NOT_READY` por P4C12 |
 | Ampacidad normativa | MCP | P3-v1 `VALIDATED_WITH_LIMITATIONS` |
 | Protección / TCC | MCP + pandapower cuando aplique | P5 bloqueada por P4 |
 | IEEE 1584 | MCP | P6 pendiente |
@@ -71,6 +71,19 @@ El backend preferente es pandapower 3.5.x y el alcance queda cerrado en:
 | 2F | `FOUNDATION_READY` | positiva + política Z2=Z1 limitada | benchmark P4C06 + V4 P4C11B |
 | 1F-T | `FOUNDATION_READY` | positiva + negativa + Z0/C0/neutro explícitos | benchmark P4C07 + V4 P4C11C |
 | 2F-T | `OUT_OF_SCOPE_P4_V1` | requeriría positiva + negativa + cero | estrategia P4C08; sin aproximación |
+
+### Estado de revisión de edición
+
+P4C10 completó la revisión específica contra **IEC 60909-0:2026 Ed. 3.0**. El estado contractual es:
+
+```text
+target_edition_conformance = REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
+full_conformance_claim = false
+```
+
+Esto significa que el alcance P4-v1 fue contrastado contra evidencia pública versionada de la edición 2026 y contra la fuente/documentación pinneada de pandapower 3.5.4. **No** significa verificación integral ecuación-por-ecuación de toda la norma. La actualización declarada del Capítulo 6 y los equipos fuera del alcance vigente permanecen como limitaciones explícitas.
+
+Detalle: `docs/P4C10_IEC60909_2026_REVIEW.md`.
 
 ### 3F
 
@@ -146,6 +159,7 @@ La matriz distingue entre **motor numérico**, **capa de estudio**, **preparaci�
 - Nunca convertir un módulo pendiente en profesional por el solo hecho de que una librería externa tenga una función relacionada.
 - Nunca usar un backend incompatible con el modelo activo.
 - Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`; además, `professional_emission` permanece como gate separado de producto.
+- Nunca confundir una revisión `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION` con `VERIFIED_AGAINST_TARGET_EDITION`.
 - Nunca asumir el tipo de falla.
 - Nunca completar datos ausentes con valores típicos para lograr compatibilidad.
 - Nunca aproximar 2F-T como 2F o 1F-T.

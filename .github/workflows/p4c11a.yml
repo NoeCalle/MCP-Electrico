@@ -40,7 +40,7 @@ jobs:
           grep -q "Ik'' MAX" workspace_p4_3ph.html
           grep -q 'EXPERIMENTAL_P4' workspace_p4_3ph.html
           grep -q 'SIN EMISIÓN PROFESIONAL' workspace_p4_3ph.html
-          grep -q 'UNVERIFIED_AGAINST_TARGET_EDITION' workspace_p4_3ph.html
+          grep -q 'REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION' workspace_p4_3ph.html
           grep -q '"iec60909_3ph"' workspace_p4_3ph.html
           grep -q '"professional_emission":false' workspace_p4_3ph.html
           grep -q 'overlay-short-circuit-bus' workspace_p4_3ph.html
@@ -55,6 +55,7 @@ jobs:
           grep -q "Sk'' 2F no se promociona" workspace_p4_2ph.html
           grep -q 'EXPERIMENTAL_P4' workspace_p4_2ph.html
           grep -q 'SIN EMISIÓN PROFESIONAL' workspace_p4_2ph.html
+          grep -q 'REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION' workspace_p4_2ph.html
           grep -q '"iec60909_2ph"' workspace_p4_2ph.html
           grep -q '"professional_emission":false' workspace_p4_2ph.html
           grep -q 'overlay-short-circuit-bus' workspace_p4_2ph.html
@@ -72,6 +73,7 @@ jobs:
           grep -q "Sk'' 1F-T no se promociona" workspace_p4_1ph_ground.html
           grep -q 'EXPERIMENTAL_P4' workspace_p4_1ph_ground.html
           grep -q 'SIN EMISIÓN PROFESIONAL' workspace_p4_1ph_ground.html
+          grep -q 'REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION' workspace_p4_1ph_ground.html
           grep -q '"iec60909_1ph_ground"' workspace_p4_1ph_ground.html
           grep -q '"professional_emission":false' workspace_p4_1ph_ground.html
           grep -q 'overlay-short-circuit-bus' workspace_p4_1ph_ground.html

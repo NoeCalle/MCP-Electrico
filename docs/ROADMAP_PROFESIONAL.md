@@ -17,7 +17,7 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
 | P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing normativo, evidencia primaria y benchmarks independientes |
-| P4 — IEC 60909 | **EN DESARROLLO — solo P4C10/P4C12 pendientes** | cortocircuito formal validado dentro de alcance declarado |
+| P4 — IEC 60909 | **EN DESARROLLO — solo P4C12 pendiente** | cortocircuito formal validado dentro de alcance declarado |
 | P5 — Protección y TCC | **BLOQUEADA POR P4** | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
@@ -38,7 +38,7 @@ P4C06  DONE     2F MAX/MIN + benchmark independiente
 P4C07  DONE     1F-T MAX/MIN + Z0 validada + benchmark independiente
 P4C08  DONE     2F-T = OUT_OF_SCOPE_P4_V1, sin aproximación
 P4C09  DONE     benchmark global del alcance P4-v1
-P4C10  PENDING  revisión específica contra IEC 60909-0:2026
+P4C10  DONE     revisión IEC 60909-0:2026 = REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
 P4C11  DONE     Workspace V4 global del alcance P4-v1
                  ├─ P4C11A DONE  3F
                  ├─ P4C11B DONE  2F
@@ -97,6 +97,8 @@ La revisión visual humana autorizada del cierre P3 se conserva como `AI_VISUAL_
 
 P4C08 excluye 2F-T de P4-v1, por lo que V4 no fabrica una visualización de un cálculo inexistente. Si 2F-T reingresa en una versión futura, deberá reabrirse su gate visual.
 
+P4C10 no requiere una segunda interfaz: V4 muestra el estado de edición que ya viene preparado por Python. El cambio a `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION` no introduce ningún cálculo normativo en JavaScript.
+
 Detalle: `docs/ROADMAP_VISUAL.md`.
 
 ## Eje transversal E — selección determinista de motor
@@ -118,9 +120,10 @@ Para IEC 60909:
 - 3F: `FOUNDATION_READY`;
 - 2F: `FOUNDATION_READY`, con `Z2=Z1` explícita y limitada;
 - 1F-T: `FOUNDATION_READY`, con Z0/C0/neutro explícitos y `Z2=Z1` limitada;
-- 2F-T: `OUT_OF_SCOPE_P4_V1`, reconocida pero `ENGINE_NOT_READY` con código `P4READY804`.
+- 2F-T: `OUT_OF_SCOPE_P4_V1`, reconocida pero `ENGINE_NOT_READY` con código `P4READY804`;
+- edición objetivo: `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`, con `full_conformance_claim=false`.
 
-Detalle: `docs/ENGINE_SELECTION.md` y `docs/P4C08_2FT_SCOPE.md`.
+Detalle: `docs/ENGINE_SELECTION.md`, `docs/P4C08_2FT_SCOPE.md` y `docs/P4C10_IEC60909_2026_REVIEW.md`.
 
 ## Fase P0 — Gobernanza técnica y QA
 
@@ -243,7 +246,7 @@ Documentación canónica preservada:
 
 ## Fase P4 — Cortocircuito IEC 60909
 
-**Estado: EN DESARROLLO — alcance, benchmark global y V4 cerrados; P4C10/P4C12 pendientes.**
+**Estado: EN DESARROLLO — P4C01–P4C11 DONE; solo P4C12 pendiente.**
 
 ### Objetivo normativo y backend
 
@@ -251,7 +254,8 @@ Documentación canónica preservada:
 - backend preferente: pandapower 3.5.x;
 - `automatic_dispatch=false`;
 - `crosscheck=false`;
-- `target_edition_conformance=UNVERIFIED_AGAINST_TARGET_EDITION` hasta P4C10;
+- `target_edition_conformance=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`;
+- `full_conformance_claim=false`;
 - `professional_emission=false`.
 
 ### Alcance P4-v1
@@ -306,6 +310,23 @@ Reingreso futuro requiere backend directo o solver MCP dedicado con benchmark, C
 - 1F-T → P4C07 PASS;
 - 2F-T → no requerida por estar formalmente fuera de alcance.
 
+### P4C10 — revisión específica IEC 60909-0:2026
+
+**DONE CON LIMITACIONES EXPLÍCITAS.**
+
+La revisión se registra como:
+
+```text
+REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
+full_conformance_claim = false
+```
+
+P4C10 contrastó la edición objetivo con metadata oficial, evidencia pública de la edición final y fuente/documentación pinneada de pandapower 3.5.4. La edición 2026 declara una revisión técnica con especial actualización/reestructuración del Capítulo 6 de modelado de equipos; por eso no se usa `VERIFIED_AGAINST_TARGET_EDITION` sin una futura trazabilidad ecuación/tabla contra el texto completo licenciado.
+
+Los equipos y magnitudes fuera de P4-v1 permanecen explícitos: generadores/motores, convertidores, FACTS/HVDC, 2F-T, `Ib`, `Ik` y `ip/Ith` 1F-T donde no existe ruta validada.
+
+Detalle: `docs/P4C10_IEC60909_2026_REVIEW.md`.
+
 ### P4C11 — Workspace V4
 
 **DONE para el alcance P4-v1:**
@@ -314,13 +335,14 @@ Reingreso futuro requiere backend directo o solver MCP dedicado con benchmark, C
 - P4C11B 2F;
 - P4C11C 1F-T;
 - coexistencia de los tres estudios en la misma pestaña/unifilar;
-- JavaScript sin cálculo eléctrico.
+- JavaScript sin cálculo eléctrico;
+- estado de revisión 2026 visible desde el payload Python.
 
 ### Siguiente bloque
 
-**P4C10 — revisión específica de conformidad contra IEC 60909-0:2026.**
+**P4C12 — evaluación final de madurez.**
 
-P4C12 solo se evalúa después. La madurez no se promoverá por conveniencia del roadmap.
+P4C12 decidirá si la evidencia acumulada justifica `VALIDATED_WITH_LIMITATIONS`. La madurez no se promoverá por conveniencia del roadmap y P4C10 no equivale a conformidad integral.
 
 Detalle: `docs/P4_IEC60909.md`.
 

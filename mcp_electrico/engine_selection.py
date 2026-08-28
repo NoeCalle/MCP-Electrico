@@ -43,7 +43,8 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
             "P4-v1 tiene alcance cerrado para fallas 3F, 2F y 1F-T max/min con pandapower: las tres tienen "
             "benchmark independiente y representación V4. 2F-T queda excluida formalmente por P4C08 porque "
             "pandapower 3.5.4 calc_sc solo expone 3ph/2ph/1ph; no se aproxima ni se crea un solver paralelo silencioso. "
-            "La conformidad específica con IEC 60909-0:2026 y la madurez profesional continúan pendientes."
+            "P4C10 completó la revisión específica IEC 60909-0:2026 como REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, "
+            "sin claim de conformidad integral; la madurez profesional P4C12 continúa pendiente."
         ),
         "requirements": [
             "P2 suficiente para fuente/líneas/transformadores del tipo de falla solicitado",
@@ -54,6 +55,7 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
             "endtemp_degree explícita por línea en cálculo mínimo",
             "topology y tk_s explícitos cuando se solicitan ip/Ith en 3F/2F",
             "permitir_experimental=true para readiness del backend pandapower",
+            "P4C10=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION; full_conformance_claim=false",
             "2F-T = OUT_OF_SCOPE_P4_V1; reingreso futuro requiere soporte directo o solver MCP dedicado validado",
         ],
     },

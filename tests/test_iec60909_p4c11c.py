@@ -131,6 +131,7 @@ def test_p4c11c_view_renders_1ft_z0_and_does_not_derive_skss_ip_or_ith():
     assert "ip/Ith tampoco se derivan en la vista" in enhanced
     assert "EXPERIMENTAL_P4" in enhanced
     assert "SIN EMISIÓN PROFESIONAL" in enhanced
+    assert "REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION" in enhanced
     assert "overlay-short-circuit-bus" in enhanced
 
 
@@ -188,7 +189,7 @@ def test_p4c11c_public_tool_registers_with_mcp_and_global_v4_gate_is_closed():
     gate = p4_completion.evaluar_cierre_p4()
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P4C11"]["status"] == "DONE"
-    assert criteria["P4C10"]["status"] == "PENDING"
+    assert criteria["P4C10"]["status"] == "DONE"
     assert criteria["P4C12"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["professional_emission"] is False

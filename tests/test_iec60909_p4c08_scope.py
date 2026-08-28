@@ -114,11 +114,10 @@ def test_p4c08_closes_scope_benchmark_and_workspace_gates_but_not_p4():
 
     for cid in (
         "P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06",
-        "P4C07", "P4C08", "P4C09", "P4C11",
+        "P4C07", "P4C08", "P4C09", "P4C10", "P4C11",
     ):
         assert criteria[cid]["status"] == "DONE"
 
-    assert criteria["P4C10"]["status"] == "PENDING"
     assert criteria["P4C12"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["ready_for_next_phase"] is False
