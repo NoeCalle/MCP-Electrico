@@ -2,21 +2,22 @@
 
 ## Estado
 
-**P5 ACTIVA — P5A y P5B implementados; P5C es el siguiente bloque.**
+**P5 ACTIVA — P5A, P5B y P5C implementados en esta rama; P5D es el siguiente bloque.**
 
-P4 está disponible para suministrar corrientes de falla dentro de sus alcances declarados. P5A define dispositivos/rating/ajustes; P5B agrega datasets numéricos y evaluación de curvas TCC sin afirmar todavía coordinación ni despeje final.
+P4 suministra corrientes de falla dentro de sus alcances declarados. P5A define dispositivos/rating/ajustes; P5B agrega datasets numéricos y evaluación de curvas TCC; P5C añade verificaciones técnicas de capacidad de corte y soportabilidad térmica del conductor. Todavía no se afirma coordinación ni despeje final.
 
 ```text
 P5A  datos canónicos de protección          DONE / EXPERIMENTAL
 P5B  datasets numéricos / semántica TCC     DONE / EXPERIMENTAL
-P5C  capacidad de corte + conductor          NEXT
-P5D  tiempos de despeje                      PENDIENTE
+P5C  capacidad de corte + conductor          DONE / EXPERIMENTAL
+P5D  tiempos de despeje                      NEXT
 P5E  coordinación/selectividad/backup        PENDIENTE
 P5F  Workspace V5 / TCC                      PENDIENTE
 P5G  benchmarks + gate de uso                PENDIENTE
 
 protection_data          = EXPERIMENTAL
 tcc_curve_evaluation     = EXPERIMENTAL
+protection_checks        = EXPERIMENTAL
 protection_coordination  = NOT_IMPLEMENTED
 professional_emission    = false
 ```
@@ -99,7 +100,7 @@ Una discrepancia se conserva como `P5READY201`; ninguno de los dos valores se so
 
 ## Vínculo P4
 
-P4 aporta corrientes de falla para gates posteriores.
+P4 aporta corrientes de falla para los gates posteriores.
 
 Regla permanente:
 
@@ -318,28 +319,165 @@ P5B mantiene un registro público separado para no cambiar la API P5A:
 
 No existe todavía una tool de coordinación/selectividad en P5B.
 
+# P5C — capacidad de corte y protección térmica del conductor
+
+## Alcance
+
+El cálculo vive en:
+
+- `mcp_electrico.protection_checks`;
+- `mcp_electrico.protection_check_tools`.
+
+P5C implementa **checks técnicos reproducibles**, no una certificación integral de la norma de producto.
+
+Referencias objetivo versionadas:
+
+```text
+IEC 60947-2:2024  Ed.6  circuit-breakers
+IEC 60269-1:2024  Ed.5  low-voltage fuses
+IEC 60364-4-43:2023 Ed.4 protection against overcurrent
+```
+
+Estas referencias fijan el objetivo técnico/documental. `full_standard_compliance_claim=false` permanece hasta disponer de una trazabilidad normativa suficiente.
+
+## Capacidad de corte
+
+Entrada explícita:
+
+```text
+dispositivo
+corriente_falla_ka
+tension_operacion_kv
+fuente_corriente
+tipo_falla      [opcional]
+escenario       [opcional]
+```
+
+La corriente puede proceder de P4, pero el vínculo se declara mediante su referencia; P5C no ejecuta automáticamente otro motor ni cambia de escenario.
+
+### Interruptor
+
+El check usa exclusivamente:
+
+```text
+fault_current <= Icu
+```
+
+`Ics` e `Icw` se conservan y reportan si existen, pero **no sustituyen a `Icu`** para producir el PASS de este check.
+
+Esto significa que incluso si:
+
+```text
+Ics > fault_current
+```
+
+pero:
+
+```text
+Icu < fault_current
+```
+
+el resultado P5C es `FAIL`.
+
+### Fusible
+
+El check usa exclusivamente:
+
+```text
+fault_current <= breaking_capacity_ka
+```
+
+No se renombran ratings de interruptor como ratings de fusible.
+
+### Tensión
+
+Si:
+
+```text
+tension_operacion_kv > Ue
+```
+
+P5C devuelve `NOT_APPLICABLE_VOLTAGE`; no asume que el rating de corte registrado sea válido a una tensión superior.
+
+## Soportabilidad térmica adiabática
+
+P5C evalúa:
+
+```text
+I²t <= k²S²
+```
+
+con:
+
+```text
+I = corriente de falla explícita [A]
+t = tiempo de despeje explícito [s]
+k = coeficiente explícito y trazable [A·sqrt(s)/mm²]
+S = sección explícita [mm²]
+```
+
+Políticas:
+
+```text
+k_derived_automatically       = false
+section_derived_automatically = false
+p4_tk_s_consumed              = false
+```
+
+El valor `k` no se deriva automáticamente del material/aislamiento. P5C exige una referencia explícita.
+
+El tiempo tampoco se toma de `tk_s` P4. Mientras P5D no exista, debe aportarse con una fuente explícita. Cuando P5D cierre, su resultado trazable podrá ser una fuente válida.
+
+## Binding con conductor P2
+
+Si `Line.*` tiene conductor de biblioteca asignado, P5C compara:
+
+```text
+S_input ?= S_conductor_asignado
+```
+
+- coincidencia → `MATCH`;
+- discrepancia → `SECTION_MISMATCH`;
+- P5C no sustituye la sección introducida por la sección del catálogo.
+
+Si no existe conductor P2 asignado, se exige `fuente_seccion` explícita.
+
+Esto impide que `I²t <= k²S²` pase utilizando accidentalmente una sección distinta de la que pertenece al alimentador modelado.
+
+## Resultados térmicos auxiliares
+
+Además del PASS/FAIL, P5C devuelve:
+
+```text
+actual_i2t_a2s
+limit_k2s2_a2s
+utilization_ratio
+max_permissible_clearing_time_s_at_input_current
+max_permissible_current_ka_at_input_time
+```
+
+Son resultados matemáticos del check declarado; no amplían por sí solos el alcance normativo.
+
+## Tools P5C
+
+- `obtener_referencias_proteccion_p5c`;
+- `evaluar_capacidad_corte_p5c`;
+- `evaluar_soportabilidad_termica_conductor_p5c`.
+
+No existe en P5C una tool de coordinación/selectividad.
+
 # Camino posterior
-
-## P5C — capacidad de corte y conductor
-
-Siguiente bloque:
-
-- comparar corriente de falla seleccionada contra rating explícito aplicable;
-- conservar tipo de rating usado (`Icu` o poder de corte de fusible);
-- mantener `Ics/Icw` separados, nunca como sustitutos silenciosos;
-- preparar protección térmica del conductor sin inventar `k` ni `I²t` límite.
-
-La evaluación inicial será una verificación técnica de rating/corriente, no una declaración de cumplimiento integral de la norma de producto.
 
 ## P5D — tiempo de despeje
 
-Previsto:
+Siguiente bloque:
 
 - evaluar la curva a una corriente explícita;
-- consumir directamente como clearing time solo una semántica autorizada por el contrato P5D;
+- decidir de forma fail-closed qué `time_semantics` puede considerarse clearing time;
 - conservar bandas como rango;
 - no extrapolar;
-- no utilizar `tk_s` P4.
+- no utilizar `tk_s` P4;
+- preservar dataset, segmento, corriente y procedencia del tiempo.
 
 ## P5E — coordinación
 
@@ -372,8 +510,9 @@ No se crea una segunda aplicación visual.
 ```text
 validation_status.protection_data         = EXPERIMENTAL
 validation_status.tcc_curve_evaluation    = EXPERIMENTAL
+validation_status.protection_checks       = EXPERIMENTAL
 validation_status.protection_coordination = NOT_IMPLEMENTED
 professional_emission                     = false
 ```
 
-Cerrar P5B significa que la plataforma ya puede almacenar y evaluar TCC explícitas de forma reproducible. No significa todavía que la protección esté coordinada ni que exista un tiempo final de despeje.
+Cerrar P5C significa que la plataforma puede evaluar, con entradas explícitas y trazables, capacidad de corte declarada y soportabilidad térmica adiabática. No significa todavía que exista tiempo final de despeje, coordinación/selectividad o conformidad integral de las normas objetivo.
