@@ -50,6 +50,60 @@ Antes de habilitar emisión profesional de 2F-T debe revisarse al menos:
 - datos de cables/líneas relevantes;
 - correspondencia entre la magnitud reportada y la finalidad del estudio.
 
+## VP-P5C-01 — trazabilidad normativa completa de ratings de protección
+
+**Estado:** `PENDING_LICENSED_STANDARD_REVIEW`
+
+P5C puede comparar técnicamente una corriente de falla explícita contra `Icu` de un interruptor o `breaking_capacity_ka` de un fusible. Queda pendiente construir una matriz de aplicabilidad más completa contra los textos licenciados de las normas de producto relevantes, incluyendo al menos:
+
+- IEC 60947-2:2024 para los interruptores modelados dentro de ese alcance;
+- IEC 60269-1:2024 para los fusibles modelados dentro de ese alcance;
+- relación entre tensión, categoría/condiciones del dispositivo y rating declarado;
+- condiciones adicionales necesarias antes de promover el check a una afirmación de conformidad normativa.
+
+Hasta entonces:
+
+```text
+full_standard_compliance_claim = false
+professional_emission          = false
+```
+
+La regla P5C de no sustituir `Ics`/`Icw` por `Icu` permanece vigente independientemente de esta revisión futura.
+
+## VP-P5C-02 — dataset trazable de coeficiente k / chequeo adiabático
+
+**Estado:** `PENDING_NORMATIVE_DATASET`
+
+P5C implementa matemáticamente:
+
+```text
+I²t <= k²S²
+```
+
+pero **no calcula automáticamente `k`** desde material, aislamiento o temperaturas. Queda pendiente incorporar un dataset normativo versionado y validado de `k` para los alcances que decidamos soportar profesionalmente.
+
+Mientras este dataset no exista:
+
+- `k` debe ser explícito;
+- debe incluir `fuente_k`;
+- una sección sin conductor P2 asignado requiere `fuente_seccion`;
+- el PASS es un check adiabático con entradas declaradas, no una selección normativa automática del coeficiente.
+
+## VP-P5C-03 — caso externo de protección/conductor
+
+**Estado:** `PENDING_EXTERNAL_REFERENCE_CASE`
+
+Pendiente contrastar al menos un alimentador real o benchmark publicado que incluya, con los mismos datos y supuestos:
+
+- corriente de cortocircuito en el punto de instalación;
+- dispositivo y rating de corte;
+- conductor/sección;
+- coeficiente `k` aplicable;
+- tiempo de despeje trazable;
+- resultado de soportabilidad térmica.
+
+Este contraste se realizará cuando dispongamos de un caso externo adecuado; no bloquea el uso interno del check P5C con alcance declarado.
+
 ## Uso permitido mientras estas validaciones están pendientes
 
 El fundamento 2F-T puede utilizarse internamente bajo el estado:
@@ -59,6 +113,14 @@ mathematical_foundation = USABLE_WITH_DECLARED_SCOPE
 normative_verification  = PENDING_LICENSED_IEC_REVIEW
 external_reference_case = PENDING
 professional_emission   = false
+```
+
+P5C puede utilizarse internamente bajo el estado:
+
+```text
+protection_checks              = EXPERIMENTAL
+full_standard_compliance_claim = false
+professional_emission          = false
 ```
 
 No debe presentarse como certificación IEC integral ni utilizar la ausencia de estas validaciones como evidencia de cumplimiento normativo.
