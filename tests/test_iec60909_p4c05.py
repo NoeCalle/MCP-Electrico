@@ -104,7 +104,7 @@ def test_p4c05_ith_responds_to_explicit_clearing_time_while_ip_does_not():
     assert short["results"]["ith_ka"] != pytest.approx(long["results"]["ith_ka"], rel=1e-9)
 
 
-def test_p4c05_matrix_e_declares_experimental_pandapower_without_professional_emission():
+def test_p4c05_matrix_e_declares_pandapower_without_professional_emission():
     matrix = engine_selection.obtener_capacidades_motores()
     capability = matrix["studies"]["iec60909"]
 
@@ -114,7 +114,8 @@ def test_p4c05_matrix_e_declares_experimental_pandapower_without_professional_em
     assert capability["implemented"] is True
     assert capability["professional_emission_candidate"] is False
     assert any("topology y tk_s explícitos" in item for item in capability["requirements"])
-    assert "experimentalmente" in capability["reason"]
+    assert "alcance cerrado" in capability["reason"]
+    assert "2F-T" in capability["reason"]
 
 
 def test_p4c05_gate_remains_done_after_later_p4_milestones_without_closing_p4():
