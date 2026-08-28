@@ -69,6 +69,21 @@ jobs:
         with:
           name: mcp-electrico-benchmarks-p4-3ph
           path: benchmark_p4_3ph.json
+      - name: Generate P5G protection benchmark
+        run: |
+          python examples/run_benchmarks_p5g.py --output benchmark_p5g.json
+          test -s benchmark_p5g.json
+          grep -q '"failed": 0' benchmark_p5g.json
+          grep -q '"pass": true' benchmark_p5g.json
+          grep -q '"curve_source_type": "TEST_DATA"' benchmark_p5g.json
+          grep -q '"manufacturer_claim": false' benchmark_p5g.json
+          grep -q '"normative_compliance_claim": false' benchmark_p5g.json
+          grep -q '"professional_emission": false' benchmark_p5g.json
+      - name: Upload P5G protection benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-benchmarks-p5g
+          path: benchmark_p5g.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
