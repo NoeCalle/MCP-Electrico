@@ -86,22 +86,36 @@ _MODULES = {
     },
     "protection_data": {
         "status": "EXPERIMENTAL",
-        "basis": "P5A_PROTECTION_DATA_CONTRACT_V1: dispositivos, ratings, ajustes explícitos y procedencia",
+        "basis": "P5A/P5B: dispositivos, ratings, ajustes, identidad de curva y binding de dataset numérico explícitos",
         "limitations": [
-            "P5A cubre interruptores y fusibles; relés quedan fuera hasta modelar CT/VT, funciones y elemento de corte",
-            "No existen todavía datasets numéricos TCC ni evaluación de tiempos de despeje",
+            "P5 cubre por ahora interruptores y fusibles; relés quedan fuera hasta modelar CT/VT, funciones y elemento de corte",
+            "Los datasets numéricos TCC no implican por sí solos selectividad ni coordinación",
             "No se sintetizan curvas de fabricante ni ajustes ausentes",
-            "In P5A se contrasta con P3 cuando existe, pero nunca se crea automáticamente desde P3",
+            "In P5 se contrasta con P3 cuando existe, pero nunca se crea automáticamente desde P3",
             "tk_s de P4 no se interpreta como tiempo real de despeje",
+            "professional_emission=false",
+        ],
+    },
+    "tcc_curve_evaluation": {
+        "status": "EXPERIMENTAL",
+        "basis": "P5B_TCC_DATASET_V1: puntos/segmentos explícitos + interpolación LOG_LOG_LINEAR",
+        "limitations": [
+            "Solo corrientes absolutas en A y tiempos en s",
+            "Interpolación únicamente dentro de un segmento explícito",
+            "No hay extrapolación ni interpolación entre discontinuidades",
+            "Las bandas min/max se conservan y nunca se promedian a una curva única",
+            "El significado del tiempo debe declararse como TRIP_TIME, TOTAL_CLEARING_TIME, MELTING_TIME u OPERATING_TIME",
+            "Un tiempo de curva no se promueve automáticamente a tiempo final de despeje",
+            "No existe todavía claim de coordinación/selectividad",
             "professional_emission=false",
         ],
     },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
-        "basis": "P5A inició el contrato de datos; motor TCC/coordinación aún no implementado",
+        "basis": "P5A/P5B proveen datos y evaluación de curvas; coordinación todavía no implementada",
         "limitations": [
-            "Curvas TCC numéricas, tiempos de despeje, selectividad y backup pendientes",
-            "La existencia de datos P5A no habilita coordinación profesional",
+            "Capacidad de corte, tiempos finales de despeje, selectividad y backup pendientes",
+            "La existencia de datasets P5B no habilita coordinación profesional",
         ],
     },
     "arc_flash_ieee1584": {
