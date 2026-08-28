@@ -2,9 +2,11 @@
 
 ## Estado
 
-**P5 ACTIVA — P5A–P5E implementados; P5F Workspace V5 en cierre y P5G es el siguiente gate.**
+**P5 COMPLETA CON LIMITACIONES — P5A–P5G DONE.**
 
-P4 suministra corrientes de falla dentro de sus alcances declarados. P5 construye encima de ellas datos de protección, datasets TCC, checks de capacidad de corte y conductor, tiempos finales de despeje y coordinación temporal puntual. El alcance sigue siendo deliberadamente conservador: no se afirma selectividad total, backup/cascading ni conformidad integral de normas de producto.
+P4 suministra corrientes de falla dentro de sus alcances declarados. P5 construye encima de ellas datos de protección, datasets TCC, checks de capacidad de corte y conductor, tiempos finales de despeje, coordinación temporal puntual y representación V5.
+
+El cierre P5G es un **gate de fase funcional**, no una promoción artificial de madurez normativa. Los módulos P5 permanecen `EXPERIMENTAL` y `professional_emission=false`.
 
 ```text
 P5A  datos canónicos de protección          DONE / EXPERIMENTAL
@@ -13,15 +15,23 @@ P5C  capacidad de corte + conductor          DONE / EXPERIMENTAL
 P5D  tiempos de despeje                      DONE / EXPERIMENTAL
 P5E  coordinación temporal puntual           DONE / EXPERIMENTAL
 P5F  Workspace V5 / TCC                      DONE / EXPERIMENTAL
-P5G  benchmarks + gate de uso                NEXT
+P5G  benchmarks + gate de uso                DONE
 
-protection_data          = EXPERIMENTAL
-tcc_curve_evaluation     = EXPERIMENTAL
-protection_checks        = EXPERIMENTAL
-protection_clearing_time = EXPERIMENTAL
-protection_coordination  = EXPERIMENTAL
-professional_emission    = false
+P5 phase_status             = READY_WITH_LIMITATIONS
+next_phase                  = P7_REPRODUCIBLE_DOSSIER_MINIMUM
+deferred_phase              = P6_IEEE1584_ARC_FLASH
+operational_path_ready      = true
+engineering_preview_ready   = false
+professional_emission       = false
+
+protection_data             = EXPERIMENTAL
+tcc_curve_evaluation        = EXPERIMENTAL
+protection_checks           = EXPERIMENTAL
+protection_clearing_time    = EXPERIMENTAL
+protection_coordination     = EXPERIMENTAL
 ```
+
+`engineering_preview_ready=false` se mantiene hasta cerrar P7 mínimo de reproducibilidad/expediente.
 
 ## Reglas permanentes
 
@@ -30,7 +40,8 @@ professional_emission    = false
 - `P4 tk_s != tiempo real de despeje P5`.
 - no se sintetizan curvas de fabricante, ajustes, ratings, secciones ni coeficientes `k` ausentes;
 - el navegador no ejecuta interpolación TCC ni cálculos de protección;
-- `professional_emission=false` permanece durante P5.
+- un PASS P5E no significa selectividad integral;
+- `professional_emission=false` permanece después del cierre funcional P5.
 
 # P5A — contrato de datos
 
@@ -146,8 +157,6 @@ TEST_DATA
 
 `MANUFACTURER_DIGITIZED` exige `digitization_method`. P5B nunca digitaliza automáticamente una imagen.
 
-El benchmark analítico independiente utiliza `t = K·I^-2`: 100 A → 10 s y 1000 A → 0.1 s; en la media geométrica de corriente la referencia exacta es 1 s. Se usa `TEST_DATA`, no una curva comercial ficticia.
-
 # P5C — capacidad de corte y conductor
 
 El cálculo vive en:
@@ -163,7 +172,11 @@ IEC 60269-1:2024     fusibles
 IEC 60364-4-43:2023  protección contra sobrecorriente
 ```
 
-Son referencias objetivo, no un claim de conformidad integral: `full_standard_compliance_claim=false`.
+Son referencias objetivo, no un claim de conformidad integral:
+
+```text
+full_standard_compliance_claim = false
+```
 
 ## Capacidad de corte
 
@@ -227,10 +240,6 @@ MELTING_TIME        -> no promoción automática
 OPERATING_TIME      -> no promoción automática
 ```
 
-P5D evalúa la TCC dentro de su dominio y conserva dataset, curva, segmento, corriente, procedencia e interpolación utilizada.
-
-Para `SINGLE`, el tiempo publicado/evaluado se conserva como un único valor.
-
 Para `BAND`:
 
 ```text
@@ -238,7 +247,7 @@ time_min_s
 time_max_s
 ```
 
-se mantienen ambos límites. **No se promedian**. Cuando otro check necesita un único valor conservador:
+se mantienen ambos límites y **no se promedian**. Cuando otro check necesita un único valor conservador:
 
 ```text
 conservative_time_s = time_max_s
@@ -253,18 +262,11 @@ El motor vive en:
 - `mcp_electrico.protection_coordination`;
 - `mcp_electrico.protection_coordination_tools`.
 
-Requiere:
-
-- dispositivo downstream explícito;
-- dispositivo upstream explícito;
-- corriente explícita por cada dispositivo;
-- relación upstream/downstream referenciada;
-- margen mínimo explícito;
-- `CLEARING_TIME_READY` P5D para ambos.
+Requiere downstream/upstream explícitos, corriente por dispositivo, relación referenciada, margen mínimo explícito y `CLEARING_TIME_READY` P5D para ambos.
 
 No se infiere topología ni se supone que ambos dispositivos vean la misma corriente.
 
-Para bandas, la comparación conservadora es:
+Para bandas:
 
 ```text
 conservative_margin_s = upstream_time_min_s - downstream_time_max_s
@@ -280,11 +282,11 @@ TEMPORAL_POINT_COORDINATION
 No declara:
 
 ```text
-total_selectivity  = NOT_EVALUATED
+total_selectivity   = NOT_EVALUATED
 partial_selectivity = NOT_EVALUATED
-energy_selectivity = NOT_EVALUATED
-backup              = NOT_EVALUATED
-cascading           = NOT_EVALUATED
+energy_selectivity  = NOT_EVALUATED
+backup               = NOT_EVALUATED
+cascading            = NOT_EVALUATED
 ```
 
 No existe barrido automático del dominio de corriente en P5E.
@@ -310,34 +312,80 @@ Implementado:
 - `SINGLE` y `BAND`;
 - segmentos separados para preservar discontinuidades;
 - min/max de bandas como trazos independientes;
-- resultados P5B/P5C/P5D/P5E vigentes para la `model_revision` actual;
+- resultados P5 vigentes para la `model_revision` actual;
 - estado `EXPERIMENTAL · SIN EMISIÓN PROFESIONAL` visible;
 - impresión/PDF compatible con la infraestructura existente.
 
-La transformación log-log de coordenadas del SVG ocurre en **Python** a partir de los puntos ya estructurados. El JavaScript V5 solo gestiona pestañas y selección del elemento protegido:
+La transformación log-log de coordenadas del SVG ocurre en **Python**. El JavaScript V5 solo gestiona pestañas y selección del elemento protegido:
 
 ```text
 browser_engineering_calculation = false
 ```
 
-No interpola TCC, no extrapola, no calcula clearing time, no calcula `I²t`, no calcula margen de coordinación y no decide selectividad.
+V5 no inventa una curva de daño del conductor: se incorporará solo si existe un dataset backend explícito y trazable que justifique esa representación.
 
-V5 tampoco inventa una curva de daño del conductor: se incorporará solo si existe un dataset backend explícito y trazable que justifique esa representación.
+# P5G — benchmarks y gate de cierre
 
-Los resultados P5 ejecutados mediante tools se registran como estudios versionados en `workspace_state`; si cambia la revisión del modelo dejan de presentarse como vigentes.
+P5G implementa:
 
-# P5G — gate de uso
+- `mcp_electrico.p5_benchmarks`;
+- `examples/run_benchmarks_p5g.py`;
+- `mcp_electrico.p5_completion`;
+- tool pública `evaluar_cierre_p5()`;
+- benchmark obligatorio en CI.
 
-**NEXT.** P5G cerrará la fase P5 como checkpoint de uso interno, no como emisión profesional. Debe consolidar:
+## Suite reproducible
 
-- contratos P5A–P5F;
-- benchmarks/regresiones ya existentes;
-- gate de completitud de fase;
-- limitaciones y validaciones pendientes;
-- readiness para el siguiente bloque operacional;
-- `professional_emission=false`.
+```text
+MCP_ELECTRICO_P5G_BENCHMARK_SUITE_V1
 
-El siguiente bloque de producto después de P5G será **P7 mínimo — expediente/reproducibilidad para Engineering Preview**. P6 IEEE 1584 queda diferida por decisión de producto y no bloquea el primer uso interno.
+P5G_B01_TCC_BAND_LOGLOG
+P5G_B02_TCC_NO_EXTRAPOLATION
+P5G_B03_CLEARING_TIME_BAND
+P5G_B04_TEMPORAL_COORDINATION
+P5G_B05_BREAKING_CAPACITY
+P5G_B06_CONDUCTOR_THERMAL
+```
+
+La suite usa un circuito sintético y exclusivamente `TEST_DATA`. No representa una curva comercial ni evidencia de conformidad normativa.
+
+Comprueba de extremo a extremo:
+
+- interpolación log-log analítica de una banda;
+- ausencia de extrapolación;
+- clearing time min/max y campo conservador;
+- margen temporal conservador;
+- uso de Icu para capacidad de corte;
+- sustitución directa independiente en `I²t` y `k²S²`.
+
+El reporte exige:
+
+```text
+failed                     = 0
+pass                       = true
+manufacturer_claim         = false
+normative_compliance_claim = false
+professional_emission      = false
+```
+
+## Gate formal P5
+
+`evaluar_cierre_p5()` verifica diez criterios P5G y devuelve:
+
+```text
+phase                       = P5
+phase_version               = P5-v1
+phase_status                = READY_WITH_LIMITATIONS
+ready_for_next_phase        = true
+next_phase                  = P7_REPRODUCIBLE_DOSSIER_MINIMUM
+deferred_phase              = P6_IEEE1584_ARC_FLASH
+operational_path_ready      = true
+engineering_preview_ready   = false
+engineering_preview_blocker = P7_REPRODUCIBLE_DOSSIER_MINIMUM
+professional_emission       = false
+```
+
+El gate acepta que un módulo implementado siga `EXPERIMENTAL`; no permite `NOT_IMPLEMENTED` para los módulos P5 requeridos y **no modifica** `validation_status` para fingir una madurez superior.
 
 ## Validaciones pendientes
 
@@ -349,15 +397,10 @@ La deuda normativa/externa que no debe confundirse con el cierre funcional está
 - dataset normativo de `k`;
 - caso externo protección/conductor.
 
-## Gate actual
+## Handoff de producto
 
-```text
-validation_status.protection_data          = EXPERIMENTAL
-validation_status.tcc_curve_evaluation     = EXPERIMENTAL
-validation_status.protection_checks        = EXPERIMENTAL
-validation_status.protection_clearing_time = EXPERIMENTAL
-validation_status.protection_coordination  = EXPERIMENTAL
-professional_emission                      = false
-```
+P5 queda listo con limitaciones para la ruta operacional. El siguiente bloque es **P7 mínimo — expediente/reproducibilidad**.
 
-Cerrar P5F significa que los resultados P5 ya tienen representación técnica coherente en el workspace. **No** significa que P5 esté listo para emisión profesional ni que exista selectividad integral. El cierre de fase corresponde a P5G.
+P6 IEEE 1584 permanece diferida y no bloquea el primer uso interno.
+
+La Engineering Preview 0.9 solo podrá declararse lista cuando P7 cierre su gate mínimo de reconstrucción, fuentes/versiones, warnings/limitaciones y exportación reproducible.
