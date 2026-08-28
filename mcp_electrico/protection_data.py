@@ -161,6 +161,7 @@ def definir_dispositivo(
         "model": str(modelo or "").strip() or None,
         "poles": pole_value,
         "standard_reference": standard,
+        "utilization_category": str(categoria_utilizacion or "").strip() or None,
         "ratings": {
             "in_a": in_value,
             "ue_kv": ue_value,
