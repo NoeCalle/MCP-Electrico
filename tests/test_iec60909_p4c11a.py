@@ -42,6 +42,7 @@ def test_p4c11a_suite_preserves_max_min_and_duty_payloads():
     assert result["ok"] is True
     assert result["schema"] == "MCP_ELECTRICO_IEC60909_3PH_SUITE_V1"
     assert result["fault"] == "3ph"
+    assert result["maturity"] == "VALIDATED_WITH_LIMITATIONS"
     for case in ("max", "min"):
         payload = result["scenarios"][case]
         assert payload["ok"] is True
@@ -102,7 +103,7 @@ def test_p4c11a_view_is_read_only_and_exposes_3ph_engine_maturity_and_fault_bus(
     assert "Ith" in enhanced
     assert "radial" in enhanced
     assert "0.2 s" in enhanced
-    assert "EXPERIMENTAL_P4" in enhanced
+    assert "VALIDATED_WITH_LIMITATIONS" in enhanced
     assert "SIN EMISIÓN PROFESIONAL" in enhanced
     assert "REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION" in enhanced
     assert "overlay-short-circuit-bus" in enhanced
@@ -117,7 +118,8 @@ def test_p4c11a_remains_submilestone_evidence_after_global_v4_closure():
     assert "P4C11B 2F DONE" in criteria["P4C11"]["evidence"]
     assert "P4C11C 1F-T DONE" in criteria["P4C11"]["evidence"]
     assert criteria["P4C10"]["status"] == "DONE"
-    assert criteria["P4C12"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
+    assert criteria["P4C12"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P5_PROTECTION_TCC"
     assert gate["professional_emission"] is False
