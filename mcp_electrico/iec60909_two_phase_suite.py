@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from . import iec60909_two_phase
+from . import iec60909_two_phase, validation_status
 
 SCHEMA = "MCP_ELECTRICO_IEC60909_2PH_SUITE_V1"
 
@@ -48,6 +48,7 @@ def ejecutar_2ph_max_min(
         or minimum.get("negative_sequence_policy")
         or dict(iec60909_two_phase.NEGATIVE_SEQUENCE_POLICY)
     )
+    maturity = validation_status.get_module_status("iec60909")
 
     return {
         "schema": SCHEMA,
@@ -59,12 +60,13 @@ def ejecutar_2ph_max_min(
         "negative_sequence_policy": policy,
         "engine": engine,
         "target_standard": target,
-        "maturity": "EXPERIMENTAL_P4",
+        "maturity": maturity["status"],
+        "maturity_detail": maturity,
         "professional_emission": False,
         "limitations": [
-            "Suite fase-fase sin tierra; 2F-T permanece fuera del alcance.",
+            "Suite fase-fase sin tierra; 2F-T permanece OUT_OF_SCOPE_P4_V1.",
             "Z2=Z1 solo para la red simétrica pasiva P4C06 v1.",
             "Sk'' contractual 2F permanece sin normalizar.",
-            "La conformidad específica con IEC 60909-0:2026 permanece sin verificar.",
+            "La revisión IEC 60909-0:2026 es REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, no conformidad integral.",
         ],
     }

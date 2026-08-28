@@ -70,6 +70,7 @@ def test_p4c11c_suite_preserves_1ft_max_min_zero_sequence_and_absent_uncontracte
     assert result["fault_label"] == "1F-T"
     assert result["negative_sequence_policy"]["relation"] == "Z2 = Z1"
     assert result["negative_sequence_policy"]["universal_assumption"] is False
+    assert result["maturity"] == "VALIDATED_WITH_LIMITATIONS"
     assert result["professional_emission"] is False
 
     for case in ("max", "min"):
@@ -129,7 +130,7 @@ def test_p4c11c_view_renders_1ft_z0_and_does_not_derive_skss_ip_or_ith():
     assert "Xk0" in enhanced
     assert "Sk'' 1F-T no se promociona" in enhanced
     assert "ip/Ith tampoco se derivan en la vista" in enhanced
-    assert "EXPERIMENTAL_P4" in enhanced
+    assert "VALIDATED_WITH_LIMITATIONS" in enhanced
     assert "SIN EMISIÓN PROFESIONAL" in enhanced
     assert "REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION" in enhanced
     assert "overlay-short-circuit-bus" in enhanced
@@ -190,6 +191,8 @@ def test_p4c11c_public_tool_registers_with_mcp_and_global_v4_gate_is_closed():
     criteria = {item["id"]: item for item in gate["criteria"]}
     assert criteria["P4C11"]["status"] == "DONE"
     assert criteria["P4C10"]["status"] == "DONE"
-    assert criteria["P4C12"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
+    assert criteria["P4C12"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P5_PROTECTION_TCC"
     assert gate["professional_emission"] is False

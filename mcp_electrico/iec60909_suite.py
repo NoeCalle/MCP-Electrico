@@ -10,7 +10,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from . import iec60909, iec60909_contract
+from . import iec60909, iec60909_contract, validation_status
 
 SCHEMA = "MCP_ELECTRICO_IEC60909_3PH_SUITE_V1"
 
@@ -23,12 +23,7 @@ def ejecutar_3ph_max_min(
     tk_s: float | None = None,
     kappa_method: str = "C",
 ) -> dict[str, Any]:
-    """Ejecuta 3F MAX y MIN sin introducir defaults técnicos ocultos.
-
-    ``line_endtemp_degree_c`` se aplica al escenario MIN y sigue siendo
-    obligatorio cuando existen líneas. Los parámetros de duty se transmiten
-    idénticos a ambos escenarios cuando ``calcular_ip_ith=True``.
-    """
+    """Ejecuta 3F MAX y MIN sin introducir defaults técnicos ocultos."""
     common = {
         "calcular_ip_ith": calcular_ip_ith,
         "topology": topology,
@@ -61,6 +56,7 @@ def ejecutar_3ph_max_min(
         ),
         deepcopy(iec60909_contract.TARGET_STANDARD),
     )
+    maturity = validation_status.get_module_status("iec60909")
 
     return {
         "schema": SCHEMA,
@@ -77,11 +73,12 @@ def ejecutar_3ph_max_min(
         },
         "engine": runtime_engine,
         "target_standard": target,
-        "maturity": "EXPERIMENTAL_P4",
+        "maturity": maturity["status"],
+        "maturity_detail": maturity,
         "professional_emission": False,
         "limitations": [
-            "P4C11A visualiza únicamente el alcance 3F MAX/MIN implementado.",
-            "La conformidad específica con IEC 60909-0:2026 permanece pendiente en P4C10.",
+            "P4-v1 visualiza 3F MAX/MIN dentro del alcance VALIDATED_WITH_LIMITATIONS declarado.",
+            "La revisión IEC 60909-0:2026 es REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, no conformidad integral.",
             "Un escenario fallido se conserva con sus issues; la suite no rellena valores faltantes.",
         ],
     }

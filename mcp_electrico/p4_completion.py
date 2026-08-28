@@ -33,7 +33,7 @@ def _criteria() -> list[dict[str, Any]]:
     fault_scope = contract["fault_scope"]
     p4_scope = contract.get("p4_v1_scope") or {}
     conformance = iec60909_conformance.evaluar_revision()
-    maturity = validation_status.get_module_status("short_circuit")
+    maturity = validation_status.get_module_status("iec60909")
 
     two_phase_ground = fault_scope.get("two_phase_ground", {})
     strategy = two_phase_ground.get("strategy") or {}
@@ -173,8 +173,8 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C12",
             "acceptable_module_maturity",
             maturity.get("status") in {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"},
-            f"validation_status.short_circuit={maturity.get('status')}",
-            "short_circuit permanece UNDER_VALIDATION.",
+            f"validation_status.iec60909={maturity.get('status')}",
+            "iec60909 permanece UNDER_VALIDATION.",
         ),
     ]
 
@@ -186,7 +186,7 @@ def evaluar_cierre_p4() -> dict[str, Any]:
     return {
         "schema_version": 1,
         "phase": "P4",
-        "phase_version": "P4-v1-candidate",
+        "phase_version": "P4-v1",
         "phase_status": status,
         "ready_for_next_phase": status == PHASE_READY_WITH_LIMITATIONS,
         "criteria": deepcopy(criteria),
@@ -194,7 +194,11 @@ def evaluar_cierre_p4() -> dict[str, Any]:
         "target_standard": deepcopy(iec60909_contract.TARGET_STANDARD),
         "p4_v1_scope": deepcopy(iec60909_contract.P4_V1_SCOPE),
         "backend": deepcopy(iec60909_contract.BACKEND),
+        "module_maturity": deepcopy(validation_status.get_module_status("iec60909")),
         "next_phase": "P5_PROTECTION_TCC" if status == PHASE_READY_WITH_LIMITATIONS else None,
         "professional_emission": False,
-        "note": "P4 no se cierra por la sola existencia de pandapower.calc_sc; requiere alcance cerrado, adaptación, benchmarks, revisión de edición, V4 y madurez.",
+        "note": (
+            "P4 se cierra READY_WITH_LIMITATIONS solo para el alcance IEC 60909 P4-v1 declarado. "
+            "OpenDSS FaultStudy conserva madurez separada y professional_emission permanece false."
+        ),
     }

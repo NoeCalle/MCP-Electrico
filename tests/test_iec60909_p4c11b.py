@@ -49,6 +49,7 @@ def test_p4c11b_suite_preserves_2ph_max_min_policy_and_no_normalized_skss():
     assert result["ok"] is True
     assert result["schema"] == "MCP_ELECTRICO_IEC60909_2PH_SUITE_V1"
     assert result["fault"] == "2ph"
+    assert result["maturity"] == "VALIDATED_WITH_LIMITATIONS"
     assert result["negative_sequence_policy"]["z2_relation"] == "Z2 = Z1"
     assert result["negative_sequence_policy"]["universal_assumption"] is False
     for case in ("max", "min"):
@@ -99,7 +100,7 @@ def test_p4c11b_view_renders_2ph_and_explicit_negative_sequence_policy():
     assert "Z2 = Z1" in enhanced
     assert "supuesto universal: <strong>no</strong>" in enhanced
     assert "Sk'' 2F no se promociona" in enhanced
-    assert "EXPERIMENTAL_P4" in enhanced
+    assert "VALIDATED_WITH_LIMITATIONS" in enhanced
     assert "SIN EMISIÓN PROFESIONAL" in enhanced
 
 

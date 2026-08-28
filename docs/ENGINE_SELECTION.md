@@ -21,10 +21,10 @@ La matriz recomienda/selecciona el backend y evalúa readiness; las tools de eje
 | --- | --- | --- |
 | Flujo de potencia | OpenDSS | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
 | Caída de tensión | OpenDSS + MCP | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
-| Cortocircuito exploratorio | OpenDSS FaultStudy | técnico/legacy; no equivale a IEC 60909 formal |
-| IEC 60909 P4-v1 | pandapower 3.5.x | 3F/2F/1F-T experimentales; revisión 2026 completada con limitaciones; P4 aún `NOT_READY` por P4C12 |
+| Cortocircuito exploratorio | OpenDSS FaultStudy | `UNDER_VALIDATION`; no equivale a IEC 60909 formal |
+| IEC 60909 P4-v1 | pandapower 3.5.4 | 3F/2F/1F-T; `VALIDATED_WITH_LIMITATIONS`; revisión 2026 completada con limitaciones |
 | Ampacidad normativa | MCP | P3-v1 `VALIDATED_WITH_LIMITATIONS` |
-| Protección / TCC | MCP + pandapower cuando aplique | P5 bloqueada por P4 |
+| Protección / TCC | MCP + pandapower cuando aplique | P5 desbloqueada para implementación |
 | IEEE 1584 | MCP | P6 pendiente |
 | Lee | MCP | experimental/educativo |
 | Armónicos | OpenDSS | solver disponible; módulo MCP profesional pendiente |
@@ -63,7 +63,7 @@ Para una exclusión formal de alcance, como 2F-T en P4-v1, `ENGINE_NOT_READY` ti
 
 ## IEC 60909 — alcance P4-v1
 
-El backend preferente es pandapower 3.5.x y el alcance queda cerrado en:
+El backend preferente es pandapower 3.5.4 y el alcance queda cerrado en:
 
 | Falla | Estado P4-v1 | Datos principales | Evidencia |
 | --- | --- | --- | --- |
@@ -85,9 +85,22 @@ Esto significa que el alcance P4-v1 fue contrastado contra evidencia pública ve
 
 Detalle: `docs/P4C10_IEC60909_2026_REVIEW.md`.
 
+### Madurez P4C12
+
+P4C12 cierra únicamente el módulo `iec60909` como:
+
+```text
+validation_status.iec60909 = VALIDATED_WITH_LIMITATIONS
+validation_status.short_circuit = UNDER_VALIDATION
+```
+
+`short_circuit` continúa reservado a OpenDSS FaultStudy exploratorio. Validar P4-v1 no promociona automáticamente otros motores/metodologías de cortocircuito.
+
+El puente general pandapower mantiene compatibilidad y habilitación explícitas. El opt-in `permitir_experimental=true` puede seguir siendo requerido por el readiness del backend mientras esa política transversal no se cambie; esto no rebaja la madurez específica del módulo `iec60909` ni habilita emisión profesional.
+
 ### 3F
 
-No exige Z0. Para readiness pandapower experimental se requiere `permitir_experimental=true`.
+No exige Z0.
 
 ### 2F
 
