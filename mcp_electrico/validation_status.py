@@ -123,12 +123,25 @@ _MODULES = {
             "professional_emission=false",
         ],
     },
+    "protection_clearing_time": {
+        "status": "EXPERIMENTAL",
+        "basis": "P5D: promoción fail-closed de TCC TOTAL_CLEARING_TIME a tiempo final de despeje",
+        "limitations": [
+            "Solo TOTAL_CLEARING_TIME se promueve automáticamente a clearing time",
+            "TRIP_TIME, MELTING_TIME y OPERATING_TIME permanecen evaluables pero no promovidos",
+            "Las bandas se preservan; no se promedian y time_max_s se expone además como campo conservador",
+            "No se extrapola fuera del dominio ni a través de discontinuidades",
+            "Se preservan dataset, curva, segmento, corriente y procedencia",
+            "P4 tk_s no se consume",
+            "professional_emission=false",
+        ],
+    },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
-        "basis": "P5A/P5B/P5C proveen datos, evaluación TCC y checks técnicos; coordinación todavía no implementada",
+        "basis": "P5A/P5B/P5C/P5D proveen datos, TCC, checks y clearing time; coordinación todavía no implementada",
         "limitations": [
-            "Tiempo final de despeje P5D, selectividad y backup P5E pendientes",
-            "La existencia de checks P5C no habilita coordinación profesional",
+            "Selectividad temporal y backup P5E pendientes",
+            "La existencia de clearing time P5D no habilita coordinación profesional",
         ],
     },
     "arc_flash_ieee1584": {
