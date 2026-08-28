@@ -2,72 +2,72 @@
 
 ## Objetivo
 
-Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hacia una plataforma de ingeniería reproducible y validada, apta para sustentar estudios revisados y emitidos por un profesional responsable.
+Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hacia una plataforma de ingeniería reproducible, trazable y verificable. La firma y responsabilidad profesional permanecen siempre en el ingeniero responsable.
 
-La firma y responsabilidad profesional siempre corresponden al ingeniero. El objetivo del roadmap es que la herramienta entregue resultados trazables, reproducibles, verificables y con límites de aplicación explícitos.
+El cierre de una fase no significa cobertura universal: cada módulo declara alcance, madurez, fuentes, limitaciones y gates explícitos.
 
 ## Mapa maestro — orden de ejecución
 
-Este documento es la **guía maestra del proyecto**. Una fase no se considera cumplida por tener una primera implementación: debe satisfacer su criterio de salida, mantener CI/pruebas, documentación, QA y representación visual cuando corresponda.
+Este documento es la guía maestra del proyecto. Los ejes visual y de selección de motor evolucionan en paralelo.
 
 | Fase | Estado actual | Resultado esperado |
 | --- | --- | --- |
-| P0 — Gobernanza y QA | COMPLETA | madurez explícita, QA y gate de emisión |
+| P0 — Gobernanza y QA | COMPLETA | madurez explícita, QA y gates |
 | P1 — Flujo y caída de tensión | COMPLETA CON LIMITACIONES | benchmarks independientes y regresión cuantitativa |
-| P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
-| P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
-| P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing normativo, evidencia primaria y benchmarks independientes |
-| P4 — IEC 60909 | **COMPLETA CON LIMITACIONES (P4 v1)** | cortocircuito IEC 60909 validado dentro del alcance declarado |
-| P5 — Protección y TCC | **DESBLOQUEADA — FASE PRINCIPAL ACTIVA** | protección del conductor, despeje y coordinación |
-| P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
-| P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
-| P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
+| P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor explícito sin cross-check |
+| P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | fuente/equipos/cables trazables sin supuestos silenciosos |
+| P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing, evidencia y benchmarks |
+| P4 — IEC 60909 | **COMPLETA CON LIMITACIONES (P4 v1)** | cortocircuito dentro del alcance declarado |
+| P5 — Protección y TCC | **ACTIVA — P5F EN CIERRE / P5G NEXT** | protección-conductor, TCC, despeje, coordinación temporal y V5 |
+| P6 — IEEE 1584 | **DEFERRED** | Arc Flash formal cuando se reactive |
+| P7 — Expediente reproducible | **NEXT AFTER P5** | paquete mínimo reproducible para uso interno |
+| P8 — Engineering Preview 0.9 | **PENDIENTE** | uso operativo controlado en proyectos reales |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 y P4-v1 quedan cerrados en `READY_WITH_LIMITATIONS`; **P5 es la fase principal activa**. Los ejes transversales V y E evolucionan en paralelo.
+**Regla de avance:** P5 se termina ahora. P6 IEEE 1584 queda diferida por decisión de producto. Después de P5G se avanza directamente a P7 mínimo y P8 Engineering Preview 0.9 para empezar a usar el MCP de forma controlada. Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
 
 **Estado actual:**
 
 ```text
 P3C01–P3C13 DONE
-P4C01  DONE     objetivo IEC 60909-0:2026 versionado
-P4C02  DONE     backend pandapower determinista
-P4C03  DONE     adaptador P2 -> secuencia positiva IEC 60909
-P4C04  DONE     3F MAX/MIN + Ik'' + Sk''
-P4C05  DONE     ip + Ith con topology/tk/kappa explícitos
-P4C06  DONE     2F MAX/MIN + benchmark independiente
-P4C07  DONE     1F-T MAX/MIN + Z0 validada + benchmark independiente
-P4C08  DONE     2F-T = OUT_OF_SCOPE_P4_V1, sin aproximación
-P4C09  DONE     benchmark global del alcance P4-v1
-P4C10  DONE     revisión IEC 60909-0:2026 = REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
-P4C11  DONE     Workspace V4 global del alcance P4-v1
-                 ├─ P4C11A DONE  3F
-                 ├─ P4C11B DONE  2F
-                 └─ P4C11C DONE  1F-T
-P4C12  DONE     iec60909 = VALIDATED_WITH_LIMITATIONS
+P4C01–P4C12 DONE
+P5A DONE
+P5B DONE
+P5C DONE
+P5D DONE
+P5E DONE
+P5F CLOSING
+P5G NEXT
 
 P4 = READY_WITH_LIMITATIONS
-P5 = DESBLOQUEADA / INICIO
+P5 = ACTIVE
+P6 = DEFERRED
+P7 = NEXT_AFTER_P5
+P8 = ENGINEERING_PREVIEW_0_9
+
 professional_emission = false
 automatic_dispatch = false
-crosscheck = false
+crosscheck=false
 automatic_normative_lookup = false
 ```
 
+Usable internamente no equivale a `professional_emission=true`. La Engineering Preview debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
+
 ## Principio rector
 
-OpenDSS se mantiene como motor numérico principal y por defecto para el flujo actualmente validado. El proyecto incorpora motores complementarios cuando existe una ventaja técnica clara para un estudio específico, siempre con alcance, versión, madurez y limitaciones explícitos.
+OpenDSS se mantiene como motor principal y por defecto para flujo/distribución dentro del alcance actualmente validado. pandapower 3.5.4 actúa como backend determinista para IEC 60909. Las reglas MCP cubren ampacidad, protecciones y futuras capas de ingeniería.
 
-La profesionalización se apoya en cinco pilares:
+La profesionalización se apoya en:
 
 1. calidad y procedencia de datos;
 2. selección determinista del motor;
 3. validación independiente y CI;
 4. normativa versionada;
-5. representación y reporte reproducibles.
+5. representación y reporte reproducibles;
+6. fail-closed ante datos o evidencia insuficientes.
 
 ## Estados de madurez
 
-Cada módulo declara uno de estos estados:
+Los módulos usan:
 
 - `NOT_IMPLEMENTED`;
 - `EXPERIMENTAL`;
@@ -75,31 +75,28 @@ Cada módulo declara uno de estos estados:
 - `VALIDATED_WITH_LIMITATIONS`;
 - `VALIDATED`.
 
-Un estado `VALIDATED` no elimina la revisión, criterio ni responsabilidad del ingeniero.
+La madurez de un módulo no sustituye la revisión profesional del modelo concreto.
 
 ## Eje transversal V — workspace y representación visual
 
-La evolución visual es permanente. El navegador no recalcula ingeniería; consume resultados preparados por Python/MCP y conserva trazabilidad a revisión, elemento, motor y estudio.
+El navegador no recalcula ingeniería: consume resultados preparados por Python/MCP y conserva trazabilidad a revisión, elemento, motor y estudio.
 
-Base implementada:
+Base consolidada:
 
 - unifilar SVG técnico;
 - workspace persistente;
 - IDs estables;
 - inspector read-only;
 - selección sincronizada;
-- vistas de flujo y caída de tensión;
-- V2 con fuente, transformadores y conductores trazables;
-- V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado y evidencia normativa;
-- **V4 completo para P4-v1** con 3F, 2F y 1F-T MAX/MIN, barras de falla, Rk/Xk, Rk0/Xk0 cuando aplica, motor/versión/madurez y políticas de secuencia visibles.
+- flujo y caída de tensión;
+- V2 con datos profesionales;
+- V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz` y evidencia normativa;
+- V4 de cortocircuito IEC 60909;
+- V5 de protección/TCC con curvas preparadas en Python, ratings, ajustes y resultados P5 vigentes.
 
-La revisión visual humana autorizada del cierre P3 se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`; no sustituye CI, benchmarks ni los checks estructurales.
+La revisión visual humana del cierre P3 se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`; no sustituye CI ni benchmarks.
 
-P4C08 excluye 2F-T de P4-v1, por lo que V4 no fabrica una visualización de un cálculo inexistente. Si 2F-T reingresa en una versión futura, deberá reabrirse su gate visual.
-
-P4C10 no requiere una segunda interfaz: V4 muestra el estado de edición que ya viene preparado por Python. El cambio a `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION` no introduce ningún cálculo normativo en JavaScript.
-
-P4C12 tampoco crea una interfaz nueva: las suites 3F/2F/1F-T exponen la madurez `VALIDATED_WITH_LIMITATIONS` preparada en Python y el mismo workspace V4 la presenta de forma read-only. La siguiente ampliación visual importante corresponde a **V5 — protección/TCC**.
+V5 reutiliza el mismo workspace/unifilar/inspector. No se crea una segunda interfaz y JavaScript no interpola TCC ni calcula protección.
 
 Detalle: `docs/ROADMAP_VISUAL.md`.
 
@@ -107,11 +104,11 @@ Detalle: `docs/ROADMAP_VISUAL.md`.
 
 Reglas vigentes:
 
-1. OpenDSS continúa como motor por defecto para flujo y capacidades de distribución donde sea preferente.
-2. pandapower 3.5.4 es el backend preferente para el módulo IEC 60909 P4-v1, cuya madurez es `VALIDATED_WITH_LIMITATIONS`; la integración pandapower de flujo P1.5 sigue separada y experimental.
-3. ampacidad, reglas de protección-conductor y IEEE 1584 pertenecen a la capa MCP.
-4. la matriz E expone motor, requisitos, madurez y readiness.
-5. datos faltantes o limitaciones del backend se expresan; nunca se sustituyen silenciosamente.
+1. OpenDSS continúa como motor por defecto para flujo y capacidades de distribución donde es preferente.
+2. pandapower 3.5.4 es el backend preferente del módulo IEC 60909 P4-v1.
+3. ampacidad y protección-conductor pertenecen a la capa MCP.
+4. IEEE 1584 pertenecerá a MCP cuando P6 se reactive.
+5. datos faltantes o limitaciones se expresan; nunca se sustituyen silenciosamente.
 6. `automatic_dispatch=false`.
 7. `crosscheck=false`.
 
@@ -119,55 +116,34 @@ La matriz recomienda/selecciona determinísticamente, pero **no despacha automá
 
 Para IEC 60909:
 
-- 3F: `FOUNDATION_READY`;
-- 2F: `FOUNDATION_READY`, con `Z2=Z1` explícita y limitada;
-- 1F-T: `FOUNDATION_READY`, con Z0/C0/neutro explícitos y `Z2=Z1` limitada;
-- 2F-T: `OUT_OF_SCOPE_P4_V1`, reconocida pero `ENGINE_NOT_READY` con código `P4READY804`;
-- edición objetivo: `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`, con `full_conformance_claim=false`;
-- madurez del módulo `iec60909`: `VALIDATED_WITH_LIMITATIONS`;
-- `short_circuit` permanece `UNDER_VALIDATION` y describe únicamente OpenDSS FaultStudy exploratorio.
+- 3F: foundation soportada;
+- 2F: `Z2=Z1` explícita y limitada al alcance simétrico pasivo;
+- 1F-T: Z0/C0/neutro explícitos;
+- 2F-T contractual: fuera de P4-v1, con cualquier extensión futura claramente separada;
+- edición objetivo: `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`;
+- `full_conformance_claim=false`;
+- `iec60909=VALIDATED_WITH_LIMITATIONS`;
+- OpenDSS `short_circuit=UNDER_VALIDATION` como FaultStudy exploratorio.
 
-Detalle: `docs/ENGINE_SELECTION.md`, `docs/P4C08_2FT_SCOPE.md` y `docs/P4C10_IEC60909_2026_REVIEW.md`.
+Detalle: `docs/ENGINE_SELECTION.md` y `docs/P4_IEC60909.md`/documentos P4 asociados.
 
 ## Fase P0 — Gobernanza técnica y QA
 
 **Estado: COMPLETA.**
 
-Entregables:
-
-- matriz de madurez por módulo;
-- `ModelQAService` con `INFO`, `WARNING`, `ERROR`, `BLOCKER`;
-- `auditar_modelo()`;
-- `apto_para_emision` determinístico;
-- reglas QA documentadas y probadas.
+Incluye matriz de madurez, QA determinístico, `auditar_modelo()`, gates y separación entre readiness técnico y emisión.
 
 ## Fase P1 — Flujo de potencia y caída de tensión
 
 **Estado: COMPLETA CON LIMITACIONES (P1 v1).**
 
-Cobertura validada:
-
-- redes radiales trifásicas balanceadas dentro del fixture publicado;
-- referencia analítica independiente de OpenDSS;
-- tensión, corriente, pérdidas y caída de tensión;
-- tolerancias predefinidas y CI.
-
-`power_flow` y `voltage_drop` permanecen `VALIDATED_WITH_LIMITATIONS`, no globalmente `VALIDATED`.
+Cobertura cuantitativa validada en fixtures radiales trifásicos balanceados con referencia independiente. `power_flow` y `voltage_drop` permanecen `VALIDATED_WITH_LIMITATIONS`.
 
 ## Fase P1.5 — Segundo motor pandapower
 
 **Estado: COMPLETA COMO INTEGRACIÓN EXPERIMENTAL.**
 
-Entregables:
-
-- pandapower 3.5.x versionado;
-- `pandapower_engine.py`;
-- tool explícita de flujo;
-- rechazo determinístico de elementos fuera de alcance;
-- benchmark frente a referencia analítica, no contra OpenDSS;
-- sin cross-check automático.
-
-P1.5 no habilita por sí sola IEC 60909; P4 añade contratos y gates propios.
+Incluye pandapower 3.5.x, bridge explícito, rechazo determinístico de incompatibilidades y benchmark independiente. No existe router automático ni cross-check.
 
 ## Fase P2 — Datos de entrada profesionales
 
@@ -175,20 +151,22 @@ P1.5 no habilita por sí sola IEC 60909; P4 añade contratos y gates propios.
 
 Incluye:
 
-- transformadores con kVA, tensiones, grupo vectorial, `%Z`, X/R, taps, pérdidas y procedencia;
-- red equivalente Scc máxima/mínima, X/R, tensión y escenario;
+- transformadores con datos eléctricos/procedencia;
+- red equivalente Scc MAX/MIN y X/R;
 - biblioteca BT/MT trazable;
+- conductor asignado al elemento;
 - R0/X0 explícitos de fuente/líneas;
-- ficha homopolar canónica de transformador;
+- ficha homopolar de transformador;
 - readiness separado de ejecución;
 - workspace V2;
 - gate formal P2.
 
-Reglas relevantes para P4:
+Reglas relevantes:
 
-- R0/X0 no se inventa desde geometrías desconocidas;
+- no se inventa R0/X0;
 - grupo vectorial, neutro y puesta a tierra condicionan Z0;
-- datos suficientes para 3F/2F no implican datos suficientes para fallas a tierra.
+- datos suficientes para 3F/2F no implican suficiencia para fallas a tierra;
+- ampacidad de catálogo todavía no es `Iz` normativo.
 
 Detalle: `docs/P2_EXIT_GATE.md` y `docs/SECUENCIA_CERO_P2.md`.
 
@@ -196,21 +174,23 @@ Detalle: `docs/P2_EXIT_GATE.md` y `docs/SECUENCIA_CERO_P2.md`.
 
 **Estado: COMPLETA CON LIMITACIONES (P3 v1) — P3C01–P3C13 DONE.**
 
-**Gate formal de salida P3 — implementado.** El gate separa cierre de fase, readiness del modelo activo y suficiencia de evidencia normativa; cerrar P3-v1 no equivale a cobertura normativa exhaustiva.
+Gate formal de salida P3 — implementado.
 
-Estado de criterios finales preservado:
+El gate separa cierre de fase, readiness del modelo activo y suficiencia de evidencia normativa.
 
-- `P3C11` — `DONE` — benchmark numérico/dataset y contratos de lookup exacto;
+Criterios preservados:
+
+- `P3C11` — `DONE` — datasets/lookup exacto y contratos finales;
 - `P3C12` — `DONE` — benchmark independiente primario;
-- `P3C13` — `DONE` — cierre de madurez/visual y gate de salida.
+- `P3C13` — `DONE` — cierre de madurez/visual y gate.
 
-La evidencia primaria versionada preservada incluye:
+Evidencia primaria preservada:
 
 - `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`;
 - `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`;
-- para el caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm²: **Iz_base = 229 A**.
+- caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm²: **Iz_base = 229 A**.
 
-La **Tabla 5D** permanece documentada como ruta normativa de correcciones/condiciones donde aplica; no se inventan valores tabulados ausentes.
+La **Tabla 5D** permanece documentada para sus rutas de corrección/condición; no se inventan valores ausentes.
 
 Objetivo térmico:
 
@@ -219,28 +199,16 @@ Ib <= In <= Iz
 Iz = Iz_base * product(k_i)
 ```
 
-Entregables consolidados:
-
-- Ib explícita o corriente de flujo aceptada expresamente;
-- In y referencia;
-- Iz_base mediante evidencia P3B cuando existe coincidencia exacta;
-- factores explícitos/referenciados;
-- router normativo P3A;
-- lookup exacto sin interpolación/extrapolación;
-- evidencia primaria versionada;
-- benchmark independiente y gate formal;
-- V3 read-only;
-- `validation_status.ampacity = VALIDATED_WITH_LIMITATIONS`.
-
 La política sigue:
 
 ```text
 automatic_normative_lookup = false
+professional_emission = false
 ```
 
-Los casos fuera de evidencia exacta continúan fail-closed/manuales y la cobertura puede ampliarse sin reabrir P3-v1.
+Los casos fuera de evidencia exacta continúan fail-closed/manuales.
 
-Documentación canónica preservada:
+Documentación canónica:
 
 - `docs/P3_AMPACIDAD.md`;
 - `docs/P3A_PERFILES_NORMATIVOS.md`;
@@ -252,186 +220,150 @@ Documentación canónica preservada:
 
 **Estado: COMPLETA CON LIMITACIONES (P4 v1) — P4C01–P4C12 DONE.**
 
-### Objetivo normativo y backend
+Objetivo: IEC 60909-0:2026 Ed.3. Backend preferente: pandapower 3.5.4.
 
-- objetivo: **IEC 60909-0:2026, edición 3.0**;
-- backend preferente: pandapower 3.5.4;
-- `automatic_dispatch=false`;
-- `crosscheck=false`;
-- `target_edition_conformance=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`;
-- `full_conformance_claim=false`;
-- `validation_status.iec60909=VALIDATED_WITH_LIMITATIONS`;
-- `validation_status.short_circuit=UNDER_VALIDATION` para OpenDSS FaultStudy exploratorio;
-- `professional_emission=false`.
+```text
+automatic_dispatch=false
+crosscheck=false
+target_edition_conformance=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
+full_conformance_claim=false
+validation_status.iec60909=VALIDATED_WITH_LIMITATIONS
+validation_status.short_circuit=UNDER_VALIDATION
+professional_emission=false
+```
 
-### Alcance P4-v1
+Alcance P4-v1:
 
 ```text
 IN_SCOPE: 3F, 2F, 1F-T
-OUT_OF_SCOPE_P4_V1: 2F-T
+OUT_OF_SCOPE_P4_V1: 2F-T contractual
 ```
 
-#### 3F
+Incluye MAX/MIN, magnitudes soportadas por tipo de falla, secuencia cero explícita para 1F-T, benchmarks independientes y Workspace V4. `ip/Ith` solo se calculan cuando sus requisitos de topología/tiempo/método están declarados.
 
-- MAX/MIN;
-- `Ik''`, `Sk''`, Rk/Xk;
-- `ip/Ith` con topología, `tk_s` y κ explícitos;
-- benchmark P4C09A;
-- V4 P4C11A.
+P4C10 permanece `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`; una verificación integral requiere revisión licenciada futura.
 
-#### 2F
-
-- MAX/MIN;
-- `Ik''`, Rk/Xk;
-- `ip/Ith` con gates explícitos;
-- `Z2=Z1` limitada a red simétrica pasiva;
-- benchmark P4C06;
-- V4 P4C11B;
-- `Sk''` no promocionada contractualmente.
-
-#### 1F-T
-
-- MAX/MIN;
-- `Ik''`, Rk/Xk, Rk0/Xk0;
-- Z0 de fuente preservando R0/X0 absolutos;
-- R0/X0/C0 por línea;
-- Z0 de transformadores + neutro explícito;
-- `Z2=Z1` limitada a red simétrica pasiva;
-- benchmark P4C07 + caso Dyn11;
-- V4 P4C11C;
-- `Sk''/ip/Ith` no promocionadas.
-
-#### 2F-T — P4C08
-
-**Excluida formalmente de P4-v1.** Pandapower 3.5.4 `calc_sc()` no ofrece token directo 2F-T. MCP no la aproxima como 2F/1F-T ni crea un solver paralelo sin validación.
-
-Reingreso futuro requiere backend directo o solver MCP dedicado con benchmark, CI, revisión normativa y V4.
-
-### P4C09 — validación independiente
-
-**DONE para el alcance P4-v1:**
-
-- 3F → P4C09A PASS;
-- 2F → P4C06 PASS;
-- 1F-T → P4C07 PASS;
-- 2F-T → no requerida por estar formalmente fuera de alcance.
-
-### P4C10 — revisión específica IEC 60909-0:2026
-
-**DONE CON LIMITACIONES EXPLÍCITAS.**
-
-La revisión se registra como:
-
-```text
-REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION
-full_conformance_claim = false
-```
-
-P4C10 contrastó la edición objetivo con metadata oficial, evidencia pública de la edición final y fuente/documentación pinneada de pandapower 3.5.4. La edición 2026 declara una revisión técnica con especial actualización/reestructuración del Capítulo 6 de modelado de equipos; por eso no se usa `VERIFIED_AGAINST_TARGET_EDITION` sin una futura trazabilidad ecuación/tabla contra el texto completo licenciado.
-
-Los equipos y magnitudes fuera de P4-v1 permanecen explícitos: generadores/motores, convertidores, FACTS/HVDC, 2F-T, `Ib`, `Ik` y `ip/Ith` 1F-T donde no existe ruta validada.
-
-Detalle: `docs/P4C10_IEC60909_2026_REVIEW.md`.
-
-### P4C11 — Workspace V4
-
-**DONE para el alcance P4-v1:**
-
-- P4C11A 3F;
-- P4C11B 2F;
-- P4C11C 1F-T;
-- coexistencia de los tres estudios en la misma pestaña/unifilar;
-- JavaScript sin cálculo eléctrico;
-- estado de revisión 2026 visible desde el payload Python.
-
-### P4C12 — madurez final
-
-**DONE: `VALIDATED_WITH_LIMITATIONS`.**
-
-El cierre se aplica exclusivamente al módulo `iec60909`. El `short_circuit` exploratorio de OpenDSS permanece `UNDER_VALIDATION`; por tanto el gate no convierte automáticamente todo estudio de cortocircuito en validado.
-
-P4C12 exige simultáneamente: target 2026 versionado, backend/políticas deterministas, alcance cerrado, benchmark independiente de cada falla incluida, V4 completo, P4C10 cerrado con limitaciones explícitas, contratos fail-closed y `professional_emission=false`.
-
-### Siguiente bloque
-
-**P5 — protección del conductor y coordinación/TCC.** P4 habilita el inicio de P5, pero no crea dispositivos, curvas, ajustes ni tiempos de despeje por sí solo.
-
-Detalle: `docs/P4_IEC60909.md`.
+Detalle: `docs/P4_IEC60909.md` y documentos P4 específicos.
 
 ## Fase P5 — Protección del conductor y coordinación
 
-**Estado: DESBLOQUEADA — FASE PRINCIPAL ACTIVA.**
+**Estado: ACTIVA — P5A–P5E DONE; P5F EN CIERRE; P5G NEXT.**
 
-Entregables previstos:
+Cobertura implementada:
 
-- biblioteca comercial trazable;
-- Icu/Ics/Icw;
-- Ir/Isd/Ii;
-- curvas TCC;
-- sobrecarga y cortocircuito del conductor;
-- `I²t <= k²S²`;
-- tiempos de despeje;
-- selectividad/backup;
-- V5 con panel TCC.
+### P5A — datos canónicos
 
-El `tk_s` actual de P4 no sustituye P5: debe vincularse a dispositivos/curvas reales. El primer bloque P5 debe definir el contrato de datos de protección y la estrategia de curvas antes de habilitar coordinación o tiempos de despeje profesionales.
+- interruptores y fusibles;
+- In/Ue y ratings propios;
+- Ir/Isd/Ii absolutos;
+- procedencia;
+- binding con elemento;
+- comparación In P3/P5 sin sobreescritura.
+
+### P5B — TCC
+
+- datasets `SINGLE`/`BAND`;
+- segmentos explícitos;
+- `LOG_LOG_LINEAR` dentro del segmento;
+- sin extrapolación;
+- sin unión entre discontinuidades;
+- semántica de tiempo explícita;
+- no se sintetizan curvas.
+
+### P5C — checks
+
+- capacidad de corte declarada;
+- breaker PASS con Icu, sin sustituir Ics/Icw;
+- fusible con breaking capacity propia;
+- `I²t <= k²S²` con `k`, sección y tiempo explícitos;
+- binding de sección contra conductor P2 cuando existe.
+
+### P5D — clearing time
+
+Solo `TOTAL_CLEARING_TIME` se promueve automáticamente a `CLEARING_TIME_READY`. Bandas conservan min/max; no se promedian. P4 `tk_s` nunca se usa como fallback.
+
+### P5E — coordinación temporal
+
+Compara downstream/upstream explícitos y usa:
+
+```text
+conservative_margin = upstream_time_min - downstream_time_max
+```
+
+Un PASS significa `TEMPORAL_POINT_COORDINATION`; no declara selectividad total/parcial, selectividad energética, backup o cascading.
+
+### P5F — Workspace V5
+
+Mismo workspace persistente, con panel Protecciones/TCC, ratings, ajustes, curvas SVG y resultados P5 de la revisión vigente. Las coordenadas de curva se preparan en Python; JavaScript solo navega/selecciona.
+
+### P5G — siguiente gate
+
+Debe consolidar benchmarks/regresiones, completion gate y readiness para uso interno. El objetivo de cierre no es `professional_emission=true`, sino un estado explícito de **Engineering Preview ready with limitations**.
+
+Detalle: `docs/P5_PROTECTION_TCC.md` y `docs/VALIDACIONES_PENDIENTES.md`.
 
 ## Fase P6 — Arc Flash IEEE 1584
 
-**Estado: PENDIENTE.**
+**Estado: DEFERRED — PAUSADA POR DECISIÓN DE PRODUCTO.**
 
-Entregables previstos:
+P6 no se elimina. Se retomará después de la Engineering Preview y deberá consumir automáticamente, cuando corresponda, corriente de falla P4 y clearing time P5 trazables.
 
-- configuraciones de electrodos;
-- gap, enclosure y working distance;
-- Iarc e Iarc_min;
-- tiempo de despeje desde P5;
+Futuro alcance:
+
+- configuración de electrodos;
+- gap/enclosure/working distance;
+- Iarc/Iarc_min;
+- clearing time P5;
 - energía incidente;
 - arc-flash boundary;
 - benchmark independiente;
-- V6 Arc Flash.
+- V6.
 
-Lee permanece separado como método experimental/histórico.
+Lee permanece separado como método simplificado/experimental y no sustituye IEEE 1584.
 
 ## Fase P7 — Expediente reproducible
 
-**Estado: PENDIENTE.**
+**Estado: NEXT AFTER P5G — ALCANCE MÍNIMO OPERACIONAL.**
 
-Paquete previsto:
+P7 debe priorizar que el trabajo pueda guardarse, reconstruirse y revisarse:
 
-- `report.pdf`;
-- `model.json`;
-- export DSS;
-- `sources.json`;
-- `assumptions.json`;
+- modelo/export DSS;
+- identificación de `model_revision`;
+- resultados reproducibles;
+- fuentes y versiones;
+- assumptions/warnings/limitations;
 - matriz de validación;
 - QA;
-- versiones de motores/bibliotecas;
-- SHA-256;
-- salida vectorial reportable.
+- resumen de estudios;
+- HTML/PDF razonable;
+- hashes cuando corresponda.
 
-## Fase P8 — Release profesional 1.0
+No requiere terminar P6 para iniciar uso interno.
+
+## Fase P8 — Engineering Preview 0.9 y camino a 1.0
 
 **Estado: PENDIENTE.**
 
-Criterios mínimos:
+Objetivo inmediato: **MCP Eléctrico 0.9 — Engineering Preview**, para uso interno/controlado en proyectos reales.
 
-- P0 completa;
-- P1 validada dentro de alcance;
-- QA bloqueante;
-- P2 cerrada;
-- P3 validada dentro de alcance;
-- P4 IEC 60909 validado dentro de alcance;
-- P5 protección-conductor;
-- P7 expediente reproducible;
-- documentación de límites;
-- CI con benchmarks;
-- workspace coherente con los estudios incluidos.
+Alcance esperado previo al preview:
 
-Arc Flash puede entrar en 1.0 o posteriormente, pero nunca se presentará como IEEE 1584 antes de cerrar P6.
+- flujo y caída de tensión;
+- datos profesionales fuente/transformador/conductor;
+- `Ib <= In <= Iz`;
+- IEC 60909 dentro de alcance;
+- protección y capacidad de corte;
+- soportabilidad térmica;
+- TCC y clearing time;
+- coordinación temporal puntual;
+- Workspace V5;
+- expediente/reproducibilidad mínima P7;
+- límites y procedencia visibles.
+
+La experiencia con proyectos reales alimentará el endurecimiento de P7/P8. Después podrá reactivarse P6 y ampliar el workspace hasta una futura **1.0 profesional**.
+
+`professional_emission=false` sigue siendo distinto de “usable internamente”. La emisión profesional solo se habilitará cuando los gates normativos, benchmarks, QA y revisión requeridos estén cerrados legítimamente.
 
 ## Regla de emisión
 
-`apto_para_emision=true` significa únicamente que el modelo supera los chequeos automáticos de los estudios solicitados y que los módulos requeridos tienen un estado de validación aceptable.
-
-No significa que el software asuma responsabilidad profesional ni sustituye la revisión, criterio, firma o colegiatura del ingeniero responsable.
+`apto_para_emision=true` significa únicamente que un modelo supera los chequeos automáticos requeridos y que los módulos exigidos poseen una madurez aceptable para ese propósito. No significa que el software asuma responsabilidad ni sustituye revisión, criterio, firma o colegiatura del ingeniero responsable.

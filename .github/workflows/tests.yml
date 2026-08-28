@@ -88,8 +88,12 @@ jobs:
           grep -q 'data-element-id="Line.f_motor"' workspace_hospital.html
           grep -q 'data-tab="flujo"' workspace_hospital.html
           grep -q 'data-tab="caida"' workspace_hospital.html
+          grep -q 'data-tab="protecciones"' workspace_hospital.html
           grep -q 'id="panel-flujo"' workspace_hospital.html
           grep -q 'id="panel-caida"' workspace_hospital.html
+          grep -q 'id="panel-protecciones"' workspace_hospital.html
+          grep -q "MCP-P5-PROTECTION-V5" workspace_hospital.html
+          grep -q 'data-module="mcp-p5-protection-v5"' workspace_hospital.html
           grep -q "Criterio configurable" workspace_hospital.html
           grep -q '"voltage_drop"' workspace_hospital.html
           grep -q '"flow"' workspace_hospital.html

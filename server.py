@@ -22,7 +22,7 @@ from mcp_electrico import (
     visual_state,
     workspace,
     workspace_state,
-    workspace_v4,
+    workspace_v5,
 )
 from mcp_electrico.visualization import generar_diagrama_unifilar as _generar_unifilar
 
@@ -36,12 +36,12 @@ mcp = _MCPServerClass("opendss-mcp")
 
 
 def _enhance_workspace_if_present() -> dict:
-    """Añade las vistas de estudios V3/V4 después de regenerar el HTML base."""
+    """Añade incrementalmente las vistas V3/V4/V5 al mismo workspace."""
     state = workspace.get_state()
     path = Path(state["config"]["ruta_salida"]).expanduser()
     if not path.exists():
         return {"ok": True, "skipped": True, "reason": "workspace aún no generado"}
-    return workspace_v4.enhance_file(path, workspace_state.snapshot())
+    return workspace_v5.enhance_file(path, workspace_state.snapshot())
 
 
 def _regenerate_workspace() -> dict:
@@ -55,6 +55,12 @@ def _record_flow(flow: dict, action: str) -> None:
     """Registra solución base + métricas detalladas en la misma revisión."""
     workspace_state.record_solution(flow["powerflow"], "powerflow", action=action)
     workspace_state.record_study("flow", flow, action=f"{action}:detalle")
+
+
+def _record_professional_study(name: str, result: dict, action: str) -> None:
+    """Registra resultados P5 read-only y refresca V5 sin mutar el modelo."""
+    workspace_state.record_study(name, result, action=action)
+    _regenerate_workspace()
 
 
 def _refresh_after_model_change(action: str) -> None:
@@ -254,7 +260,6 @@ def ejecutar_flujo_potencia() -> dict:
     flow = studies.analizar_flujo_operacion()
     _record_flow(flow, "ejecutar_flujo_potencia")
     _regenerate_workspace()
-    # Compatibilidad: esta tool conserva el payload histórico de powerflow.
     return flow["powerflow"]
 
 
@@ -332,7 +337,7 @@ def ejecutar_cortocircuito_iec60909_3ph(
     No hay despacho automático ni cross-check. El escenario MIN conserva la
     exigencia de ``endtemp_degree`` explícita por línea y ``ip/Ith`` solo se
     calculan con topología, tiempo de despeje y método κ declarados. El estudio
-    se registra en V4, pero ``professional_emission`` permanece en false.
+    se registra en V5/V4, pero ``professional_emission`` permanece en false.
     """
     result = iec60909_suite.ejecutar_3ph_max_min(
         bus=bus_falla,
@@ -363,7 +368,7 @@ def ejecutar_cortocircuito_iec60909_2ph(
     La falla es fase-fase sin tierra. P4C06 declara Z2=Z1 solo para la red
     simétrica pasiva actualmente soportada; no es un supuesto universal. MIN
     exige ``endtemp_degree`` explícita por línea e ip/Ith conservan los mismos
-    gates de topología/tiempo/método κ. El resultado se registra en V4 sin
+    gates de topología/tiempo/método κ. El resultado se registra en V5/V4 sin
     habilitar emisión profesional.
     """
     result = iec60909_two_phase_suite.ejecutar_2ph_max_min(
@@ -481,7 +486,11 @@ def calcular_arc_flash(
     )
 
 
-professional_tools.register(mcp, _refresh_after_model_change)
+professional_tools.register(
+    mcp,
+    _refresh_after_model_change,
+    _record_professional_study,
+)
 conductor_tools.register(mcp, _refresh_after_model_change)
 
 

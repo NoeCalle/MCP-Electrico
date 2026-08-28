@@ -5,10 +5,15 @@ from __future__ import annotations
 from . import protection_curves
 
 
-def register(mcp, on_model_change=None) -> None:
+def register(mcp, on_model_change=None, on_result=None) -> None:
     def changed(action: str) -> None:
         if on_model_change is not None:
             on_model_change(action)
+
+    def recorded(name: str, result: dict, action: str) -> dict:
+        if on_result is not None:
+            on_result(name, result, action)
+        return result
 
     @mcp.tool()
     def registrar_dataset_curva_tcc_p5b(
@@ -50,8 +55,18 @@ def register(mcp, on_model_change=None) -> None:
     @mcp.tool()
     def evaluar_curva_tcc_p5b(dispositivo: str, current_a: float) -> dict:
         """Evalúa la curva vinculada solo dentro del dominio publicado."""
-        return protection_curves.evaluar_dispositivo(dispositivo, current_a)
+        result = protection_curves.evaluar_dispositivo(dispositivo, current_a)
+        return recorded(
+            "protection_tcc_evaluation",
+            result,
+            f"evaluar_curva_tcc_p5b:{dispositivo}",
+        )
 
     @mcp.tool()
     def evaluar_dataset_tcc_p5b(dataset_id: str, current_a: float) -> dict:
-        return protection_curves.evaluar_dataset(dataset_id, current_a)
+        result = protection_curves.evaluar_dataset(dataset_id, current_a)
+        return recorded(
+            "protection_tcc_evaluation",
+            result,
+            f"evaluar_dataset_tcc_p5b:{dataset_id}",
+        )

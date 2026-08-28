@@ -20,7 +20,7 @@ from . import (
 )
 
 
-def register(mcp, on_model_change=None) -> None:
+def register(mcp, on_model_change=None, on_study_result=None) -> None:
     # Endurece las rutas públicas existentes: reinicio completo de estado en
     # Circuit nuevo y preflight Z0 para FaultStudy.
     runtime_safety.install()
@@ -28,6 +28,10 @@ def register(mcp, on_model_change=None) -> None:
     def changed(action: str) -> None:
         if on_model_change is not None:
             on_model_change(action)
+
+    def study_result(name: str, result: dict, action: str) -> None:
+        if on_study_result is not None:
+            on_study_result(name, result, action)
 
     @mcp.tool()
     def obtener_matriz_validacion() -> dict:
@@ -254,10 +258,15 @@ def register(mcp, on_model_change=None) -> None:
 
     # P3, P4 y P5 conservan registros separados. Cada mutación P5 que cambie
     # el modelo de protección invalida estudios posteriores vía on_model_change.
+    # Las evaluaciones read-only P5 se registran por separado en workspace_state.
     ampacity_tools.register(mcp)
     iec60909_tools.register(mcp)
     protection_tools.register(mcp, on_model_change=changed)
-    protection_tcc_tools.register(mcp, on_model_change=changed)
-    protection_check_tools.register(mcp)
-    protection_clearing_tools.register(mcp)
-    protection_coordination_tools.register(mcp)
+    protection_tcc_tools.register(
+        mcp,
+        on_model_change=changed,
+        on_result=study_result,
+    )
+    protection_check_tools.register(mcp, on_result=study_result)
+    protection_clearing_tools.register(mcp, on_result=study_result)
+    protection_coordination_tools.register(mcp, on_result=study_result)
