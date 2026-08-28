@@ -10,8 +10,8 @@ P7 no cambia la madurez de P1–P5 ni habilita emisión profesional. Su finalida
 
 ```text
 P7A  snapshot canónico + SHA-256                DONE / EXPERIMENTAL
-P7B  reconstrucción verificable del netlist     ACTIVE / EXPERIMENTAL
-P7C  resumen técnico HTML/PDF reproducible      NEXT AFTER P7B
+P7B  reconstrucción verificable del netlist     DONE / EXPERIMENTAL
+P7C  resumen técnico HTML/PDF reproducible      NEXT / ACTIVE HANDOFF
 P7D  gate mínimo Engineering Preview 0.9         PENDING
 
 P6 IEEE 1584 = DEFERRED
@@ -228,7 +228,7 @@ reconstruir_archivo_proyecto_p7b
 
 ## Gate P7B
 
-Para cerrar P7B CI debe demostrar al menos:
+P7B se cierra exigiendo en CI:
 
 1. hash válido obligatorio antes de escribir;
 2. round-trip canónico real `true`;
