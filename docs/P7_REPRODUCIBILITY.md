@@ -9,9 +9,9 @@ P7 no cambia la madurez de P1–P5 ni habilita emisión profesional. Su finalida
 ## Roadmap P7
 
 ```text
-P7A  snapshot canónico + SHA-256                ACTIVE / EXPERIMENTAL
-P7B  importación y reconstrucción verificable   NEXT
-P7C  resumen técnico HTML/PDF reproducible      PENDING
+P7A  snapshot canónico + SHA-256                DONE / EXPERIMENTAL
+P7B  reconstrucción verificable del netlist     ACTIVE / EXPERIMENTAL
+P7C  resumen técnico HTML/PDF reproducible      NEXT AFTER P7B
 P7D  gate mínimo Engineering Preview 0.9         PENDING
 
 P6 IEEE 1584 = DEFERRED
@@ -33,52 +33,17 @@ Schema:
 MCP_ELECTRICO_P7A_PROJECT_SNAPSHOT_V1
 ```
 
-## Contenido congelado
+El snapshot congela:
 
-El snapshot incluye:
-
-### Modelo eléctrico
-
-El circuito OpenDSS se exporta a DSS y se guarda en el JSON por:
-
-```text
-file.name
-file.content
-```
-
-Las rutas locales no forman parte del snapshot canónico.
-
-### Revisión del workspace
-
-Se preservan:
-
-- `model_revision`;
-- `visual_revision`;
-- modelo estructurado del workspace;
-- registro de estudios y su validez respecto de la revisión;
-- configuración visual relevante.
-
-### Datos de ingeniería
-
-Se incluyen snapshots estructurados de:
-
-```text
-P2 professional_data
-P2 zero_sequence
-P3 ampacity
-P5 protection_data
-P5 numeric TCC datasets
-```
-
-### Gobernanza
-
-Se incluyen:
-
-- matriz de validación;
-- limitaciones declaradas por módulo;
+- netlist OpenDSS por `file.name` + `file.content`;
+- revisión y estado del workspace;
+- P2 profesional y secuencia cero;
+- P3 ampacidad;
+- P5 protección y datasets TCC;
+- estudios registrados como evidencia;
+- matriz de validación y limitaciones;
 - gate P5;
-- matriz de selección de motores;
-- versiones runtime disponibles;
+- selección y versiones de motores;
 - `automatic_dispatch=false`;
 - `crosscheck=false`;
 - `professional_emission=false`.
@@ -92,56 +57,32 @@ algorithm = sha256
 scope = canonical_payload_without_export_paths_or_transient_timestamps
 ```
 
-El JSON canónico usado para el digest aplica:
+El JSON canónico usa claves ordenadas, separadores compactos y `allow_nan=false`.
 
-```text
-sort_keys = true
-separators = compact
-allow_nan = false
-```
-
-Se excluyen del contenido hasheado únicamente datos transitorios que impedirían reproducibilidad sin representar un cambio de ingeniería:
+Se excluyen únicamente datos transitorios que no representan un cambio de ingeniería:
 
 ```text
 last_update
 recorded_at
-rutas del directorio temporal de Save Circuit
+rutas temporales de Save Circuit
 timestamp automático del comentario "Last saved by ..." de Master.dss
 ```
 
-`Save Circuit` de AltDSS/DSS C-API escribe en `Master.dss` un comentario con el instante exacto de guardado. P7A conserva la versión/revisión del motor y todo el contenido del netlist, pero sustituye **solo el timestamp final de ese comentario** por:
+AltDSS/DSS C-API inserta ese timestamp en `Master.dss`. P7A conserva la versión/revisión del motor y todo el contenido eléctrico, sustituyendo solo el instante final por:
 
 ```text
 <P7A_TRANSIENT_TIMESTAMP_REMOVED>
 ```
 
-No se eliminan comentarios DSS de forma genérica ni se normalizan valores eléctricos. El snapshot declara esta operación en `netlist.canonicalization`.
+No se eliminan comentarios DSS genéricamente ni se normalizan valores eléctricos.
 
-Por ello, dos exportaciones consecutivas del **mismo estado de ingeniería** deben producir el mismo SHA-256 aunque usen directorios temporales distintos o se guarden en instantes diferentes.
+Dos exportaciones consecutivas del mismo estado producen el mismo SHA-256; un cambio del modelo, datos estructurados, estudios o gobernanza incluidos modifica el hash.
 
-Un cambio del modelo, de los datos estructurados, de un estudio registrado o de la gobernanza incluida debe modificar el hash.
+## Verificación y política de archivos
 
-## Verificación
+`verificar_snapshot_proyecto_p7a()` devuelve `HASH_MATCH` o `HASH_MISMATCH` sin reconstruir el modelo.
 
-`verificar_snapshot_proyecto_p7a()` recalcula el SHA-256 del payload y devuelve:
-
-```text
-HASH_MATCH
-```
-
-o:
-
-```text
-HASH_MISMATCH
-```
-
-Esta verificación **no reconstruye** ni ejecuta el proyecto. La reconstrucción pertenece a P7B.
-
-## Política de archivos
-
-`exportar_snapshot_proyecto_p7a()` no sobrescribe una exportación previa.
-
-Ejemplo:
+`exportar_snapshot_proyecto_p7a()` nunca sobrescribe una exportación previa:
 
 ```text
 project.json
@@ -149,9 +90,7 @@ project_2.json
 project_3.json
 ```
 
-La ruta de salida se devuelve como conveniencia operacional pero no forma parte del hash del contenido.
-
-## Tools públicas P7A
+Tools P7A:
 
 ```text
 construir_snapshot_proyecto_p7a
@@ -159,47 +98,165 @@ exportar_snapshot_proyecto_p7a
 verificar_snapshot_proyecto_p7a
 ```
 
-No existe todavía una tool `importar` o `reconstruir` en P7A.
-
-## Gate P7A
-
-P7A puede considerarse cerrado cuando CI demuestre al menos:
+CI ya demuestra:
 
 1. mismo estado + directorios distintos => mismo hash;
 2. cambio de modelo => hash distinto;
-3. tampering del JSON => `HASH_MISMATCH`;
-4. exportación no sobrescribe el archivo previo;
-5. netlist guardado por contenido y sin ruta temporal;
-6. timestamp automático de `Master.dss` canonizado sin alterar datos eléctricos;
+3. tampering => `HASH_MISMATCH`;
+4. no-overwrite;
+5. netlist por contenido y sin ruta temporal;
+6. timestamp Save Circuit canonizado sin alterar datos eléctricos;
 7. P2/P3/P5 + gobernanza presentes;
 8. `reproducible_project=EXPERIMENTAL`;
 9. `professional_report=NOT_IMPLEMENTED`;
 10. `engineering_preview_ready=false`;
 11. `professional_emission=false`.
 
-## Lo que P7A todavía no afirma
+# P7B — reconstrucción verificable del netlist
+
+Implementación:
+
+- `mcp_electrico.project_reconstruction`;
+- `mcp_electrico.project_reconstruction_tools`;
+- `validation_status.project_reconstruction = EXPERIMENTAL`.
+
+Schema:
 
 ```text
-reconstruction_import = NOT_IMPLEMENTED_P7A
-professional_report   = NOT_IMPLEMENTED_P7A
-engineering_preview_ready = false
-professional_emission = false
+MCP_ELECTRICO_P7B_RECONSTRUCTION_V1
 ```
 
-P7A es un **checkpoint verificable del estado estudiado**, no un expediente profesional firmado.
+## Secuencia fail-closed
 
-# P7B — siguiente
+P7B aplica este orden:
 
-P7B deberá demostrar que un snapshot P7A puede reconstruirse sin completar datos silenciosamente.
+```text
+verificar SHA-256 P7A
+        ↓
+validar netlist y nombres DSS
+        ↓
+materializar en directorio nuevo
+        ↓
+Compile Master.dss
+        ↓
+limpiar estados MCP heredados
+        ↓
+Save Circuit nuevamente
+        ↓
+canonización P7A
+        ↓
+comparación archivo por archivo
+```
 
-Como mínimo deberá:
+### Integridad antes de escribir
 
-- verificar hash antes de importar;
-- reconstruir el netlist DSS desde `name/content`;
-- cargar un circuito nuevo aislado del anterior;
-- restaurar estados estructurados que sean técnicamente restaurables;
-- distinguir datos restaurados de resultados que deben recalcularse;
-- verificar que el modelo reconstruido produzca un snapshot equivalente dentro de un alcance canónico definido;
-- fallar cerrado si faltan archivos, cambia el schema o el hash no coincide.
+Si el hash P7A no coincide:
 
-No se asumirán resultados eléctricos antiguos como vigentes solo porque existan en el JSON.
+```text
+status = BLOCKED_SNAPSHOT_INTEGRITY
+write_performed = false
+compile_performed = false
+```
+
+El circuito activo previo permanece intacto.
+
+### Seguridad de archivos
+
+P7B-v1 acepta únicamente nombres `.dss` planos. Bloquea:
+
+- rutas absolutas;
+- `..`;
+- `/` o `\` dentro del nombre;
+- nombres duplicados sin distinguir mayúsculas/minúsculas;
+- `file_count` inconsistente;
+- ausencia de `Master.dss`.
+
+La validación ocurre antes de crear el directorio destino.
+
+### Round-trip fuerte
+
+Después de `Compile`, P7B vuelve a ejecutar `Save Circuit` sobre el modelo reconstruido y usa exactamente la misma canonización P7A.
+
+Solo declara:
+
+```text
+RESTORED_VERIFIED
+```
+
+si el netlist canónico completo coincide archivo por archivo.
+
+Si existe una diferencia:
+
+```text
+status = RECONSTRUCTION_ROUNDTRIP_MISMATCH
+netlist = RESTORED_MISMATCH_CLEARED
+```
+
+y el circuito no verificado se limpia para que no quede disponible accidentalmente.
+
+## Estados que NO se restauran automáticamente
+
+El netlist OpenDSS y los estados estructurados MCP se tratan por separado.
+
+P7B-v1 deja explícitamente:
+
+```text
+professional_p2   = NOT_RESTORED_REQUIRES_REBIND
+zero_sequence_p2  = NOT_RESTORED_REQUIRES_REBIND
+ampacity_p3       = NOT_RESTORED_REQUIRES_REBIND
+protection_p5     = NOT_RESTORED_REQUIRES_REBIND
+tcc_datasets_p5   = NOT_RESTORED_REQUIRES_REBIND
+workspace_visual  = NOT_RESTORED
+studies           = NOT_RESTORED_REQUIRES_RECALCULATION
+```
+
+Por tanto:
+
+```text
+stored_results_promoted_to_current = false
+```
+
+Un estudio almacenado en P7A es evidencia histórica del snapshot; no vuelve a ser vigente solo porque el modelo DSS pueda reconstruirse.
+
+## Tools P7B
+
+```text
+obtener_contrato_reconstruccion_p7b
+reconstruir_snapshot_proyecto_p7b
+reconstruir_archivo_proyecto_p7b
+```
+
+## Gate P7B
+
+Para cerrar P7B CI debe demostrar al menos:
+
+1. hash válido obligatorio antes de escribir;
+2. round-trip canónico real `true`;
+3. tampering bloqueado sin tocar el circuito previo;
+4. path traversal bloqueado antes de escribir;
+5. master ausente/inconsistente bloqueado;
+6. mismatch de round-trip limpiado;
+7. estudios históricos no promovidos;
+8. `project_reconstruction=EXPERIMENTAL`;
+9. `professional_report=NOT_IMPLEMENTED`;
+10. `engineering_preview_ready=false`;
+11. `professional_emission=false`.
+
+# P7C — siguiente
+
+P7C deberá convertir el snapshot verificable en un **resumen técnico reproducible HTML/PDF** consumiendo únicamente datos ya preparados por Python/MCP.
+
+Como mínimo deberá incluir:
+
+- identificación del proyecto y hash P7A;
+- revisión del modelo;
+- motores/versiones usados;
+- fuentes y procedencia;
+- resultados vigentes claramente separados de resultados obsoletos/no recalculados;
+- estado de madurez de cada módulo;
+- warnings y limitaciones;
+- unifilar/workspace apto para impresión;
+- P3, P4 y P5 cuando existan resultados vigentes;
+- `professional_emission=false`.
+
+P7C no debe recalcular ingeniería en HTML/JavaScript y reutilizará el mismo workspace visual.
