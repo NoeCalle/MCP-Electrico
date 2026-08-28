@@ -56,6 +56,14 @@ def obtener_contrato_p7b() -> dict[str, Any]:
     }
 
 
+def _active_circuit_name() -> str:
+    """Devuelve el circuito activo sin convertir un estado vacío en excepción."""
+    try:
+        return str(dss.Circuit.Name() or "")
+    except Exception:
+        return ""
+
+
 def _safe_target_dir(path: str | Path) -> Path:
     requested = Path(path).expanduser().resolve()
     target = requested
@@ -194,7 +202,7 @@ def reconstruir_snapshot(
         }
 
     verification = project_snapshot.verificar_snapshot(snapshot)
-    previous_circuit = str(dss.Circuit.Name() or "")
+    previous_circuit = _active_circuit_name()
     if not verification.get("ok"):
         result = _base_result("BLOCKED_SNAPSHOT_INTEGRITY", snapshot, verification)
         result["previous_circuit"] = previous_circuit
@@ -218,7 +226,7 @@ def reconstruir_snapshot(
     try:
         dss("Clear")
         dss(f'Compile "{master}"')
-        reconstructed_circuit = str(dss.Circuit.Name() or "").strip()
+        reconstructed_circuit = _active_circuit_name().strip()
         if not reconstructed_circuit:
             raise RuntimeError("P7B030: Compile no produjo un circuito activo.")
         _reset_structured_state("p7b_reconstructed_netlist")
@@ -244,7 +252,7 @@ def reconstruir_snapshot(
                 "write_performed": True,
                 "compile_performed": True,
                 "roundtrip": roundtrip_info,
-                "active_circuit_after_failure": str(dss.Circuit.Name() or ""),
+                "active_circuit_after_failure": _active_circuit_name(),
             })
             result["restoration"]["netlist"] = "RESTORED_MISMATCH_CLEARED"
             return result
@@ -276,7 +284,7 @@ def reconstruir_snapshot(
             "write_performed": True,
             "compile_performed": True,
             "error": str(exc),
-            "active_circuit_after_failure": str(dss.Circuit.Name() or ""),
+            "active_circuit_after_failure": _active_circuit_name(),
         })
         return result
 
