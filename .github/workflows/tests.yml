@@ -106,6 +106,20 @@ jobs:
         with:
           name: mcp-electrico-project-p7a
           path: project_p7a.json
+      - name: Reconstruct and verify P7B project netlist
+        run: |
+          python examples/reconstruct_project_p7b.py --output reconstruction_p7b.json --source-netlist p7b_ci_source_dss --reconstructed p7b_ci_reconstructed
+          test -s reconstruction_p7b.json
+          grep -q '"status": "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"' reconstruction_p7b.json
+          grep -q '"canonical_netlist_match": true' reconstruction_p7b.json
+          grep -q '"stored_results_promoted_to_current": false' reconstruction_p7b.json
+          grep -q '"engineering_preview_ready": false' reconstruction_p7b.json
+          grep -q '"professional_emission": false' reconstruction_p7b.json
+      - name: Upload P7B reconstruction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-reconstruction-p7b
+          path: reconstruction_p7b.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
