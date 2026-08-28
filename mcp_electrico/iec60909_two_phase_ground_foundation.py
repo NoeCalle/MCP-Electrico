@@ -9,6 +9,7 @@ Alcance inicial deliberado:
 - falla franca b-c-tierra, Zf = 0;
 - red simétrica pasiva: Z2 = Z1 explícito;
 - fuente de secuencia positiva E1 explícita;
+- impedancias Thevenin pasivas con R>=0, X>=0 y |Z|>0;
 - no genera Sk'', ip, Ith, Ib ni Ik permanentes;
 - professional_emission = false.
 """
@@ -40,6 +41,17 @@ def _complex_value(real: float, imag: float, *, code: str, label: str) -> comple
     return complex(r, x)
 
 
+def _passive_sequence_impedance(real: float, imag: float, *, code: str, label: str) -> complex:
+    value = _complex_value(real, imag, code=code, label=label)
+    if value.real < 0 or value.imag < 0:
+        raise ValueError(
+            f"{code}: {label} queda fuera del alcance pasivo P4-v1.1A; se requiere R>=0 y X>=0."
+        )
+    if abs(value) == 0:
+        raise ValueError(f"{code}: {label} no puede ser cero.")
+    return value
+
+
 def _polar(value: complex) -> dict[str, float]:
     return {
         "real": float(value.real),
@@ -69,9 +81,9 @@ def resolver_2ph_ground_bolted(
         I2 = -I1 * Z0/(Z2+Z0)
         I0 = -I1 * Z2/(Z2+Z0)
 
-    Las corrientes de fase se reconstruyen mediante la transformación de
-    componentes simétricas. Ia debe resultar aproximadamente cero para una
-    falla b-c-tierra ideal.
+    Las corrientes y tensiones de fase se reconstruyen mediante componentes
+    simétricas. Para una falla b-c-tierra franca deben cumplirse Ia≈0,
+    Vb≈0 y Vc≈0, además de I0+I1+I2≈0 en el nodo de falla.
     """
     try:
         e1 = float(e1_v)
@@ -80,14 +92,10 @@ def resolver_2ph_ground_bolted(
     if not isfinite(e1) or e1 <= 0:
         raise ValueError("P4V11A001: e1_v debe ser finito y >0.")
 
-    z1 = _complex_value(r1_ohm, x1_ohm, code="P4V11A002", label="Z1")
-    z0 = _complex_value(r0_ohm, x0_ohm, code="P4V11A003", label="Z0")
-    if abs(z1) == 0:
-        raise ValueError("P4V11A004: Z1 no puede ser cero.")
-    if abs(z0) == 0:
-        raise ValueError("P4V11A005: Z0 no puede ser cero en P4-v1.1A.")
-
+    z1 = _passive_sequence_impedance(r1_ohm, x1_ohm, code="P4V11A002", label="Z1")
+    z0 = _passive_sequence_impedance(r0_ohm, x0_ohm, code="P4V11A003", label="Z0")
     z2 = z1
+
     denominator_parallel = z2 + z0
     if abs(denominator_parallel) == 0:
         raise ValueError("P4V11A006: Z2+Z0 produce singularidad en la conexión de secuencias.")
@@ -101,11 +109,25 @@ def resolver_2ph_ground_bolted(
     i2 = -i1 * z0 / denominator_parallel
     i0 = -i1 * z2 / denominator_parallel
 
+    # Tensiones de secuencia en el punto de falla.
+    v1 = complex(e1, 0.0) - z1 * i1
+    v2 = -z2 * i2
+    v0 = -z0 * i0
+
     a = complex(-0.5, 3.0**0.5 / 2.0)
     ia = i0 + i1 + i2
     ib = i0 + (a * a) * i1 + a * i2
     ic = i0 + a * i1 + (a * a) * i2
     ig = ia + ib + ic
+
+    va = v0 + v1 + v2
+    vb = v0 + (a * a) * v1 + a * v2
+    vc = v0 + a * v1 + (a * a) * v2
+
+    current_scale = max(1.0, abs(i0), abs(i1), abs(i2), abs(ib), abs(ic), abs(ig))
+    voltage_scale = max(1.0, abs(v0), abs(v1), abs(v2), abs(va), e1)
+    current_tol = 1e-9 * current_scale
+    voltage_tol = 1e-9 * voltage_scale
 
     return {
         "schema": SCHEMA,
@@ -131,6 +153,11 @@ def resolver_2ph_ground_bolted(
             "i1": _polar(i1),
             "i2": _polar(i2),
         },
+        "sequence_voltages_v": {
+            "v0": _polar(v0),
+            "v1": _polar(v1),
+            "v2": _polar(v2),
+        },
         "phase_currents_a": {
             "ia": _polar(ia),
             "ib": _polar(ib),
@@ -138,16 +165,38 @@ def resolver_2ph_ground_bolted(
             "ground_sum": _polar(ig),
             "max_faulted_phase_current_a": max(abs(ib), abs(ic)),
         },
+        "phase_voltages_v": {
+            "va": _polar(va),
+            "vb": _polar(vb),
+            "vc": _polar(vc),
+        },
         "invariants": {
             "ia_should_be_zero": True,
             "ia_residual_a": abs(ia),
-            "ground_current_equals_3i0": abs(ig - 3.0 * i0) <= 1e-9 * max(1.0, abs(ig)),
+            "ia_boundary_ok": abs(ia) <= current_tol,
+            "vb_should_be_zero": True,
+            "vb_residual_v": abs(vb),
+            "vb_boundary_ok": abs(vb) <= voltage_tol,
+            "vc_should_be_zero": True,
+            "vc_residual_v": abs(vc),
+            "vc_boundary_ok": abs(vc) <= voltage_tol,
+            "sequence_current_kcl_ok": abs(i0 + i1 + i2) <= current_tol,
+            "sequence_fault_voltage_equal_ok": (
+                abs(v0 - v1) <= voltage_tol and abs(v1 - v2) <= voltage_tol
+            ),
+            "ground_current_equals_3i0": abs(ig - 3.0 * i0) <= current_tol,
+        },
+        "validation_status": {
+            "mathematical_foundation": "USABLE_WITH_DECLARED_SCOPE",
+            "normative_verification": "PENDING_LICENSED_IEC_REVIEW",
+            "external_reference_case": "PENDING",
+            "model_integration": "PENDING_P4V11B",
         },
         "result_promotion": {
             "ikss_contractual": False,
             "skss_contractual": False,
             "ip_ith": False,
-            "reason": "P4-v1.1A valida primero la matemática; la semántica IEC 60909 de resultados se revisará antes de promover magnitudes contractuales.",
+            "reason": "La matemática foundation es utilizable dentro del alcance declarado; la semántica IEC 60909 de resultados se revisará antes de promover magnitudes contractuales.",
         },
         "professional_emission": False,
     }
