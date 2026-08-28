@@ -17,13 +17,13 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
 | P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing normativo, evidencia primaria y benchmarks independientes |
-| P4 — IEC 60909 | **EN DESARROLLO — solo P4C12 pendiente** | cortocircuito formal validado dentro de alcance declarado |
-| P5 — Protección y TCC | **BLOQUEADA POR P4** | protección del conductor, despeje y coordinación |
+| P4 — IEC 60909 | **COMPLETA CON LIMITACIONES (P4 v1)** | cortocircuito IEC 60909 validado dentro del alcance declarado |
+| P5 — Protección y TCC | **DESBLOQUEADA — FASE PRINCIPAL ACTIVA** | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
 | P8 — Release profesional 1.0 | PENDIENTE | integración estable de los módulos requeridos |
 
-**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 queda cerrado en `READY_WITH_LIMITATIONS`; **P4 es la fase principal activa**. Los ejes transversales V y E evolucionan en paralelo.
+**Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 y P4-v1 quedan cerrados en `READY_WITH_LIMITATIONS`; **P5 es la fase principal activa**. Los ejes transversales V y E evolucionan en paralelo.
 
 **Estado actual:**
 
@@ -43,10 +43,10 @@ P4C11  DONE     Workspace V4 global del alcance P4-v1
                  ├─ P4C11A DONE  3F
                  ├─ P4C11B DONE  2F
                  └─ P4C11C DONE  1F-T
-P4C12  PENDING  madurez final del módulo
+P4C12  DONE     iec60909 = VALIDATED_WITH_LIMITATIONS
 
-P4 = NOT_READY
-P5 = BLOQUEADA
+P4 = READY_WITH_LIMITATIONS
+P5 = DESBLOQUEADA / INICIO
 professional_emission = false
 automatic_dispatch = false
 crosscheck = false
@@ -99,6 +99,8 @@ P4C08 excluye 2F-T de P4-v1, por lo que V4 no fabrica una visualización de un c
 
 P4C10 no requiere una segunda interfaz: V4 muestra el estado de edición que ya viene preparado por Python. El cambio a `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION` no introduce ningún cálculo normativo en JavaScript.
 
+P4C12 tampoco crea una interfaz nueva: las suites 3F/2F/1F-T exponen la madurez `VALIDATED_WITH_LIMITATIONS` preparada en Python y el mismo workspace V4 la presenta de forma read-only. La siguiente ampliación visual importante corresponde a **V5 — protección/TCC**.
+
 Detalle: `docs/ROADMAP_VISUAL.md`.
 
 ## Eje transversal E — selección determinista de motor
@@ -106,7 +108,7 @@ Detalle: `docs/ROADMAP_VISUAL.md`.
 Reglas vigentes:
 
 1. OpenDSS continúa como motor por defecto para flujo y capacidades de distribución donde sea preferente.
-2. pandapower es el backend preferente experimental para IEC 60909 P4-v1.
+2. pandapower 3.5.4 es el backend preferente para el módulo IEC 60909 P4-v1, cuya madurez es `VALIDATED_WITH_LIMITATIONS`; la integración pandapower de flujo P1.5 sigue separada y experimental.
 3. ampacidad, reglas de protección-conductor y IEEE 1584 pertenecen a la capa MCP.
 4. la matriz E expone motor, requisitos, madurez y readiness.
 5. datos faltantes o limitaciones del backend se expresan; nunca se sustituyen silenciosamente.
@@ -121,7 +123,9 @@ Para IEC 60909:
 - 2F: `FOUNDATION_READY`, con `Z2=Z1` explícita y limitada;
 - 1F-T: `FOUNDATION_READY`, con Z0/C0/neutro explícitos y `Z2=Z1` limitada;
 - 2F-T: `OUT_OF_SCOPE_P4_V1`, reconocida pero `ENGINE_NOT_READY` con código `P4READY804`;
-- edición objetivo: `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`, con `full_conformance_claim=false`.
+- edición objetivo: `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`, con `full_conformance_claim=false`;
+- madurez del módulo `iec60909`: `VALIDATED_WITH_LIMITATIONS`;
+- `short_circuit` permanece `UNDER_VALIDATION` y describe únicamente OpenDSS FaultStudy exploratorio.
 
 Detalle: `docs/ENGINE_SELECTION.md`, `docs/P4C08_2FT_SCOPE.md` y `docs/P4C10_IEC60909_2026_REVIEW.md`.
 
@@ -246,16 +250,18 @@ Documentación canónica preservada:
 
 ## Fase P4 — Cortocircuito IEC 60909
 
-**Estado: EN DESARROLLO — P4C01–P4C11 DONE; solo P4C12 pendiente.**
+**Estado: COMPLETA CON LIMITACIONES (P4 v1) — P4C01–P4C12 DONE.**
 
 ### Objetivo normativo y backend
 
 - objetivo: **IEC 60909-0:2026, edición 3.0**;
-- backend preferente: pandapower 3.5.x;
+- backend preferente: pandapower 3.5.4;
 - `automatic_dispatch=false`;
 - `crosscheck=false`;
 - `target_edition_conformance=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`;
 - `full_conformance_claim=false`;
+- `validation_status.iec60909=VALIDATED_WITH_LIMITATIONS`;
+- `validation_status.short_circuit=UNDER_VALIDATION` para OpenDSS FaultStudy exploratorio;
 - `professional_emission=false`.
 
 ### Alcance P4-v1
@@ -338,17 +344,23 @@ Detalle: `docs/P4C10_IEC60909_2026_REVIEW.md`.
 - JavaScript sin cálculo eléctrico;
 - estado de revisión 2026 visible desde el payload Python.
 
+### P4C12 — madurez final
+
+**DONE: `VALIDATED_WITH_LIMITATIONS`.**
+
+El cierre se aplica exclusivamente al módulo `iec60909`. El `short_circuit` exploratorio de OpenDSS permanece `UNDER_VALIDATION`; por tanto el gate no convierte automáticamente todo estudio de cortocircuito en validado.
+
+P4C12 exige simultáneamente: target 2026 versionado, backend/políticas deterministas, alcance cerrado, benchmark independiente de cada falla incluida, V4 completo, P4C10 cerrado con limitaciones explícitas, contratos fail-closed y `professional_emission=false`.
+
 ### Siguiente bloque
 
-**P4C12 — evaluación final de madurez.**
-
-P4C12 decidirá si la evidencia acumulada justifica `VALIDATED_WITH_LIMITATIONS`. La madurez no se promoverá por conveniencia del roadmap y P4C10 no equivale a conformidad integral.
+**P5 — protección del conductor y coordinación/TCC.** P4 habilita el inicio de P5, pero no crea dispositivos, curvas, ajustes ni tiempos de despeje por sí solo.
 
 Detalle: `docs/P4_IEC60909.md`.
 
 ## Fase P5 — Protección del conductor y coordinación
 
-**Estado: BLOQUEADA POR P4.**
+**Estado: DESBLOQUEADA — FASE PRINCIPAL ACTIVA.**
 
 Entregables previstos:
 
@@ -362,7 +374,7 @@ Entregables previstos:
 - selectividad/backup;
 - V5 con panel TCC.
 
-El `tk_s` actual de P4 no sustituye P5: debe vincularse a dispositivos/curvas reales.
+El `tk_s` actual de P4 no sustituye P5: debe vincularse a dispositivos/curvas reales. El primer bloque P5 debe definir el contrato de datos de protección y la estrategia de curvas antes de habilitar coordinación o tiempos de despeje profesionales.
 
 ## Fase P6 — Arc Flash IEEE 1584
 
