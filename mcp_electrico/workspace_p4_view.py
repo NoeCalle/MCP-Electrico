@@ -1,9 +1,9 @@
 """Vista V4 para cortocircuito IEC 60909 P4.
 
 Consume exclusivamente estudios versionados ``iec60909_3ph``,
-``iec60909_2ph`` e ``iec60909_1ph_ground``. El navegador no ejecuta
-pandapower, no deriva corrientes ni impedancias y no completa escenarios
-fallidos.
+``iec60909_2ph``, ``iec60909_1ph_ground`` e ``iec60909_2ph_ground``. El
+navegador no ejecuta pandapower, no deriva corrientes ni impedancias y no
+completa escenarios fallidos.
 """
 
 from __future__ import annotations
@@ -12,7 +12,12 @@ from html import escape
 from typing import Any
 
 MARKER = "<!-- MCP-P4-SHORT-CIRCUIT-V4 -->"
-STUDY_KEYS = ("iec60909_3ph", "iec60909_2ph", "iec60909_1ph_ground")
+STUDY_KEYS = (
+    "iec60909_3ph",
+    "iec60909_2ph",
+    "iec60909_1ph_ground",
+    "iec60909_2ph_ground",
+)
 
 
 def _fmt(value: Any, decimals: int = 3, suffix: str = "") -> str:
@@ -84,6 +89,8 @@ def _fault_label(key: str, study: dict[str, Any]) -> str:
     if explicit:
         return explicit
     raw = str(study.get("fault") or "").strip().lower()
+    if key == "iec60909_2ph_ground" or raw in {"2ph_ground", "2ph-ground"}:
+        return "2F-T"
     if key == "iec60909_1ph_ground" or raw in {"1ph_ground", "1ph-ground", "1ph_ground_fault"}:
         return "1F-T"
     if key == "iec60909_3ph" or raw == "3ph":
@@ -94,18 +101,21 @@ def _fault_label(key: str, study: dict[str, Any]) -> str:
 
 
 def _negative_sequence_note(study: dict[str, Any], fault: str) -> str:
-    if fault not in {"2PH", "1F-T"}:
+    if fault not in {"2PH", "1F-T", "2F-T"}:
         return ""
     policy = study.get("negative_sequence_policy") or {}
     relation = str(policy.get("z2_relation") or policy.get("relation") or "Z2 = Z1")
-    fallback_scope = "alcance simétrico pasivo P4C06 v1" if fault == "2PH" else "alcance simétrico pasivo P4C07 v1"
+    if fault == "2PH":
+        fallback_scope = "alcance simétrico pasivo P4C06 v1"
+        suffix = "Sk'' 2F no se promociona todavía como magnitud contractual normalizada."
+    elif fault == "1F-T":
+        fallback_scope = "alcance simétrico pasivo P4C07 v1"
+        suffix = "Sk'' 1F-T no se promociona todavía como magnitud contractual normalizada; ip/Ith tampoco se derivan en la vista."
+    else:
+        fallback_scope = "alcance simétrico pasivo P4-v1.1"
+        suffix = "La corriente 2F-T mostrada es operativa; Ik'' contractual, Sk'', ip e Ith permanecen pendientes de validación normativa."
     scope = str(policy.get("scope") or fallback_scope)
     universal = bool(policy.get("universal_assumption"))
-    suffix = (
-        "Sk'' 2F no se promociona todavía como magnitud contractual normalizada."
-        if fault == "2PH"
-        else "Sk'' 1F-T no se promociona todavía como magnitud contractual normalizada; ip/Ith tampoco se derivan en la vista."
-    )
     return (
         '<div class="p4-policy"><strong>Secuencia negativa explícita:</strong> '
         f'{escape(relation)} · {escape(scope)} · supuesto universal: '
@@ -114,7 +124,7 @@ def _negative_sequence_note(study: dict[str, Any], fault: str) -> str:
 
 
 def _zero_sequence_note(study: dict[str, Any], fault: str) -> str:
-    if fault != "1F-T":
+    if fault not in {"1F-T", "2F-T"}:
         return ""
     scenarios = study.get("scenarios") or {}
     payload = scenarios.get("max") or scenarios.get("min") or {}
@@ -136,6 +146,23 @@ def _zero_sequence_note(study: dict[str, Any], fault: str) -> str:
         f'transformadores Z0/neutro proyectados: <strong>{len(transformers)}</strong>. '
         f'{escape(str(policy.get("lines") or "R0/X0/C0 explícitos; C0 no se inventa"))}. '
         "La vista presenta el snapshot Python y no reconstruye Z0 en JavaScript.</div>"
+    )
+
+
+def _operational_note(study: dict[str, Any], fault: str) -> str:
+    if fault != "2F-T":
+        return ""
+    promotion = study.get("result_promotion") or {}
+    semantics = str(
+        promotion.get("operational_current_semantics")
+        or "max_faulted_phase_rms_current"
+    )
+    pending = ", ".join(str(v) for v in promotion.get("pending_validation_ids") or [])
+    return (
+        '<div class="p4-operational"><strong>Extensión operacional 2F-T:</strong> '
+        f'corriente mostrada = {escape(semantics)}; '
+        '<strong>no es todavía Ik\'\' contractual IEC</strong>. '
+        f'Validaciones pendientes: {escape(pending or "registradas en VALIDACIONES_PENDIENTES.md")}.</div>'
     )
 
 
@@ -167,20 +194,23 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
     )
     overall = "COMPLETO" if study.get("ok") else "PARCIAL / BLOQUEADO"
     overall_css = "p4-ok" if study.get("ok") else "p4-fail"
+    current_label = "I fase MAX" if fault == "2F-T" else "Ik'' MAX"
+    current_label_min = "I fase MIN" if fault == "2F-T" else "Ik'' MIN"
 
     return f'''<article class="p4-study-block" data-p4-study="{escape(key, quote=True)}" data-p4-fault="{escape(fault, quote=True)}" data-p4-study-bus="{escape(bus, quote=True)}">
 <div class="p4-header">
   <div><h3>Falla {escape(fault)} · barra <strong>{escape(bus)}</strong></h3><p>MAX/MIN registrados para la revisión vigente; sin recálculo en el navegador.</p></div>
   <div class="p4-kpis">
-    <span>Ik'' MAX <strong>{_fmt(max_values.get('ikss_ka'), 3, ' kA')}</strong></span>
-    <span>Ik'' MIN <strong>{_fmt(min_values.get('ikss_ka'), 3, ' kA')}</strong></span>
+    <span>{escape(current_label)} <strong>{_fmt(max_values.get('ikss_ka'), 3, ' kA')}</strong></span>
+    <span>{escape(current_label_min)} <strong>{_fmt(min_values.get('ikss_ka'), 3, ' kA')}</strong></span>
     <span>Estado <strong class="{overall_css}">{escape(overall)}</strong></span>
   </div>
 </div>
 <div class="p4-note"><strong>{escape(maturity)} · SIN EMISIÓN PROFESIONAL.</strong> Motor {escape(str(engine.get('engine') or 'pandapower'))} {escape(str(runtime_version))}; objetivo {escape(str(target.get('designation') or target.get('id') or 'IEC 60909'))}. Conformidad de edición: <strong>{escape(conformance)}</strong>. Esta vista no recalcula magnitudes ni sustituye la revisión P4C10.</div>
+{_operational_note(study, fault)}
 {_negative_sequence_note(study, fault)}
 {_zero_sequence_note(study, fault)}
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik''</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Rk0</th><th>Xk0</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik'' / I fase</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Rk0</th><th>Xk0</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
 </article>'''
 
 
@@ -189,7 +219,7 @@ def _panel(snapshot: dict[str, Any]) -> str:
     if not studies:
         return '''<section class="panel p4-panel" id="panel-cortocircuito">
 <div class="p4-empty"><strong>Cortocircuito IEC 60909 no calculado.</strong><br>
-Ejecuta explícitamente un estudio 3F, 2F o 1F-T MAX/MIN para registrar resultados P4 en esta revisión.</div>
+Ejecuta explícitamente un estudio 3F, 2F, 1F-T o la extensión operacional 2F-T MAX/MIN para registrar resultados P4 en esta revisión.</div>
 </section>'''
 
     buses: list[str] = []
@@ -223,6 +253,7 @@ def _css() -> str:
 .p4-kpis { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
 .p4-kpis span { background:#f8fafc; border:1px solid #e2e8f0; border-radius:7px; padding:7px 9px; font-size:11px; white-space:nowrap; }
 .p4-note { margin:0 16px 6px; padding:9px 10px; background:#fff7ed; border-left:3px solid #ea580c; color:#7c2d12; font-size:11px; line-height:1.45; }
+.p4-operational { margin:0 16px 8px; padding:8px 10px; background:#fefce8; border-left:3px solid #ca8a04; color:#713f12; font-size:11px; line-height:1.45; }
 .p4-policy { margin:0 16px 8px; padding:8px 10px; background:#eff6ff; border-left:3px solid #2563eb; color:#1e3a8a; font-size:11px; line-height:1.45; }
 .p4-zero { margin:0 16px 8px; padding:8px 10px; background:#f0fdf4; border-left:3px solid #16a34a; color:#14532d; font-size:11px; line-height:1.45; }
 .p4-empty { margin:16px; padding:18px; border:1px dashed #cbd5e1; border-radius:8px; color:var(--muted); line-height:1.55; }
