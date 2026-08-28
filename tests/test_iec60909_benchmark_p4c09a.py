@@ -53,6 +53,6 @@ def test_p4c09_global_gate_closes_only_after_all_declared_scope_evidence_exists(
     assert "3F=P4C09A PASS" in criteria["P4C09"]["evidence"]
     assert "2F=P4C06 PASS" in criteria["P4C09"]["evidence"]
     assert "1F-T=P4C07 PASS" in criteria["P4C09"]["evidence"]
-    assert criteria["P4C10"]["status"] == "PENDING"
+    assert criteria["P4C10"]["status"] == "DONE"
     assert criteria["P4C12"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
