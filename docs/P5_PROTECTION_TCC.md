@@ -2,13 +2,13 @@
 
 ## Estado
 
-**P5 ACTIVA — P5A foundation en implementación.**
+**P5 ACTIVA — P5A FOUNDATION DONE; P5B es el siguiente bloque.**
 
-P4-v1 quedó `READY_WITH_LIMITATIONS` y habilitó el inicio de P5. Este documento define el orden de construcción para evitar que una curva dibujada o un tiempo introducido manualmente se presente como coordinación profesional.
+P4-v1 quedó `READY_WITH_LIMITATIONS` y habilitó el inicio de P5. P5A ya define una base canónica y fail-closed de dispositivos; todavía no existe un solver TCC ni coordinación profesional.
 
 ```text
-P5A  datos canónicos de protección          FOUNDATION
-P5B  datasets numéricos / semántica TCC     PENDIENTE
+P5A  datos canónicos de protección          DONE / EXPERIMENTAL
+P5B  datasets numéricos / semántica TCC     NEXT
 P5C  capacidad de corte + conductor          PENDIENTE
 P5D  tiempos de despeje                      PENDIENTE
 P5E  coordinación/selectividad/backup        PENDIENTE
