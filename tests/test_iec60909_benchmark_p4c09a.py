@@ -30,6 +30,8 @@ def test_p4c09a_suite_matches_pandapower_p4b_with_declared_tolerances():
     assert suite["schema"] == "MCP_ELECTRICO_P4_3PH_BENCHMARK_V1"
     assert suite["pass"] is True
     assert suite["coverage"] == {"three_phase_max": True, "three_phase_min": True}
+    # P4C09A sigue siendo solo la evidencia 3F; no se reetiqueta retroactivamente
+    # como benchmark global aunque P4C09 global se cierre con P4C06/P4C07/P4C08.
     assert suite["p4c09_complete"] is False
     assert suite["professional_emission"] is False
     assert len(suite["cases"]) == 2
@@ -39,13 +41,18 @@ def test_p4c09a_suite_matches_pandapower_p4b_with_declared_tolerances():
         assert all(metric["pass"] for metric in case["comparison"]["metrics"].values())
 
 
-def test_p4c09_global_gate_remains_pending_after_partial_3ph_benchmark():
+def test_p4c09_global_gate_closes_only_after_all_declared_scope_evidence_exists():
     gate = p4_completion.evaluar_cierre_p4()
-    states = {item["id"]: item["status"] for item in gate["criteria"]}
+    criteria = {item["id"]: item for item in gate["criteria"]}
 
-    assert states["P4C01"] == "DONE"
-    assert states["P4C02"] == "DONE"
-    assert states["P4C03"] == "DONE"
-    assert states["P4C04"] == "DONE"
-    assert states["P4C09"] == "PENDING"
+    assert criteria["P4C01"]["status"] == "DONE"
+    assert criteria["P4C02"]["status"] == "DONE"
+    assert criteria["P4C03"]["status"] == "DONE"
+    assert criteria["P4C04"]["status"] == "DONE"
+    assert criteria["P4C09"]["status"] == "DONE"
+    assert "3F=P4C09A PASS" in criteria["P4C09"]["evidence"]
+    assert "2F=P4C06 PASS" in criteria["P4C09"]["evidence"]
+    assert "1F-T=P4C07 PASS" in criteria["P4C09"]["evidence"]
+    assert criteria["P4C10"]["status"] == "PENDING"
+    assert criteria["P4C12"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
