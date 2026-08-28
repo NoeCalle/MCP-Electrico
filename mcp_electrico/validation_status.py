@@ -110,12 +110,25 @@ _MODULES = {
             "professional_emission=false",
         ],
     },
+    "protection_checks": {
+        "status": "EXPERIMENTAL",
+        "basis": "P5C: comparación explícita de capacidad de corte + chequeo adiabático I²t <= k²S²",
+        "limitations": [
+            "Interruptores: el PASS de capacidad de corte usa Icu explícito; Ics e Icw no se sustituyen por Icu",
+            "Fusibles: el PASS usa breaking_capacity_ka explícito",
+            "El chequeo térmico exige corriente, tiempo, sección y k explícitos y trazables",
+            "Si existe conductor P2 asignado, la sección debe coincidir exactamente; no se sustituye silenciosamente",
+            "IEC 60947-2:2024, IEC 60269-1:2024 e IEC 60364-4-43:2023 son referencias objetivo, no claims de conformidad integral",
+            "P4 tk_s no se consume como clearing time",
+            "professional_emission=false",
+        ],
+    },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
-        "basis": "P5A/P5B proveen datos y evaluación TCC de curvas; coordinación todavía no implementada",
+        "basis": "P5A/P5B/P5C proveen datos, evaluación TCC y checks técnicos; coordinación todavía no implementada",
         "limitations": [
-            "Capacidad de corte, tiempos finales de despeje, selectividad y backup pendientes",
-            "La existencia de datasets P5B no habilita coordinación profesional",
+            "Tiempo final de despeje P5D, selectividad y backup P5E pendientes",
+            "La existencia de checks P5C no habilita coordinación profesional",
         ],
     },
     "arc_flash_ieee1584": {
