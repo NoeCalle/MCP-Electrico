@@ -2,6 +2,10 @@
 
 Esta matriz no reemplaza la revisión profesional. Expone de forma explícita
 qué partes del sistema están validadas, en validación o no implementadas.
+
+IEC 60909 tiene una madurez independiente del FaultStudy exploratorio de
+OpenDSS. Su estado se resuelve de forma perezosa desde ``iec60909_maturity``
+para evitar que una promoción P4 valide accidentalmente todo cortocircuito.
 """
 
 from __future__ import annotations
@@ -74,8 +78,11 @@ _MODULES = {
     },
     "short_circuit": {
         "status": "UNDER_VALIDATION",
-        "basis": "OpenDSS FaultStudy",
-        "limitations": ["No constituye todavía un motor IEC 60909 formal"],
+        "basis": "OpenDSS FaultStudy exploratorio",
+        "limitations": [
+            "No constituye el módulo IEC 60909 P4-v1",
+            "La madurez IEC 60909 se registra por separado y no se hereda a FaultStudy",
+        ],
     },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
@@ -100,11 +107,24 @@ _MODULES = {
 }
 
 
+def _iec60909_status() -> dict:
+    from . import iec60909_maturity
+
+    status = iec60909_maturity.get_validation_status()
+    if status.get("status") not in VALID_STATES:
+        raise ValueError(f"Estado IEC 60909 inválido: {status.get('status')}")
+    return status
+
+
 def get_validation_matrix() -> dict:
-    return deepcopy(_MODULES)
+    modules = deepcopy(_MODULES)
+    modules["iec60909"] = _iec60909_status()
+    return modules
 
 
 def get_module_status(name: str) -> dict:
+    if name == "iec60909":
+        return deepcopy(_iec60909_status())
     if name not in _MODULES:
         raise KeyError(f"Módulo desconocido: {name}")
     return deepcopy(_MODULES[name])
