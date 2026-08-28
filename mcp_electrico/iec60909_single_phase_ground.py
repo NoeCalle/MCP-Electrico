@@ -24,6 +24,10 @@ NEGATIVE_SEQUENCE_POLICY = {
 }
 
 
+def _issue(code: str, message: str, element: str | None = None) -> dict[str, Any]:
+    return {"code": code, "message": message, "element": element}
+
+
 def _voltage_factor(vn_kv: float, case: str, lv_tol_percent: int = 10) -> float:
     case_norm = iec60909._normalize_case(case)
     vn = float(vn_kv)
@@ -40,7 +44,11 @@ def _voltage_factor(vn_kv: float, case: str, lv_tol_percent: int = 10) -> float:
 
 def _source_zero_projection(case: str, lv_tol_percent: int = 10) -> dict[str, Any]:
     case_norm = iec60909._normalize_case(case)
-    positive = iec60909._source_projection(case_norm)
+    positive, positive_issues = iec60909._source_projection(case_norm)
+    if positive_issues or not positive:
+        detail = "; ".join(str(item.get("message") or item) for item in positive_issues)
+        raise ValueError(f"P4C07S001: fuente positiva P2 no apta para {case_norm}: {detail}")
+
     source = professional_data.obtener_red_equivalente()
     z0 = zero_sequence.obtener_fuente()
     if not source:
@@ -117,15 +125,14 @@ def _apply_line_zero_sequence(net) -> list[dict[str, Any]]:
             }
         )
 
-    if len(applied) != len(net.line):
-        known = {item["element"].split(".", 1)[-1].lower() for item in applied}
-        missing = [
-            str(row["name"])
-            for _, row in net.line.iterrows()
-            if str(row["name"]).lower() not in known
-        ]
-        if missing:
-            raise ValueError("P4C07L003: líneas sin ficha Z0 explícita: " + ", ".join(sorted(missing)))
+    known = {item["element"].split(".", 1)[-1].lower() for item in applied}
+    missing = [
+        str(row["name"])
+        for _, row in net.line.iterrows()
+        if str(row["name"]).lower() not in known
+    ]
+    if missing:
+        raise ValueError("P4C07L003: líneas sin ficha Z0 explícita: " + ", ".join(sorted(missing)))
     return applied
 
 
@@ -249,31 +256,58 @@ def ejecutar_1ph_ground(
             **base,
             "ok": False,
             "status": "MISSING_SOURCE_DATA",
-            "issues": [{"code": "P4C07S001", "message": "Falta red equivalente P2."}],
+            "issues": [_issue("P4C07S001", "Falta red equivalente P2.")],
         }
 
-    net, bus_map = pandapower_engine._build_net(model)
-    source_projection = iec60909._source_projection(case_norm)
-    iec60909._set_source_short_circuit(net, source_projection)
-    temperature_projection = iec60909._set_min_line_temperatures(
-        net, case_norm, line_endtemp_degree_c
+    source_projection, source_issues = iec60909._source_projection(case_norm)
+    if source_issues or not source_projection:
+        return {
+            **base,
+            "ok": False,
+            "status": "MISSING_SOURCE_DATA",
+            "issues": deepcopy(source_issues),
+        }
+
+    temperatures, temperature_issues = iec60909._line_temperature_map(
+        model, case_norm, line_endtemp_degree_c
     )
+    if temperature_issues:
+        return {
+            **base,
+            "ok": False,
+            "status": "MISSING_LINE_TEMPERATURE",
+            "issues": deepcopy(temperature_issues),
+            "inputs": {"source_projection": source_projection},
+        }
+
+    net, line_meta, _trafo_meta = pandapower_engine._build_net(model)
+    iec60909._set_source_short_circuit(net, source_projection)
+    if case_norm == "min":
+        iec60909._set_min_line_temperatures(net, line_meta, temperatures)
+
     zero_projection = _apply_zero_sequence(net, case_norm, int(lv_tol_percent))
 
-    target = str(bus).split(".")[0].lower()
-    pp_bus = bus_map.get(target)
-    if pp_bus is None:
+    target = str(bus or "").strip()
+    if target.lower().startswith("bus."):
+        target = target[4:]
+    matches = [
+        int(idx)
+        for idx, row in net.bus.iterrows()
+        if str(row["name"]).lower() == target.lower()
+    ]
+    if not matches:
         return {
             **base,
             "ok": False,
             "status": "BUS_NOT_FOUND",
-            "issues": [{"code": "P4C07B001", "message": f"Bus no encontrado: {bus}"}],
+            "issues": [_issue("P4C07B001", f"Bus no encontrado: {bus}")],
             "inputs": {
                 "source_projection": source_projection,
                 "zero_sequence_projection": zero_projection,
-                "line_temperature_projection": temperature_projection,
+                "line_temperature_projection": temperatures,
             },
         }
+    pp_bus = matches[0]
 
     try:
         pp.shortcircuit.calc_sc(
@@ -290,11 +324,11 @@ def ejecutar_1ph_ground(
             **base,
             "ok": False,
             "status": "CALCULATION_ERROR",
-            "issues": [{"code": "P4C07E001", "message": f"{type(exc).__name__}: {exc}"}],
+            "issues": [_issue("P4C07E001", f"{type(exc).__name__}: {exc}")],
             "inputs": {
                 "source_projection": source_projection,
                 "zero_sequence_projection": zero_projection,
-                "line_temperature_projection": temperature_projection,
+                "line_temperature_projection": temperatures,
             },
         }
 
@@ -312,11 +346,11 @@ def ejecutar_1ph_ground(
         **base,
         "ok": True,
         "status": "CALCULATED_EXPERIMENTAL",
-        "bus": target,
+        "bus": str(net.bus.at[pp_bus, "name"]),
         "inputs": {
             "source_projection": source_projection,
             "zero_sequence_projection": zero_projection,
-            "line_temperature_projection": temperature_projection,
+            "line_temperature_projection": temperatures,
             "lv_tol_percent": int(lv_tol_percent),
         },
         "results": {
