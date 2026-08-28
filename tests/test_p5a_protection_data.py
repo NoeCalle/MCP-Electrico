@@ -198,14 +198,16 @@ def test_p5a_state_is_cleared_when_a_new_circuit_is_created_even_with_same_name(
     assert protection_data.snapshot()["devices"] == []
 
 
-def test_p5a_validation_status_does_not_promote_coordination_engine():
+def test_p5a_validation_status_remains_separate_from_later_p5e_coordination():
     data = validation_status.get_module_status("protection_data")
     coordination = validation_status.get_module_status("protection_coordination")
 
     assert data["status"] == "EXPERIMENTAL"
     assert "P5A" in data["basis"]
-    assert coordination["status"] == "NOT_IMPLEMENTED"
-    assert "TCC" in coordination["basis"]
+    assert "P5E" not in data["basis"]
+    assert coordination["status"] == "EXPERIMENTAL"
+    assert "P5E" in coordination["basis"]
+    assert any("punto" in item.lower() for item in coordination["limitations"])
 
 
 def test_p5a_public_tools_register_without_exposing_a_tcc_solver():
