@@ -250,13 +250,15 @@ def test_p5b_binding_is_exact_and_readiness_preserves_p5a_compatibility():
     assert result["time_semantics"] == "TRIP_TIME"
 
 
-def test_p5b_validation_status_keeps_coordination_separate():
+def test_p5b_validation_status_remains_separate_from_later_p5e_coordination():
     tcc = validation_status.get_module_status("tcc_curve_evaluation")
     coordination = validation_status.get_module_status("protection_coordination")
 
     assert tcc["status"] == "EXPERIMENTAL"
     assert "P5B" in tcc["basis"]
-    assert coordination["status"] == "NOT_IMPLEMENTED"
+    assert "P5E" not in tcc["basis"]
+    assert coordination["status"] == "EXPERIMENTAL"
+    assert "P5E" in coordination["basis"]
 
 
 def test_p5b_public_tools_are_separate_from_p5a_contract():
