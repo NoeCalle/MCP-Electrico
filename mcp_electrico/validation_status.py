@@ -149,10 +149,22 @@ _MODULES = {
             "professional_emission=false",
         ],
     },
+    "reproducible_project": {
+        "status": "EXPERIMENTAL",
+        "basis": "P7A: snapshot canónico con netlist DSS por contenido + estados P2/P3/P5/estudios + SHA-256 determinista",
+        "limitations": [
+            "P7A congela y verifica contenido pero todavía no reconstruye/importa el proyecto",
+            "Rutas de exportación y timestamps transitorios se excluyen del hash canónico",
+            "El snapshot conserva la madurez y limitaciones existentes; no las convierte en conformidad profesional",
+            "El reporte HTML/PDF reproducible pertenece a hitos P7 posteriores",
+            "engineering_preview_ready=false hasta cerrar el gate mínimo P7",
+            "professional_emission=false",
+        ],
+    },
     "arc_flash_ieee1584": {
         "status": "NOT_IMPLEMENTED",
         "basis": None,
-        "limitations": ["IEEE 1584-2018 no implementado"],
+        "limitations": ["IEEE 1584-2018 no implementado; P6 está DEFERRED"],
     },
     "arc_flash_lee": {
         "status": "EXPERIMENTAL",
@@ -162,7 +174,10 @@ _MODULES = {
     "professional_report": {
         "status": "NOT_IMPLEMENTED",
         "basis": None,
-        "limitations": ["Expediente reproducible y hash de emisión pendientes"],
+        "limitations": [
+            "P7A ya implementa snapshot/hash reproducible, pero el reporte técnico reproducible HTML/PDF todavía está pendiente",
+            "No existe hash de emisión profesional ni firma digital",
+        ],
     },
 }
 
