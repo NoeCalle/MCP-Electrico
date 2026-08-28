@@ -63,9 +63,9 @@ def test_p5c_breaker_uses_icu_only_and_keeps_ics_icw_contextual():
     assert result["professional_emission"] is False
 
 
-def test_p5c_breaker_fails_when_fault_exceeds_icu_and_never_promotes_ics():
+def test_p5c_breaker_fails_when_fault_exceeds_icu_even_if_icw_is_higher():
     _line_case("p5c_breaker_fail")
-    _breaker(icu_ka=36.0, ics_ka=50.0, icw_ka=40.0)
+    _breaker(icu_ka=36.0, ics_ka=30.0, icw_ka=50.0)
 
     result = protection_checks.evaluar_capacidad_corte(
         "qf1",
@@ -77,7 +77,8 @@ def test_p5c_breaker_fails_when_fault_exceeds_icu_and_never_promotes_ics():
     assert result["status"] == "FAIL"
     assert result["rating_used"]["type"] == "Icu"
     assert result["margin_ka"] == pytest.approx(-4.0)
-    assert result["other_declared_ratings_not_used_for_pass"]["ics_ka"] == 50.0
+    assert result["other_declared_ratings_not_used_for_pass"]["ics_ka"] == 30.0
+    assert result["other_declared_ratings_not_used_for_pass"]["icw_ka"] == 50.0
 
 
 def test_p5c_breaking_capacity_is_fail_closed_above_device_ue():
