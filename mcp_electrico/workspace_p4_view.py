@@ -1,8 +1,9 @@
 """Vista V4 para cortocircuito IEC 60909 P4.
 
-Consume exclusivamente estudios versionados ``iec60909_3ph`` y
-``iec60909_2ph``. El navegador no ejecuta pandapower, no deriva corrientes y no
-completa escenarios fallidos.
+Consume exclusivamente estudios versionados ``iec60909_3ph``,
+``iec60909_2ph`` e ``iec60909_1ph_ground``. El navegador no ejecuta
+pandapower, no deriva corrientes ni impedancias y no completa escenarios
+fallidos.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ from html import escape
 from typing import Any
 
 MARKER = "<!-- MCP-P4-SHORT-CIRCUIT-V4 -->"
-STUDY_KEYS = ("iec60909_3ph", "iec60909_2ph")
+STUDY_KEYS = ("iec60909_3ph", "iec60909_2ph", "iec60909_1ph_ground")
 
 
 def _fmt(value: Any, decimals: int = 3, suffix: str = "") -> str:
@@ -43,10 +44,19 @@ def _issues_text(payload: dict[str, Any]) -> str:
     )
 
 
+def _duty(payload: dict[str, Any]) -> dict[str, Any]:
+    return (
+        (payload.get("input_projection") or {}).get("duty")
+        or (payload.get("inputs") or {}).get("duty")
+        or payload.get("requested_duty")
+        or {}
+    )
+
+
 def _scenario_row(name: str, payload: dict[str, Any]) -> str:
     ok = bool(payload.get("ok"))
     values = payload.get("results") or {}
-    duty = (payload.get("input_projection") or {}).get("duty") or payload.get("requested_duty") or {}
+    duty = _duty(payload)
     css = "p4-ok" if ok else "p4-fail"
     state = "CALCULADO" if ok else "NO CALCULADO"
     return (
@@ -59,6 +69,8 @@ def _scenario_row(name: str, payload: dict[str, Any]) -> str:
         f'<td>{_fmt(values.get("ith_ka"), 3, " kA")}</td>'
         f'<td>{_fmt(values.get("rk_ohm"), 4, " Ω")}</td>'
         f'<td>{_fmt(values.get("xk_ohm"), 4, " Ω")}</td>'
+        f'<td>{_fmt(values.get("rk0_ohm"), 4, " Ω")}</td>'
+        f'<td>{_fmt(values.get("xk0_ohm"), 4, " Ω")}</td>'
         f'<td>{escape(str(duty.get("topology") or "—"))}</td>'
         f'<td>{_fmt(duty.get("tk_s"), 3, " s")}</td>'
         f'<td>{escape(str(duty.get("kappa_method") or "—"))}</td>'
@@ -67,18 +79,63 @@ def _scenario_row(name: str, payload: dict[str, Any]) -> str:
     )
 
 
-def _policy_note(study: dict[str, Any]) -> str:
-    if str(study.get("fault") or "").lower() != "2ph":
+def _fault_label(key: str, study: dict[str, Any]) -> str:
+    explicit = str(study.get("fault_label") or "").strip()
+    if explicit:
+        return explicit
+    raw = str(study.get("fault") or "").strip().lower()
+    if key == "iec60909_1ph_ground" or raw in {"1ph_ground", "1ph-ground", "1ph_ground_fault"}:
+        return "1F-T"
+    if key == "iec60909_3ph" or raw == "3ph":
+        return "3PH"
+    if key == "iec60909_2ph" or raw == "2ph":
+        return "2PH"
+    return raw.upper() or "—"
+
+
+def _negative_sequence_note(study: dict[str, Any], fault: str) -> str:
+    if fault not in {"2PH", "1F-T"}:
         return ""
     policy = study.get("negative_sequence_policy") or {}
     relation = str(policy.get("z2_relation") or policy.get("relation") or "Z2 = Z1")
-    scope = str(policy.get("scope") or "alcance simétrico pasivo P4C06 v1")
+    fallback_scope = "alcance simétrico pasivo P4C06 v1" if fault == "2PH" else "alcance simétrico pasivo P4C07 v1"
+    scope = str(policy.get("scope") or fallback_scope)
     universal = bool(policy.get("universal_assumption"))
+    suffix = (
+        "Sk'' 2F no se promociona todavía como magnitud contractual normalizada."
+        if fault == "2PH"
+        else "Sk'' 1F-T no se promociona todavía como magnitud contractual normalizada; ip/Ith tampoco se derivan en la vista."
+    )
     return (
         '<div class="p4-policy"><strong>Secuencia negativa explícita:</strong> '
         f'{escape(relation)} · {escape(scope)} · supuesto universal: '
-        f'<strong>{"sí" if universal else "no"}</strong>. '
-        "Sk'' 2F no se promociona todavía como magnitud contractual normalizada.</div>"
+        f'<strong>{"sí" if universal else "no"}</strong>. {suffix}</div>'
+    )
+
+
+def _zero_sequence_note(study: dict[str, Any], fault: str) -> str:
+    if fault != "1F-T":
+        return ""
+    scenarios = study.get("scenarios") or {}
+    payload = scenarios.get("max") or scenarios.get("min") or {}
+    projection = (payload.get("inputs") or {}).get("zero_sequence_projection") or {}
+    source = projection.get("source") or {}
+    lines = projection.get("lines") or []
+    transformers = projection.get("transformers") or []
+    policy = study.get("zero_sequence_policy") or {}
+
+    source_text = "Z0 fuente no disponible en el escenario mostrado"
+    if source.get("r0_ohm") is not None and source.get("x0_ohm") is not None:
+        source_text = (
+            f"fuente R0={_fmt(source.get('r0_ohm'), 4, ' Ω')}, "
+            f"X0={_fmt(source.get('x0_ohm'), 4, ' Ω')}"
+        )
+    return (
+        '<div class="p4-zero"><strong>Secuencia cero explícita:</strong> '
+        f'{escape(source_text)} · líneas Z0/C0 proyectadas: <strong>{len(lines)}</strong> · '
+        f'transformadores Z0/neutro proyectados: <strong>{len(transformers)}</strong>. '
+        f'{escape(str(policy.get("lines") or "R0/X0/C0 explícitos; C0 no se inventa"))}. '
+        "La vista presenta el snapshot Python y no reconstruye Z0 en JavaScript.</div>"
     )
 
 
@@ -89,12 +146,25 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
     max_values = maximum.get("results") or {}
     min_values = minimum.get("results") or {}
     engine = study.get("engine") or {}
+    if isinstance(engine, str):
+        engine = {"engine": engine}
     target = study.get("target_standard") or {}
     bus = str(study.get("bus") or "—")
-    fault = str(study.get("fault") or ("3ph" if key.endswith("3ph") else "2ph")).upper()
+    fault = _fault_label(key, study)
     maturity = str(study.get("maturity") or "EXPERIMENTAL_P4")
-    conformance = str(engine.get("target_edition_conformance") or "UNVERIFIED")
-    runtime_version = engine.get("engine_version_runtime") or engine.get("engine_version") or "—"
+    conformance = str(
+        engine.get("target_edition_conformance")
+        or maximum.get("target_edition_conformance")
+        or minimum.get("target_edition_conformance")
+        or "UNVERIFIED"
+    )
+    runtime_version = (
+        engine.get("engine_version_runtime")
+        or engine.get("engine_version")
+        or maximum.get("pandapower_version")
+        or minimum.get("pandapower_version")
+        or "—"
+    )
     overall = "COMPLETO" if study.get("ok") else "PARCIAL / BLOQUEADO"
     overall_css = "p4-ok" if study.get("ok") else "p4-fail"
 
@@ -108,8 +178,9 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
   </div>
 </div>
 <div class="p4-note"><strong>{escape(maturity)} · SIN EMISIÓN PROFESIONAL.</strong> Motor {escape(str(engine.get('engine') or 'pandapower'))} {escape(str(runtime_version))}; objetivo {escape(str(target.get('designation') or target.get('id') or 'IEC 60909'))}. Conformidad de edición: <strong>{escape(conformance)}</strong>. Esta vista no recalcula magnitudes ni sustituye la revisión P4C10.</div>
-{_policy_note(study)}
-<div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik''</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
+{_negative_sequence_note(study, fault)}
+{_zero_sequence_note(study, fault)}
+<div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik''</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Rk0</th><th>Xk0</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
 </article>'''
 
 
@@ -118,7 +189,7 @@ def _panel(snapshot: dict[str, Any]) -> str:
     if not studies:
         return '''<section class="panel p4-panel" id="panel-cortocircuito">
 <div class="p4-empty"><strong>Cortocircuito IEC 60909 no calculado.</strong><br>
-Ejecuta explícitamente un estudio 3F o 2F MAX/MIN para registrar resultados P4 en esta revisión.</div>
+Ejecuta explícitamente un estudio 3F, 2F o 1F-T MAX/MIN para registrar resultados P4 en esta revisión.</div>
 </section>'''
 
     buses: list[str] = []
@@ -153,6 +224,7 @@ def _css() -> str:
 .p4-kpis span { background:#f8fafc; border:1px solid #e2e8f0; border-radius:7px; padding:7px 9px; font-size:11px; white-space:nowrap; }
 .p4-note { margin:0 16px 6px; padding:9px 10px; background:#fff7ed; border-left:3px solid #ea580c; color:#7c2d12; font-size:11px; line-height:1.45; }
 .p4-policy { margin:0 16px 8px; padding:8px 10px; background:#eff6ff; border-left:3px solid #2563eb; color:#1e3a8a; font-size:11px; line-height:1.45; }
+.p4-zero { margin:0 16px 8px; padding:8px 10px; background:#f0fdf4; border-left:3px solid #16a34a; color:#14532d; font-size:11px; line-height:1.45; }
 .p4-empty { margin:16px; padding:18px; border:1px dashed #cbd5e1; border-radius:8px; color:var(--muted); line-height:1.55; }
 .p4-badge { display:inline-block; border-radius:999px; padding:4px 7px; font-size:9px; font-weight:700; }
 .p4-ok { color:#166534; }
