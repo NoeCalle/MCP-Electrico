@@ -106,9 +106,18 @@ Se excluyen del contenido hasheado únicamente datos transitorios que impediría
 last_update
 recorded_at
 rutas del directorio temporal de Save Circuit
+timestamp automático del comentario "Last saved by ..." de Master.dss
 ```
 
-Por ello, dos exportaciones consecutivas del **mismo estado de ingeniería** deben producir el mismo SHA-256 aunque usen directorios temporales distintos.
+`Save Circuit` de AltDSS/DSS C-API escribe en `Master.dss` un comentario con el instante exacto de guardado. P7A conserva la versión/revisión del motor y todo el contenido del netlist, pero sustituye **solo el timestamp final de ese comentario** por:
+
+```text
+<P7A_TRANSIENT_TIMESTAMP_REMOVED>
+```
+
+No se eliminan comentarios DSS de forma genérica ni se normalizan valores eléctricos. El snapshot declara esta operación en `netlist.canonicalization`.
+
+Por ello, dos exportaciones consecutivas del **mismo estado de ingeniería** deben producir el mismo SHA-256 aunque usen directorios temporales distintos o se guarden en instantes diferentes.
 
 Un cambio del modelo, de los datos estructurados, de un estudio registrado o de la gobernanza incluida debe modificar el hash.
 
@@ -161,11 +170,12 @@ P7A puede considerarse cerrado cuando CI demuestre al menos:
 3. tampering del JSON => `HASH_MISMATCH`;
 4. exportación no sobrescribe el archivo previo;
 5. netlist guardado por contenido y sin ruta temporal;
-6. P2/P3/P5 + gobernanza presentes;
-7. `reproducible_project=EXPERIMENTAL`;
-8. `professional_report=NOT_IMPLEMENTED`;
-9. `engineering_preview_ready=false`;
-10. `professional_emission=false`.
+6. timestamp automático de `Master.dss` canonizado sin alterar datos eléctricos;
+7. P2/P3/P5 + gobernanza presentes;
+8. `reproducible_project=EXPERIMENTAL`;
+9. `professional_report=NOT_IMPLEMENTED`;
+10. `engineering_preview_ready=false`;
+11. `professional_emission=false`.
 
 ## Lo que P7A todavía no afirma
 
