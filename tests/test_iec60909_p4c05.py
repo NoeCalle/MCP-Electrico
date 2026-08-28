@@ -122,9 +122,12 @@ def test_p4c05_gate_remains_done_after_later_p4_milestones_without_closing_p4():
     criteria = {item["id"]: item for item in gate["criteria"]}
     states = {cid: item["status"] for cid, item in criteria.items()}
 
-    for cid in ("P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06", "P4C07"):
+    for cid in (
+        "P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06", "P4C07",
+        "P4C08", "P4C09", "P4C11",
+    ):
         assert states[cid] == "DONE"
-    for cid in ("P4C08", "P4C09", "P4C10", "P4C11", "P4C12"):
+    for cid in ("P4C10", "P4C12"):
         assert states[cid] == "PENDING"
     assert "Pendiente" not in criteria["P4C05"]["evidence"]
     assert "topology radial|meshed" in criteria["P4C05"]["evidence"]
