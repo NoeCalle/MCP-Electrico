@@ -10,7 +10,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from . import iec60909_contract, iec60909_single_phase_ground
+from . import iec60909_contract, iec60909_single_phase_ground, validation_status
 
 SCHEMA = "MCP_ELECTRICO_IEC60909_1PH_GROUND_SUITE_V1"
 
@@ -36,6 +36,7 @@ def _safe_run(
             lv_tol_percent=lv_tol_percent,
         )
     except (ValueError, KeyError) as exc:
+        maturity = validation_status.get_module_status("iec60909")
         return {
             "schema": iec60909_single_phase_ground.SCHEMA,
             "ok": False,
@@ -48,7 +49,7 @@ def _safe_run(
             "issues": [_issue_from_exception(exc)],
             "target_standard": deepcopy(iec60909_contract.TARGET_STANDARD),
             "target_edition_conformance": iec60909_contract.BACKEND["target_edition_conformance"],
-            "maturity": "EXPERIMENTAL_P4",
+            "maturity": maturity["status"],
             "professional_emission": False,
             "negative_sequence_policy": deepcopy(
                 iec60909_single_phase_ground.NEGATIVE_SEQUENCE_POLICY
@@ -100,6 +101,7 @@ def ejecutar_1ph_ground_max_min(
         or minimum.get("target_standard")
         or deepcopy(iec60909_contract.TARGET_STANDARD)
     )
+    maturity = validation_status.get_module_status("iec60909")
 
     return {
         "schema": SCHEMA,
@@ -115,13 +117,14 @@ def ejecutar_1ph_ground_max_min(
         ),
         "engine": _normalized_engine(representative),
         "target_standard": deepcopy(target),
-        "maturity": "EXPERIMENTAL_P4",
+        "maturity": maturity["status"],
+        "maturity_detail": maturity,
         "professional_emission": False,
         "limitations": [
             "Suite monofásica a tierra 1F-T; requiere Z0 explícita y proyectable.",
             "Z2=Z1 solo para la red simétrica pasiva P4C07 v1.",
             "Sk'' contractual 1F-T permanece sin normalizar.",
             "ip/Ith no se promocionan en 1F-T porque pandapower 3.5.4 no los calcula en _calc_sc_1ph.",
-            "La conformidad específica con IEC 60909-0:2026 permanece sin verificar.",
+            "La revisión IEC 60909-0:2026 es REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, no conformidad integral.",
         ],
     }
