@@ -2,22 +2,23 @@
 
 ## Estado
 
-**P5 ACTIVA — P5A FOUNDATION DONE; P5B es el siguiente bloque.**
+**P5 ACTIVA — P5A y P5B implementados; P5C es el siguiente bloque.**
 
-P4-v1 quedó `READY_WITH_LIMITATIONS` y habilitó el inicio de P5. P5A ya define una base canónica y fail-closed de dispositivos; todavía no existe un solver TCC ni coordinación profesional.
+P4 está disponible para suministrar corrientes de falla dentro de sus alcances declarados. P5A define dispositivos/rating/ajustes; P5B agrega datasets numéricos y evaluación de curvas TCC sin afirmar todavía coordinación ni despeje final.
 
 ```text
 P5A  datos canónicos de protección          DONE / EXPERIMENTAL
-P5B  datasets numéricos / semántica TCC     NEXT
-P5C  capacidad de corte + conductor          PENDIENTE
+P5B  datasets numéricos / semántica TCC     DONE / EXPERIMENTAL
+P5C  capacidad de corte + conductor          NEXT
 P5D  tiempos de despeje                      PENDIENTE
 P5E  coordinación/selectividad/backup        PENDIENTE
 P5F  Workspace V5 / TCC                      PENDIENTE
-P5G  benchmarks + gate de madurez            PENDIENTE
+P5G  benchmarks + gate de uso                PENDIENTE
 
-protection_data = EXPERIMENTAL
-protection_coordination = NOT_IMPLEMENTED
-professional_emission = false
+protection_data          = EXPERIMENTAL
+tcc_curve_evaluation     = EXPERIMENTAL
+protection_coordination  = NOT_IMPLEMENTED
+professional_emission    = false
 ```
 
 ## P5A — contrato de datos
@@ -28,196 +29,351 @@ El contrato canónico vive en:
 - `mcp_electrico.protection_data`;
 - `mcp_electrico.protection_tools`.
 
-### Alcance P5A
-
-Incluido:
+Incluye:
 
 - `circuit_breaker`;
 - `fuse`.
 
-Fuera de P5A:
+`relay` permanece fuera del alcance porque requiere CT/VT, funciones ANSI, lógica, ajustes y vínculo explícito con el elemento que despeja la falla.
 
-- `relay`.
+Cada dispositivo conserva:
 
-El relé no se aproxima como interruptor porque requiere un modelo propio de CT/VT, funciones ANSI, lógica/ajustes y vínculo con el elemento que realmente despeja la falla.
-
-### Identidad y vínculo físico
-
-Cada dispositivo P5A declara:
-
-- ID estable `Protection.*`;
-- tipo;
-- elemento protegido canónico (`Line.*`, `Transformer.*`, `Bus.*`, etc. cuando existe en el modelo);
+- ID `Protection.*`;
+- elemento protegido;
 - fabricante/serie/modelo cuando se dispone;
-- norma de referencia explícita;
-- procedencia de la ficha.
+- norma declarada;
+- procedencia;
+- ratings propios de su tipo;
+- ajustes explícitos.
 
-No se crean dispositivos a partir de símbolos visuales ni de un valor `In` aislado.
+### Ratings
 
-## Ratings
-
-### Interruptor
-
-P5A distingue:
-
-- `In`;
-- `Ue`;
-- `Icu`;
-- `Ics`;
-- `Icw` cuando está declarado.
-
-Un `Icu` ausente permanece ausente y bloquea la futura evaluación de capacidad de corte. P5A no rellena ratings de catálogo por familia/modelo si no existe un dataset trazable.
-
-### Fusible
-
-P5A usa:
-
-- `In`;
-- `Ue`;
-- `breaking_capacity_ka`;
-- categoría de utilización cuando fue declarada.
-
-No se renombran `Icu/Ics/Icw` como si fueran ratings de fusible.
-
-## Ajustes
-
-El foundation usa magnitudes absolutas explícitas:
+Interruptor:
 
 ```text
-Ir [A]
-Isd [A]
-Ii [A]
+In
+Ue
+Icu
+Ics
+Icw   [si está declarado]
 ```
 
-Política:
+Fusible:
+
+```text
+In
+Ue
+breaking_capacity_ka
+utilization_category   [si está declarada]
+```
+
+No se renombran ratings entre familias ni se completan valores ausentes con catálogos implícitos.
+
+### Ajustes
 
 ```text
 setting_basis = ABSOLUTE_A
+Ir [A]
+Isd [A]
+Ii [A]
 derived_from_in = false
 ```
 
-P5A no convierte automáticamente `Ir=0.8×In`, `Isd=5×Ir`, etc. Si más adelante se admiten ajustes relativos, deberán conservar simultáneamente valor original, base, conversión y procedencia.
+No se transforma automáticamente un múltiplo de `In` en un ajuste absoluto ni se inventa un pickup ausente.
 
 ## Vínculo P3
 
-P3 ya conserva `In` dentro del criterio:
+P3 conserva:
 
 ```text
 Ib <= In <= Iz
 ```
 
-P5A **no crea un dispositivo desde ese In**. Si el dispositivo protege una `Line.*` con ficha P3 existente, compara:
+P5 no crea un dispositivo desde `In_P3`. Cuando existe una ficha P3 de la línea, compara:
 
 ```text
-In_P3 ?= In_P5A
+In_P3 ?= In_P5
 ```
 
-- coincidencia → `MATCH`;
-- discrepancia → `P5READY201`, fail-closed para protección del conductor;
-- ausencia de P3 → se conserva como `P3_NOT_CONFIGURED`, sin inventar vínculo.
-
-Ninguno de los dos valores se sobreescribe automáticamente.
+Una discrepancia se conserva como `P5READY201`; ninguno de los dos valores se sobreescribe.
 
 ## Vínculo P4
 
-P4 aporta corrientes de falla dentro de su alcance validado. P5 consumirá esas corrientes en gates posteriores, pero P5A aún no ejecuta capacidad de corte ni coordinación.
+P4 aporta corrientes de falla para gates posteriores.
 
-Regla no negociable:
+Regla permanente:
 
 ```text
 P4 tk_s != tiempo real de despeje P5
 ```
 
-`tk_s` fue un dato explícito usado por P4 para `Ith`. No se convierte automáticamente en clearing time. El tiempo real deberá provenir de curva/función/dispositivo y lógica de protección trazables.
+`tk_s` de P4 solo sirve al cálculo `Ith` dentro de P4. Nunca se usa como fallback de clearing time.
 
-## Curvas y TCC
+# P5B — datasets numéricos TCC
 
-P5A solo permite vincular metadata:
+## Arquitectura
 
-- `curve_id`;
-- tipo (`MANUFACTURER_TCC`, `STANDARD_CURVE`, `TEST_CURVE`);
-- revisión;
-- fuente.
+El registro vive en:
 
-Y fuerza:
+- `mcp_electrico.protection_curves`;
+- `mcp_electrico.protection_tcc_tools`.
+
+P5B no modifica la identidad de la curva P5A. Un dataset solo puede vincularse a un dispositivo si:
 
 ```text
-numeric_dataset_loaded = false
-synthetic = false
-tcc_execution_ready = false
+dataset.curve_id == device.curve.id
 ```
 
-P5A **no digitaliza, interpola ni sintetiza** una curva de fabricante.
+La discrepancia bloquea el binding; no existe fuzzy match por modelo/fabricante.
 
-### P5B — siguiente bloque
+## Forma de curva
 
-P5B deberá definir antes de dibujar TCC:
+Se admiten:
 
-1. esquema numérico de curva/banda;
-2. unidades canónicas;
-3. dominio de corriente válido;
-4. límites mínimo/máximo de tiempo cuando el fabricante publica bandas;
-5. semántica de puntos discontinuos/instantáneos;
-6. procedencia por dataset/revisión;
-7. interpolación permitida y método, solo si está técnicamente justificado;
-8. fail-closed fuera del dominio;
-9. benchmark independiente de evaluación temporal.
+```text
+SINGLE
+BAND
+```
 
-Solo después podrá existir una función que devuelva tiempo de despeje.
+`SINGLE` conserva un tiempo por corriente.
 
-## Camino posterior
+`BAND` conserva siempre:
 
-### P5C — capacidad de corte y protección del conductor
+```text
+time_min_s
+time_max_s
+```
+
+La banda **no se promedia ni se convierte en una única curva**.
+
+## Unidades canónicas
+
+```text
+current = A
+time    = s
+```
+
+No existe conversión silenciosa desde múltiplos de In ni desde escalas gráficas.
+
+## Segmentos y discontinuidades
+
+Cada dataset contiene uno o más segmentos explícitos. Dentro de cada segmento:
+
+- hay al menos dos puntos;
+- la corriente es estrictamente creciente;
+- no se reordenan puntos silenciosamente.
+
+Dos segmentos:
+
+- no pueden solaparse;
+- no pueden tocarse;
+- conservan un hueco explícito entre dominios.
+
+Esto permite representar discontinuidades, zonas instantáneas u otras separaciones sin unirlas artificialmente.
+
+## Interpolación
+
+Único método P5B:
+
+```text
+LOG_LOG_LINEAR
+```
+
+La interpolación ocurre únicamente entre dos puntos vecinos del **mismo segmento**:
+
+```text
+log(I) ↔ log(t)
+```
+
+Reglas no negociables:
+
+```text
+extrapolation = false
+cross_segment_interpolation = false
+```
+
+Si la corriente queda:
+
+- por debajo del dominio;
+- por encima del dominio;
+- dentro de un hueco entre segmentos;
+
+el resultado es:
+
+```text
+OUT_OF_DOMAIN
+values = None
+```
+
+## Semántica del tiempo
+
+Todo dataset declara exactamente una de:
+
+```text
+TRIP_TIME
+TOTAL_CLEARING_TIME
+MELTING_TIME
+OPERATING_TIME
+```
+
+P5B **evalúa el tiempo publicado**, pero no decide todavía que ese valor sea el tiempo final de despeje del circuito.
+
+En particular:
+
+```text
+curve_time != necessarily final_clearing_time
+```
+
+P5D establecerá qué semánticas pueden consumirse directamente para despeje y cuáles requieren lógica/elementos adicionales.
+
+## Procedencia
+
+Tipos admitidos:
+
+```text
+MANUFACTURER_DATASET
+MANUFACTURER_DIGITIZED
+TEST_DATA
+```
+
+Para `MANUFACTURER_DIGITIZED` se exige `digitization_method` explícito. P5B no toma una imagen y genera puntos automáticamente.
+
+El dataset conserva referencia, URL/revisión cuando existen y método de digitalización cuando aplica.
+
+## Benchmark P5B
+
+La interpolación se verifica con un benchmark analítico independiente basado en:
+
+```text
+t = K · I^-2
+```
+
+Puntos de prueba:
+
+```text
+I = 100 A   -> t = 10 s
+I = 1000 A  -> t = 0.1 s
+```
+
+En el punto geométrico intermedio:
+
+```text
+I = sqrt(100·1000) A
+```
+
+la referencia exacta es:
+
+```text
+t = 1 s
+```
+
+El benchmark usa `TEST_DATA`; no se presenta como curva de fabricante.
+
+También se prueba:
+
+- exactitud en puntos publicados;
+- banda min/max;
+- rechazo de extrapolación;
+- huecos entre segmentos;
+- rechazo de puntos desordenados;
+- rechazo de segmentos solapados/tangentes;
+- método explícito de digitalización;
+- binding exacto dataset ↔ curve ID;
+- separación entre P5B y coordinación.
+
+## Readiness y compatibilidad P5A
+
+Para no romper el contrato histórico P5A se conserva `tcc_status` y se añade `tcc_data_status`.
+
+Antes de dataset:
+
+```text
+tcc_status      = MODULE_NOT_READY_P5A
+tcc_data_status = TCC_DATA_NOT_BOUND
+```
+
+Con dataset P5B válido:
+
+```text
+tcc_status      = TCC_DATA_READY_P5B
+tcc_data_status = TCC_DATA_READY
+```
+
+Incluso con TCC numérica lista:
+
+```text
+clearing_time_source = None
+p4_tk_s_consumed     = false
+```
+
+## Tools P5B
+
+P5B mantiene un registro público separado para no cambiar la API P5A:
+
+- `registrar_dataset_curva_tcc_p5b`;
+- `listar_datasets_curva_tcc_p5b`;
+- `vincular_dataset_curva_tcc_p5b`;
+- `evaluar_curva_tcc_p5b`;
+- `evaluar_dataset_tcc_p5b`.
+
+No existe todavía una tool de coordinación/selectividad en P5B.
+
+# Camino posterior
+
+## P5C — capacidad de corte y conductor
+
+Siguiente bloque:
+
+- comparar corriente de falla seleccionada contra rating explícito aplicable;
+- conservar tipo de rating usado (`Icu` o poder de corte de fusible);
+- mantener `Ics/Icw` separados, nunca como sustitutos silenciosos;
+- preparar protección térmica del conductor sin inventar `k` ni `I²t` límite.
+
+La evaluación inicial será una verificación técnica de rating/corriente, no una declaración de cumplimiento integral de la norma de producto.
+
+## P5D — tiempo de despeje
 
 Previsto:
 
-- confrontar corriente de falla P4 con rating de corte aplicable;
-- conservar MAX/MIN y tipo de falla;
-- verificar relación con conductor P3;
-- implementar `I²t <= k²S²` con datos y norma trazables;
-- no confundir `Icu`, `Ics`, `Icw` ni poder de corte de fusible.
+- evaluar la curva a una corriente explícita;
+- consumir directamente como clearing time solo una semántica autorizada por el contrato P5D;
+- conservar bandas como rango;
+- no extrapolar;
+- no utilizar `tk_s` P4.
 
-### P5D — tiempo de despeje
+## P5E — coordinación
 
-Previsto:
+Primera cobertura prevista:
 
-- evaluar curva/dispositivo en corriente de falla;
-- distinguir pickup, tolerancia/banda y zona instantánea;
-- retornar fuente exacta del tiempo;
-- nunca usar `tk_s` P4 como fallback.
+- par downstream/upstream explícito;
+- corriente de evaluación explícita;
+- margen temporal explícito;
+- comparación conservadora de bandas;
+- fail-closed si alguna curva está fuera de dominio.
 
-### P5E — coordinación
+No se inferirá selectividad energética/cascading a partir de heurísticas cuando se requieran tablas del fabricante.
 
-Previsto:
+## P5F — Workspace V5
 
-- par upstream/downstream explícito;
-- margen temporal configurable/versionado;
-- selectividad total/parcial cuando exista evidencia;
-- backup/cascading solo con tablas de fabricante trazables;
-- ningún claim comercial derivado por heurística.
+Se conserva el mismo workspace/unifilar/inspector.
 
-### P5F — V5
+V5 mostrará datos y resultados preparados en Python/MCP. El navegador:
 
-Se conserva el mismo workspace/unifilar/inspector. V5 añadirá una vista TCC vinculada a objetos `Protection.*` reales.
-
-El navegador:
-
-- no calcula curvas;
-- no interpola tiempos;
+- no interpola curvas;
+- no calcula tiempos;
+- no calcula márgenes de coordinación;
 - no decide selectividad;
-- no inventa ajustes;
-- solo representa datasets/resultados preparados por Python/MCP.
+- no inventa ajustes.
 
 No se crea una segunda aplicación visual.
 
 ## Gate actual
 
-P5A no cambia la madurez de `protection_coordination`.
-
 ```text
-validation_status.protection_data = EXPERIMENTAL
+validation_status.protection_data         = EXPERIMENTAL
+validation_status.tcc_curve_evaluation    = EXPERIMENTAL
 validation_status.protection_coordination = NOT_IMPLEMENTED
-professional_emission = false
+professional_emission                     = false
 ```
 
-Cerrar P5A significa que existe una base de datos/contrato segura para continuar a P5B; no significa que el MCP ya coordine protecciones.
+Cerrar P5B significa que la plataforma ya puede almacenar y evaluar TCC explícitas de forma reproducible. No significa todavía que la protección esté coordinada ni que exista un tiempo final de despeje.
