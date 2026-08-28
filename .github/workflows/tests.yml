@@ -84,6 +84,28 @@ jobs:
         with:
           name: mcp-electrico-benchmarks-p5g
           path: benchmark_p5g.json
+      - name: Generate reproducible P7A project snapshot
+        run: |
+          python examples/export_project_p7a.py --output project_p7a.json --netlist-dir project_p7a_dss
+          test -s project_p7a.json
+          grep -q '"schema": "MCP_ELECTRICO_P7A_PROJECT_SNAPSHOT_V1"' project_p7a.json
+          grep -q '"algorithm": "sha256"' project_p7a.json
+          grep -q '"professional_emission": false' project_p7a.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from mcp_electrico import project_snapshot
+          snapshot = json.loads(Path("project_p7a.json").read_text(encoding="utf-8"))
+          check = project_snapshot.verificar_snapshot(snapshot)
+          assert check["ok"] is True, check
+          assert check["status"] == "HASH_MATCH", check
+          print(check)
+          PY
+      - name: Upload P7A reproducible project snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-project-p7a
+          path: project_p7a.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
