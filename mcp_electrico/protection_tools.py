@@ -1,7 +1,7 @@
 """Tools MCP de P5A para datos de protección.
 
-Estas tools solo registran datos explícitos y readiness. No calculan TCC,
-selectividad ni tiempos de despeje.
+Estas tools registran datos explícitos y readiness. P5B expone la evaluación
+numérica de curvas en ``protection_tcc_tools`` para conservar el contrato P5A.
 """
 
 from __future__ import annotations
@@ -103,7 +103,7 @@ def register(mcp, on_model_change=None) -> None:
 
     @mcp.tool()
     def evaluar_preparacion_proteccion_p5a(dispositivo: str) -> dict:
-        """Evalúa datos/capacidad de corte y deja TCC bloqueada hasta P5B."""
+        """Evalúa datos/capacidad de corte y conserva el contrato P5A."""
         return protection_data.evaluar_preparacion(dispositivo)
 
     @mcp.tool()

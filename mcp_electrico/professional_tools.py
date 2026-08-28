@@ -9,6 +9,7 @@ from . import (
     model_qa,
     p2_completion,
     professional_data,
+    protection_tcc_tools,
     protection_tools,
     runtime_safety,
     validation_status,
@@ -248,8 +249,9 @@ def register(mcp, on_model_change=None) -> None:
         result["zero_sequence"] = zero_sequence.snapshot()
         return result
 
-    # P3, P4 y P5 conservan registros separados. P5A muta únicamente datos de
-    # protección y debe invalidar estudios posteriores mediante on_model_change.
+    # P3, P4 y P5 conservan registros separados. Cada mutación P5 que cambie
+    # el modelo de protección invalida estudios posteriores vía on_model_change.
     ampacity_tools.register(mcp)
     iec60909_tools.register(mcp)
     protection_tools.register(mcp, on_model_change=changed)
+    protection_tcc_tools.register(mcp, on_model_change=changed)

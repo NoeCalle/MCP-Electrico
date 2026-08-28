@@ -1,7 +1,9 @@
-"""Datos canónicos P5A para dispositivos de protección.
+"""Datos canónicos P5A/P5B para dispositivos de protección.
 
-P5A almacena únicamente datos explícitos con procedencia. No genera curvas de
-fabricante, no infiere ajustes desde In y no calcula tiempos de despeje.
+P5A almacena únicamente datos explícitos con procedencia. P5B puede vincular
+un dataset TCC numérico ya validado estructuralmente, pero no genera curvas de
+fabricante, no infiere ajustes desde In y no confunde tiempo de curva con
+tiempo real de despeje.
 """
 
 from __future__ import annotations
@@ -224,7 +226,7 @@ def vincular_curva(
     fuente_url: str | None = None,
     revision: str | None = None,
 ) -> dict[str, Any]:
-    """Vincula solo metadata de curva; P5A no ingiere ni sintetiza puntos TCC."""
+    """Vincula metadata de curva; los puntos numéricos pertenecen a P5B."""
     _sync()
     key = _device_key(dispositivo)
     record = _devices.get(key)
@@ -246,6 +248,45 @@ def vincular_curva(
         "tcc_execution_ready": False,
         "next_gate": protection_contract.CURVE_POLICY["next_gate"],
     }
+    return deepcopy(record)
+
+
+def vincular_dataset_numerico(
+    dispositivo: str,
+    dataset_summary: dict[str, Any],
+) -> dict[str, Any]:
+    """Vincula un dataset P5B solo si coincide con la identidad de curva P5A."""
+    _sync()
+    key = _device_key(dispositivo)
+    record = _devices.get(key)
+    if not record:
+        raise ValueError(f"P5DATA011: dispositivo no encontrado: {dispositivo}")
+    curve = record.get("curve")
+    if not curve:
+        raise ValueError("P5TCC031: primero debe vincular metadata de curva P5A al dispositivo.")
+
+    dataset_curve_id = str(dataset_summary.get("curve_id") or "").strip()
+    if dataset_curve_id != str(curve.get("id") or ""):
+        raise ValueError(
+            f"P5TCC032: curve_id del dataset ({dataset_curve_id or 'EMPTY'}) no coincide con la curva del dispositivo ({curve.get('id')})."
+        )
+    dataset_id = str(dataset_summary.get("dataset_id") or "").strip()
+    if not dataset_id:
+        raise ValueError("P5TCC033: dataset_id es obligatorio para vincular datos numéricos.")
+
+    curve.update(
+        {
+            "numeric_dataset_loaded": True,
+            "dataset_id": dataset_id,
+            "dataset_schema": str(dataset_summary.get("dataset_schema") or "").strip() or None,
+            "shape": str(dataset_summary.get("shape") or "").strip() or None,
+            "time_semantics": str(dataset_summary.get("time_semantics") or "").strip() or None,
+            "interpolation": str(dataset_summary.get("interpolation") or "").strip() or None,
+            "numeric_source": deepcopy(dataset_summary.get("source") or {}),
+            "tcc_execution_ready": True,
+            "next_gate": "P5C_BREAKING_CAPACITY_AND_CONDUCTOR",
+        }
+    )
     return deepcopy(record)
 
 
@@ -274,7 +315,7 @@ def _p3_binding(record: dict[str, Any]) -> dict[str, Any]:
 
 
 def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
-    """Separa readiness del dispositivo, capacidad de corte y TCC."""
+    """Separa readiness histórico P5A del estado numérico TCC P5B."""
     _sync()
     record = obtener_dispositivo(dispositivo)
     if not record:
@@ -299,19 +340,29 @@ def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
     curve = record.get("curve")
     tcc_issues: list[dict[str, str]] = []
     if not curve:
+        legacy_tcc_status = "MODULE_NOT_READY_P5A"
+        tcc_data_status = "TCC_METADATA_MISSING"
         tcc_issues.append({"code": "P5READY301", "message": "No existe metadata de curva TCC vinculada."})
+    elif not curve.get("numeric_dataset_loaded"):
+        legacy_tcc_status = "MODULE_NOT_READY_P5A"
+        tcc_data_status = "TCC_DATA_NOT_BOUND"
+        tcc_issues.append({"code": "P5READY302", "message": "Existe metadata de curva pero falta dataset numérico P5B vinculado."})
     else:
-        tcc_issues.append({"code": "P5READY302", "message": "P5A no carga datasets numéricos de curva; TCC permanece bloqueada hasta P5B."})
+        legacy_tcc_status = "TCC_DATA_READY_P5B"
+        tcc_data_status = "TCC_DATA_READY"
 
     return {
-        "schema": "MCP_ELECTRICO_P5A_PROTECTION_READINESS_V1",
+        "schema": "MCP_ELECTRICO_P5B_PROTECTION_READINESS_V1",
         "device_id": record["id"],
         "device_type": record["device_type"],
         "protected_element": record["protected_element"],
         "device_data_status": "FOUNDATION_READY" if not issues else "MISSING_OR_INCONSISTENT_DATA",
         "breaking_capacity_ready": not any(item["code"] in {"P5READY101", "P5READY102"} for item in issues),
         "p3_binding": p3,
-        "tcc_status": "MODULE_NOT_READY_P5A",
+        "tcc_status": legacy_tcc_status,
+        "tcc_data_status": tcc_data_status,
+        "tcc_data_ready": tcc_data_status == "TCC_DATA_READY",
+        "curve_time_semantics": (curve or {}).get("time_semantics"),
         "issues": issues,
         "tcc_issues": tcc_issues,
         "clearing_time_source": None,
@@ -323,7 +374,7 @@ def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
 def snapshot() -> dict[str, Any]:
     _sync()
     return {
-        "schema": "MCP_ELECTRICO_P5A_PROTECTION_DATA_V1",
+        "schema": "MCP_ELECTRICO_P5B_PROTECTION_DATA_V1",
         "circuit": _circuit_name,
         "devices": [deepcopy(item) for item in _devices.values()],
         "contract": protection_contract.obtener_contrato_p5a(),
