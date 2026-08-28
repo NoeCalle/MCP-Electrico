@@ -41,7 +41,7 @@ def test_p4c09a_suite_matches_pandapower_p4b_with_declared_tolerances():
         assert all(metric["pass"] for metric in case["comparison"]["metrics"].values())
 
 
-def test_p4c09_global_gate_closes_only_after_all_declared_scope_evidence_exists():
+def test_p4c09_global_gate_remains_closed_after_final_p4_maturity():
     gate = p4_completion.evaluar_cierre_p4()
     criteria = {item["id"]: item for item in gate["criteria"]}
 
@@ -54,5 +54,8 @@ def test_p4c09_global_gate_closes_only_after_all_declared_scope_evidence_exists(
     assert "2F=P4C06 PASS" in criteria["P4C09"]["evidence"]
     assert "1F-T=P4C07 PASS" in criteria["P4C09"]["evidence"]
     assert criteria["P4C10"]["status"] == "DONE"
-    assert criteria["P4C12"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
+    assert criteria["P4C12"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P5_PROTECTION_TCC"
+    assert gate["professional_emission"] is False
