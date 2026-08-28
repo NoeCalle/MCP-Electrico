@@ -151,7 +151,7 @@ def test_p7b_roundtrip_mismatch_is_cleared_and_not_claimed(monkeypatch, tmp_path
     assert result["restoration"]["netlist"] == "RESTORED_MISMATCH_CLEARED"
     assert result["stored_results_promoted_to_current"] is False
     assert result["active_circuit_after_failure"] == ""
-    assert str(dss.Circuit.Name() or "") == ""
+    assert project_reconstruction._active_circuit_name() == ""
     assert result["professional_emission"] is False
 
 
