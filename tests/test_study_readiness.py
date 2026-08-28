@@ -98,11 +98,25 @@ def test_1f_t_exige_z0_explicita_de_fuente_y_linea():
     assert "P2READY410" in codes
 
 
-def test_iec60909_1ft_puede_tener_datos_listos_pero_fault_scope_sigue_bloqueado():
-    _radial("ready_60909_ground")
+def test_iec60909_1ft_exige_c0_explicita_en_lineas():
+    _radial("ready_60909_ground_c0_missing")
     _source()
     zero_sequence.definir_fuente(0.30, 0.90, 0.50, 1.20)
     zero_sequence.definir_linea("l1", 0.65, 0.32)
+
+    result = engine_selection.evaluar_preparacion_estudio(
+        "iec60909", tipo_falla="single_phase_ground", permitir_experimental=True
+    )
+
+    assert result["data_status"] == "MISSING_DATA"
+    assert any(item["code"] == "P4READY411" for item in result["missing_data"])
+
+
+def test_iec60909_1ft_solo_queda_ready_con_z0_completa_y_habilitacion_experimental():
+    _radial("ready_60909_ground")
+    _source()
+    zero_sequence.definir_fuente(0.30, 0.90, 0.50, 1.20)
+    zero_sequence.definir_linea("l1", 0.65, 0.32, c0_nf_km=0.0)
 
     normal = engine_selection.evaluar_preparacion_estudio(
         "iec60909", tipo_falla="single_phase_ground"
@@ -113,12 +127,16 @@ def test_iec60909_1ft_puede_tener_datos_listos_pero_fault_scope_sigue_bloqueado(
         permitir_experimental=True,
     )
 
-    for result in (normal, experimental):
-        assert result["data_status"] == "READY_DATA"
-        assert result["engine_status"] == "ENGINE_NOT_READY"
-        assert result["overall_status"] == "ENGINE_NOT_READY"
-        assert result["selected_engine"] == "pandapower"
-        assert any(item["code"] == "P4READY803" for item in result["engine_reasons"])
+    assert normal["data_status"] == "READY_DATA"
+    assert normal["engine_status"] == "ENGINE_NOT_READY"
+    assert normal["overall_status"] == "ENGINE_NOT_READY"
+    assert normal["selected_engine"] == "pandapower"
+    assert any(item["code"] == "P2READY802" for item in normal["engine_reasons"])
+
+    assert experimental["data_status"] == "READY_DATA"
+    assert experimental["engine_status"] == "READY_ENGINE"
+    assert experimental["overall_status"] == "READY_TO_EXECUTE"
+    assert experimental["selected_engine"] == "pandapower"
 
 
 def test_iec60909_3f_solo_queda_ready_con_habilitacion_experimental_explicita():
