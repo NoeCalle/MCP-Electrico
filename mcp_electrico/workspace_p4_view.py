@@ -201,8 +201,8 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
 <div class="p4-header">
   <div><h3>Falla {escape(fault)} · barra <strong>{escape(bus)}</strong></h3><p>MAX/MIN registrados para la revisión vigente; sin recálculo en el navegador.</p></div>
   <div class="p4-kpis">
-    <span>{escape(current_label)} <strong>{_fmt(max_values.get('ikss_ka'), 3, ' kA')}</strong></span>
-    <span>{escape(current_label_min)} <strong>{_fmt(min_values.get('ikss_ka'), 3, ' kA')}</strong></span>
+    <span>{current_label} <strong>{_fmt(max_values.get('ikss_ka'), 3, ' kA')}</strong></span>
+    <span>{current_label_min} <strong>{_fmt(min_values.get('ikss_ka'), 3, ' kA')}</strong></span>
     <span>Estado <strong class="{overall_css}">{escape(overall)}</strong></span>
   </div>
 </div>
