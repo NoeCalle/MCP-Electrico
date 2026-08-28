@@ -1,4 +1,4 @@
-from mcp_electrico import iec60909_contract, p4_completion
+from mcp_electrico import iec60909_conformance, iec60909_contract, p4_completion
 
 
 def test_p4_contract_targets_current_2026_edition_and_preserves_engine_policy():
@@ -8,10 +8,13 @@ def test_p4_contract_targets_current_2026_edition_and_preserves_engine_policy():
     assert contract["target_standard"]["edition"] == "3.0"
     assert contract["target_standard"]["publication_date"] == "2026-07-23"
     assert contract["target_standard"]["status"] == "CURRENT"
+    assert contract["target_standard"]["full_text_bundled"] is False
     assert contract["backend"]["engine"] == "pandapower"
     assert contract["backend"]["automatic_dispatch"] is False
     assert contract["backend"]["crosscheck"] is False
-    assert contract["backend"]["target_edition_conformance"] == "UNVERIFIED_AGAINST_TARGET_EDITION"
+    assert contract["backend"]["target_edition_conformance"] == iec60909_conformance.REVIEW_STATUS
+    assert contract["backend"]["full_conformance_claim"] is False
+    assert contract["target_edition_review"]["complete"] is True
     assert contract["professional_emission"] is False
 
 
@@ -86,7 +89,7 @@ def test_p4_result_contract_does_not_invent_ib_ik_or_promote_non_3ph_skss():
     assert results["ik_ka"]["status"] == "PENDING_P4_STRATEGY"
 
 
-def test_p4_gate_closes_scope_benchmarks_and_v4_without_closing_phase():
+def test_p4_gate_closes_p4c10_review_without_closing_phase_before_maturity():
     gate = p4_completion.evaluar_cierre_p4()
     states = {item["id"]: item["status"] for item in gate["criteria"]}
 
@@ -98,8 +101,7 @@ def test_p4_gate_closes_scope_benchmarks_and_v4_without_closing_phase():
 
     for cid in (
         "P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06",
-        "P4C07", "P4C08", "P4C09", "P4C11",
+        "P4C07", "P4C08", "P4C09", "P4C10", "P4C11",
     ):
         assert states[cid] == "DONE"
-    assert states["P4C10"] == "PENDING"
     assert states["P4C12"] == "PENDING"
