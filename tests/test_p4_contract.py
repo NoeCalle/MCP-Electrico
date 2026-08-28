@@ -16,7 +16,14 @@ def test_p4_contract_targets_current_2026_edition_and_preserves_engine_policy():
 
 
 def test_p4_fault_scope_has_explicit_sequence_policies_and_keeps_2ph_ground_blocked():
-    scope = iec60909_contract.obtener_contrato_p4()["fault_scope"]
+    contract = iec60909_contract.obtener_contrato_p4()
+    scope = contract["fault_scope"]
+
+    assert contract["p4_v1_scope"]["status"] == "CLOSED"
+    assert contract["p4_v1_scope"]["included_faults"] == [
+        "three_phase", "two_phase", "single_phase_ground"
+    ]
+    assert contract["p4_v1_scope"]["excluded_faults"] == ["two_phase_ground"]
 
     assert scope["three_phase"]["pandapower_fault"] == "3ph"
     assert scope["three_phase"]["p4_v1_candidate"] is True
@@ -44,9 +51,12 @@ def test_p4_fault_scope_has_explicit_sequence_policies_and_keeps_2ph_ground_bloc
     assert one_phase["result_scope"]["skss_normalized"] is False
     assert one_phase["result_scope"]["ip_ith"] is False
 
-    assert scope["two_phase_ground"]["pandapower_fault"] is None
-    assert scope["two_phase_ground"]["backend_api_supported"] is False
-    assert scope["two_phase_ground"]["p4_v1_candidate"] is False
+    two_phase_ground = scope["two_phase_ground"]
+    assert two_phase_ground["pandapower_fault"] is None
+    assert two_phase_ground["backend_api_supported"] is False
+    assert two_phase_ground["p4_v1_candidate"] is False
+    assert two_phase_ground["status"] == "OUT_OF_SCOPE_P4_V1"
+    assert two_phase_ground["strategy"]["no_approximation"] is True
 
 
 def test_p4_source_mapping_makes_positive_and_zero_sequence_conversions_explicit():
@@ -76,7 +86,7 @@ def test_p4_result_contract_does_not_invent_ib_ik_or_promote_non_3ph_skss():
     assert results["ik_ka"]["status"] == "PENDING_P4_STRATEGY"
 
 
-def test_p4_gate_recognizes_p4c07_without_closing_phase():
+def test_p4_gate_closes_scope_benchmarks_and_v4_without_closing_phase():
     gate = p4_completion.evaluar_cierre_p4()
     states = {item["id"]: item["status"] for item in gate["criteria"]}
 
@@ -86,7 +96,10 @@ def test_p4_gate_recognizes_p4c07_without_closing_phase():
     assert gate["next_phase"] is None
     assert gate["professional_emission"] is False
 
-    for cid in ("P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06", "P4C07"):
+    for cid in (
+        "P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06",
+        "P4C07", "P4C08", "P4C09", "P4C11",
+    ):
         assert states[cid] == "DONE"
-    for cid in [f"P4C{i:02d}" for i in range(8, 13)]:
-        assert states[cid] == "PENDING"
+    assert states["P4C10"] == "PENDING"
+    assert states["P4C12"] == "PENDING"

@@ -45,6 +45,8 @@ FAULT_ALIASES = {
     "bifasica": "two_phase", "bifásica": "two_phase", "fase_fase": "two_phase", "phase_phase": "two_phase",
     "1f_t": "single_phase_ground", "1ft": "single_phase_ground", "1ph_ground": "single_phase_ground",
     "single_phase_ground": "single_phase_ground", "monofasica_tierra": "single_phase_ground", "monofásica_tierra": "single_phase_ground",
+    "2f_t": "two_phase_ground", "2ft": "two_phase_ground", "2ph_ground": "two_phase_ground",
+    "two_phase_ground": "two_phase_ground", "bifasica_tierra": "two_phase_ground", "bifásica_tierra": "two_phase_ground",
 }
 
 _FAULT_STUDIES = {"short_circuit_exploratory", "iec60909"}
@@ -68,7 +70,7 @@ def _fault_type(study: str, value: str | None) -> tuple[str | None, list[dict[st
     if normalized is None:
         return None, [_item(
             "P2READY011",
-            "P2 readiness clasifica three_phase, two_phase y single_phase_ground; 2F-T permanece fuera del alcance P4 actual.",
+            "Tipo de falla no reconocido. Se clasifican three_phase, two_phase, single_phase_ground y two_phase_ground; la clasificación no implica que todas pertenezcan al alcance ejecutable.",
         )]
     return normalized, []
 
@@ -219,7 +221,7 @@ def _zero_sequence_requirements(*, iec60909_ground: bool = False) -> list[dict[s
         if not values:
             missing.append(_item("P2READY402", f"Falta R0/X0 explícita de fuente para escenario {scenario}."))
         elif iec60909_ground and float(values.get("x0_ohm") or 0) <= 0:
-            missing.append(_item("P4READY403", "IEC 60909 1F-T requiere X0 de fuente >0 para proyectar x0x sin aproximación."))
+            missing.append(_item("P4READY403", "Falla a tierra IEC 60909 requiere X0 de fuente >0 para una proyección Z0 sin aproximación."))
 
     for line in model.get("lines", []):
         element = str(line.get("id") or "Line.?")
@@ -227,7 +229,7 @@ def _zero_sequence_requirements(*, iec60909_ground: bool = False) -> list[dict[s
         if not record:
             missing.append(_item("P2READY410", "Línea sin R0/X0 explícitos.", element))
         elif iec60909_ground and record.get("c0_nf_km") is None:
-            missing.append(_item("P4READY411", "IEC 60909 1F-T requiere C0 explícita; no se supone 0 nF/km.", element))
+            missing.append(_item("P4READY411", "Falla a tierra IEC 60909 requiere C0 explícita; no se supone 0 nF/km.", element))
 
     for transformer in model.get("transformers", []):
         element = str(transformer.get("id") or "Transformer.?")
@@ -255,6 +257,20 @@ def _engine_readiness(study: str, capability: dict[str, Any], fault_type: str | 
     if study == "iec60909" and fault_type:
         fault_scope = iec60909_contract.FAULT_SCOPE.get(fault_type)
         fault_status = (fault_scope or {}).get("status")
+        if fault_status == "OUT_OF_SCOPE_P4_V1":
+            strategy = (fault_scope or {}).get("strategy") or {}
+            return {
+                "status": ENGINE_NOT_READY,
+                "engine": preferred or None,
+                "reasons": [_item(
+                    "P4READY804",
+                    f"IEC 60909 {fault_type} está excluida formalmente de P4-v1; strategy={strategy.get('id') or 'UNDECLARED'}.",
+                )],
+                "note": (
+                    "No se aproxima 2F-T como 2F ni 1F-T. Para reabrir este alcance se requiere soporte directo del backend "
+                    "o un solver MCP dedicado con benchmark y revisión normativa."
+                ),
+            }
         if fault_status != "FOUNDATION_READY":
             return {
                 "status": ENGINE_NOT_READY,
@@ -300,7 +316,7 @@ def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = Non
     elif capability.get("requires_active_model", False) or study in _POSITIVE_SEQUENCE_PROFESSIONAL:
         data_missing.extend(_positive_sequence_requirements(study))
 
-    if study in _FAULT_STUDIES and normalized_fault == "single_phase_ground":
+    if study in _FAULT_STUDIES and normalized_fault in {"single_phase_ground", "two_phase_ground"}:
         if not any(item.get("code") == "P2READY001" for item in data_missing):
             data_missing.extend(_zero_sequence_requirements(iec60909_ground=(study == "iec60909")))
 
@@ -315,7 +331,10 @@ def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = Non
         except KeyError:
             module = None
 
-    if data_status == MISSING_DATA:
+    out_of_scope = any(item.get("code") == "P4READY804" for item in engine.get("reasons", []))
+    if out_of_scope:
+        overall = ENGINE_NOT_READY
+    elif data_status == MISSING_DATA:
         overall = MISSING_DATA
     elif engine["status"] == MODULE_NOT_READY:
         overall = MODULE_NOT_READY

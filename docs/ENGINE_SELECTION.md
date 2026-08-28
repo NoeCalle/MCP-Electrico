@@ -2,48 +2,55 @@
 
 ## Propósito
 
-MCP Eléctrico no debe escoger un backend por intuición del LLM. La selección de OpenDSS, pandapower o una capa propia MCP se realiza mediante una matriz explícita y versionada.
+MCP Eléctrico no escoge un backend por intuición del LLM. La selección de OpenDSS, pandapower o una capa propia MCP se realiza mediante una matriz explícita y versionada.
 
-Esta versión **no ejecuta automáticamente** el motor seleccionado y **no hace cross-check**. Responde qué backend corresponde, qué requisitos existen, si los datos profesionales están completos y si el estudio está habilitado en la madurez actual.
+La arquitectura vigente mantiene:
 
-## Matriz inicial
+```text
+automatic_dispatch = false
+crosscheck = false
+default_engine = opendss
+professional_emission[P4] = false
+```
+
+La matriz recomienda/selecciona el backend y evalúa readiness; las tools de ejecución siguen siendo explícitas.
+
+## Matriz actual
 
 | Estudio | Backend preferente | Estado actual |
 | --- | --- | --- |
 | Flujo de potencia | OpenDSS | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
 | Caída de tensión | OpenDSS + MCP | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
-| Cortocircuito exploratorio | OpenDSS FaultStudy | ejecutable técnicamente; `UNDER_VALIDATION`, no emisión formal |
-| IEC 60909 | pandapower | P4 pendiente; no ejecutable como módulo formal |
-| Ampacidad normativa | MCP | P3 pendiente |
-| Protección / TCC | MCP + pandapower cuando aplique | P5 pendiente |
+| Cortocircuito exploratorio | OpenDSS FaultStudy | técnico/legacy; no equivale a IEC 60909 formal |
+| IEC 60909 P4-v1 | pandapower 3.5.x | 3F/2F/1F-T experimentales; P4 aún `NOT_READY` |
+| Ampacidad normativa | MCP | P3-v1 `VALIDATED_WITH_LIMITATIONS` |
+| Protección / TCC | MCP + pandapower cuando aplique | P5 bloqueada por P4 |
 | IEEE 1584 | MCP | P6 pendiente |
 | Lee | MCP | experimental/educativo |
-| Armónicos | OpenDSS | capacidad del solver, módulo MCP profesional no implementado |
-| Series temporales | OpenDSS | capacidad del solver, módulo MCP profesional no implementado |
+| Armónicos | OpenDSS | solver disponible; módulo MCP profesional pendiente |
+| Series temporales | OpenDSS | solver disponible; módulo MCP profesional pendiente |
 
 ## Dos preguntas distintas: ejecutar vs. estar preparado
 
-A partir de P2 la matriz separa explícitamente:
+La matriz separa:
 
 1. **ejecución técnica:** existe una tool/solver que puede correr;
-2. **preparación profesional:** los datos y la representación del backend cumplen los requisitos declarados del estudio.
+2. **preparación profesional:** datos, representación del backend, alcance y madurez permiten ejecutar el estudio declarado sin supuestos silenciosos.
 
-Por eso `executable=true` no implica necesariamente `professional_execution_ready=true`.
-
-Ejemplo: un transformador legacy puede permitir resolver un flujo OpenDSS, pero si conserva parámetros no trazados la preparación profesional puede ser `MISSING_DATA`.
+Por eso `technical_executable=true` no implica `professional_execution_ready=true`, y ninguno de los dos implica `professional_emission=true`.
 
 ## Estados de readiness
 
 ### Datos
 
-- `READY_DATA`: los datos profesionales modelados para ese estudio están completos dentro del alcance P2 vigente.
-- `MISSING_DATA`: falta información del modelo o de la propia solicitud. No se completa con valores típicos.
+- `READY_DATA`: datos profesionales completos dentro del alcance declarado.
+- `MISSING_DATA`: falta información del modelo o de la solicitud; no se completa con valores típicos.
 
 ### Backend/módulo
 
 - `READY_ENGINE`: el backend vigente puede representar el caso declarado.
-- `ENGINE_NOT_READY`: los datos pueden existir, pero el backend/adaptador actual no puede representarlos de forma segura.
-- `MODULE_NOT_READY`: el módulo de estudio todavía no está implementado en la fase del roadmap correspondiente.
+- `ENGINE_NOT_READY`: el tipo de estudio/falla está reconocido, pero el backend o el alcance actual no permite ejecutarlo de forma segura.
+- `MODULE_NOT_READY`: el módulo todavía no está implementado.
 
 ### Estado global
 
@@ -52,24 +59,61 @@ Ejemplo: un transformador legacy puede permitir resolver un flujo OpenDSS, pero 
 - `ENGINE_NOT_READY`
 - `MODULE_NOT_READY`
 
-Esto permite distinguir, por ejemplo:
+Para una exclusión formal de alcance, como 2F-T en P4-v1, `ENGINE_NOT_READY` tiene precedencia como estado global para que la falta de soporte no quede ocultada por otros datos faltantes.
+
+## IEC 60909 — alcance P4-v1
+
+El backend preferente es pandapower 3.5.x y el alcance queda cerrado en:
+
+| Falla | Estado P4-v1 | Datos principales | Evidencia |
+| --- | --- | --- | --- |
+| 3F | `FOUNDATION_READY` | secuencia positiva | benchmark P4C09A + V4 P4C11A |
+| 2F | `FOUNDATION_READY` | positiva + política Z2=Z1 limitada | benchmark P4C06 + V4 P4C11B |
+| 1F-T | `FOUNDATION_READY` | positiva + negativa + Z0/C0/neutro explícitos | benchmark P4C07 + V4 P4C11C |
+| 2F-T | `OUT_OF_SCOPE_P4_V1` | requeriría positiva + negativa + cero | estrategia P4C08; sin aproximación |
+
+### 3F
+
+No exige Z0. Para readiness pandapower experimental se requiere `permitir_experimental=true`.
+
+### 2F
+
+La política actual declara expresamente `Z2 = Z1` solo para la red simétrica pasiva soportada. No es un supuesto universal para generadores, motores o modelos asimétricos.
+
+### 1F-T
+
+Requiere además:
+
+- R0/X0 de fuente por escenario;
+- R0/X0/C0 por línea;
+- ficha homopolar proyectable de transformadores;
+- neutro/puesta a tierra explícitos cuando corresponden;
+- `endtemp_degree` explícita por línea para MIN.
+
+### 2F-T
+
+El tipo se reconoce como `two_phase_ground`, pero P4-v1 devuelve:
 
 ```text
-Datos 1F-T completos          READY_DATA
-Transformador Z0 documentado READY_DATA
-OpenDSS Z0 de transformador  ENGINE_NOT_READY
-IEC 60909 pandapower         MODULE_NOT_READY hasta P4
+engine_status = ENGINE_NOT_READY
+overall_status = ENGINE_NOT_READY
+reason_code = P4READY804
+fault_scope = OUT_OF_SCOPE_P4_V1
 ```
+
+Pandapower 3.5.4 `calc_sc()` acepta únicamente `3ph`, `2ph` y `1ph`. MCP Eléctrico no transforma 2F-T en una de esas fallas y no introduce un solver paralelo silencioso.
+
+Detalle de la decisión: `docs/P4C08_2FT_SCOPE.md`.
 
 ## Tools
 
 ### `obtener_capacidades_motores()`
 
-Devuelve la matriz completa, incluyendo motor preferente, alternativas, requisitos y los estados de readiness.
+Devuelve motor preferente, alternativas, requisitos, madurez y estados de readiness.
 
 ### `evaluar_preparacion_estudio(estudio, norma=None, tipo_falla=None, permitir_experimental=False)`
 
-No ejecuta ningún estudio. Devuelve por separado:
+No ejecuta el estudio. Devuelve por separado:
 
 - `data_status`;
 - `engine_status`;
@@ -79,58 +123,30 @@ No ejecuta ningún estudio. Devuelve por separado:
 - motor seleccionado;
 - madurez del módulo.
 
-Para estudios de cortocircuito **no se asume 3F**. `tipo_falla` debe ser explícito. P2 readiness v1 clasifica `three_phase` y `single_phase_ground`; los demás tipos se completarán con P4.
+Para cortocircuito el tipo de falla debe ser explícito; nunca se asume 3F.
 
-Una falla 3F no exige Z0 como dato profesional. Una falla 1F-T sí exige la cadena homopolar correspondiente.
+### `seleccionar_motor_estudio(...)`
 
-### `seleccionar_motor_estudio(estudio, norma=None, permitir_experimental=False, tipo_falla=None)`
-
-Mantiene la selección determinista e incorpora el bloque `readiness`.
-
-Campos relevantes:
-
-```json
-{
-  "technical_executable": true,
-  "professional_execution_ready": false,
-  "selected_engine": "opendss",
-  "readiness": {
-    "data_status": "READY_DATA",
-    "engine_status": "ENGINE_NOT_READY",
-    "overall_status": "ENGINE_NOT_READY"
-  },
-  "automatic_dispatch": false,
-  "crosscheck": false
-}
-```
-
-## Elegibilidad de pandapower
-
-Para flujo, OpenDSS continúa siendo la selección principal. pandapower aparece como alternativa únicamente si:
-
-1. el usuario/flujo permite explícitamente un backend experimental;
-2. `pandapower_engine.evaluar_compatibilidad()` confirma que el modelo entra en su alcance vigente.
-
-IEC 60909 sigue dirigido a pandapower como candidato de P4, pero la existencia de esa capacidad en la librería no habilita el módulo antes de validarlo dentro de MCP Eléctrico.
+Aplica la misma matriz y agrega la decisión de ejecución sin despachar automáticamente el backend.
 
 ## Separación entre backend y estudio
 
-No todos los estudios pertenecen a un solver. Por ejemplo:
+No todos los estudios pertenecen a un solver:
 
-- `Ib` puede venir del flujo de red;
-- `Iz` será derivado por el módulo normativo MCP de P3;
-- `Ib <= In <= Iz` será una regla MCP;
-- IEC 60909 podrá usar pandapower en P4;
-- el tiempo de despeje vendrá de P5;
-- IEEE 1584 será cálculo MCP en P6 consumiendo esos resultados.
+- OpenDSS resuelve flujo;
+- MCP deriva/valida reglas de caída y ampacidad;
+- pandapower produce el núcleo IEC 60909 del alcance P4-v1;
+- P5 deberá producir tiempos de despeje y coordinación;
+- P6 IEEE 1584 consumirá corrientes y tiempos trazables.
 
-Por eso la matriz distingue entre **motor numérico**, **capa de estudio**, **preparación de datos** y **madurez para emisión**.
+La matriz distingue entre **motor numérico**, **capa de estudio**, **preparación de datos** y **madurez para emisión**.
 
 ## Reglas de seguridad
 
-- Nunca convertir un módulo pendiente en ejecutable por el solo hecho de que una librería externa tenga esa capacidad.
-- Nunca usar un backend alternativo incompatible con el modelo activo.
-- Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`.
-- Nunca asumir el tipo de falla cuando este cambia los datos requeridos.
+- Nunca convertir un módulo pendiente en profesional por el solo hecho de que una librería externa tenga una función relacionada.
+- Nunca usar un backend incompatible con el modelo activo.
+- Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`; además, `professional_emission` permanece como gate separado de producto.
+- Nunca asumir el tipo de falla.
 - Nunca completar datos ausentes con valores típicos para lograr compatibilidad.
+- Nunca aproximar 2F-T como 2F o 1F-T.
 - Mantener `automatic_dispatch=false` y `crosscheck=false` hasta una decisión arquitectónica posterior.

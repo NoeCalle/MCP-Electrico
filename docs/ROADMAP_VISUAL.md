@@ -145,9 +145,11 @@ Trabajo visual incremental de V3:
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 
-**Estado: EN DESARROLLO — P4C11A 3F DONE + P4C11B 2F DONE + P4C11C 1F-T DONE.**
+**Estado: COMPLETA PARA EL ALCANCE P4-v1 — P4C11 DONE.**
 
 La vista V4 reutiliza el mismo workspace/unifilar/inspector de V3; no crea una aplicación paralela ni realiza cálculos IEC 60909 en JavaScript.
+
+El alcance P4-v1 está cerrado por P4C08 en 3F, 2F y 1F-T. La 2F-T es `OUT_OF_SCOPE_P4_V1`, por lo que no se exige ni se fabrica una representación de un cálculo que el backend/contrato no soporta.
 
 ### P4C11A — 3F
 
@@ -197,7 +199,7 @@ Implementado:
 
 La pestaña **Cortocircuito** muestra únicamente estudios vigentes para la revisión actual. Si cambia el modelo, la infraestructura de `workspace_state` invalida los resultados anteriores.
 
-P4C11A, P4C11B y P4C11C están cerrados como subhitos. **P4C11 global permanece `PENDING`** hasta fijar el alcance final que efectivamente cierre P4-v1. P4C08 debe decidir si 2F-T se implementa mediante una estrategia numérica validable o queda formalmente fuera del alcance de esa versión; no se forzará una representación visual mientras esa decisión no exista.
+**P4C11 global = DONE** porque V4 cubre todos los tipos de falla incluidos por el contrato P4-v1. Si 2F-T reingresa en una versión futura, tendrá que definir también su representación visual y reabrir el gate correspondiente para esa nueva versión.
 
 ## V5 — Acompañamiento visual de P5: protección y TCC
 

@@ -1,8 +1,8 @@
 """Contrato P4 para cortocircuito IEC 60909.
 
 Este módulo NO calcula cortocircuitos. Fija de forma explícita la edición
-normativa objetivo, las capacidades que ofrece hoy el backend candidato y las
-magnitudes que todavía requieren implementación/validación.
+normativa objetivo, las capacidades del backend candidato, el alcance P4-v1 y
+las magnitudes que todavía requieren implementación/validación.
 
 P4 se inicia en 2026, por lo que la referencia objetivo es IEC 60909-0:2026.
 Pandapower 3.5.4 documenta un cálculo basado en DIN/IEC EN 60909, pero la
@@ -17,7 +17,7 @@ from typing import Any
 
 import pandapower as pp
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 TARGET_STANDARD = {
     "id": "IEC_60909_0_2026",
     "designation": "IEC 60909-0:2026",
@@ -39,6 +39,14 @@ BACKEND = {
     "crosscheck": False,
 }
 
+P4_V1_SCOPE = {
+    "status": "CLOSED",
+    "included_faults": ["three_phase", "two_phase", "single_phase_ground"],
+    "excluded_faults": ["two_phase_ground"],
+    "scope_rule": "Solo entran fallas con ruta numérica versionada, benchmark independiente y representación V4 dentro del backend/arquitectura P4-v1.",
+    "professional_emission": False,
+}
+
 FAULT_SCOPE = {
     "three_phase": {
         "pandapower_fault": "3ph",
@@ -46,6 +54,8 @@ FAULT_SCOPE = {
         "p4_v1_candidate": True,
         "sequence_requirements": ["positive"],
         "status": "FOUNDATION_READY",
+        "independent_benchmark": {"status": "PASS", "evidence": "P4C09A"},
+        "workspace_v4": {"status": "DONE", "evidence": "P4C11A"},
     },
     "two_phase": {
         "pandapower_fault": "2ph",
@@ -60,6 +70,8 @@ FAULT_SCOPE = {
             "universal_assumption": False,
         },
         "status": "FOUNDATION_READY",
+        "independent_benchmark": {"status": "PASS", "evidence": "P4C06"},
+        "workspace_v4": {"status": "DONE", "evidence": "P4C11B"},
     },
     "single_phase_ground": {
         "pandapower_fault": "1ph",
@@ -86,14 +98,32 @@ FAULT_SCOPE = {
             "ip_ith": False,
         },
         "status": "FOUNDATION_READY",
+        "independent_benchmark": {"status": "PASS", "evidence": "P4C07"},
+        "workspace_v4": {"status": "DONE", "evidence": "P4C11C"},
     },
     "two_phase_ground": {
         "pandapower_fault": None,
         "backend_api_supported": False,
         "p4_v1_candidate": False,
         "sequence_requirements": ["positive", "negative", "zero"],
-        "status": "BACKEND_STRATEGY_PENDING",
-        "note": "calc_sc() no expone un token directo 2ph-ground; no se aproxima como 2ph ni 1ph.",
+        "status": "OUT_OF_SCOPE_P4_V1",
+        "strategy": {
+            "id": "P4C08_EXCLUDE_2PH_GROUND_FROM_P4_V1",
+            "decision": "EXCLUDE_FROM_P4_V1",
+            "no_approximation": True,
+            "reason": (
+                "pandapower 3.5.4 calc_sc admite únicamente 3ph, 2ph y 1ph; "
+                "no existe token directo para falla bifásica a tierra."
+            ),
+            "backend_source": "https://github.com/e2nIEE/pandapower/blob/v3.5.4/pandapower/shortcircuit/calc_sc.py",
+            "future_reentry_conditions": [
+                "backend versionado con soporte directo 2F-T y contrato verificable",
+                "o solver MCP dedicado de componentes simétricas con definición contractual de resultados, benchmark independiente, CI y revisión normativa",
+            ],
+        },
+        "independent_benchmark": {"status": "NOT_REQUIRED_OUT_OF_SCOPE", "evidence": "P4C08"},
+        "workspace_v4": {"status": "NOT_REQUIRED_OUT_OF_SCOPE", "evidence": "P4C08"},
+        "note": "No se aproxima 2F-T como 2ph ni 1ph y no se crea un segundo solver silencioso para cerrar P4-v1.",
     },
 }
 
@@ -157,6 +187,7 @@ def obtener_contrato_p4() -> dict[str, Any]:
         "phase": "P4",
         "target_standard": deepcopy(TARGET_STANDARD),
         "backend": deepcopy(BACKEND),
+        "p4_v1_scope": deepcopy(P4_V1_SCOPE),
         "fault_scope": deepcopy(FAULT_SCOPE),
         "result_contract": deepcopy(RESULT_CONTRACT),
         "source_mapping": deepcopy(SOURCE_MAPPING),
