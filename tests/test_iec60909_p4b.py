@@ -90,7 +90,8 @@ def test_p4b_executes_three_phase_max_and_min_at_source_bus():
     assert minimum["backend_raw"]["skss_vs_mcp_abs_error"] < 1e-6
     assert maximum["engine"]["automatic_dispatch"] is False
     assert maximum["engine"]["crosscheck"] is False
-    assert maximum["engine"]["target_edition_conformance"] == "UNVERIFIED_AGAINST_TARGET_EDITION"
+    assert maximum["engine"]["target_edition_conformance"] == "REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION"
+    assert maximum["engine"]["full_conformance_claim"] is False
     assert maximum["target_standard"]["id"] == "IEC_60909_0_2026"
     assert maximum["professional_emission"] is False
 
