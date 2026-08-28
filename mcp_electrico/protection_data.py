@@ -315,7 +315,7 @@ def _p3_binding(record: dict[str, Any]) -> dict[str, Any]:
 
 
 def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
-    """Separa readiness del dispositivo, capacidad de corte y datos TCC."""
+    """Separa readiness histórico P5A del estado numérico TCC P5B."""
     _sync()
     record = obtener_dispositivo(dispositivo)
     if not record:
@@ -340,13 +340,16 @@ def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
     curve = record.get("curve")
     tcc_issues: list[dict[str, str]] = []
     if not curve:
-        tcc_status = "TCC_METADATA_MISSING"
+        legacy_tcc_status = "MODULE_NOT_READY_P5A"
+        tcc_data_status = "TCC_METADATA_MISSING"
         tcc_issues.append({"code": "P5READY301", "message": "No existe metadata de curva TCC vinculada."})
     elif not curve.get("numeric_dataset_loaded"):
-        tcc_status = "TCC_DATA_NOT_BOUND"
+        legacy_tcc_status = "MODULE_NOT_READY_P5A"
+        tcc_data_status = "TCC_DATA_NOT_BOUND"
         tcc_issues.append({"code": "P5READY302", "message": "Existe metadata de curva pero falta dataset numérico P5B vinculado."})
     else:
-        tcc_status = "TCC_DATA_READY"
+        legacy_tcc_status = "TCC_DATA_READY_P5B"
+        tcc_data_status = "TCC_DATA_READY"
 
     return {
         "schema": "MCP_ELECTRICO_P5B_PROTECTION_READINESS_V1",
@@ -356,8 +359,9 @@ def evaluar_preparacion(dispositivo: str) -> dict[str, Any]:
         "device_data_status": "FOUNDATION_READY" if not issues else "MISSING_OR_INCONSISTENT_DATA",
         "breaking_capacity_ready": not any(item["code"] in {"P5READY101", "P5READY102"} for item in issues),
         "p3_binding": p3,
-        "tcc_status": tcc_status,
-        "tcc_data_ready": tcc_status == "TCC_DATA_READY",
+        "tcc_status": legacy_tcc_status,
+        "tcc_data_status": tcc_data_status,
+        "tcc_data_ready": tcc_data_status == "TCC_DATA_READY",
         "curve_time_semantics": (curve or {}).get("time_semantics"),
         "issues": issues,
         "tcc_issues": tcc_issues,
