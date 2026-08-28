@@ -9,6 +9,7 @@ from mcp_electrico import (
     project_reconstruction,
     project_reconstruction_tools,
     project_snapshot,
+    validation_status,
     workspace_state,
 )
 
@@ -168,13 +169,18 @@ def test_p7b_invalid_json_file_is_fail_closed(tmp_path):
     assert str(dss.Circuit.Name()) == "p7b_json_sentinel"
 
 
-def test_p7b_contract_and_public_tools_are_explicit():
+def test_p7b_contract_tools_and_maturity_are_explicit():
     contract = project_reconstruction.obtener_contrato_p7b()
     assert contract["source_schema"] == "MCP_ELECTRICO_P7A_PROJECT_SNAPSHOT_V1"
     assert contract["integrity_before_write"] is True
     assert contract["stored_results_promoted_to_current"] is False
     assert contract["structured_state_auto_restore"] is False
     assert contract["professional_emission"] is False
+
+    maturity = validation_status.get_module_status("project_reconstruction")
+    assert maturity["status"] == "EXPERIMENTAL"
+    assert validation_status.get_module_status("reproducible_project")["status"] == "EXPERIMENTAL"
+    assert validation_status.get_module_status("professional_report")["status"] == "NOT_IMPLEMENTED"
 
     class FakeMCP:
         def __init__(self):
