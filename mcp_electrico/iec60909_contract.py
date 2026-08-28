@@ -5,9 +5,10 @@ normativa objetivo, las capacidades del backend candidato, el alcance P4-v1 y
 las magnitudes que todavía requieren implementación/validación.
 
 P4 se inicia en 2026, por lo que la referencia objetivo es IEC 60909-0:2026.
-Pandapower 3.5.4 documenta un cálculo basado en DIN/IEC EN 60909, pero la
-compatibilidad exacta con la edición IEC 60909-0:2026 no se presume: se mantiene
-UNVERIFIED_AGAINST_TARGET_EDITION hasta completar una revisión específica.
+Pandapower 3.5.4 documenta un cálculo basado en DIN/IEC EN 60909. P4C10 ya
+realizó una revisión específica contra la edición 2026 con evidencia pública,
+pero no reclama conformidad integral: el estado permanece explícitamente
+REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION.
 """
 
 from __future__ import annotations
@@ -17,7 +18,9 @@ from typing import Any
 
 import pandapower as pp
 
-SCHEMA_VERSION = 2
+from . import iec60909_conformance
+
+SCHEMA_VERSION = 3
 TARGET_STANDARD = {
     "id": "IEC_60909_0_2026",
     "designation": "IEC 60909-0:2026",
@@ -34,7 +37,9 @@ BACKEND = {
     "engine_version": pp.__version__,
     "module": "pandapower.shortcircuit",
     "declared_method": "equivalent voltage source according to DIN/IEC EN 60909",
-    "target_edition_conformance": "UNVERIFIED_AGAINST_TARGET_EDITION",
+    "target_edition_conformance": iec60909_conformance.REVIEW_STATUS,
+    "target_edition_review_id": iec60909_conformance.REVIEW["id"],
+    "full_conformance_claim": False,
     "automatic_dispatch": False,
     "crosscheck": False,
 }
@@ -182,18 +187,20 @@ SOURCE_MAPPING = {
 
 
 def obtener_contrato_p4() -> dict[str, Any]:
+    review = iec60909_conformance.evaluar_revision()
     return {
         "schema_version": SCHEMA_VERSION,
         "phase": "P4",
         "target_standard": deepcopy(TARGET_STANDARD),
         "backend": deepcopy(BACKEND),
+        "target_edition_review": deepcopy(review),
         "p4_v1_scope": deepcopy(P4_V1_SCOPE),
         "fault_scope": deepcopy(FAULT_SCOPE),
         "result_contract": deepcopy(RESULT_CONTRACT),
         "source_mapping": deepcopy(SOURCE_MAPPING),
         "professional_emission": False,
         "note": (
-            "La existencia de calc_sc() no demuestra conformidad con IEC 60909-0:2026. "
-            "P4 requiere adaptación de datos, benchmarks independientes, revisión de edición y madurez explícita."
+            "P4C10 completó una revisión específica de IEC 60909-0:2026 con limitaciones explícitas. "
+            "No se reclama conformidad integral ni se distribuye el texto completo de la norma; la madurez P4C12 permanece separada."
         ),
     }
