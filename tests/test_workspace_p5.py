@@ -170,7 +170,8 @@ def test_v5_es_idempotente_y_no_duplica_tab_o_panel():
 
     assert twice == once
     assert twice.count(workspace_p5_view.MARKER) == 1
-    assert twice.count('data-tab="protecciones"') == 1
+    tab_html = '<button type="button" class="tab" data-tab="protecciones">Protecciones / TCC</button>'
+    assert twice.count(tab_html) == 1
     assert twice.count('id="panel-protecciones"') == 1
 
 
