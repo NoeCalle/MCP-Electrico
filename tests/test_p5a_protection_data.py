@@ -6,6 +6,7 @@ from mcp_electrico import (
     protection_contract,
     protection_data,
     protection_tools,
+    runtime_safety,
     validation_status,
 )
 
@@ -93,6 +94,7 @@ def test_p5a_fuse_uses_its_own_breaking_capacity_semantics():
     )
     assert fuse["ratings"]["breaking_capacity_ka"] == 100.0
     assert fuse["ratings"]["icu_ka"] is None
+    assert fuse["utilization_category"] == "gG"
     assert protection_data.evaluar_preparacion("Protection.fu1")["breaking_capacity_ready"] is True
 
     with pytest.raises(ValueError, match="P5DATA027"):
@@ -184,6 +186,16 @@ def test_p5a_detects_p3_in_mismatch_without_overwriting_either_value(monkeypatch
     assert readiness["p3_binding"]["automatic_creation_from_p3"] is False
     assert any(item["code"] == "P5READY201" for item in readiness["issues"])
     assert readiness["device_data_status"] == "MISSING_OR_INCONSISTENT_DATA"
+
+
+def test_p5a_state_is_cleared_when_a_new_circuit_is_created_even_with_same_name():
+    runtime_safety.install()
+    _line_case("p5a_lifecycle")
+    _breaker()
+    assert len(protection_data.snapshot()["devices"]) == 1
+
+    core.crear_circuito("p5a_lifecycle", 0.48)
+    assert protection_data.snapshot()["devices"] == []
 
 
 def test_p5a_validation_status_does_not_promote_coordination_engine():
