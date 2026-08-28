@@ -89,19 +89,18 @@ def test_p4_result_contract_does_not_invent_ib_ik_or_promote_non_3ph_skss():
     assert results["ik_ka"]["status"] == "PENDING_P4_STRATEGY"
 
 
-def test_p4_gate_closes_p4c10_review_without_closing_phase_before_maturity():
+def test_p4_gate_closes_all_criteria_with_limited_maturity_and_unlocks_p5():
     gate = p4_completion.evaluar_cierre_p4()
     states = {item["id"]: item["status"] for item in gate["criteria"]}
 
     assert gate["phase"] == "P4"
-    assert gate["phase_status"] == "NOT_READY"
-    assert gate["ready_for_next_phase"] is False
-    assert gate["next_phase"] is None
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
+    assert gate["next_phase"] == "P5_PROTECTION_TCC"
     assert gate["professional_emission"] is False
 
     for cid in (
         "P4C01", "P4C02", "P4C03", "P4C04", "P4C05", "P4C06",
-        "P4C07", "P4C08", "P4C09", "P4C10", "P4C11",
+        "P4C07", "P4C08", "P4C09", "P4C10", "P4C11", "P4C12",
     ):
         assert states[cid] == "DONE"
-    assert states["P4C12"] == "PENDING"
