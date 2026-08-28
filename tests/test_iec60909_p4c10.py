@@ -42,7 +42,7 @@ def test_p4c10_keeps_2026_clause6_and_non_p4_results_as_explicit_limitations():
     assert review["upgrade_to_full_verification_requires"]
 
 
-def test_p4c10_contract_and_gate_use_reviewed_with_limitations_not_verified():
+def test_p4c10_contract_and_gate_preserve_limited_review_after_p4_closure():
     contract = iec60909_contract.obtener_contrato_p4()
     gate = p4_completion.evaluar_cierre_p4()
     criteria = {item["id"]: item for item in gate["criteria"]}
@@ -51,6 +51,7 @@ def test_p4c10_contract_and_gate_use_reviewed_with_limitations_not_verified():
     assert contract["backend"]["target_edition_conformance"] != iec60909_conformance.FULL_VERIFICATION_STATUS
     assert contract["backend"]["full_conformance_claim"] is False
     assert criteria["P4C10"]["status"] == "DONE"
-    assert criteria["P4C12"]["status"] == "PENDING"
-    assert gate["phase_status"] == "NOT_READY"
+    assert criteria["P4C12"]["status"] == "DONE"
+    assert gate["phase_status"] == "READY_WITH_LIMITATIONS"
+    assert gate["ready_for_next_phase"] is True
     assert gate["professional_emission"] is False
