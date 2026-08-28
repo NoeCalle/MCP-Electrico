@@ -21,7 +21,14 @@ def _regenerate_workspace() -> dict:
     state = workspace.get_state()
     path = Path(state["config"]["ruta_salida"]).expanduser()
     if not path.exists():
-        return {**result, "study_views": {"ok": True, "skipped": True, "reason": "workspace aún no generado"}}
+        return {
+            **result,
+            "study_views": {
+                "ok": True,
+                "skipped": True,
+                "reason": "workspace aún no generado",
+            },
+        }
 
     result["study_views"] = workspace_v4.enhance_file(
         path, workspace_state.snapshot()
@@ -29,30 +36,32 @@ def _regenerate_workspace() -> dict:
     return result
 
 
-def register(mcp) -> None:
-    @mcp.tool()
-    def ejecutar_cortocircuito_iec60909_1ph_ground(
-        bus_falla: str,
-        line_endtemp_degree_c: dict[str, float] | None = None,
-        lv_tol_percent: int = 10,
-    ) -> dict:
-        """Ejecuta IEC 60909 1F-T MAX/MIN con Z0 explícita y registra V4.
+def ejecutar_cortocircuito_iec60909_1ph_ground(
+    bus_falla: str,
+    line_endtemp_degree_c: dict[str, float] | None = None,
+    lv_tol_percent: int = 10,
+) -> dict:
+    """Ejecuta IEC 60909 1F-T MAX/MIN con Z0 explícita y registra V4.
 
-        No hay despacho automático ni cross-check. La secuencia cero de fuente,
-        líneas y transformadores debe estar declarada y proyectable; MIN exige
-        ``endtemp_degree`` explícita por línea. Sk'', ip e Ith no se derivan ni
-        se promocionan para 1F-T en P4C11C. La emisión profesional permanece
-        deshabilitada.
-        """
-        result = iec60909_single_phase_ground_suite.ejecutar_1ph_ground_max_min(
-            bus=bus_falla,
-            line_endtemp_degree_c=line_endtemp_degree_c,
-            lv_tol_percent=lv_tol_percent,
-        )
-        workspace_state.record_study(
-            "iec60909_1ph_ground",
-            result,
-            action="ejecutar_cortocircuito_iec60909_1ph_ground",
-        )
-        _regenerate_workspace()
-        return result
+    No hay despacho automático ni cross-check. La secuencia cero de fuente,
+    líneas y transformadores debe estar declarada y proyectable; MIN exige
+    ``endtemp_degree`` explícita por línea. Sk'', ip e Ith no se derivan ni se
+    promocionan para 1F-T en P4C11C. La emisión profesional permanece
+    deshabilitada.
+    """
+    result = iec60909_single_phase_ground_suite.ejecutar_1ph_ground_max_min(
+        bus=bus_falla,
+        line_endtemp_degree_c=line_endtemp_degree_c,
+        lv_tol_percent=lv_tol_percent,
+    )
+    workspace_state.record_study(
+        "iec60909_1ph_ground",
+        result,
+        action="ejecutar_cortocircuito_iec60909_1ph_ground",
+    )
+    _regenerate_workspace()
+    return result
+
+
+def register(mcp) -> None:
+    mcp.tool()(ejecutar_cortocircuito_iec60909_1ph_ground)
