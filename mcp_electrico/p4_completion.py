@@ -30,6 +30,7 @@ def _criteria() -> list[dict[str, Any]]:
     target = contract["target_standard"]
     backend = contract["backend"]
     capabilities = iec60909.CAPABILITIES
+    fault_scope = contract["fault_scope"]
     maturity = validation_status.get_module_status("short_circuit")
 
     return [
@@ -80,8 +81,12 @@ def _criteria() -> list[dict[str, Any]]:
         _criterion(
             "P4C07",
             "single_phase_ground_zero_sequence",
-            bool(capabilities.get("single_phase_ground")),
-            "Pendiente: 1F-T + cadena Z0",
+            fault_scope.get("single_phase_ground", {}).get("status") == "FOUNDATION_READY",
+            (
+                "iec60909_single_phase_ground.ejecutar_1ph_ground + benchmark independiente 1F-T MAX/MIN; "
+                "Z0 explícita de fuente/líneas/transformadores, C0 explícita por línea y Z2=Z1 limitada "
+                "al alcance simétrico pasivo; Sk''/ip/Ith no se promocionan para 1F-T"
+            ),
             "La falla a tierra requiere secuencia cero validada de fuente/líneas/transformadores.",
         ),
         _criterion(
@@ -95,8 +100,8 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C09",
             "independent_normative_benchmarks",
             False,
-            "Pendiente: benchmark global; P4C09A 3F PASS y benchmark independiente P4C06 2F incorporado",
-            "Faltan benchmarks independientes para el alcance P4-v1.",
+            "Pendiente: benchmark global; P4C09A 3F PASS, benchmark P4C06 2F y benchmark P4C07 1F-T incorporados",
+            "Faltan benchmarks independientes para el alcance P4-v1 y el cierre global depende todavía de P4C08/P4C10.",
         ),
         _criterion(
             "P4C10",
@@ -109,8 +114,8 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C11",
             "workspace_v4",
             False,
-            "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN, política Z2 visible, convivencia 3F+2F y tool MCP 2F versionada.",
-            "Workspace V4 ya cubre 3F y 2F, pero P4C11 global debe completar el alcance final de fallas que cierre P4-v1.",
+            "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN. P4C11C 1F-T pendiente tras cierre numérico P4C07.",
+            "Workspace V4 ya cubre 3F y 2F, pero debe incorporar 1F-T y el alcance final que efectivamente cierre P4-v1.",
         ),
         _criterion(
             "P4C12",

@@ -11,7 +11,9 @@ Alcance de este módulo:
 - sin afirmar todavía conformidad de edición 2026.
 
 P4C06 añade la falla 2F en ``iec60909_two_phase`` reutilizando la misma cadena
-P2 y declarando explícitamente su política de secuencia negativa.
+P2 y declarando explícitamente su política de secuencia negativa. P4C07 añade
+1F-T en ``iec60909_single_phase_ground`` con secuencia cero explícita y gates
+fail-closed propios.
 
 Para cálculo mínimo con líneas se exige `endtemp_degree` explícita por línea.
 Para ip/Ith se exigen `topology` y `tk_s` explícitos. No se introduce un valor
@@ -33,7 +35,7 @@ CAPABILITIES = {
     "three_phase_max_min": True,
     "peak_thermal": True,
     "two_phase": True,
-    "single_phase_ground": False,
+    "single_phase_ground": True,
     "two_phase_ground": False,
 }
 
@@ -364,6 +366,7 @@ def ejecutar_3ph(
         "limitations": [
             "Este payload corresponde únicamente a falla trifásica 3F.",
             "La falla 2F se expone separadamente en P4C06 con política Z2 explícita.",
+            "La falla 1F-T se expone separadamente en P4C07 con Z0 explícita y gates fail-closed.",
             "La conformidad específica con IEC 60909-0:2026 permanece sin verificar.",
             "Ib e Ik todavía no se calculan.",
             "ip/Ith P4C05 se limitan a kappa_method C y requieren topology/tk_s explícitos.",

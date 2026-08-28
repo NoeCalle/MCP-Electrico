@@ -66,7 +66,26 @@ FAULT_SCOPE = {
         "backend_api_supported": True,
         "p4_v1_candidate": True,
         "sequence_requirements": ["positive", "negative", "zero"],
-        "status": "BLOCKED_BY_ZERO_SEQUENCE_VALIDATION",
+        "negative_sequence_policy": {
+            "id": "P4C07_Z2_EQUALS_Z1_SYMMETRIC_PASSIVE_SCOPE",
+            "relation": "Z2 = Z1",
+            "scope": "red simétrica pasiva P4C07 v1; sin generadores ni motores",
+            "explicit": True,
+            "universal_assumption": False,
+        },
+        "zero_sequence_policy": {
+            "source": "R0/X0 absolutos explícitos P2 por escenario -> r0x0 y x0x preservando Z0",
+            "lines": "R0/X0/C0 explícitos P2; C0 no se inventa",
+            "transformers": "vk0/vkr0/mag0/si0 + neutro explícitos P2 -> pandapower 3.5.4",
+            "min_line_temperature": "endtemp_degree explícita; pandapower corrige R1 y R0",
+        },
+        "result_scope": {
+            "ikss": True,
+            "sequence_thevenin_impedances": True,
+            "skss_normalized": False,
+            "ip_ith": False,
+        },
+        "status": "FOUNDATION_READY",
     },
     "two_phase_ground": {
         "pandapower_fault": None,
@@ -91,18 +110,20 @@ RESULT_CONTRACT = {
         "scope": "3ph_normalized_only_in_current_p4",
         "note": (
             "Pandapower denomina el campo skss_mw. P4 3F lo normaliza como magnitud derivada; "
-            "P4C06 2F conserva el campo backend sin promoverlo a Sk'' contractual."
+            "P4C06 2F y P4C07 1F-T conservan cualquier campo backend sin promoverlo a Sk'' contractual."
         ),
     },
     "ip_ka": {
         "iec_symbol": "ip",
         "pandapower_field": "ip_ka",
-        "status": "DIRECT_BACKEND_RESULT_WHEN_REQUESTED",
+        "status": "DIRECT_BACKEND_RESULT_WHEN_REQUESTED_3PH_2PH",
+        "note": "P4C07 no promociona ip para 1F-T porque pandapower 3.5.4 no lo calcula en _calc_sc_1ph.",
     },
     "ith_ka": {
         "iec_symbol": "Ith",
         "pandapower_field": "ith_ka",
-        "status": "DIRECT_BACKEND_RESULT_WHEN_REQUESTED",
+        "status": "DIRECT_BACKEND_RESULT_WHEN_REQUESTED_3PH_2PH",
+        "note": "P4C07 no promociona Ith para 1F-T porque pandapower 3.5.4 no lo calcula en _calc_sc_1ph.",
     },
     "ib_ka": {
         "iec_symbol": "Ib",
@@ -121,6 +142,11 @@ SOURCE_MAPPING = {
     "p2_scc_min_mva": "ext_grid.s_sc_min_mva",
     "p2_x_r_max": "ext_grid.rx_max = 1 / X_R_max",
     "p2_x_r_min": "ext_grid.rx_min = 1 / X_R_min",
+    "p2_zero_sequence": {
+        "r0x0": "R0 / X0",
+        "x0x": "X0 / X1_backend",
+        "note": "X1_backend usa el mismo factor de tensión c y Scc que pandapower para el escenario activo, preservando R0/X0 absolutos P2.",
+    },
     "note": "P2 almacena X/R; pandapower recibe R/X. La inversión debe ser explícita y probada.",
 }
 

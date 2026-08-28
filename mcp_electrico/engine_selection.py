@@ -40,20 +40,22 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "preferred": "pandapower", "alternatives": [], "module": "short_circuit",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
         "reason": (
-            "P4 implementa experimentalmente IEC 60909 con pandapower para fallas 3F y 2F max/min; "
-            "3F tiene benchmark independiente P4C09A y 2F benchmark P4C06 con Z2=Z1 explícita "
-            "solo para el alcance simétrico pasivo. ip/Ith requieren parámetros explícitos. "
-            "El alcance completo, la revisión de edición 2026 y la madurez profesional siguen pendientes."
+            "P4 implementa experimentalmente IEC 60909 con pandapower para fallas 3F, 2F y 1F-T max/min. "
+            "3F tiene benchmark independiente P4C09A; 2F benchmark P4C06 con Z2=Z1 explícita; "
+            "1F-T P4C07 añade Z0 explícita de fuente/líneas/transformadores y benchmark por componentes simétricas. "
+            "ip/Ith se mantienen en 3F/2F con parámetros explícitos y no se promocionan para 1F-T. "
+            "El alcance completo, 2F-T, la revisión de edición 2026 y la madurez profesional siguen pendientes."
         ),
         "requirements": [
-            "P2 suficiente para fuente/líneas/transformadores del alcance 3F/2F",
-            "tipo de falla 3F o 2F explícito",
-            "para 2F: política Z2=Z1 explícita limitada a red simétrica pasiva",
+            "P2 suficiente para fuente/líneas/transformadores del tipo de falla solicitado",
+            "tipo de falla 3F, 2F o 1F-T explícito",
+            "para 2F y 1F-T: política Z2=Z1 explícita limitada a red simétrica pasiva",
+            "para 1F-T: R0/X0 de fuente, R0/X0/C0 por línea y ficha Z0/neutro de transformador explícitos",
             "escenario max/min explícito",
             "endtemp_degree explícita por línea en cálculo mínimo",
-            "topology y tk_s explícitos cuando se solicitan ip/Ith",
+            "topology y tk_s explícitos cuando se solicitan ip/Ith en 3F/2F",
             "permitir_experimental=true para readiness del backend pandapower",
-            "secuencia cero validada antes de cualquier falla a tierra",
+            "2F-T permanece fuera del alcance hasta definir una estrategia numérica válida",
         ],
     },
     "ampacity": {
