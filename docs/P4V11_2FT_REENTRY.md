@@ -2,60 +2,75 @@
 
 ## Estado
 
-**P4-v1.1A DONE — fundamento matemático 2F-T utilizable dentro del alcance declarado.**
+**P4-v1.1 2F-T = `USABLE_WITH_DECLARED_SCOPE` para uso técnico interno.**
 
-P4-v1 cerró 2F-T como `OUT_OF_SCOPE_P4_V1` porque pandapower 3.5.4 no ofrece una API directa para falla bifásica a tierra. Ese cierre fue correcto para no aproximar silenciosamente 2F-T como 2F o 1F-T.
+P4-v1 cerró 2F-T como `OUT_OF_SCOPE_P4_V1` porque pandapower 3.5.4 no ofrece una API directa para falla bifásica a tierra. Ese cierre histórico permanece correcto y no se reescribe. P4-v1.1 agrega una **extensión operacional MCP** mediante la segunda condición prevista en P4C08: solver dedicado de componentes simétricas, integración trazable con Z1/Z0 del modelo y representación V4.
 
-P4-v1.1 reabre el alcance mediante la segunda condición prevista en P4C08: **solver MCP dedicado de componentes simétricas**. El fundamento matemático ya dispone de benchmark independiente y auditoría adicional de condiciones de frontera. La integración automática con el modelo, la semántica IEC contractual y la revisión normativa siguen en gates separados.
+La extensión puede utilizarse para modelado y estudios internos dentro del alcance declarado. La validación normativa integral y el contraste externo permanecen registrados como deuda y bloquean cualquier afirmación de conformidad integral o emisión profesional.
 
-## Estado de uso provisional
+## Estado de uso
 
 ```text
 mathematical_foundation = USABLE_WITH_DECLARED_SCOPE
-model_integration       = PENDING_P4V11B
+model_integration       = DONE_P4V11B
+operational_contract    = DONE_P4V11C
+internal_network_case   = DONE_P4V11D
 normative_verification  = PENDING_LICENSED_IEC_REVIEW
-external_reference_case = PENDING
+external_reference_case = PENDING_EXTERNAL_REFERENCE_CASE
+workspace_v4            = DONE_P4V11F
+operational_gate        = USABLE_WITH_DECLARED_SCOPE
 professional_emission   = false
 ```
 
-Esto significa que el solver puede utilizarse como cálculo técnico interno cuando se proporcionan explícitamente `E1`, `Z1` y `Z0` compatibles con su alcance. No significa todavía que una salida 2F-T pueda etiquetarse automáticamente como `Ik''` IEC 60909 contractual ni que el MCP haya demostrado conformidad integral con IEC 60909-0:2026.
+## Arquitectura numérica
 
-## Backend
-
-Pandapower sigue siendo el backend previsto para obtener la red equivalente/impedancias de secuencia dentro del alcance ya soportado. El cálculo 2F-T no se presenta como una función nativa de pandapower.
+Pandapower sigue siendo el backend para construir la red y obtener impedancias Thevenin de secuencia dentro del alcance P4. **No calcula la falla 2F-T**.
 
 ```text
+modelo P2/P4
+   ↓
 pandapower 3.5.4
-  ├─ 3ph  soportado
-  ├─ 2ph  soportado
-  ├─ 1ph  soportado
-  └─ 2ph-ground  NO soportado directamente
+   ↓
+Z1 = Rk + jXk
+Z0 = Rk0 + jXk0
+   ↓
+Z2 = Z1   [solo alcance simétrico pasivo]
+   ↓
+solver MCP 2F-T de componentes simétricas
+   ↓
+Ia, Ib, Ic, I0, I1, I2
 ```
 
-El solver MCP debe declarar siempre su origen y nunca etiquetar su resultado como `pandapower fault="2ph_ground"`.
+Para extraer `Rk/Xk/Rk0/Xk0`, el adaptador utiliza la ruta `1ph` de pandapower porque es la ruta soportada que construye las redes positiva y cero y expone ambas impedancias en `res_bus_sc`. **La corriente 1F-T calculada por pandapower se descarta y nunca se reutiliza como corriente 2F-T.**
 
-## P4-v1.1A — fundamento matemático
+No existe ni se simula:
 
-Alcance:
+```text
+pandapower fault="2ph_ground"
+```
+
+## P4V11A — fundamento matemático
+
+**DONE.** Alcance:
 
 - falla franca b-c-tierra;
 - `Zf = 0`;
 - componentes simétricas;
-- `Z2 = Z1` únicamente para la red simétrica pasiva ya declarada por P4;
+- `Z2 = Z1` únicamente para red simétrica pasiva;
 - `Z0` explícita;
 - fuente positiva `E1` explícita;
 - impedancias Thevenin pasivas con `R >= 0`, `X >= 0` y magnitud no nula;
 - sin generadores, motores, convertidores ni modelos asimétricos.
 
-Con falla franca 2F-T, la red positiva ve:
+Con falla franca 2F-T:
 
 ```text
 Z1 + (Z2 || Z0)
 ```
 
-y el solver calcula `I0`, `I1`, `I2`, reconstruye `Ia`, `Ib`, `Ic` y las tensiones de secuencia/fase.
+El solver calcula `I0`, `I1`, `I2`, reconstruye `Ia`, `Ib`, `Ic` y las tensiones de secuencia/fase.
 
-Condiciones de frontera verificadas explícitamente:
+Condiciones de frontera verificadas:
 
 ```text
 Ia = 0
@@ -66,80 +81,98 @@ V0 = V1 = V2    en el nodo de falla bolted
 Ia + Ib + Ic = 3 I0
 ```
 
-En P4-v1.1A **no se promociona todavía** una magnitud contractual `Ik''` para 2F-T, ni `Sk''`, `ip` o `Ith`. La matemática puede utilizarse; la semántica IEC exacta se mantiene fail-closed hasta P4V11C/P4V11E.
+## P4V11B — integración con el modelo
 
-## Auditoría matemática
+**DONE.** `mcp_electrico.iec60909_two_phase_ground`:
 
-La auditoría del fundamento incluye:
+- toma el mismo snapshot P2/P4 vigente;
+- aplica Scc/X-R MAX o MIN de la fuente;
+- proyecta Z0 de fuente, líneas y transformadores con las mismas reglas P4C07;
+- conserva `endtemp_degree` explícita por línea para MIN;
+- obtiene `Rk/Xk/Rk0/Xk0` de la barra objetivo;
+- calcula `E1 = c·Un/√3` con el mismo factor de tensión usado por P4;
+- entrega Z1/Z0 al solver MCP auditado;
+- no consume la corriente `1ph` del backend.
 
-- comparación con la conexión clásica de redes de secuencia para doble línea a tierra;
-- benchmark independiente que no repite directamente la fórmula del solver;
-- resolución en dominio de fases mediante `Zabc` imponiendo `Ia=0`, `Vb=0`, `Vc=0`;
-- casos deterministas BT y MT con distintas relaciones `Z0/Z1`;
-- caso puramente resistivo permitido dentro del alcance pasivo;
-- rechazo explícito de impedancias negativas/no pasivas;
-- verificación de KCL, transformación de secuencias y condiciones de frontera de tensión.
+## P4V11C — contrato operacional de resultados
 
-Como comprobación adicional durante la auditoría se contrastaron múltiples combinaciones numéricas entre el solver de secuencias y la solución matricial en dominio de fases; no se detectó discrepancia material dentro de tolerancia numérica.
+**DONE para uso operacional; validación normativa contractual diferida.**
 
-## Benchmark independiente
+Se expone:
 
-El benchmark construye `Zabc` desde `Z0/Z1/Z2`, resuelve directamente en dominio de fases las condiciones:
+- `Ib`, `Ic` de las fases en falla;
+- corriente de retorno a tierra;
+- `I0`, `I1`, `I2`;
+- `Rk/Xk/Rk0/Xk0`;
+- `results.ikss_ka` como **campo operativo** igual a `max_faulted_phase_rms_current` para que las capas existentes puedan visualizar/comparar una magnitud de falla.
+
+Pero el payload declara siempre:
 
 ```text
-Ia = 0
-Vb = 0
-Vc = 0
+ikss_contractual = false
+skss_contractual = false
+ip_ith            = false
+operational_current_semantics = max_faulted_phase_rms_current
 ```
 
-y compara corrientes de fase, corrientes de secuencia y tensiones de fase obtenidas.
+Por tanto, `results.ikss_ka` **no debe citarse todavía como Ik'' contractual IEC 60909 para 2F-T**. `Sk''`, `ip` e `Ith` permanecen `None`.
 
-Esto evita un test circular fórmula-contra-la-misma-fórmula.
+## P4V11D — benchmark interno de red
 
-## Gates de reingreso 2F-T
+**DONE para el gate interno.** La regresión incluye:
 
-1. **P4V11A — matemática:** **DONE** — solver bolted + benchmark independiente + auditoría de invariantes.
-2. **P4V11B — integración de modelo:** PENDIENTE — extracción trazable de `Z1/Z2/Z0` de la misma revisión del modelo y escenarios MAX/MIN.
-3. **P4V11C — resultados:** PENDIENTE — contrato exacto de magnitudes 2F-T, unidades y semántica IEC; fail-closed para campos no cubiertos.
-4. **P4V11D — benchmark de red:** PENDIENTE — caso reproducible con transformador, neutro y Z0 explícitos.
-5. **P4V11E — revisión IEC 60909-0:2026:** PENDIENTE DIFERIDO — contraste específico contra el texto completo licenciado de la edición objetivo.
-6. **P4V11F — Workspace V4:** PENDIENTE — representación 2F-T en la misma UI, sin cálculo JavaScript.
-7. **P4V11G — gate de madurez:** PENDIENTE — actualización de `FAULT_SCOPE` solo después de los gates aplicables.
+- fuente equivalente con escenarios MAX/MIN y Z0 explícita;
+- alimentador con R1/X1 y R0/X0/C0;
+- bloqueo MIN cuando falta temperatura final explícita;
+- transformador Dyn11 con ficha P2 y Z0 explícita;
+- comparación neutro sólido vs neutro con impedancia;
+- requisito físico de que introducir impedancia de neutro reduzca la contribución 2F-T dentro del caso reproducible.
 
-## VALIDACIONES PENDIENTES — registrar y no olvidar
+Este benchmark interno **no sustituye** `VP-2FT-02`, que exige una referencia externa independiente.
 
-Estas validaciones se mantienen explícitamente pendientes porque por el momento no están disponibles. **No invalidan el fundamento matemático P4V11A**, pero sí impiden afirmar verificación normativa integral o emisión profesional 2F-T.
+## P4V11E — revisión IEC 60909-0:2026
 
-### VP-2FT-01 — IEC 60909-0:2026 completa
+**PENDIENTE DIFERIDO.** Requiere acceso controlado al texto completo licenciado y trazabilidad cláusula/ecuación/implementación. Mientras no exista esa evidencia:
 
-Pendiente contrastar el método, factores aplicables y semántica exacta de resultados 2F-T contra el texto completo licenciado de IEC 60909-0:2026 Ed.3.
+```text
+normative_verification = PENDING_LICENSED_IEC_REVIEW
+full_conformance_claim = false
+professional_emission  = false
+```
 
-Estado: `PENDING_LICENSED_IEC_REVIEW`.
+## P4V11F — Workspace V4
 
-### VP-2FT-02 — caso externo de referencia
+**DONE.** La misma vista de cortocircuito admite `iec60909_2ph_ground`:
 
-Pendiente comparar el resultado de una subestación/caso conocido contra una referencia externa independiente de confianza (estudio previamente aprobado, software comercial reconocido o benchmark publicado adecuado al mismo modelo).
+- muestra MAX/MIN preparados por Python/MCP;
+- etiqueta la corriente como corriente de fase operacional, no como Ik'' contractual;
+- muestra Z1/Z0 y políticas de secuencia;
+- conserva los IDs de validaciones pendientes;
+- no ejecuta interpolaciones, impedancias ni cálculo de falla en JavaScript;
+- no crea una segunda interfaz visual.
 
-Estado: `PENDING_EXTERNAL_REFERENCE_CASE`.
+## P4V11G — gate operacional
 
-### VP-2FT-03 — revisión profesional del ingeniero
+**`USABLE_WITH_DECLARED_SCOPE`.** Este gate no sustituye la madurez histórica `P4 = READY_WITH_LIMITATIONS` ni convierte la extensión en `VALIDATED_WITH_LIMITATIONS`.
 
-Antes de habilitar `professional_emission=true` para 2F-T, un ingeniero responsable debe revisar alcance, datos Z1/Z2/Z0, puesta a tierra, grupo vectorial, escenario MAX/MIN y correspondencia de resultados con la finalidad del estudio.
+Para uso interno se permite 2F-T cuando:
 
-Estado: `PENDING_PROFESSIONAL_REVIEW`.
+- existe modelo P2/P4 apto;
+- Z0 requerida está explícita y proyectable;
+- MIN tiene temperaturas finales explícitas cuando hay líneas;
+- el caso pertenece a red simétrica pasiva;
+- se acepta expresamente que la semántica contractual IEC y el caso externo siguen pendientes.
 
-## Qué valida automáticamente el proyecto
+## Validaciones pendientes — no perder
 
-- identidades matemáticas;
-- benchmark independiente;
-- condiciones `Ia=0`, `Vb=0`, `Vc=0`;
-- KCL de secuencias;
-- transformación secuencia ↔ fase;
-- pasividad de impedancias dentro del alcance foundation;
-- no aproximación 2F-T→2F/1F-T;
-- regresiones P1–P5 existentes.
+Fuente central: `docs/VALIDACIONES_PENDIENTES.md`.
 
-Los escenarios MAX/MIN, preservación automática de `Z0/Z1/Z2` desde el modelo y representación visual 2F-T pertenecen a gates posteriores.
+- `VP-IEC-01` — IEC 60909-0:2026 completa/licenciada;
+- `VP-2FT-01` — semántica normativa exacta de 2F-T;
+- `VP-2FT-02` — caso externo independiente;
+- `VP-2FT-03` — revisión profesional antes de emisión.
+
+Estas validaciones no invalidan el cálculo matemático/operacional dentro de su alcance, pero impiden elevar su afirmación de conformidad.
 
 ## Políticas que permanecen
 
@@ -149,4 +182,4 @@ automatic_dispatch = false
 crosscheck = false
 ```
 
-P5 continúa en paralelo; este trabajo no revierte ni invalida P4-v1 ya cerrado.
+P5 continúa como fase principal activa. Este trabajo no revierte ni invalida P4-v1 ya cerrado.
