@@ -25,9 +25,10 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 
 **Regla de avance:** salvo deuda técnica justificada, el siguiente bloque principal se toma de la primera fase no cerrada. P3-v1 queda cerrado en `READY_WITH_LIMITATIONS`; **P4 es la fase principal activa**. Los ejes transversales V y E evolucionan en paralelo.
 
-## Estado P4 actual
+**Estado actual:**
 
 ```text
+P3C01–P3C13 DONE
 P4C01  DONE     objetivo IEC 60909-0:2026 versionado
 P4C02  DONE     backend pandapower determinista
 P4C03  DONE     adaptador P2 -> secuencia positiva IEC 60909
@@ -92,6 +93,8 @@ Base implementada:
 - V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado y evidencia normativa;
 - **V4 completo para P4-v1** con 3F, 2F y 1F-T MAX/MIN, barras de falla, Rk/Xk, Rk0/Xk0 cuando aplica, motor/versión/madurez y políticas de secuencia visibles.
 
+La revisión visual humana autorizada del cierre P3 se conserva como `AI_VISUAL_REVIEW_USER_AUTHORIZED`; no sustituye CI, benchmarks ni los checks estructurales.
+
 P4C08 excluye 2F-T de P4-v1, por lo que V4 no fabrica una visualización de un cálculo inexistente. Si 2F-T reingresa en una versión futura, deberá reabrirse su gate visual.
 
 Detalle: `docs/ROADMAP_VISUAL.md`.
@@ -107,6 +110,8 @@ Reglas vigentes:
 5. datos faltantes o limitaciones del backend se expresan; nunca se sustituyen silenciosamente.
 6. `automatic_dispatch=false`.
 7. `crosscheck=false`.
+
+La matriz recomienda/selecciona determinísticamente, pero **no despacha automáticamente la ejecución**.
 
 Para IEC 60909:
 
@@ -178,9 +183,27 @@ Reglas relevantes para P4:
 - grupo vectorial, neutro y puesta a tierra condicionan Z0;
 - datos suficientes para 3F/2F no implican datos suficientes para fallas a tierra.
 
+Detalle: `docs/P2_EXIT_GATE.md` y `docs/SECUENCIA_CERO_P2.md`.
+
 ## Fase P3 — Ampacidad normativa y conductor
 
 **Estado: COMPLETA CON LIMITACIONES (P3 v1) — P3C01–P3C13 DONE.**
+
+**Gate formal de salida P3 — implementado.** El gate separa cierre de fase, readiness del modelo activo y suficiencia de evidencia normativa; cerrar P3-v1 no equivale a cobertura normativa exhaustiva.
+
+Estado de criterios finales preservado:
+
+- `P3C11` — `DONE` — benchmark numérico/dataset y contratos de lookup exacto;
+- `P3C12` — `DONE` — benchmark independiente primario;
+- `P3C13` — `DONE` — cierre de madurez/visual y gate de salida.
+
+La evidencia primaria versionada preservada incluye:
+
+- `PERU_CNE_UTIL_2006_TABLE_5C_ITEM1_PRIMARY_V1`;
+- `PERU_CNE_UTIL_2006_TABLE_2_COL23_C_XLPE_3C_CU_70MM2_PRIMARY_V1`;
+- para el caso exacto Método C / Cu / XLPE-EPR / 3 conductores cargados / 70 mm²: **Iz_base = 229 A**.
+
+La **Tabla 5D** permanece documentada como ruta normativa de correcciones/condiciones donde aplica; no se inventan valores tabulados ausentes.
 
 Objetivo térmico:
 
@@ -209,6 +232,14 @@ automatic_normative_lookup = false
 ```
 
 Los casos fuera de evidencia exacta continúan fail-closed/manuales y la cobertura puede ampliarse sin reabrir P3-v1.
+
+Documentación canónica preservada:
+
+- `docs/P3_AMPACIDAD.md`;
+- `docs/P3A_PERFILES_NORMATIVOS.md`;
+- `docs/P3B_DATASETS_NUMERICOS.md`;
+- `docs/P3C10_BASE_AMPACITY_STRATEGY.md`;
+- `docs/P3_EXIT_GATE.md`.
 
 ## Fase P4 — Cortocircuito IEC 60909
 
