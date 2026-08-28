@@ -170,7 +170,7 @@ def test_p4c11c_view_can_show_3ph_2ph_and_1ft_without_overwriting_any_study():
     assert "faultBuses.forEach" in enhanced
 
 
-def test_p4c11c_public_tool_registers_with_mcp_and_keeps_global_p4_open():
+def test_p4c11c_public_tool_registers_with_mcp_and_global_v4_gate_is_closed():
     class FakeMCP:
         def __init__(self):
             self.names = []
@@ -187,6 +187,8 @@ def test_p4c11c_public_tool_registers_with_mcp_and_keeps_global_p4_open():
 
     gate = p4_completion.evaluar_cierre_p4()
     criteria = {item["id"]: item for item in gate["criteria"]}
-    assert criteria["P4C11"]["status"] == "PENDING"
+    assert criteria["P4C11"]["status"] == "DONE"
+    assert criteria["P4C10"]["status"] == "PENDING"
+    assert criteria["P4C12"]["status"] == "PENDING"
     assert gate["phase_status"] == "NOT_READY"
     assert gate["professional_emission"] is False
