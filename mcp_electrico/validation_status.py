@@ -84,10 +84,25 @@ _MODULES = {
             "La madurez IEC 60909 se registra por separado y no se hereda a FaultStudy",
         ],
     },
+    "protection_data": {
+        "status": "EXPERIMENTAL",
+        "basis": "P5A_PROTECTION_DATA_CONTRACT_V1: dispositivos, ratings, ajustes explícitos y procedencia",
+        "limitations": [
+            "P5A cubre interruptores y fusibles; relés quedan fuera hasta modelar CT/VT, funciones y elemento de corte",
+            "No existen todavía datasets numéricos TCC ni evaluación de tiempos de despeje",
+            "No se sintetizan curvas de fabricante ni ajustes ausentes",
+            "In P5A se contrasta con P3 cuando existe, pero nunca se crea automáticamente desde P3",
+            "tk_s de P4 no se interpreta como tiempo real de despeje",
+            "professional_emission=false",
+        ],
+    },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
-        "basis": None,
-        "limitations": ["Curvas TCC comerciales y coordinación pendientes"],
+        "basis": "P5A inició el contrato de datos; motor TCC/coordinación aún no implementado",
+        "limitations": [
+            "Curvas TCC numéricas, tiempos de despeje, selectividad y backup pendientes",
+            "La existencia de datos P5A no habilita coordinación profesional",
+        ],
     },
     "arc_flash_ieee1584": {
         "status": "NOT_IMPLEMENTED",

@@ -1,4 +1,4 @@
-"""Registro de tools MCP para gobernanza técnica, selección de motor y datos P2/P3."""
+"""Registro de tools MCP para gobernanza técnica y datos profesionales P2–P5."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from . import (
     model_qa,
     p2_completion,
     professional_data,
+    protection_tools,
     runtime_safety,
     validation_status,
     zero_sequence,
@@ -16,8 +17,8 @@ from . import (
 
 
 def register(mcp, on_model_change=None) -> None:
-    # Endurece las rutas públicas existentes sin cambiar los nombres de tools:
-    # reinicio completo de estado en Circuit nuevo y preflight Z0 para FaultStudy.
+    # Endurece las rutas públicas existentes: reinicio completo de estado en
+    # Circuit nuevo y preflight Z0 para FaultStudy.
     runtime_safety.install()
 
     def changed(action: str) -> None:
@@ -247,8 +248,8 @@ def register(mcp, on_model_change=None) -> None:
         result["zero_sequence"] = zero_sequence.snapshot()
         return result
 
-    # P3 mantiene su registro separado para no mezclar datos de red P2 con la
-    # evaluación térmica/normativa de conductores. P4 registra aparte las tools
-    # que solo ejecutan estudios y actualizan el workspace, sin mutar el modelo.
+    # P3, P4 y P5 conservan registros separados. P5A muta únicamente datos de
+    # protección y debe invalidar estudios posteriores mediante on_model_change.
     ampacity_tools.register(mcp)
     iec60909_tools.register(mcp)
+    protection_tools.register(mcp, on_model_change=changed)
