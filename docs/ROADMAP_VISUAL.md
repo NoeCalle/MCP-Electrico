@@ -21,7 +21,7 @@ La línea visual actual ya incluye:
 - overlays visuales sobre el unifilar para flujo/cargabilidad y caída de tensión;
 - exportación SVG e impresión/PDF;
 - validación de JavaScript en CI mediante `node --check`;
-- V4 experimental de cortocircuito con 3F, 2F y 1F-T MAX/MIN versionados, barras de falla y madurez visible.
+- V4 de cortocircuito con 3F, 2F y 1F-T MAX/MIN versionados, barras de falla y madurez `VALIDATED_WITH_LIMITATIONS` visible.
 
 ## Principios visuales no negociables
 
@@ -145,7 +145,7 @@ Trabajo visual incremental de V3:
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 
-**Estado: COMPLETA PARA EL ALCANCE P4-v1 — P4C11 DONE.**
+**Estado: COMPLETA PARA EL ALCANCE P4-v1 — P4C11/P4C12 DONE.**
 
 La vista V4 reutiliza el mismo workspace/unifilar/inspector de V3; no crea una aplicación paralela ni realiza cálculos IEC 60909 en JavaScript.
 
@@ -162,7 +162,7 @@ Implementado:
 - topología, `tk_s` y κ efectivos;
 - motor y versión;
 - edición objetivo y estado de conformidad;
-- madurez `EXPERIMENTAL_P4`;
+- madurez `VALIDATED_WITH_LIMITATIONS` preparada por Python;
 - `professional_emission=false`;
 - barra de falla resaltada en el unifilar;
 - fail-closed visual si MIN no puede calcularse.
@@ -201,7 +201,11 @@ La pestaña **Cortocircuito** muestra únicamente estudios vigentes para la revi
 
 **P4C11 global = DONE** porque V4 cubre todos los tipos de falla incluidos por el contrato P4-v1. Si 2F-T reingresa en una versión futura, tendrá que definir también su representación visual y reabrir el gate correspondiente para esa nueva versión.
 
+**P4C12 no crea una vista adicional.** Las suites 3F/2F/1F-T leen `validation_status.iec60909` y V4 muestra `VALIDATED_WITH_LIMITATIONS` sin recalcular nada en el navegador. `professional_emission=false` continúa visible y separado de la madurez técnica.
+
 ## V5 — Acompañamiento visual de P5: protección y TCC
+
+**Estado: FASE VISUAL ACTIVA CON P5; diseño/implementación pendiente.**
 
 Esta fase requiere una ampliación visual importante:
 
@@ -213,7 +217,7 @@ Esta fase requiere una ampliación visual importante:
 - resultado de verificación `I²t <= k²S²`;
 - advertencia visible si faltan curvas comerciales o datos del fabricante.
 
-La TCC será una vista de estudio, no una deformación del unifilar.
+La TCC será una vista de estudio, no una deformación del unifilar. La primera iteración de V5 debe consumir objetos/curvas estructurados por Python/MCP; no se dibujarán curvas sintéticas ni se inferirán ajustes faltantes en JavaScript.
 
 ## V6 — Acompañamiento visual de P6: Arc Flash
 
