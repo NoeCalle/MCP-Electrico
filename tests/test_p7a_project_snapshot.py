@@ -24,6 +24,8 @@ def test_p7a_same_state_same_hash_and_no_export_paths(tmp_path):
 
     assert first["schema"] == "MCP_ELECTRICO_P7A_PROJECT_SNAPSHOT_V1"
     assert first["hash"]["algorithm"] == "sha256"
+    for section in first["payload"]:
+        assert first["payload"][section] == second["payload"][section], f"P7A_NONDETERMINISTIC_SECTION:{section}"
     assert first["hash"]["value"] == second["hash"]["value"]
     assert len(first["hash"]["value"]) == 64
     assert first["payload"] == second["payload"]
