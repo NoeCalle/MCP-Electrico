@@ -17,7 +17,7 @@ Este documento es la **guía maestra del proyecto**. Una fase no se considera cu
 | P1.5 — pandapower | COMPLETA COMO INTEGRACIÓN EXPERIMENTAL | segundo motor disponible sin cross-check |
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | equipos/fuente/cables trazables sin supuestos silenciosos |
 | P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing normativo, evidencia primaria y benchmarks independientes |
-| P4 — IEC 60909 | **EN DESARROLLO — P4C01–P4C06 DONE** | cortocircuito formal validado; 3F/2F numéricos y visibles en V4 |
+| P4 — IEC 60909 | **EN DESARROLLO — P4C01–P4C07 DONE** | cortocircuito formal validado; 3F/2F/1F-T numéricos, benchmarckeados y visibles en V4 |
 | P5 — Protección y TCC | **BLOQUEADA POR P4** | protección del conductor, despeje y coordinación |
 | P6 — IEEE 1584 | PENDIENTE | Arc Flash formal y validado |
 | P7 — Expediente reproducible | PENDIENTE | paquete reconstruible, fuentes, versiones y hashes |
@@ -35,15 +35,17 @@ P4C03  DONE     adaptador P2 -> secuencia positiva IEC 60909
 P4C04  DONE     3F MAX/MIN + Ik'' + Sk''
 P4C05  DONE     ip + Ith con topology/tk/kappa explícitos
 P4C06  DONE     2F MAX/MIN + benchmark independiente
-P4C07  PENDING  1F-T + cadena Z0 validada
+P4C07  DONE     1F-T MAX/MIN + cadena Z0 validada + benchmark independiente
 P4C08  PENDING  estrategia 2F-T
 P4C09  PENDING  benchmark global del alcance P4-v1
                  ├─ P4C09A DONE  benchmark independiente 3F
-                 └─ cobertura 2F independiente incorporada en P4C06
+                 ├─ cobertura 2F independiente incorporada en P4C06
+                 └─ cobertura 1F-T independiente incorporada en P4C07
 P4C10  PENDING  revisión específica contra IEC 60909-0:2026
 P4C11  PENDING  Workspace V4 global
                  ├─ P4C11A DONE  3F MAX/MIN visible
-                 └─ P4C11B DONE  2F MAX/MIN visible
+                 ├─ P4C11B DONE  2F MAX/MIN visible
+                 └─ P4C11C DONE  1F-T MAX/MIN + Z0 visible
 P4C12  PENDING  madurez final del módulo
 
 P4 = NOT_READY
@@ -90,7 +92,7 @@ Base implementada:
 - vistas de flujo y caída de tensión;
 - V2 con fuente, transformadores y conductores trazables;
 - V3 con `Ib`, `In`, `Iz_base`, `∏k`, `Iz`, estado, metadata P3A y evidencia normativa preparada por Python;
-- V4 experimental con cortocircuito IEC 60909 **3F y 2F MAX/MIN**, barra de falla, magnitudes calculadas, motor/versión/madurez y política Z2 visible en 2F.
+- V4 experimental con cortocircuito IEC 60909 **3F, 2F y 1F-T MAX/MIN**, barras de falla, magnitudes calculadas, motor/versión/madurez, política Z2 y evidencia Z0 para 1F-T.
 
 Regla: el navegador **no recalcula ingeniería**. Consume resultados producidos por Python/MCP y conserva trazabilidad a `model_revision`, elemento, motor y estudio.
 
@@ -117,7 +119,7 @@ Para IEC 60909, la matriz E reconoce actualmente:
 
 - 3F: `FOUNDATION_READY`, experimental;
 - 2F: `FOUNDATION_READY`, experimental, con política `Z2=Z1` explícita solo para red simétrica pasiva;
-- 1F-T: bloqueada hasta cerrar P4C07 y validar la cadena Z0;
+- 1F-T: `FOUNDATION_READY`, experimental, con Z0 explícita/proyectable de fuente, líneas y transformadores, C0 por línea y política `Z2=Z1` limitada al alcance simétrico pasivo;
 - 2F-T: bloqueada hasta definir P4C08; no se aproxima silenciosamente como 2F ni 1F-T.
 
 Detalle: `docs/ENGINE_SELECTION.md`.
@@ -196,7 +198,7 @@ Entregables consolidados:
 Limitaciones P2 v1 relevantes para P4:
 
 - R0/X0 por geometría física no se inventa;
-- la secuencia cero profesional de transformadores requiere proyección validada antes de 1F-T;
+- P2 almacena los datos homopolares, mientras P4C07 valida su proyección exacta al backend 1F-T;
 - grupo vectorial, neutro y puesta a tierra condicionan caminos de secuencia cero;
 - datos P2 suficientes para 3F/2F no implican automáticamente datos suficientes para fallas a tierra.
 
@@ -260,7 +262,7 @@ P3-v1 no implica cobertura exhaustiva de toda fila normativa. Los casos fuera de
 
 ## Fase P4 — Cortocircuito IEC 60909
 
-**Estado: EN DESARROLLO — P4C01–P4C06 DONE.**
+**Estado: EN DESARROLLO — P4C01–P4C07 DONE.**
 
 Objetivo: disponer de un estudio formal conforme a una edición declarada de IEC 60909, con datos profesionales, resultados reproducibles, benchmarks independientes y límites visibles.
 
@@ -291,16 +293,17 @@ Objetivo: disponer de un estudio formal conforme a una edición declarada de IEC
 - benchmark independiente por componentes simétricas;
 - `Sk''` 2F todavía no se promociona como magnitud contractual normalizada.
 
-**1F-T — P4C07 PENDING**
+**1F-T — implementada experimentalmente**
 
-No se habilita por la sola existencia de `fault="1ph"` en pandapower. Debe cerrarse la cadena profesional de secuencia cero:
-
-- Z0 de fuente;
-- R0/X0 de líneas;
-- grupo vectorial y trayectoria Z0 de transformadores;
-- neutro y puesta a tierra;
-- mapeo exacto a parámetros pandapower;
-- benchmark independiente.
+- MAX/MIN;
+- `Ik''`, Rk/Xk y Rk0/Xk0;
+- Z0 de fuente proyectada preservando R0/X0 absolutos;
+- R0/X0/C0 explícitos por línea;
+- transformadores con `vk0/vkr0/mag0/si0`, grupo vectorial efectivo y neutro declarado;
+- política `Z2=Z1` limitada a red simétrica pasiva, visible y no universal;
+- benchmark independiente por componentes simétricas;
+- test Dyn11 con sensibilidad a impedancia de neutro;
+- `Sk''`, `ip` e `Ith` no se promocionan contractualmente para 1F-T.
 
 **2F-T — P4C08 PENDING**
 
@@ -324,28 +327,30 @@ No se acepta `topology="auto"` y no se inventa `tk_s`. El tiempo deberá vincula
 Cobertura ya incorporada:
 
 - P4C09A: benchmark independiente 3F MAX/MIN;
-- P4C06: benchmark independiente 2F MAX/MIN.
+- P4C06: benchmark independiente 2F MAX/MIN;
+- P4C07: benchmark independiente 1F-T MAX/MIN.
 
-P4C09 global permanece pendiente hasta cubrir el alcance P4-v1 que finalmente se declare.
+P4C09 global permanece pendiente hasta cubrir el alcance P4-v1 que finalmente se declare y resolver su relación con P4C08/P4C10.
 
 ### P4C11 — Workspace V4
 
 Subhitos visuales cerrados:
 
 - **P4C11A DONE:** 3F MAX/MIN, barra de falla, `Ik''`, `Sk''`, `ip`, `Ith`, Rk/Xk, motor, versión, edición y madurez;
-- **P4C11B DONE:** 2F MAX/MIN en la misma pestaña, coexistencia con 3F, política Z2 visible, ausencia explícita de `Sk''` contractual 2F y overlay de barras de falla.
+- **P4C11B DONE:** 2F MAX/MIN en la misma pestaña, coexistencia con 3F, política Z2 visible, ausencia explícita de `Sk''` contractual 2F y overlay de barras de falla;
+- **P4C11C DONE:** 1F-T MAX/MIN en la misma pestaña, Rk0/Xk0, política Z2, evidencia Z0 de fuente/líneas/transformadores, ausencia explícita de `Sk''`/`ip`/`Ith` y coexistencia 3F+2F+1F-T.
 
 JavaScript no recalcula ingeniería. V4 consume snapshots versionados y conserva `professional_emission=false`.
 
-P4C11 global sigue pendiente hasta que la vista cubra el alcance final que cierre P4-v1.
+P4C11 global sigue pendiente hasta fijar el alcance final que cierre P4-v1. La decisión P4C08 determinará si 2F-T se implementa o queda formalmente fuera de ese alcance.
 
 Detalle: `docs/P4_IEC60909.md` y `docs/ROADMAP_VISUAL.md`.
 
 ### Siguiente bloque
 
-**P4C07 — 1F-T + secuencia cero validada.**
+**P4C08 — estrategia 2F-T.**
 
-El orden de trabajo será: auditar modelo Z0 existente → fijar contrato/mapeo pandapower → fail-closed por dato faltante → implementar 1F-T → benchmark independiente → incorporar resultado a V4. No se avanzará por fórmulas improvisadas ni valores por defecto silenciosos.
+No se aproximará la falla bifásica a tierra como `2ph` ni como `1ph`. El objetivo del siguiente bloque es decidir una estrategia numérica reproducible y validable —o documentar formalmente su exclusión del alcance P4-v1— antes de avanzar al cierre global de benchmarks, conformidad 2026 y madurez.
 
 ## Fase P5 — Protección del conductor y coordinación
 

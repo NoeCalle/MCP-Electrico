@@ -25,10 +25,14 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
     studies = snapshot.get("status", {}).get("studies", {})
     study_3ph = studies.get("iec60909_3ph") or {}
     study_2ph = studies.get("iec60909_2ph") or {}
+    study_1ph_ground = studies.get("iec60909_1ph_ground") or {}
     return {
         **base,
         "workspace_version": 4,
         "p4_short_circuit_view": workspace_p4_view.MARKER in enhanced,
         "iec60909_3ph_vigente": bool(study_3ph and study_3ph.get("valid")),
         "iec60909_2ph_vigente": bool(study_2ph and study_2ph.get("valid")),
+        "iec60909_1ph_ground_vigente": bool(
+            study_1ph_ground and study_1ph_ground.get("valid")
+        ),
     }

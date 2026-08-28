@@ -16,18 +16,21 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Run P4C11A/P4C11B tests
-        run: python -m pytest -q tests/test_iec60909_p4c11a.py tests/test_iec60909_p4c11b.py
-      - name: Generate workspace V4 3F and 2F
+      - name: Run P4C11A/P4C11B/P4C11C tests
+        run: python -m pytest -q tests/test_iec60909_p4c11a.py tests/test_iec60909_p4c11b.py tests/test_iec60909_p4c11c.py
+      - name: Generate workspace V4 3F, 2F and 1F-T
         run: |
           python examples/workspace_p4_3ph.py
           python examples/workspace_p4_2ph.py
+          python examples/workspace_p4_1ph_ground.py
       - name: Validate V4 artifacts
         run: |
           test -s workspace_p4_3ph.html
           test -s workspace_p4_3ph_unifilar.svg
           test -s workspace_p4_2ph.html
           test -s workspace_p4_2ph_unifilar.svg
+          test -s workspace_p4_1ph_ground.html
+          test -s workspace_p4_1ph_ground_unifilar.svg
 
           grep -q 'data-tab="cortocircuito"' workspace_p4_3ph.html
           grep -q 'id="panel-cortocircuito"' workspace_p4_3ph.html
@@ -55,6 +58,23 @@ jobs:
           grep -q '"iec60909_2ph"' workspace_p4_2ph.html
           grep -q '"professional_emission":false' workspace_p4_2ph.html
           grep -q 'overlay-short-circuit-bus' workspace_p4_2ph.html
+
+          grep -q 'data-tab="cortocircuito"' workspace_p4_1ph_ground.html
+          grep -q 'id="panel-cortocircuito"' workspace_p4_1ph_ground.html
+          grep -q 'data-p4-study="iec60909_1ph_ground"' workspace_p4_1ph_ground.html
+          grep -q 'data-p4-fault="1F-T"' workspace_p4_1ph_ground.html
+          grep -q 'data-p4-fault-bus="bus1"' workspace_p4_1ph_ground.html
+          grep -q 'Secuencia negativa explícita' workspace_p4_1ph_ground.html
+          grep -q 'Secuencia cero explícita' workspace_p4_1ph_ground.html
+          grep -q 'Z2 = Z1' workspace_p4_1ph_ground.html
+          grep -q 'Rk0' workspace_p4_1ph_ground.html
+          grep -q 'Xk0' workspace_p4_1ph_ground.html
+          grep -q "Sk'' 1F-T no se promociona" workspace_p4_1ph_ground.html
+          grep -q 'EXPERIMENTAL_P4' workspace_p4_1ph_ground.html
+          grep -q 'SIN EMISIÓN PROFESIONAL' workspace_p4_1ph_ground.html
+          grep -q '"iec60909_1ph_ground"' workspace_p4_1ph_ground.html
+          grep -q '"professional_emission":false' workspace_p4_1ph_ground.html
+          grep -q 'overlay-short-circuit-bus' workspace_p4_1ph_ground.html
       - name: Validate V4 JavaScript syntax
         run: |
           rm -f /tmp/p4-v4-script-*.js
@@ -62,7 +82,11 @@ jobs:
           from pathlib import Path
           import re
           scripts = []
-          for html_path in (Path("workspace_p4_3ph.html"), Path("workspace_p4_2ph.html")):
+          for html_path in (
+              Path("workspace_p4_3ph.html"),
+              Path("workspace_p4_2ph.html"),
+              Path("workspace_p4_1ph_ground.html"),
+          ):
               html = html_path.read_text(encoding="utf-8")
               for match in re.finditer(r'<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>', html, re.S):
                   if 'application/json' in match.group('attrs'):
@@ -86,3 +110,5 @@ jobs:
             workspace_p4_3ph_unifilar.svg
             workspace_p4_2ph.html
             workspace_p4_2ph_unifilar.svg
+            workspace_p4_1ph_ground.html
+            workspace_p4_1ph_ground_unifilar.svg

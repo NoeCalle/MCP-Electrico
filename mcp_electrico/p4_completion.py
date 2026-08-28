@@ -114,8 +114,12 @@ def _criteria() -> list[dict[str, Any]]:
             "P4C11",
             "workspace_v4",
             False,
-            "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN. P4C11C 1F-T pendiente tras cierre numérico P4C07.",
-            "Workspace V4 ya cubre 3F y 2F, pero debe incorporar 1F-T y el alcance final que efectivamente cierre P4-v1.",
+            (
+                "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN. "
+                "P4C11C DONE: V4 1F-T MAX/MIN con Rk0/Xk0, política Z0/Z2, tool pública y coexistencia 3F+2F+1F-T. "
+                "Cierre global pendiente del alcance final P4-v1/P4C08."
+            ),
+            "Workspace V4 cubre 3F, 2F y 1F-T; el criterio global permanece abierto hasta fijar el alcance final de P4-v1 y la estrategia 2F-T.",
         ),
         _criterion(
             "P4C12",
