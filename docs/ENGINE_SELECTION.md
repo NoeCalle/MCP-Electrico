@@ -145,7 +145,7 @@ La matriz distingue entre **motor numérico**, **capa de estudio**, **preparaci�
 
 - Nunca convertir un módulo pendiente en profesional por el solo hecho de que una librería externa tenga una función relacionada.
 - Nunca usar un backend incompatible con el modelo activo.
-- Nunca confundir `technical_executable`, `professional_execution_ready` y `professional_emission`.
+- Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`; además, `professional_emission` permanece como gate separado de producto.
 - Nunca asumir el tipo de falla.
 - Nunca completar datos ausentes con valores típicos para lograr compatibilidad.
 - Nunca aproximar 2F-T como 2F o 1F-T.
