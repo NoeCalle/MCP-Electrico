@@ -1,4 +1,4 @@
-"""Registro de tools MCP para gobernanza técnica y datos profesionales P2–P5."""
+"""Registro de tools MCP para gobernanza técnica y datos profesionales P2–P7."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from . import (
     p2_completion,
     p5_completion_tools,
     professional_data,
+    project_snapshot_tools,
     protection_check_tools,
     protection_clearing_tools,
     protection_coordination_tools,
@@ -272,3 +273,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     protection_clearing_tools.register(mcp, on_result=study_result)
     protection_coordination_tools.register(mcp, on_result=study_result)
     p5_completion_tools.register(mcp)
+    project_snapshot_tools.register(mcp)
