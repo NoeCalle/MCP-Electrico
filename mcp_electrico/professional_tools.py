@@ -8,6 +8,7 @@ from . import (
     iec60909_tools,
     model_qa,
     p2_completion,
+    p5_completion_tools,
     professional_data,
     protection_check_tools,
     protection_clearing_tools,
@@ -270,3 +271,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     protection_check_tools.register(mcp, on_result=study_result)
     protection_clearing_tools.register(mcp, on_result=study_result)
     protection_coordination_tools.register(mcp, on_result=study_result)
+    p5_completion_tools.register(mcp)
