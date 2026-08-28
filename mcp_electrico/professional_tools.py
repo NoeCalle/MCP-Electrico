@@ -5,6 +5,7 @@ from __future__ import annotations
 from . import (
     ampacity_tools,
     engine_selection,
+    iec60909_tools,
     model_qa,
     p2_completion,
     professional_data,
@@ -247,5 +248,7 @@ def register(mcp, on_model_change=None) -> None:
         return result
 
     # P3 mantiene su registro separado para no mezclar datos de red P2 con la
-    # evaluación térmica/normativa de conductores.
+    # evaluación térmica/normativa de conductores. P4 registra aparte las tools
+    # que solo ejecutan estudios y actualizan el workspace, sin mutar el modelo.
     ampacity_tools.register(mcp)
+    iec60909_tools.register(mcp)
