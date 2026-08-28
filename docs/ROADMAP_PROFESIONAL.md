@@ -18,31 +18,29 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P2 — Datos profesionales | **COMPLETA CON LIMITACIONES (P2 v1)** | fuente/equipos/cables trazables sin supuestos silenciosos |
 | P3 — Ampacidad normativa | **COMPLETA CON LIMITACIONES (P3 v1)** | `Ib <= In <= Iz`, routing, evidencia y benchmarks |
 | P4 — IEC 60909 | **COMPLETA CON LIMITACIONES (P4 v1)** | cortocircuito dentro del alcance declarado |
-| P5 — Protección y TCC | **ACTIVA — P5F EN CIERRE / P5G NEXT** | protección-conductor, TCC, despeje, coordinación temporal y V5 |
+| P5 — Protección y TCC | **COMPLETA CON LIMITACIONES (P5 v1)** | protección-conductor, TCC, clearing time, coordinación temporal y V5 |
 | P6 — IEEE 1584 | **DEFERRED** | Arc Flash formal cuando se reactive |
-| P7 — Expediente reproducible | **NEXT AFTER P5** | paquete mínimo reproducible para uso interno |
+| P7 — Expediente reproducible | **NEXT / ACTIVE HANDOFF** | paquete mínimo reproducible para uso interno |
 | P8 — Engineering Preview 0.9 | **PENDIENTE** | uso operativo controlado en proyectos reales |
 
-**Regla de avance:** P5 se termina ahora. P6 IEEE 1584 queda diferida por decisión de producto. Después de P5G se avanza directamente a P7 mínimo y P8 Engineering Preview 0.9 para empezar a usar el MCP de forma controlada. Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
+**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6 IEEE 1584 queda diferida por decisión de producto. El siguiente bloque es P7 mínimo y después P8 Engineering Preview 0.9. Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
 
 **Estado actual:**
 
 ```text
 P3C01–P3C13 DONE
 P4C01–P4C12 DONE
-P5A DONE
-P5B DONE
-P5C DONE
-P5D DONE
-P5E DONE
-P5F CLOSING
-P5G NEXT
+P5A–P5G DONE
 
 P4 = READY_WITH_LIMITATIONS
-P5 = ACTIVE
+P5 = READY_WITH_LIMITATIONS
 P6 = DEFERRED
-P7 = NEXT_AFTER_P5
-P8 = ENGINEERING_PREVIEW_0_9
+P7 = NEXT / ACTIVE_HANDOFF
+P8 = ENGINEERING_PREVIEW_0_9_PENDING
+
+P5 operational_path_ready    = true
+P5 engineering_preview_ready = false
+P5 next_phase                = P7_REPRODUCIBLE_DOSSIER_MINIMUM
 
 professional_emission = false
 automatic_dispatch = false
@@ -50,7 +48,7 @@ crosscheck=false
 automatic_normative_lookup = false
 ```
 
-Usable internamente no equivale a `professional_emission=true`. La Engineering Preview debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
+Usable internamente no equivale a `professional_emission=true`. La futura Engineering Preview debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
 
 ## Principio rector
 
@@ -75,7 +73,7 @@ Los módulos usan:
 - `VALIDATED_WITH_LIMITATIONS`;
 - `VALIDATED`.
 
-La madurez de un módulo no sustituye la revisión profesional del modelo concreto.
+La madurez de un módulo no sustituye la revisión profesional del modelo concreto. Una **fase** puede estar `READY_WITH_LIMITATIONS` aunque sus módulos sigan `EXPERIMENTAL`, siempre que el gate explicite ese alcance y no transforme la fase en un claim normativo superior.
 
 ## Eje transversal V — workspace y representación visual
 
@@ -125,7 +123,7 @@ Para IEC 60909:
 - `iec60909=VALIDATED_WITH_LIMITATIONS`;
 - OpenDSS `short_circuit=UNDER_VALIDATION` como FaultStudy exploratorio.
 
-Detalle: `docs/ENGINE_SELECTION.md` y `docs/P4_IEC60909.md`/documentos P4 asociados.
+Detalle: `docs/ENGINE_SELECTION.md` y documentación P4.
 
 ## Fase P0 — Gobernanza técnica y QA
 
@@ -144,6 +142,8 @@ Cobertura cuantitativa validada en fixtures radiales trifásicos balanceados con
 **Estado: COMPLETA COMO INTEGRACIÓN EXPERIMENTAL.**
 
 Incluye pandapower 3.5.x, bridge explícito, rechazo determinístico de incompatibilidades y benchmark independiente. No existe router automático ni cross-check.
+
+P1.5 no crea por ahora una segunda interfaz visual
 
 ## Fase P2 — Datos de entrada profesionales
 
@@ -247,9 +247,21 @@ Detalle: `docs/P4_IEC60909.md` y documentos P4 específicos.
 
 ## Fase P5 — Protección del conductor y coordinación
 
-**Estado: ACTIVA — P5A–P5E DONE; P5F EN CIERRE; P5G NEXT.**
+**Estado: COMPLETA CON LIMITACIONES (P5 v1) — P5A–P5G DONE.**
 
-Cobertura implementada:
+El gate formal P5G devuelve:
+
+```text
+phase_status              = READY_WITH_LIMITATIONS
+ready_for_next_phase      = true
+next_phase                = P7_REPRODUCIBLE_DOSSIER_MINIMUM
+deferred_phase            = P6_IEEE1584_ARC_FLASH
+operational_path_ready    = true
+engineering_preview_ready = false
+professional_emission     = false
+```
+
+Los módulos `protection_data`, `tcc_curve_evaluation`, `protection_checks`, `protection_clearing_time` y `protection_coordination` permanecen `EXPERIMENTAL`. P5G no los promociona por decreto.
 
 ### P5A — datos canónicos
 
@@ -296,9 +308,28 @@ Un PASS significa `TEMPORAL_POINT_COORDINATION`; no declara selectividad total/p
 
 Mismo workspace persistente, con panel Protecciones/TCC, ratings, ajustes, curvas SVG y resultados P5 de la revisión vigente. Las coordenadas de curva se preparan en Python; JavaScript solo navega/selecciona.
 
-### P5G — siguiente gate
+### P5G — gate y benchmarks
 
-Debe consolidar benchmarks/regresiones, completion gate y readiness para uso interno. El objetivo de cierre no es `professional_emission=true`, sino un estado explícito de **Engineering Preview ready with limitations**.
+Suite obligatoria en CI:
+
+```text
+MCP_ELECTRICO_P5G_BENCHMARK_SUITE_V1
+P5G_B01_TCC_BAND_LOGLOG
+P5G_B02_TCC_NO_EXTRAPOLATION
+P5G_B03_CLEARING_TIME_BAND
+P5G_B04_TEMPORAL_COORDINATION
+P5G_B05_BREAKING_CAPACITY
+P5G_B06_CONDUCTOR_THERMAL
+```
+
+La suite usa `TEST_DATA` y exige:
+
+```text
+failed = 0
+manufacturer_claim = false
+normative_compliance_claim = false
+professional_emission = false
+```
 
 Detalle: `docs/P5_PROTECTION_TCC.md` y `docs/VALIDACIONES_PENDIENTES.md`.
 
@@ -306,7 +337,7 @@ Detalle: `docs/P5_PROTECTION_TCC.md` y `docs/VALIDACIONES_PENDIENTES.md`.
 
 **Estado: DEFERRED — PAUSADA POR DECISIÓN DE PRODUCTO.**
 
-P6 no se elimina. Se retomará después de la Engineering Preview y deberá consumir automáticamente, cuando corresponda, corriente de falla P4 y clearing time P5 trazables.
+P6 no se elimina. Se retomará después de la Engineering Preview y deberá consumir, cuando corresponda, corriente de falla P4 y clearing time P5 trazables.
 
 Futuro alcance:
 
@@ -323,7 +354,7 @@ Lee permanece separado como método simplificado/experimental y no sustituye IEE
 
 ## Fase P7 — Expediente reproducible
 
-**Estado: NEXT AFTER P5G — ALCANCE MÍNIMO OPERACIONAL.**
+**Estado: NEXT / ACTIVE HANDOFF — ALCANCE MÍNIMO OPERACIONAL.**
 
 P7 debe priorizar que el trabajo pueda guardarse, reconstruirse y revisarse:
 
@@ -338,7 +369,7 @@ P7 debe priorizar que el trabajo pueda guardarse, reconstruirse y revisarse:
 - HTML/PDF razonable;
 - hashes cuando corresponda.
 
-No requiere terminar P6 para iniciar uso interno.
+P7 es el blocker explícito restante antes de declarar `engineering_preview_ready=true`.
 
 ## Fase P8 — Engineering Preview 0.9 y camino a 1.0
 
