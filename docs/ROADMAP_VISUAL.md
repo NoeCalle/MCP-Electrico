@@ -21,7 +21,7 @@ La línea visual actual ya incluye:
 - overlays visuales sobre el unifilar para flujo/cargabilidad y caída de tensión;
 - exportación SVG e impresión/PDF;
 - validación de JavaScript en CI mediante `node --check`;
-- V4 experimental de cortocircuito con 3F y 2F MAX/MIN versionados, barra de falla y madurez visible.
+- V4 experimental de cortocircuito con 3F, 2F y 1F-T MAX/MIN versionados, barras de falla y madurez visible.
 
 ## Principios visuales no negociables
 
@@ -145,9 +145,9 @@ Trabajo visual incremental de V3:
 
 ## V4 — Acompañamiento visual de P4: cortocircuito IEC 60909
 
-**Estado: EN DESARROLLO — P4C11A 3F DONE + P4C11B 2F DONE.**
+**Estado: EN DESARROLLO — P4C11A 3F DONE + P4C11B 2F DONE + P4C11C 1F-T DONE.**
 
-La vista V4 ya reutiliza el mismo workspace/unifilar/inspector de V3; no crea una aplicación paralela ni realiza cálculos IEC 60909 en JavaScript.
+La vista V4 reutiliza el mismo workspace/unifilar/inspector de V3; no crea una aplicación paralela ni realiza cálculos IEC 60909 en JavaScript.
 
 ### P4C11A — 3F
 
@@ -175,13 +175,29 @@ Implementado:
 - `Ik''`, `ip`, `Ith`, Rk y Xk según datos disponibles;
 - política `Z2 = Z1` visible con alcance simétrico pasivo y `universal_assumption=false`;
 - `Sk''` 2F no normalizado se muestra como ausencia de dato; el navegador no lo deriva;
-- coexistencia 3F + 2F en la misma pestaña y `model_revision` sin sobrescribir estudios;
-- overlay de todas las barras de falla vigentes;
-- generación de artefactos 3F/2F y validación JavaScript en CI.
+- coexistencia con los demás estudios de falla sin sobrescribir snapshots;
+- overlay de todas las barras de falla vigentes.
+
+### P4C11C — 1F-T
+
+Implementado:
+
+- tool MCP pública `ejecutar_cortocircuito_iec60909_1ph_ground`;
+- snapshot versionado `iec60909_1ph_ground`;
+- escenarios MAX/MIN;
+- `Ik''`, Rk/Xk y Rk0/Xk0;
+- política `Z2 = Z1` visible con alcance simétrico pasivo y `universal_assumption=false`;
+- evidencia de secuencia cero de fuente, líneas y transformadores preparada en Python;
+- contador visible de líneas con Z0/C0 y transformadores con Z0/neutro proyectados;
+- `Sk''`, `ip` e `Ith` se muestran como ausencia de dato contractual; JavaScript no los deriva;
+- coexistencia **3F + 2F + 1F-T** en la misma pestaña y revisión de modelo;
+- overlay de todas las barras de falla vigentes e integración con el inspector existente;
+- ejemplo reproducible `examples/workspace_p4_1ph_ground.py`;
+- CI dedicado genera y valida artefactos 3F/2F/1F-T y verifica sintaxis JavaScript.
 
 La pestaña **Cortocircuito** muestra únicamente estudios vigentes para la revisión actual. Si cambia el modelo, la infraestructura de `workspace_state` invalida los resultados anteriores.
 
-P4C11 global permanece `PENDING`: V4 deberá incorporar el alcance final que efectivamente cierre P4-v1, especialmente la falla a tierra cuando P4C07 esté validada. No se forzará una representación 2F-T mientras P4C08 no defina una estrategia numérica válida.
+P4C11A, P4C11B y P4C11C están cerrados como subhitos. **P4C11 global permanece `PENDING`** hasta fijar el alcance final que efectivamente cierre P4-v1. P4C08 debe decidir si 2F-T se implementa mediante una estrategia numérica validable o queda formalmente fuera del alcance de esa versión; no se forzará una representación visual mientras esa decisión no exista.
 
 ## V5 — Acompañamiento visual de P5: protección y TCC
 
