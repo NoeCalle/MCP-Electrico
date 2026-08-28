@@ -112,7 +112,7 @@ _MODULES = {
     },
     "protection_coordination": {
         "status": "NOT_IMPLEMENTED",
-        "basis": "P5A/P5B proveen datos y evaluación de curvas; coordinación todavía no implementada",
+        "basis": "P5A/P5B proveen datos y evaluación TCC de curvas; coordinación todavía no implementada",
         "limitations": [
             "Capacidad de corte, tiempos finales de despeje, selectividad y backup pendientes",
             "La existencia de datasets P5B no habilita coordinación profesional",
