@@ -26,6 +26,7 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
     study_3ph = studies.get("iec60909_3ph") or {}
     study_2ph = studies.get("iec60909_2ph") or {}
     study_1ph_ground = studies.get("iec60909_1ph_ground") or {}
+    study_2ph_ground = studies.get("iec60909_2ph_ground") or {}
     return {
         **base,
         "workspace_version": 4,
@@ -34,5 +35,8 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "iec60909_2ph_vigente": bool(study_2ph and study_2ph.get("valid")),
         "iec60909_1ph_ground_vigente": bool(
             study_1ph_ground and study_1ph_ground.get("valid")
+        ),
+        "iec60909_2ph_ground_vigente": bool(
+            study_2ph_ground and study_2ph_ground.get("valid")
         ),
     }
