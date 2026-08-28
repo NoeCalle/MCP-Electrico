@@ -14,7 +14,7 @@ from copy import deepcopy
 from math import isfinite, sqrt
 from typing import Any
 
-from . import protection_data
+from . import conductor_library, protection_data
 
 SCHEMA_BREAKING = "MCP_ELECTRICO_P5C_BREAKING_CAPACITY_CHECK_V1"
 SCHEMA_THERMAL = "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1"
@@ -62,6 +62,15 @@ def _reference(value: str | None, code: str, label: str) -> str:
     if not text:
         raise ValueError(f"{code}: {label} es obligatorio para trazabilidad.")
     return text
+
+
+def obtener_referencias_p5c() -> dict[str, Any]:
+    return {
+        "schema": "MCP_ELECTRICO_P5C_REFERENCE_TARGETS_V1",
+        "targets": deepcopy(REFERENCE_TARGETS),
+        "scope": "REFERENCE_TARGETS_NOT_FULL_CONFORMANCE",
+        "professional_emission": False,
+    }
 
 
 def evaluar_capacidad_corte(
@@ -185,6 +194,41 @@ def evaluar_capacidad_corte(
     }
 
 
+def _section_binding(element: str, section_mm2: float, source_section: str | None) -> dict[str, Any]:
+    assignment = conductor_library.obtener_asignacion(element)
+    if assignment:
+        assigned_section = float(((assignment.get("producto") or {}).get("seccion_mm2")) or 0.0)
+        if assigned_section <= 0:
+            raise ValueError("P5C208: la asignación de conductor no expone una sección válida.")
+        if abs(assigned_section - section_mm2) > 1e-9:
+            return {
+                "status": "SECTION_MISMATCH",
+                "input_section_mm2": section_mm2,
+                "assigned_section_mm2": assigned_section,
+                "conductor_code": assignment.get("codigo"),
+                "assignment_source": deepcopy(assignment.get("fuente") or {}),
+                "automatic_section_substitution": False,
+            }
+        return {
+            "status": "MATCH",
+            "input_section_mm2": section_mm2,
+            "assigned_section_mm2": assigned_section,
+            "conductor_code": assignment.get("codigo"),
+            "assignment_source": deepcopy(assignment.get("fuente") or {}),
+            "automatic_section_substitution": False,
+        }
+
+    explicit_source = _reference(source_section, "P5C209", "fuente_seccion")
+    return {
+        "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+        "input_section_mm2": section_mm2,
+        "assigned_section_mm2": None,
+        "conductor_code": None,
+        "explicit_section_source_reference": explicit_source,
+        "automatic_section_substitution": False,
+    }
+
+
 def evaluar_soportabilidad_termica_conductor(
     elemento: str,
     corriente_falla_ka: float,
@@ -193,12 +237,14 @@ def evaluar_soportabilidad_termica_conductor(
     k_a_sqrt_s_per_mm2: float,
     fuente_k: str,
     fuente_tiempo: str,
+    fuente_seccion: str | None = None,
 ) -> dict[str, Any]:
     """Evalúa I²t <= k²S² con entradas explícitas y trazables.
 
     El coeficiente ``k`` NO se deriva del material/aislamiento y el tiempo NO
     se toma de P4. P5D podrá entregar posteriormente un tiempo de despeje
-    trazable como una de las fuentes aceptadas.
+    trazable como una de las fuentes aceptadas. Si existe una asignación P2 de
+    conductor, la sección explícita debe coincidir con ella; nunca se sustituye.
     """
     element = str(elemento or "").strip()
     if not element:
@@ -209,6 +255,24 @@ def evaluar_soportabilidad_termica_conductor(
     k_value = _positive(k_a_sqrt_s_per_mm2, "P5C205", "k_a_sqrt_s_per_mm2")
     k_source = _reference(fuente_k, "P5C206", "fuente_k")
     time_source = _reference(fuente_tiempo, "P5C207", "fuente_tiempo")
+    section_binding = _section_binding(element, section, fuente_seccion)
+
+    if section_binding["status"] == "SECTION_MISMATCH":
+        return {
+            "schema": SCHEMA_THERMAL,
+            "status": "SECTION_MISMATCH",
+            "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+            "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+            "element": element,
+            "section_binding": section_binding,
+            "issues": [
+                {
+                    "code": "P5C210",
+                    "message": "La sección usada en el chequeo no coincide con el conductor asignado; no se sustituye silenciosamente.",
+                }
+            ],
+            "professional_emission": False,
+        }
 
     current_a = fault_ka * 1000.0
     actual_i2t = current_a * current_a * clearing_s
@@ -224,6 +288,7 @@ def evaluar_soportabilidad_termica_conductor(
         "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
         "element": element,
         "reference_target": deepcopy(REFERENCE_TARGETS["conductor_overcurrent"]),
+        "section_binding": section_binding,
         "inputs": {
             "fault_current_ka": fault_ka,
             "clearing_time_s": clearing_s,
