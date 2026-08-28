@@ -31,7 +31,35 @@ def _criteria() -> list[dict[str, Any]]:
     backend = contract["backend"]
     capabilities = iec60909.CAPABILITIES
     fault_scope = contract["fault_scope"]
+    p4_scope = contract.get("p4_v1_scope") or {}
     maturity = validation_status.get_module_status("short_circuit")
+
+    two_phase_ground = fault_scope.get("two_phase_ground", {})
+    strategy = two_phase_ground.get("strategy") or {}
+    p4c08_done = bool(
+        p4_scope.get("status") == "CLOSED"
+        and two_phase_ground.get("status") == "OUT_OF_SCOPE_P4_V1"
+        and two_phase_ground.get("p4_v1_candidate") is False
+        and two_phase_ground.get("backend_api_supported") is False
+        and strategy.get("decision") == "EXCLUDE_FROM_P4_V1"
+        and strategy.get("no_approximation") is True
+        and strategy.get("future_reentry_conditions")
+    )
+
+    in_scope_names = list(p4_scope.get("included_faults") or [])
+    in_scope = [fault_scope.get(name, {}) for name in in_scope_names]
+    benchmarks_complete = bool(in_scope) and p4c08_done and all(
+        item.get("p4_v1_candidate") is True
+        and item.get("status") == "FOUNDATION_READY"
+        and (item.get("independent_benchmark") or {}).get("status") == "PASS"
+        for item in in_scope
+    )
+    workspace_complete = bool(in_scope) and p4c08_done and all(
+        item.get("p4_v1_candidate") is True
+        and item.get("status") == "FOUNDATION_READY"
+        and (item.get("workspace_v4") or {}).get("status") == "DONE"
+        for item in in_scope
+    )
 
     return [
         _criterion(
@@ -92,16 +120,22 @@ def _criteria() -> list[dict[str, Any]]:
         _criterion(
             "P4C08",
             "two_phase_ground_strategy",
-            bool(capabilities.get("two_phase_ground")),
-            "Pendiente: estrategia 2F-T; calc_sc no expone token directo",
-            "No existe todavía estrategia validada para 2F-T y no se permite aproximarla silenciosamente.",
+            p4c08_done,
+            (
+                "P4C08: 2F-T excluida formalmente de P4-v1; pandapower 3.5.4 calc_sc solo expone 3ph/2ph/1ph. "
+                "No se aproxima como 2F/1F-T. Reingreso futuro exige backend directo o solver MCP dedicado + benchmark + revisión normativa."
+            ),
+            "Falta una decisión versionada y fail-closed sobre 2F-T.",
         ),
         _criterion(
             "P4C09",
             "independent_normative_benchmarks",
-            False,
-            "Pendiente: benchmark global; P4C09A 3F PASS, benchmark P4C06 2F y benchmark P4C07 1F-T incorporados",
-            "Faltan benchmarks independientes para el alcance P4-v1 y el cierre global depende todavía de P4C08/P4C10.",
+            benchmarks_complete,
+            (
+                "Cobertura independiente completa del alcance P4-v1 declarado: 3F=P4C09A PASS, "
+                "2F=P4C06 PASS, 1F-T=P4C07 PASS; 2F-T=P4C08 fuera de alcance y no requerida para este gate."
+            ),
+            "Falta benchmark independiente de algún tipo de falla incluido en P4-v1.",
         ),
         _criterion(
             "P4C10",
@@ -113,13 +147,12 @@ def _criteria() -> list[dict[str, Any]]:
         _criterion(
             "P4C11",
             "workspace_v4",
-            False,
+            workspace_complete,
             (
-                "P4C11A DONE: V4 3F MAX/MIN. P4C11B DONE: V4 2F MAX/MIN. "
-                "P4C11C DONE: V4 1F-T MAX/MIN con Rk0/Xk0, política Z0/Z2, tool pública y coexistencia 3F+2F+1F-T. "
-                "Cierre global pendiente del alcance final P4-v1/P4C08."
+                "Workspace V4 cubre todo el alcance P4-v1 declarado: P4C11A 3F DONE, P4C11B 2F DONE, "
+                "P4C11C 1F-T DONE. 2F-T está excluida formalmente por P4C08 y no se dibuja ni calcula."
             ),
-            "Workspace V4 cubre 3F, 2F y 1F-T; el criterio global permanece abierto hasta fijar el alcance final de P4-v1 y la estrategia 2F-T.",
+            "Falta representación V4 de algún tipo de falla incluido en P4-v1.",
         ),
         _criterion(
             "P4C12",
@@ -144,8 +177,9 @@ def evaluar_cierre_p4() -> dict[str, Any]:
         "criteria": deepcopy(criteria),
         "pending_criteria": pending,
         "target_standard": deepcopy(iec60909_contract.TARGET_STANDARD),
+        "p4_v1_scope": deepcopy(iec60909_contract.P4_V1_SCOPE),
         "backend": deepcopy(iec60909_contract.BACKEND),
         "next_phase": "P5_PROTECTION_TCC" if status == PHASE_READY_WITH_LIMITATIONS else None,
         "professional_emission": False,
-        "note": "P4 no se cierra por la sola existencia de pandapower.calc_sc; requiere adaptación, validación de edición, benchmarks, V4 y madurez.",
+        "note": "P4 no se cierra por la sola existencia de pandapower.calc_sc; requiere alcance cerrado, adaptación, benchmarks, revisión de edición, V4 y madurez.",
     }
