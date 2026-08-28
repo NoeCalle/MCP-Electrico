@@ -120,7 +120,7 @@ def test_p5d_never_extrapolates_to_create_clearing_time():
     assert result["cross_segment_interpolation"] is False
 
 
-def test_p5d_contract_and_validation_status_keep_coordination_separate():
+def test_p5d_contract_and_validation_status_remain_separate_from_p5e():
     contract = protection_clearing_time.obtener_contrato_p5d()
     clearing = validation_status.get_module_status("protection_clearing_time")
     coordination = validation_status.get_module_status("protection_coordination")
@@ -130,7 +130,9 @@ def test_p5d_contract_and_validation_status_keep_coordination_separate():
     assert contract["p4_tk_s_consumed"] is False
     assert clearing["status"] == "EXPERIMENTAL"
     assert "P5D" in clearing["basis"]
-    assert coordination["status"] == "NOT_IMPLEMENTED"
+    assert "P5E" not in clearing["basis"]
+    assert coordination["status"] == "EXPERIMENTAL"
+    assert "P5E" in coordination["basis"]
 
 
 def test_p5d_public_tools_are_narrow_and_do_not_expose_coordination():
