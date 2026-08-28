@@ -9,7 +9,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from . import iec60909, iec60909_contract, validation_status
+from . import iec60909, iec60909_conformance, iec60909_contract, validation_status
 
 PHASE_NOT_READY = "NOT_READY"
 PHASE_READY_WITH_LIMITATIONS = "READY_WITH_LIMITATIONS"
@@ -32,6 +32,7 @@ def _criteria() -> list[dict[str, Any]]:
     capabilities = iec60909.CAPABILITIES
     fault_scope = contract["fault_scope"]
     p4_scope = contract.get("p4_v1_scope") or {}
+    conformance = iec60909_conformance.evaluar_revision()
     maturity = validation_status.get_module_status("short_circuit")
 
     two_phase_ground = fault_scope.get("two_phase_ground", {})
@@ -59,6 +60,16 @@ def _criteria() -> list[dict[str, Any]]:
         and item.get("status") == "FOUNDATION_READY"
         and (item.get("workspace_v4") or {}).get("status") == "DONE"
         for item in in_scope
+    )
+    p4c10_done = bool(
+        conformance.get("complete") is True
+        and backend.get("target_edition_conformance")
+        == iec60909_conformance.REVIEW_STATUS
+        and backend.get("target_edition_review_id")
+        == conformance.get("review", {}).get("id")
+        and backend.get("full_conformance_claim") is False
+        and conformance.get("review", {}).get("full_conformance_claim") is False
+        and conformance.get("review", {}).get("professional_emission") is False
     )
 
     return [
@@ -140,9 +151,13 @@ def _criteria() -> list[dict[str, Any]]:
         _criterion(
             "P4C10",
             "target_edition_conformance_review",
-            backend.get("target_edition_conformance") == "VERIFIED_AGAINST_TARGET_EDITION",
-            f"backend target edition conformance={backend.get('target_edition_conformance')}",
-            "Pandapower 3.5.4 aún no ha sido contrastado específicamente contra IEC 60909-0:2026.",
+            p4c10_done,
+            (
+                "P4C10: revisión específica IEC 60909-0:2026 Ed.3 completada con evidencia pública versionada; "
+                f"status={backend.get('target_edition_conformance')}; full_conformance_claim=false. "
+                "Se verifican método/alcance público y backend 3.5.4, manteniendo Clause 6 y magnitudes no cubiertas como limitaciones explícitas."
+            ),
+            "Falta completar y registrar una revisión de la edición 2026 con alcance/limitaciones explícitos.",
         ),
         _criterion(
             "P4C11",
