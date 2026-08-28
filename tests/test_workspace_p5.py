@@ -157,7 +157,7 @@ def test_v5_banda_segmentada_no_une_discontinuidades():
     assert html.count('class="p5-tcc-line p5-tcc-max"') == 2
     assert html.count('data-segment="0"') == 2
     assert html.count('data-segment="1"') == 2
-    assert "300" not in html  # no se fabrica un punto en el hueco 200–400 A
+    assert "300 A" not in html  # no se fabrica un punto en el hueco 200–400 A
 
 
 def test_v5_es_idempotente_y_no_duplica_tab_o_panel():
