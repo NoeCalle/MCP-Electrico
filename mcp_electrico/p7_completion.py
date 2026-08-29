@@ -26,6 +26,7 @@ RELEASE = "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW"
 PHASE_READY = "READY_WITH_LIMITATIONS"
 PHASE_NOT_READY = "NOT_READY"
 ARC_FLASH_POLICY = "DEFERRED"
+ALLOWED_USE = "CONTROLLED_INTERNAL_ENGINEERING_PREVIEW"
 
 _ACCEPTABLE_P7_MATURITY = {
     "EXPERIMENTAL",
@@ -49,7 +50,9 @@ def _criteria() -> list[dict[str, Any]]:
     p5 = p5_completion.evaluar_cierre_p5()
     matrix = validation_status.get_validation_matrix()
     engines = engine_selection.obtener_capacidades_motores()
-    protection_capability = (engines.get("studies") or {}).get("protection_coordination") or {}
+    studies = engines.get("studies") or {}
+    protection_capability = studies.get("protection_coordination") or {}
+    arc_flash_capability = studies.get("arc_flash_ieee1584") or {}
     p7_modules = {
         name: matrix.get(name) or {}
         for name in ("reproducible_project", "project_reconstruction", "technical_report")
@@ -60,6 +63,7 @@ def _criteria() -> list[dict[str, Any]]:
     )
     professional_report = matrix.get("professional_report") or {}
     arc_flash = matrix.get("arc_flash_ieee1584") or {}
+    p7c_contract = project_report.obtener_contrato_p7c()
 
     return [
         _criterion(
@@ -92,9 +96,13 @@ def _criteria() -> list[dict[str, Any]]:
             "p7c_technical_report",
             project_report.SCHEMA == "MCP_ELECTRICO_P7C_TECHNICAL_REPORT_V1"
             and p7_modules["technical_report"].get("status") in _ACCEPTABLE_P7_MATURITY
-            and project_report.PDF_EXPORT_MODE == "BROWSER_PRINT",
-            f"{project_report.SCHEMA}; technical_report={p7_modules['technical_report'].get('status')}; BROWSER_PRINT",
-            "Falta reporte técnico P7C reproducible e imprimible.",
+            and p7c_contract.get("source_integrity_required") == "HASH_MATCH"
+            and p7c_contract.get("pdf_export_mode") == "BROWSER_PRINT"
+            and p7c_contract.get("electrical_recalculation") is False
+            and p7c_contract.get("browser_engineering_calculation") is False
+            and p7c_contract.get("professional_report") is False,
+            f"{project_report.SCHEMA}; technical_report={p7_modules['technical_report'].get('status')}; HASH_MATCH; BROWSER_PRINT",
+            "Falta reporte P7C reproducible o su contrato permite recalcular/promover resultados.",
         ),
         _criterion(
             "P7D05",
@@ -110,17 +118,21 @@ def _criteria() -> list[dict[str, Any]]:
             engines.get("automatic_dispatch") is False
             and engines.get("crosscheck") is False
             and engines.get("default_engine") == "opendss"
-            and protection_capability.get("implemented") is True,
-            "automatic_dispatch=false; crosscheck=false; default_engine=opendss; protection_coordination implemented",
-            "La matriz de motores no refleja la política o capacidad P5 vigente.",
+            and protection_capability.get("implemented") is True
+            and protection_capability.get("preferred") == "mcp+pandapower"
+            and protection_capability.get("professional_emission_candidate") is False,
+            "automatic_dispatch=false; crosscheck=false; default_engine=opendss; P5 coordination implemented sin emisión profesional",
+            "La matriz de motores no refleja correctamente la política o capacidad P5 vigente.",
         ),
         _criterion(
             "P7D07",
             "arc_flash_explicitly_deferred",
             ARC_FLASH_POLICY == "DEFERRED"
             and p5.get("deferred_phase") == "P6_IEEE1584_ARC_FLASH"
-            and arc_flash.get("status") == "NOT_IMPLEMENTED",
-            "P6_IEEE1584_ARC_FLASH=DEFERRED; arc_flash_ieee1584=NOT_IMPLEMENTED",
+            and arc_flash.get("status") == "NOT_IMPLEMENTED"
+            and arc_flash_capability.get("implemented") is False
+            and arc_flash_capability.get("professional_emission_candidate") is False,
+            "P6_IEEE1584_ARC_FLASH=DEFERRED; arc_flash_ieee1584=NOT_IMPLEMENTED y no ejecutable",
             "Arc Flash debe permanecer explícitamente diferido para esta release.",
         ),
         _criterion(
@@ -128,7 +140,8 @@ def _criteria() -> list[dict[str, Any]]:
             "professional_boundary_closed",
             p7_implemented
             and professional_report.get("status") == "NOT_IMPLEMENTED"
-            and p5.get("professional_emission") is False,
+            and p5.get("professional_emission") is False
+            and p7c_contract.get("professional_emission") is False,
             "P7A/B/C implementados con madurez explícita; professional_report=NOT_IMPLEMENTED; professional_emission=false",
             "La Preview no puede habilitarse si falta P7A/B/C o se abre emisión profesional.",
         ),
@@ -143,6 +156,7 @@ def evaluar_cierre_p7() -> dict[str, Any]:
     return {
         "schema": SCHEMA,
         "phase": "P7",
+        "phase_version": "P7-minimum-operational",
         "phase_status": PHASE_READY if ready else PHASE_NOT_READY,
         "criteria": deepcopy(criteria),
         "pending_criteria": pending,
@@ -153,7 +167,8 @@ def evaluar_cierre_p7() -> dict[str, Any]:
         "arc_flash_ieee1584": ARC_FLASH_POLICY,
         "professional_report": False,
         "professional_emission": False,
-        "allowed_use": "CONTROLLED_INTERNAL_ENGINEERING_PREVIEW" if ready else None,
+        "allowed_use": ALLOWED_USE if ready else None,
+        "next_activity": "REAL_SUBSTATION_PILOT" if ready else "CLOSE_P7D_PENDING_CRITERIA",
         "note": (
             "Engineering Preview 0.9 habilita uso interno controlado dentro de los alcances y limitaciones declarados. "
             "No significa certificación, conformidad normativa integral ni autorización de emisión profesional."
