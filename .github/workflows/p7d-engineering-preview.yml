@@ -1,0 +1,37 @@
+name: p7d-engineering-preview
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p7d-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P7D gate tests
+        run: python -m pytest -q tests/test_p7d_engineering_preview.py
+      - name: Generate P7D Engineering Preview evidence
+        run: |
+          python examples/evaluate_p7d_engineering_preview.py --output p7d_engineering_preview.json
+          test -s p7d_engineering_preview.json
+          grep -q '"schema": "MCP_ELECTRICO_P7D_ENGINEERING_PREVIEW_GATE_V1"' p7d_engineering_preview.json
+          grep -q '"phase_status": "READY_WITH_LIMITATIONS"' p7d_engineering_preview.json
+          grep -q '"product_release": "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW"' p7d_engineering_preview.json
+          grep -q '"engineering_preview_ready": true' p7d_engineering_preview.json
+          grep -q '"internal_use_ready": true' p7d_engineering_preview.json
+          grep -q '"arc_flash_ieee1584": "DEFERRED"' p7d_engineering_preview.json
+          grep -q '"professional_report": false' p7d_engineering_preview.json
+          grep -q '"professional_emission": false' p7d_engineering_preview.json
+      - name: Upload P7D gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-p7d-engineering-preview
+          path: p7d_engineering_preview.json
