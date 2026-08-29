@@ -35,13 +35,13 @@ def _bus_key(raw: str) -> str:
 def _active_source_bus() -> str:
     """Lee Bus1 de ``Vsource.source`` mediante la interfaz de consulta DSS.
 
-    La colección ``Vsources`` de OpenDSSDirect no expone Bus1. La consulta
-    textual ``? Vsource.source.bus1`` es la vía soportada por OpenDSS para leer
-    esa propiedad y evita depender de que Vsource sea seleccionable como un
-    CktElement en una etapa temprana del circuito.
+    La colección ``Vsources`` de OpenDSSDirect no expone Bus1. En la API
+    usada por el proyecto, ``? ...`` deja la respuesta en ``Text.Result``;
+    leer el retorno directo de ``dss(...)`` produciría una cadena vacía.
     """
     try:
-        raw = str(dss("? Vsource.source.bus1") or "").strip()
+        dss("? Vsource.source.bus1")
+        raw = str(dss.Text.Result() or "").strip()
         return raw.split(".")[0].strip()
     except Exception:
         return ""
