@@ -1,0 +1,28 @@
+name: p8c5-integrated-readiness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8c5-readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8C5 focused tests
+        run: python -m pytest -q tests/test_p8c5_integrated_readiness.py
+      - name: Verify P8C5 remains non-executing
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_integrated_readiness
+          assert real_integrated_readiness.SCHEMA == "MCP_ELECTRICO_P8C5_INTEGRATED_READINESS_V1"
+          assert real_integrated_readiness.STATUS_READY == "READY_FOR_CONTROLLED_EXECUTION"
+          print("P8C5 integrated non-executing readiness contract PASS")
+          PY
