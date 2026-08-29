@@ -33,14 +33,16 @@ def _bus_key(raw: str) -> str:
 
 
 def _active_source_bus() -> str:
-    """Devuelve la barra efectiva de ``Vsource.source`` sin asumir sourcebus."""
+    """Lee Bus1 de ``Vsource.source`` mediante la interfaz de consulta DSS.
+
+    La colección ``Vsources`` de OpenDSSDirect no expone Bus1. La consulta
+    textual ``? Vsource.source.bus1`` es la vía soportada por OpenDSS para leer
+    esa propiedad y evita depender de que Vsource sea seleccionable como un
+    CktElement en una etapa temprana del circuito.
+    """
     try:
-        if not dss.Circuit.SetActiveElement("Vsource.source"):
-            return ""
-        buses = dss.CktElement.BusNames()
-        if not buses:
-            return ""
-        return str(buses[0]).split(".")[0].strip()
+        raw = str(dss("? Vsource.source.bus1") or "").strip()
+        return raw.split(".")[0].strip()
     except Exception:
         return ""
 
