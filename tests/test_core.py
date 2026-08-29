@@ -1,4 +1,4 @@
-import opendssdirect as dss
+from opendssdirect import dss
 import pytest
 
 from mcp_electrico import core
