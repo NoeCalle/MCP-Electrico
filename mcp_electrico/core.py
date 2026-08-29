@@ -15,15 +15,39 @@ from opendssdirect import dss
 
 _cargas_criticas: set[str] = set()
 _voltage_bases: set[float] = set()
+_bus_voltage_bases_ll: dict[str, float] = {}
+
+
+def _bus_key(raw: str) -> str:
+    return str(raw).split(".")[0].strip().lower()
+
+
+def _record_bus_voltage_base(bus: str, kv_ll: float, *, overwrite: bool = False) -> None:
+    """Registra un nivel nominal LL explícito para una barra conocida."""
+    if kv_ll <= 0:
+        return
+    key = _bus_key(bus)
+    if not key:
+        return
+    if overwrite or key not in _bus_voltage_bases_ll:
+        _bus_voltage_bases_ll[key] = float(kv_ll)
 
 
 def _recalcular_bases_de_tension() -> None:
-    """Aplica los niveles de tensión conocidos y recalcula las bases pu."""
+    """Recalcula bases y luego fija las barras con niveles nominales conocidos.
+
+    ``CalcVoltageBases`` conserva el comportamiento general de OpenDSS. Los
+    niveles bus->kVLL registrados explícitamente por el MCP se vuelven a aplicar
+    después mediante ``SetkVBase`` para que una inferencia del motor no gane
+    sobre la tensión declarada por circuito, transformador, carga o generador.
+    """
     if not _voltage_bases:
         return
     niveles = ",".join(str(v) for v in sorted(_voltage_bases, reverse=True))
     dss(f"Set VoltageBases=[{niveles}]")
     dss("CalcVoltageBases")
+    for bus, kv_ll in sorted(_bus_voltage_bases_ll.items()):
+        dss(f"SetkVBase Bus={bus} kVLL={kv_ll}")
 
 
 def _elemento_existe(nombre_elemento: str) -> bool:
@@ -85,8 +109,9 @@ def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
         f"New Circuit.{nombre} basekv={kv_base} Frequency={frecuencia}"
     )
 
-    global _voltage_bases
+    global _voltage_bases, _bus_voltage_bases_ll
     _voltage_bases = {float(kv_base)}
+    _bus_voltage_bases_ll = {"sourcebus": float(kv_base)}
     _cargas_criticas.clear()
     _recalcular_bases_de_tension()
     return f"Circuito '{nombre}' creado a {kv_base} kV, {frecuencia} Hz"
@@ -110,6 +135,11 @@ def agregar_linea(
         f"New Line.{nombre} Bus1={bus1} Bus2={bus2} Length={longitud_km} "
         f"Units=km Phases={fases} R1={r1_ohm_km} X1={x1_ohm_km}"
     )
+    key1, key2 = _bus_key(bus1), _bus_key(bus2)
+    if key1 in _bus_voltage_bases_ll and key2 not in _bus_voltage_bases_ll:
+        _record_bus_voltage_base(bus2, _bus_voltage_bases_ll[key1])
+    elif key2 in _bus_voltage_bases_ll and key1 not in _bus_voltage_bases_ll:
+        _record_bus_voltage_base(bus1, _bus_voltage_bases_ll[key2])
     _recalcular_bases_de_tension()
     return f"Línea '{nombre}' agregada: {bus1} -> {bus2} ({longitud_km} km)"
 
@@ -138,6 +168,8 @@ def agregar_transformador(
         f"kv={kv_secundario} kva={kva}"
     )
     _voltage_bases.update({float(kv_primario), float(kv_secundario)})
+    _record_bus_voltage_base(bus_primario, kv_primario, overwrite=True)
+    _record_bus_voltage_base(bus_secundario, kv_secundario, overwrite=True)
     _recalcular_bases_de_tension()
     return (
         f"Transformador '{nombre}' agregado: {kva} kVA, "
@@ -163,6 +195,9 @@ def agregar_carga(
         f"New Load.{nombre} Bus1={bus} Phases={fases} kV={kv} "
         f"kW={kw} kvar={kvar}"
     )
+    _voltage_bases.add(float(kv))
+    _record_bus_voltage_base(bus, kv)
+    _recalcular_bases_de_tension()
     if critica:
         _cargas_criticas.add(nombre)
     else:
@@ -185,6 +220,9 @@ def agregar_generador_respaldo(
     dss(
         f"New Generator.{nombre} Bus1={bus} Phases={fases} kV={kv} kW={kw}"
     )
+    _voltage_bases.add(float(kv))
+    _record_bus_voltage_base(bus, kv)
+    _recalcular_bases_de_tension()
     return f"Generador de respaldo '{nombre}' agregado en {bus}: {kw} kW"
 
 
