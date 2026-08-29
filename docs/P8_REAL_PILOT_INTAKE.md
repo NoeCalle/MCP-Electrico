@@ -70,26 +70,41 @@ La plantilla está en:
 
 `examples/p8b_real_pilot_manifest_template.json`
 
+## Topología construible — gate común
+
+P8B no considera suficiente que las listas de topología sean simplemente no vacías. Antes de declarar `READY_TO_BUILD_MODEL` comprueba un mínimo estructural para evitar un falso verde en `POWER_FLOW` o `VOLTAGE_DROP`:
+
+- IDs de barras no vacíos y únicos;
+- cada transformador referencia barras declaradas y aporta potencia, tensiones, uk%, grupo vectorial y X/R o pérdidas de carga;
+- cada línea/cable declara barras de origen/destino, fases, longitud, R1 y X1;
+- cada carga declara barra, fases, tensión, kW y kvar;
+- las referencias de barras deben resolver contra `topology.buses`;
+- los IDs de elementos deben ser únicos en la topología;
+- fichas Z0, ampacidad y protección deben referenciar elementos realmente presentes en la topología.
+
+Estos controles siguen siendo **pre-modelado**: no compilan OpenDSS, no ejecutan flujo y no sustituyen el QA P2–P5.
+
+`base_model_readiness` expone por separado estos blockers comunes. Cada `study_input_readiness` incorpora también los blockers del modelo base, de modo que un estudio nunca aparezca `INPUTS_PRESENT` si la topología que necesita todavía no puede construirse.
+
 ## IEC 60909 3F MAX/MIN
 
-Para solicitar `IEC60909_3PH_MAX_MIN`, P8B exige:
+Para solicitar `IEC60909_3PH_MAX_MIN`, P8B exige además:
 
 - Scc3 MAX y X/R MAX;
 - Scc3 MIN y X/R MIN;
-- transformador: buses, potencia, tensiones, uk%, grupo vectorial y X/R o pérdidas de carga trazables;
-- líneas/cables: longitud, R1 y X1;
-- temperatura final MIN explícita por línea.
+- temperatura final MIN explícita por línea/cable.
 
 No se inventa temperatura para el escenario mínimo.
 
 ## IEC 60909 1F-T MAX/MIN
 
-Además de la secuencia positiva, exige:
+Además de la secuencia positiva y la temperatura MIN, exige:
 
 - R0/X0 MAX y MIN de la fuente;
 - R0/X0/C0 de líneas/cables;
 - ficha Z0 de transformador;
-- lado y modo de neutro/puesta a tierra.
+- lado y modo de neutro/puesta a tierra;
+- IDs Z0 vinculados a elementos existentes del modelo positivo.
 
 La disponibilidad de Scc3 no se interpreta como disponibilidad de Z0.
 
@@ -97,6 +112,7 @@ La disponibilidad de Scc3 no se interpreta como disponibilidad de Z0.
 
 Para cada elemento incluido se solicita:
 
+- elemento existente de la topología;
 - conductor identificado;
 - Ib;
 - In;
@@ -111,7 +127,7 @@ Se requieren dispositivos con:
 
 - identidad;
 - tipo;
-- elemento protegido;
+- elemento protegido existente en la topología;
 - In;
 - Ue;
 - capacidad de corte;
@@ -132,7 +148,9 @@ P8B rechaza valores evidentemente imposibles antes del modelado:
 
 - tensiones, Scc, X/R, potencias nominales y longitudes no positivas;
 - R/X/Z0 negativos dentro del alcance pasivo actual;
-- ratings de protección no positivos.
+- kW negativos para cargas pasivas;
+- ratings de protección no positivos;
+- referencias a barras o elementos inexistentes.
 
 Esto no sustituye el QA eléctrico posterior.
 
