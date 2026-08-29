@@ -9,6 +9,7 @@ from . import (
     model_qa,
     p2_completion,
     p5_completion_tools,
+    p7_completion_tools,
     professional_data,
     project_reconstruction_tools,
     project_report_tools,
@@ -277,3 +278,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     project_snapshot_tools.register(mcp)
     project_reconstruction_tools.register(mcp)
     project_report_tools.register(mcp)
+    p7_completion_tools.register(mcp)
