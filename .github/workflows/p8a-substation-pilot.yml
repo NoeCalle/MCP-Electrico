@@ -16,8 +16,6 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Probe P8A P5D inputs
-        run: python examples/p8a_p5_probe.py
       - name: Run P8A substation pilot
         run: |
           python examples/p8a_substation_pilot.py --output-dir p8a_ci
@@ -40,6 +38,25 @@ jobs:
           grep -q '"professional_emission": false' p8a_ci/p8a_pilot_summary.json
           grep -q 'MCP-P5-PROTECTION-V5' p8a_ci/p8a_workspace_v5.html
           grep -q 'NO APTO PARA EMISIÓN PROFESIONAL' p8a_ci/p8a_technical_report.html
+          python - <<'PY'
+          import json
+          from math import sqrt
+          from pathlib import Path
+          data = json.loads(Path("p8a_ci/p8a_pilot_summary.json").read_text(encoding="utf-8"))
+          flow = data["studies"]["power_flow"]
+          buses = flow["voltajes_por_bus"]
+          assert flow["convergio"] is True, flow
+          assert abs(buses["sourcebus"]["kv_base"] - 22.9/sqrt(3)) < 0.002, buses
+          assert abs(buses["se_mt"]["kv_base"] - 22.9/sqrt(3)) < 0.002, buses
+          for bus in ("tgbt", "db_main", "crit_bus"):
+              assert abs(buses[bus]["kv_base"] - 0.48/sqrt(3)) < 0.002, buses
+              assert min(buses[bus]["voltajes_pu"]) > 0.80, buses
+              assert max(buses[bus]["voltajes_pu"]) < 1.20, buses
+          max_3ph = data["studies"]["iec60909_3ph"]["scenarios"]["max"]
+          assert max_3ph["vn_kv"] == 0.48, max_3ph
+          assert max_3ph["results"]["ikss_ka"] > 1.0, max_3ph
+          print("P8A voltage-base gate PASS")
+          PY
       - name: Upload P8A pilot dossier
         uses: actions/upload-artifact@v4
         with:
