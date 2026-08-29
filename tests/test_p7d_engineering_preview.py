@@ -1,4 +1,8 @@
 from copy import deepcopy
+import json
+from pathlib import Path
+import subprocess
+import sys
 
 from mcp_electrico import engine_selection, p7_completion
 
@@ -71,4 +75,27 @@ def test_p7d_blocks_if_arc_flash_is_silently_enabled(monkeypatch):
     pending = {item["id"] for item in result["pending_criteria"]}
     assert "P7D07" in pending
     assert result["arc_flash_ieee1584"] == "DEFERRED"
+    assert result["professional_emission"] is False
+
+
+def test_p7d_example_runs_standalone_and_writes_release_evidence(tmp_path):
+    repo_root = Path(__file__).resolve().parents[1]
+    output = tmp_path / "p7d.json"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "examples" / "evaluate_p7d_engineering_preview.py"),
+            "--output",
+            str(output),
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+    result = json.loads(output.read_text(encoding="utf-8"))
+    assert result["product_release"] == "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW"
+    assert result["engineering_preview_ready"] is True
     assert result["professional_emission"] is False
