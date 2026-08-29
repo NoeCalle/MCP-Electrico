@@ -242,6 +242,11 @@ def _validar_contexto_factores(
     ]
 
 
+def _assignment_base_origin(assignment: dict[str, Any]) -> str:
+    """Traduce la procedencia P2 a una semántica P3 sin fingir catálogo."""
+    return "P2_PROJECT" if str(assignment.get("origen") or "") == "PROJECT_DATA" else "P2_CATALOG"
+
+
 def definir_condiciones(
     nombre_elemento: str,
     norma_id: str,
@@ -306,8 +311,8 @@ def definir_condiciones(
     if ib_diseno_a is not None and not str(referencia_ib or "").strip():
         raise ValueError("P3A015: Ib explícita requiere referencia/metodología")
 
-    catalog_base = float(assignment.get("ampacidad_aplicada_a") or 0)
-    if catalog_base <= 0:
+    assignment_base = float(assignment.get("ampacidad_aplicada_a") or 0)
+    if assignment_base <= 0:
         raise ValueError("P3A016: ampacidad base P2 no disponible")
 
     normative_base = None
@@ -322,22 +327,30 @@ def definir_condiciones(
             raise ValueError("P3C10B002: Iz_base normativa pertenece a otro perfil P3A")
         base = float(normative_base["ampacity_a"])
     else:
-        base = catalog_base
+        base = assignment_base
 
     compatibility_checks = _validar_contexto_factores(validated, route, normative_base)
+    p2_origin = _assignment_base_origin(assignment)
     base_evidence = ampacity_base_binding.resumen_evidencia_base(normative_base)
+    if normative_base is None:
+        base_evidence["origin"] = p2_origin
     total = prod(item["value"] for item in validated) if validated else 1.0
     evidence = ampacity_factor_binding.resumen_evidencia_factores(validated)
+    is_catalog = p2_origin == "P2_CATALOG"
 
     record = {
         "element": full,
         "norm": norm,
         "base": {
             "ampacity_a": base,
-            "origin": "NORMATIVE_DATASET" if normative_base else "P2_CATALOG",
-            "catalog_ampacity_a": catalog_base,
-            "catalog_installation": assignment.get("instalacion"),
-            "catalog_conditions": deepcopy(assignment.get("condiciones_ampacidad")),
+            "origin": "NORMATIVE_DATASET" if normative_base else p2_origin,
+            "assignment_origin": assignment.get("origen"),
+            "assignment_ampacity_a": assignment_base,
+            "assignment_installation": assignment.get("instalacion"),
+            "assignment_conditions": deepcopy(assignment.get("condiciones_ampacidad")),
+            "catalog_ampacity_a": assignment_base if is_catalog else None,
+            "catalog_installation": assignment.get("instalacion") if is_catalog else None,
+            "catalog_conditions": deepcopy(assignment.get("condiciones_ampacidad")) if is_catalog else None,
             "source": deepcopy(assignment.get("fuente")),
             "conductor_code": assignment.get("codigo"),
             "normative_dataset": deepcopy(normative_base),
@@ -398,14 +411,21 @@ def _profile_is_current(profile: dict[str, Any]) -> tuple[bool, list[str]]:
     base = profile.get("base", {})
     if str(assignment.get("codigo") or "") != str(base.get("conductor_code") or ""):
         missing.append("conductor_modificado")
-    if str(assignment.get("instalacion") or "") != str(base.get("catalog_installation") or ""):
+    expected_installation = base.get("assignment_installation", base.get("catalog_installation"))
+    if str(assignment.get("instalacion") or "") != str(expected_installation or ""):
         missing.append("instalacion_modificada")
     current_ampacity = float(assignment.get("ampacidad_aplicada_a") or 0)
-    expected_catalog_ampacity = float(
-        base.get("catalog_ampacity_a", base.get("ampacity_a")) or 0
+    expected_assignment_ampacity = float(
+        base.get("assignment_ampacity_a", base.get("catalog_ampacity_a", base.get("ampacity_a"))) or 0
     )
-    if abs(current_ampacity - expected_catalog_ampacity) > 1e-9:
+    if abs(current_ampacity - expected_assignment_ampacity) > 1e-9:
         missing.append("ampacidad_base_modificada")
+    current_p2_origin = _assignment_base_origin(assignment)
+    stored_origin = str(base.get("origin") or "")
+    if stored_origin != "NORMATIVE_DATASET" and stored_origin not in {current_p2_origin, "P2_CATALOG"}:
+        missing.append("origen_asignacion_modificado")
+    if str(base.get("assignment_origin") or assignment.get("origen") or "") != str(assignment.get("origen") or ""):
+        missing.append("origen_asignacion_modificado")
     return not missing, missing
 
 
@@ -510,10 +530,15 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
     c2 = in_a <= iz
     evidence = ampacity_factor_binding.resumen_evidencia_factores(active_factors)
     base_evidence = ampacity_base_binding.resumen_evidencia_base(active_normative_base)
+    if active_normative_base is None:
+        base_evidence["origin"] = str(profile.get("base", {}).get("origin") or "P2_CATALOG")
     automatic_lookup = bool(
         base_evidence.get("professional_emission")
         and evidence.get("automatic_normative_lookup")
     )
+    profile_base = profile["base"]
+    p2_origin = str(profile_base.get("origin") or "")
+    p2_source = deepcopy(profile_base["source"])
 
     return {
         "element": full,
@@ -533,16 +558,21 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
             "iz_base": deepcopy(
                 active_normative_base
                 if active_normative_base is not None
-                else profile["base"]["source"]
+                else p2_source
             ),
-            "iz_base_catalog_p2": deepcopy(profile["base"]["source"]),
+            "iz_base_p2": p2_source,
+            "iz_base_catalog_p2": p2_source if p2_origin == "P2_CATALOG" else None,
+            "iz_base_project_p2": p2_source if p2_origin == "P2_PROJECT" else None,
             "norm": deepcopy(profile["norm"]),
             "factors": deepcopy(active_factors),
             "installation_compatibility": profile["correction"]["installation_compatibility_reference"],
         },
         "installation": {
-            "catalog_installation": profile["base"]["catalog_installation"],
-            "catalog_conditions": deepcopy(profile["base"]["catalog_conditions"]),
+            "assignment_origin": profile_base.get("assignment_origin"),
+            "assignment_installation": profile_base.get("assignment_installation", profile_base.get("catalog_installation")),
+            "assignment_conditions": deepcopy(profile_base.get("assignment_conditions", profile_base.get("catalog_conditions"))),
+            "catalog_installation": profile_base.get("catalog_installation"),
+            "catalog_conditions": deepcopy(profile_base.get("catalog_conditions")),
             "correction_mode": profile["correction"]["mode"],
             "iz_base_origin": base_evidence.get("origin"),
             "iz_base_table": base_evidence.get("table"),
@@ -555,7 +585,7 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         "automatic_normative_lookup": automatic_lookup,
         "professional_emission": False,
         "note": (
-            "Iz usa ampacidad base trazable y factores P3 revalidados contra el catálogo activo. "
+            "Iz usa ampacidad base trazable y factores P3 revalidados contra la asignación P2 activa. "
             "Los factores exact_rows_v1 solo entran a Iz cuando su política de compatibilidad con routing y base normativa pasa completa. "
             f"La madurez P3-v1 es {_maturity()} dentro de su alcance y professional_emission permanece false para el resultado global."
         ),
