@@ -1,8 +1,8 @@
-"""Tools MCP P7 para snapshot P7A y reconstrucción verificable P7B."""
+"""Tools MCP P7A para snapshot reproducible del proyecto."""
 
 from __future__ import annotations
 
-from . import project_reconstruction_tools, project_snapshot
+from . import project_snapshot
 
 
 def register(mcp) -> None:
@@ -28,5 +28,3 @@ def register(mcp) -> None:
     def verificar_snapshot_proyecto_p7a(snapshot: dict) -> dict:
         """Verifica schema/hash sin reconstruir el modelo."""
         return project_snapshot.verificar_snapshot(snapshot)
-
-    project_reconstruction_tools.register(mcp)
