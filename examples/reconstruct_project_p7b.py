@@ -49,14 +49,9 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    if result.get("status") != "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED":
-        raise SystemExit(f"P7B reconstruction failed: {result}")
-    if not (result.get("roundtrip") or {}).get("canonical_netlist_match"):
-        raise SystemExit("P7B round-trip canonical netlist mismatch")
-    if result.get("stored_results_promoted_to_current") is not False:
-        raise SystemExit("P7B promoted stored results unexpectedly")
-    if result.get("professional_emission") is not False:
-        raise SystemExit("P7B professional emission must remain false")
+    # El ejemplo solo genera evidencia. El gate del workflow valida el
+    # contrato estructurado y muestra el resultado completo si algo difiere.
+    print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
