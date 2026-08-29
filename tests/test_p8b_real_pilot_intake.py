@@ -102,19 +102,12 @@ def _complete_manifest() -> dict:
 
 def test_p8b_complete_manifest_is_ready_only_for_model_build():
     result = real_pilot_intake.evaluar_admision(_complete_manifest())
-
     assert result["schema"] == "MCP_ELECTRICO_P8B_REAL_PILOT_INTAKE_V1"
     assert result["intake_status"] == "READY_TO_BUILD_MODEL"
     assert result["ready_to_build_model"] is True
     assert result["issues"] == []
-    assert all(
-        item["status"] == "INPUTS_PRESENT"
-        for item in result["study_input_readiness"].values()
-    )
-    assert all(
-        item["engineering_execution_claim"] is False
-        for item in result["study_input_readiness"].values()
-    )
+    assert all(item["status"] == "INPUTS_PRESENT" for item in result["study_input_readiness"].values())
+    assert all(item["engineering_execution_claim"] is False for item in result["study_input_readiness"].values())
     assert result["electrical_calculation_performed"] is False
     assert result["model_mutation_performed"] is False
     assert result["automatic_defaults"] is False
@@ -127,7 +120,6 @@ def test_p8b_ground_fault_blocks_without_explicit_zero_sequence():
     manifest = _complete_manifest()
     manifest.pop("zero_sequence")
     result = real_pilot_intake.evaluar_admision(manifest)
-
     assert result["intake_status"] == "BLOCKED_MISSING_INPUTS"
     assert result["ready_to_build_model"] is False
     assert result["study_input_readiness"]["IEC60909_1PH_GROUND_MAX_MIN"]["status"] == "MISSING_INPUTS"
@@ -141,7 +133,6 @@ def test_p8b_min_short_circuit_never_invents_line_temperature():
     manifest = _complete_manifest()
     del manifest["topology"]["lines"][0]["endtemp_min_c"]
     result = real_pilot_intake.evaluar_admision(manifest)
-
     assert result["ready_to_build_model"] is False
     issue = next(item for item in result["issues"] if item["code"] == "P8B_SC21")
     assert issue["path"].endswith("endtemp_min_c")
@@ -153,7 +144,6 @@ def test_p8b_protection_requires_traceable_device_and_tcc_metadata():
     manifest["protection"]["devices"][0]["source_reference"] = None
     manifest["protection"]["tcc_datasets"][0]["source_reference"] = None
     result = real_pilot_intake.evaluar_admision(manifest)
-
     assert result["ready_to_build_model"] is False
     p5 = result["study_input_readiness"]["PROTECTION_TCC"]
     assert p5["status"] == "MISSING_INPUTS"
@@ -167,9 +157,45 @@ def test_p8b_unknown_scope_fails_closed_without_changing_manifest():
     before = deepcopy(manifest)
     manifest["requested_scope"].append("ARC_FLASH_IEEE1584")
     result = real_pilot_intake.evaluar_admision(manifest)
-
     assert result["ready_to_build_model"] is False
     assert any(item["code"] == "P8B_SCOPE01" for item in result["issues"])
     assert "ARC_FLASH_IEEE1584" not in real_pilot_intake.ALLOWED_SCOPE
     assert before["source"] == manifest["source"]
     assert result["professional_emission"] is False
+
+
+def test_p8b_empty_requested_scope_has_explicit_blocker():
+    manifest = _complete_manifest()
+    manifest["requested_scope"] = []
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    issue = next(item for item in result["issues"] if item["code"] == "P8B_SCOPE00")
+    assert issue["path"] == "requested_scope"
+    assert result["study_input_readiness"] == {}
+
+
+def test_p8b_obviously_invalid_source_values_fail_closed():
+    manifest = _complete_manifest()
+    manifest["source"]["kv_ll"] = -22.9
+    manifest["source"]["scc_max_mva"] = 0
+    manifest["source"]["x_r_min"] = -1
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    codes = {item["code"] for item in result["issues"]}
+    assert "P8B_BASE_09" in codes
+    assert "P8B_SC01V" in codes
+    assert "P8B_SC04V" in codes
+    assert result["electrical_calculation_performed"] is False
+    assert result["model_mutation_performed"] is False
+
+
+def test_p8b_invalid_passive_line_values_fail_closed():
+    manifest = _complete_manifest()
+    line = manifest["topology"]["lines"][0]
+    line["length_km"] = 0
+    line["r1_ohm_km"] = -0.1
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    codes = {item["code"] for item in result["issues"]}
+    assert "P8B_SC22" in codes
+    assert "P8B_SC23" in codes
