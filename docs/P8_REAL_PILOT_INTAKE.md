@@ -60,6 +60,7 @@ El manifiesto exige como mínimo:
 
 - identificador y nombre del proyecto/subestación;
 - referencia de procedencia: SLD, expediente, plano, memoria o revisión identificable;
+- barra explícita de conexión de la fuente aguas arriba;
 - tensión nominal de la red aguas arriba;
 - barras del alcance;
 - transformadores;
@@ -74,12 +75,14 @@ La plantilla está en:
 
 P8B no considera suficiente que las listas de topología sean simplemente no vacías. Antes de declarar `READY_TO_BUILD_MODEL` comprueba un mínimo estructural para evitar un falso verde en `POWER_FLOW` o `VOLTAGE_DROP`:
 
+- `source.bus` debe existir en `topology.buses`;
 - IDs de barras no vacíos y únicos;
 - cada transformador referencia barras declaradas y aporta potencia, tensiones, uk%, grupo vectorial y X/R o pérdidas de carga;
 - cada línea/cable declara barras de origen/destino, fases, longitud, R1 y X1;
 - cada carga declara barra, fases, tensión, kW y kvar;
 - las referencias de barras deben resolver contra `topology.buses`;
 - los IDs de elementos deben ser únicos en la topología;
+- el conjunto del alcance debe ser conexo desde `source.bus`;
 - fichas Z0, ampacidad y protección deben referenciar elementos realmente presentes en la topología.
 
 Estos controles siguen siendo **pre-modelado**: no compilan OpenDSS, no ejecutan flujo y no sustituyen el QA P2–P5.
@@ -101,12 +104,12 @@ No se inventa temperatura para el escenario mínimo.
 Además de la secuencia positiva y la temperatura MIN, exige:
 
 - R0/X0 MAX y MIN de la fuente;
-- R0/X0/C0 de líneas/cables;
-- ficha Z0 de transformador;
+- R0/X0/C0 de todas las líneas/cables incluidas en el alcance;
+- ficha Z0 de todos los transformadores del alcance;
 - lado y modo de neutro/puesta a tierra;
 - IDs Z0 vinculados a elementos existentes del modelo positivo.
 
-La disponibilidad de Scc3 no se interpreta como disponibilidad de Z0.
+La disponibilidad de Scc3 no se interpreta como disponibilidad de Z0. Si el alcance contiene un elemento sin ficha homopolar, P8B bloquea el ingreso en vez de asumirla.
 
 ## Ampacidad P3
 
@@ -150,7 +153,8 @@ P8B rechaza valores evidentemente imposibles antes del modelado:
 - R/X/Z0 negativos dentro del alcance pasivo actual;
 - kW negativos para cargas pasivas;
 - ratings de protección no positivos;
-- referencias a barras o elementos inexistentes.
+- referencias a barras o elementos inexistentes;
+- islas topológicas no conectadas a la fuente declarada.
 
 Esto no sustituye el QA eléctrico posterior.
 
