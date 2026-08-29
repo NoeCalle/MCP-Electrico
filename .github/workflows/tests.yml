@@ -129,6 +129,43 @@ jobs:
         with:
           name: mcp-electrico-reconstruction-p7b
           path: reconstruction_p7b.json
+      - name: Generate P7C reproducible technical report
+        run: |
+          python examples/export_project_p7c.py --output project_report_p7c.html --snapshot-output project_report_p7c_snapshot.json --netlist-dir project_report_p7c_dss
+          test -s project_report_p7c.html
+          test -s project_report_p7c_snapshot.json
+          grep -q 'data-module="mcp-p7c-technical-report"' project_report_p7c.html
+          grep -q 'NO APTO PARA EMISIÓN PROFESIONAL' project_report_p7c.html
+          grep -q 'Imprimir / Guardar PDF' project_report_p7c.html
+          grep -q 'BROWSER_PRINT' project_report_p7c.html
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from mcp_electrico import project_report, project_snapshot
+          snapshot = json.loads(Path("project_report_p7c_snapshot.json").read_text(encoding="utf-8"))
+          check = project_snapshot.verificar_snapshot(snapshot)
+          assert check["status"] == "HASH_MATCH", check
+          first = project_report.construir_reporte(snapshot)
+          second = project_report.construir_reporte(snapshot)
+          assert first["ok"] is True, first
+          assert first["report_hash"] == second["report_hash"], (first, second)
+          assert first["html"] == second["html"], "P7C HTML no determinista"
+          assert Path("project_report_p7c.html").read_text(encoding="utf-8") == first["html"]
+          assert first["data"]["source_snapshot"]["sha256"] == snapshot["hash"]["value"]
+          assert first["data"]["rendering_contract"]["pdf_export_mode"] == "BROWSER_PRINT"
+          assert first["data"]["rendering_contract"]["browser_engineering_calculation"] is False
+          assert first["engineering_preview_ready"] is False
+          assert first["professional_report"] is False
+          assert first["professional_emission"] is False
+          print(first["report_hash"])
+          PY
+      - name: Upload P7C technical report evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-report-p7c
+          path: |
+            project_report_p7c.html
+            project_report_p7c_snapshot.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py
