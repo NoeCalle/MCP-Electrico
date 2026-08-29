@@ -165,17 +165,18 @@ def _manifest(requested_scope: list[str] | None = None) -> dict:
     }
 
 
-def test_p8c5_full_case_finds_only_project_origin_gate_before_p8d():
+def test_p8c5_full_case_is_ready_after_project_origin_fix():
     result = real_integrated_readiness.evaluar_readiness_integral(_manifest())
 
     assert result["schema"] == "MCP_ELECTRICO_P8C5_INTEGRATED_READINESS_V1"
     assert result["materialization_layer"] == "P8C4B"
     assert result["materialization_ok"] is True
-    assert result["readiness_status"] == "PARTIALLY_READY"
+    assert result["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION"
 
     for scope in (
         "POWER_FLOW",
         "VOLTAGE_DROP",
+        "AMPACITY",
         "IEC60909_3PH_MAX_MIN",
         "IEC60909_1PH_GROUND_MAX_MIN",
         "PROTECTION_TCC",
@@ -183,15 +184,13 @@ def test_p8c5_full_case_finds_only_project_origin_gate_before_p8d():
         assert result["scope_readiness"][scope]["status"] == "READY"
 
     ampacity_view = result["scope_readiness"]["AMPACITY"]
-    assert ampacity_view["status"] == "BLOCKED"
-    assert len(ampacity_view["issues"]) == 1
-    assert ampacity_view["issues"][0]["code"] == "P8C5P310"
+    assert ampacity_view["issues"] == []
     assert ampacity_view["checks"][0]["assignment_origin"] == "PROJECT_DATA"
-    assert ampacity_view["checks"][0]["profile_base_origin"] == "P2_CATALOG"
+    assert ampacity_view["checks"][0]["profile_base_origin"] == "P2_PROJECT"
 
-    assert result["blocked_scopes"] == ["AMPACITY"]
-    assert result["all_requested_ready"] is False
-    assert result["next_gate"] == "RESOLVE_BLOCKERS_BEFORE_P8D"
+    assert result["blocked_scopes"] == []
+    assert result["all_requested_ready"] is True
+    assert result["next_gate"] == "P8D_CONTROLLED_EXECUTION"
     assert result["workspace_studies_after_readiness"] == []
     assert workspace_state.status()["studies"] == {}
     assert result["electrical_calculation_performed"] is False
@@ -202,8 +201,12 @@ def test_p8c5_full_case_finds_only_project_origin_gate_before_p8d():
     assert result["professional_emission"] is False
 
 
-def test_p8c5_p5_is_ready_independently_while_p3_visual_origin_is_blocked():
+def test_p8c5_p5_and_p3_are_ready_together_without_execution():
     result = real_integrated_readiness.evaluar_readiness_integral(_manifest())
+
+    p3 = result["scope_readiness"]["AMPACITY"]
+    assert p3["status"] == "READY"
+    assert p3["checks"][0]["profile_base_origin"] == "P2_PROJECT"
 
     p5 = result["scope_readiness"]["PROTECTION_TCC"]
     assert p5["status"] == "READY"
@@ -250,7 +253,7 @@ def test_p8c5_invalid_p5_preflight_blocks_all_scopes_without_inspecting_stale_mo
     assert result["studies_executed"] == []
 
 
-def test_p8c5_missing_voltage_drop_limit_blocks_only_that_ready_scope_plus_known_p3_origin():
+def test_p8c5_missing_voltage_drop_limit_blocks_only_voltage_drop():
     manifest = _manifest()
     del manifest["study_inputs"]["voltage_drop_limit_pct"]
 
@@ -260,9 +263,9 @@ def test_p8c5_missing_voltage_drop_limit_blocks_only_that_ready_scope_plus_known
     voltage = result["scope_readiness"]["VOLTAGE_DROP"]
     assert voltage["status"] == "BLOCKED"
     assert any(item["code"] == "P8C3C210" for item in voltage["issues"])
-    assert result["scope_readiness"]["AMPACITY"]["status"] == "BLOCKED"
+    assert result["scope_readiness"]["AMPACITY"]["status"] == "READY"
     assert result["scope_readiness"]["PROTECTION_TCC"]["status"] == "READY"
-    assert set(result["blocked_scopes"]) == {"VOLTAGE_DROP", "AMPACITY"}
+    assert result["blocked_scopes"] == ["VOLTAGE_DROP"]
 
 
 def test_p8c5_is_reproducible_and_readiness_does_not_leave_studies():
@@ -270,8 +273,8 @@ def test_p8c5_is_reproducible_and_readiness_does_not_leave_studies():
     first = real_integrated_readiness.evaluar_readiness_integral(manifest)
     second = real_integrated_readiness.evaluar_readiness_integral(deepcopy(manifest))
 
-    assert first["readiness_status"] == second["readiness_status"] == "PARTIALLY_READY"
+    assert first["readiness_status"] == second["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION"
     assert first["ready_scopes"] == second["ready_scopes"]
-    assert first["blocked_scopes"] == second["blocked_scopes"] == ["AMPACITY"]
+    assert first["blocked_scopes"] == second["blocked_scopes"] == []
     assert first["materialization"]["p5"]["protection_fingerprint_sha256"] == second["materialization"]["p5"]["protection_fingerprint_sha256"]
     assert workspace_state.status()["studies"] == {}
