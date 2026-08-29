@@ -21,6 +21,13 @@ def main() -> None:
     parser.add_argument("--reconstructed", default="p7b_ci_reconstructed")
     args = parser.parse_args()
 
+    # OpenDSS puede cambiar el cwd durante Save/Compile. Resolver todas las
+    # rutas antes de tocar el motor evita que una salida relativa termine en
+    # otro directorio aunque la reconstrucción sea correcta.
+    output_path = Path(args.output).expanduser().resolve()
+    source_netlist_path = Path(args.source_netlist).expanduser().resolve()
+    reconstructed_path = Path(args.reconstructed).expanduser().resolve()
+
     core.crear_circuito("p7b_ci_source", 0.48)
     workspace_state.reset_for_circuit("p7b_ci_source")
     core.agregar_linea(
@@ -35,16 +42,16 @@ def main() -> None:
         {"status": "STORED_ONLY", "professional_emission": False},
         "p7b_ci_probe",
     )
-    snapshot = project_snapshot.construir_snapshot(args.source_netlist)
+    snapshot = project_snapshot.construir_snapshot(str(source_netlist_path))
 
     core.crear_circuito("p7b_ci_sentinel", 0.22)
     workspace_state.reset_for_circuit("p7b_ci_sentinel")
 
     result = project_reconstruction.reconstruir_snapshot(
         snapshot,
-        directorio_reconstruccion=args.reconstructed,
+        directorio_reconstruccion=str(reconstructed_path),
     )
-    Path(args.output).write_text(
+    output_path.write_text(
         json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
     )
