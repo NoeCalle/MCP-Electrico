@@ -171,20 +171,18 @@ def test_p7b_invalid_json_file_is_fail_closed(tmp_path):
     assert str(dss.Circuit.Name()) == "p7b_json_sentinel"
 
 
-def test_p7b_cli_example_exits_cleanly_and_emits_verified_evidence(tmp_path):
+def test_p7b_cli_example_resolves_relative_paths_before_opendss_changes_cwd(tmp_path):
     repo_root = Path(__file__).resolve().parents[1]
     output = tmp_path / "reconstruction_p7b.json"
-    source_netlist = tmp_path / "source_dss"
-    reconstructed = tmp_path / "reconstructed"
     process = subprocess.run(
         [
             sys.executable,
             str(repo_root / "examples" / "reconstruct_project_p7b.py"),
-            "--output", str(output),
-            "--source-netlist", str(source_netlist),
-            "--reconstructed", str(reconstructed),
+            "--output", "reconstruction_p7b.json",
+            "--source-netlist", "source_dss",
+            "--reconstructed", "reconstructed",
         ],
-        cwd=repo_root,
+        cwd=tmp_path,
         capture_output=True,
         text=True,
         check=False,
