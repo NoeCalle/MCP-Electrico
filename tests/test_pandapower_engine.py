@@ -10,12 +10,12 @@ from mcp_electrico import (
 )
 
 
-def _single_voltage_case():
-    core.crear_circuito("pp_bridge", 0.48)
+def _single_voltage_case(source_bus: str = "sourcebus"):
+    core.crear_circuito("pp_bridge", 0.48, bus_fuente=source_bus)
     visual_state.reset()
     professional_data.reset()
     core.agregar_linea(
-        "f1", "sourcebus", "loadbus", 0.05,
+        "f1", source_bus, "loadbus", 0.05,
         fases=3, r1_ohm_km=0.2, x1_ohm_km=0.08,
     )
     dss("Edit Line.f1 C1=0 C0=0")
@@ -51,6 +51,7 @@ def test_pandapower_reports_explicit_scope():
     assert result["maturity"] == "EXPERIMENTAL"
     assert result["scope"] == "balanced_three_phase_line_load_p2_transformer_optional"
     assert result["compatible"] is True
+    assert result["model_summary"]["source_bus"] == "sourcebus"
     assert validation_status.get_module_status("pandapower_power_flow")["status"] == "EXPERIMENTAL"
 
 
@@ -66,6 +67,40 @@ def test_pandapower_solves_single_voltage_case():
     assert line["i_from_a"] > 0
     assert line["perdidas_kw"] > 0
     assert line["cargabilidad_pct"] is None
+
+
+def test_pandapower_supports_explicit_nonlegacy_source_bus():
+    _single_voltage_case("red_mt")
+    result = pandapower_engine.ejecutar_flujo()
+
+    assert result["ok"] is True
+    assert result["convergio"] is True
+    assert result["model_summary"]["source_bus"] == "red_mt"
+    buses = {row["bus"].lower(): row for row in result["resultados"]["buses"]}
+    assert "red_mt" in buses
+    assert "sourcebus" not in buses
+    assert any("red_mt" in item for item in result["assumptions"])
+
+
+def test_pandapower_p2_source_bus_must_match_effective_vsource():
+    core.crear_circuito("pp_source_binding", 22.9, bus_fuente="red_mt")
+    visual_state.reset()
+    professional_data.reset()
+    professional_data.definir_red_equivalente(
+        kv_ll=22.9,
+        scc_max_mva=350.0,
+        x_r_max=10.0,
+        fuente_referencia="estudio de prueba",
+        bus_fuente="red_mt",
+    )
+    core.agregar_linea("f1", "red_mt", "loadbus", 0.05, fases=3, r1_ohm_km=0.2, x1_ohm_km=0.08)
+    core.agregar_carga("c1", "loadbus", 30.0, 10.0, fases=3, kv=22.9)
+
+    dss("Edit Vsource.source Bus1=otra_red")
+    result = pandapower_engine.evaluar_compatibilidad()
+
+    assert result["compatible"] is False
+    assert any(issue["code"] == "PP003" for issue in result["issues"])
 
 
 def test_pandapower_matches_independent_two_bus_reference_without_opendss_crosscheck():

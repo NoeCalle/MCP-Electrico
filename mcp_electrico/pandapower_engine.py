@@ -37,6 +37,16 @@ def _bus_name(raw: str) -> str:
     return str(raw).split(".")[0]
 
 
+def _active_source_bus() -> str:
+    """Lee la barra efectiva de Vsource.source sin asumir el nombre sourcebus."""
+    try:
+        dss("? Vsource.source.bus1")
+        raw = str(dss.Text.Result() or "").strip()
+        return _bus_name(raw).strip()
+    except Exception:
+        return ""
+
+
 def _active_element_is_open(full_name: str) -> bool:
     if not dss.Circuit.SetActiveElement(full_name):
         return False
@@ -59,6 +69,7 @@ def _collect_active_model() -> dict[str, Any]:
         return {
             "circuit": "", "buses": [], "lines": [], "loads": [],
             "transformers": [], "generators": [], "source": None,
+            "source_bus": "", "active_source_bus": "",
         }
 
     p2 = professional_data.snapshot()
@@ -66,6 +77,9 @@ def _collect_active_model() -> dict[str, Any]:
         str(item["id"]).lower(): item for item in p2.get("transformers", [])
     }
     source = p2.get("source")
+    active_source_bus = _active_source_bus()
+    declared_source_bus = str((source or {}).get("bus") or "").strip()
+    source_bus = declared_source_bus or active_source_bus
 
     buses: list[dict[str, Any]] = []
     voltage_by_bus: dict[str, float] = {}
@@ -85,8 +99,8 @@ def _collect_active_model() -> dict[str, Any]:
         if vn:
             dss_voltage_by_bus[name.lower()] = vn
 
-    if source:
-        voltage_by_bus["sourcebus"] = float(source["kv_ll"])
+    if source and source_bus:
+        voltage_by_bus[source_bus.lower()] = float(source["kv_ll"])
 
     lines: list[dict[str, Any]] = []
     for name in dss.Lines.AllNames():
@@ -176,6 +190,8 @@ def _collect_active_model() -> dict[str, Any]:
         "transformers": transformers,
         "generators": [str(x) for x in dss.Generators.AllNames()],
         "source": source,
+        "source_bus": source_bus,
+        "active_source_bus": active_source_bus,
     }
 
 
@@ -200,8 +216,18 @@ def evaluar_compatibilidad() -> dict[str, Any]:
         issues.append({"code": "PP001", "message": "No existe un circuito activo."})
 
     bus_names = {str(b["name"]).lower() for b in model["buses"]}
-    if "sourcebus" not in bus_names:
-        issues.append({"code": "PP002", "message": "Se requiere una barra fuente llamada sourcebus."})
+    source_bus = str(model.get("source_bus") or "").strip()
+    active_source_bus = str(model.get("active_source_bus") or "").strip()
+    if not source_bus:
+        issues.append({"code": "PP002", "message": "No se pudo resolver la barra efectiva de Vsource.source."})
+    elif source_bus.lower() not in bus_names:
+        issues.append({"code": "PP002", "message": f"La barra fuente {source_bus!r} no existe en el modelo activo."})
+    declared = str((model.get("source") or {}).get("bus") or "").strip()
+    if declared and active_source_bus and declared.lower() != active_source_bus.lower():
+        issues.append({
+            "code": "PP003",
+            "message": f"La barra P2 declarada {declared!r} no coincide con Vsource.source={active_source_bus!r}.",
+        })
 
     if model["generators"]:
         issues.append({"code": "PP011", "message": "Esta versión todavía no traduce generadores ni motores."})
@@ -247,6 +273,7 @@ def evaluar_compatibilidad() -> dict[str, Any]:
         "issues": issues,
         "model_summary": {
             "circuit": model["circuit"],
+            "source_bus": source_bus or None,
             "buses": len(model["buses"]),
             "lines": len(model["lines"]),
             "loads": len(model["loads"]),
@@ -264,8 +291,9 @@ def _build_net(model: dict[str, Any]):
         idx = pp.create_bus(net, vn_kv=float(bus["vn_kv_ll"]), name=str(bus["name"]))
         bus_map[str(bus["name"]).lower()] = int(idx)
 
-    source_idx = bus_map["sourcebus"]
-    pp.create_ext_grid(net, bus=source_idx, vm_pu=1.0, va_degree=0.0, name="sourcebus")
+    source_bus = str(model.get("source_bus") or "").strip()
+    source_idx = bus_map[source_bus.lower()]
+    pp.create_ext_grid(net, bus=source_idx, vm_pu=1.0, va_degree=0.0, name=source_bus)
 
     line_meta: dict[int, dict[str, Any]] = {}
     for line in model["lines"]:
@@ -420,8 +448,8 @@ def ejecutar_flujo() -> dict[str, Any]:
             },
         },
         "assumptions": [
-            "Flujo AC trifásico balanceado.",
-            "La barra sourcebus se representa como ext_grid a 1.0 pu para flujo; la Scc P2 se conserva para estudios que la requieran y no altera este flujo ideal.",
+            f"Flujo AC trifásico balanceado; la barra fuente {model['source_bus']} se representa como ext_grid a 1.0 pu.",
+            "La Scc P2 se conserva para estudios que la requieran y no altera este flujo ideal.",
             "La topología y parámetros se leen del modelo activo; no se consumen resultados de flujo OpenDSS.",
             "La cargabilidad de línea solo se expone cuando existe corriente_nominal_a explícita.",
         ],
