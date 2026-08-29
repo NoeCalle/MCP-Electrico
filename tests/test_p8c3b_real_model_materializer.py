@@ -233,17 +233,18 @@ def test_p8c3b_exposes_engine_defaults_instead_of_inventing_optional_data():
     assert result["p2"]["transformers"][0]["losses"]["no_load_loss_kw"] is None
 
 
-def test_p8c3b_preflight_rejects_unsupported_vector_group_before_mutation():
-    core.crear_circuito("preexisting_vector", 0.4)
+def test_p8c3b_preflight_rejects_noninteger_phase_count_before_mutation():
+    core.crear_circuito("preexisting_phases", 0.4)
     before = dss.Circuit.Name()
     manifest = _manifest()
-    manifest["topology"]["transformers"][0]["vector_group"] = "Dz0"
+    manifest["topology"]["lines"][0]["phases"] = 3.5
 
     result = real_model_materializer.materializar_modelo(manifest)
 
+    assert result["p8b_intake_status"] == "READY_TO_BUILD_MODEL"
     assert result["materializer_status"] == "BLOCKED_BY_MATERIALIZER_PREFLIGHT"
     assert result["model_mutation_performed"] is False
-    assert any(item["code"] == "P8C3B009" for item in result["issues"])
+    assert any(item["code"] == "P8C3B005" for item in result["issues"])
     assert dss.Circuit.Name() == before
 
 
