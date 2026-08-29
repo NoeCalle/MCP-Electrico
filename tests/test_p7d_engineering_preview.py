@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from mcp_electrico import engine_selection, p7_completion
+from mcp_electrico import capability_alignment, engine_selection, p7_completion
 
 
 def test_p7d_gate_releases_engineering_preview_with_professional_boundary_closed():
@@ -26,6 +26,7 @@ def test_p7d_gate_releases_engineering_preview_with_professional_boundary_closed
 
 
 def test_engine_selection_reflects_completed_p5_without_professional_promotion():
+    capability_alignment.align_p5_capabilities()
     capabilities = engine_selection.obtener_capacidades_motores()
     protection = capabilities["studies"]["protection_coordination"]
     arc_flash = capabilities["studies"]["arc_flash_ieee1584"]
@@ -41,6 +42,7 @@ def test_engine_selection_reflects_completed_p5_without_professional_promotion()
 
 
 def test_p7d_blocks_if_protection_capability_regresses(monkeypatch):
+    capability_alignment.align_p5_capabilities()
     original = engine_selection.obtener_capacidades_motores
 
     def regressed():
@@ -60,6 +62,7 @@ def test_p7d_blocks_if_protection_capability_regresses(monkeypatch):
 
 
 def test_p7d_blocks_if_arc_flash_is_silently_enabled(monkeypatch):
+    capability_alignment.align_p5_capabilities()
     original = engine_selection.obtener_capacidades_motores
 
     def arc_flash_enabled():
