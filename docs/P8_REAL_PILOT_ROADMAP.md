@@ -37,9 +37,9 @@ P7A snapshot + P7B reconstrucción + P7C reporte
 | P8C3C | DONE | separación `MODEL_BUILT` vs `STUDY_READY` por scope |
 | P8C4A | DONE | conductor real + Ib/In/Iz base + condiciones/factores P3 |
 | P8C4B | DONE | dispositivos P5 + curva + dataset TCC numérico real |
-| P8C5 | ACTIVE | readiness integral P1/P3/P4/P5; detecta blocker P3 de origen visual |
-| P8C5A | NEXT | corregir `PROJECT_DATA → P2_PROJECT` y etiqueta visual V3/V5 |
-| P8D | PENDING | primera ejecución controlada del proyecto real |
+| P8C5 | DONE | readiness integral P1/P3/P4/P5 sin ejecutar estudios |
+| P8C5A | DONE | `PROJECT_DATA → P2_PROJECT` y etiqueta visual `PROYECTO P2` |
+| P8D | NEXT | primera ejecución controlada del proyecto real |
 | P8E | PENDING | Workspace V5 + snapshot/reconstrucción/reporte del caso real |
 | P8F | PENDING | hardening derivado de fricciones del piloto |
 
@@ -109,49 +109,64 @@ P8C4B no evalúa la curva, no interpola tiempos de un caso de falla y no ejecuta
 
 No se digitalizan ni sintetizan curvas de fabricante automáticamente.
 
-## P8C5 — readiness integral pre-ejecución
+## P8C5/P8C5A — readiness integral cerrado
 
 P8C5 materializa una sola vez hasta la capa más alta solicitada y después inspecciona el modelo activo. No reconstruye el modelo tras P3/P5 y no ejecuta estudios.
 
-Para el manifiesto integral de prueba, el gate focalizado confirma actualmente:
+P8C5A cerró el único blocker detectado en el primer ensamblaje integral: la ruta histórica P3 rotulaba toda base P2 no normativa como `P2_CATALOG`, aunque la asignación proviniera del expediente.
+
+La semántica queda ahora separada:
+
+```text
+PROJECT_DATA → P2_PROJECT → PROYECTO P2
+CATALOG_DATA → P2_CATALOG → CATÁLOGO P2
+```
+
+Los perfiles P3 nuevos guardan campos genéricos `assignment_*`. Para una asignación `PROJECT_DATA`, los campos `catalog_*` quedan vacíos y no contienen datos de proyecto. Los perfiles históricos de catálogo continúan siendo legibles mediante fallback compatible.
+
+El resultado `ampacity.evaluar()` propaga el origen hasta `base_evidence`, y Workspace V3 consume esa evidencia sin recalcular ni inferir procedencia en JavaScript.
+
+Con P8C5A, el manifiesto integral focalizado queda:
 
 | Scope | Estado pre-P8D |
 | --- | --- |
 | POWER_FLOW | READY |
 | VOLTAGE_DROP | READY |
+| AMPACITY | READY |
 | IEC60909 3F MAX/MIN | READY |
 | IEC60909 1F-T MAX/MIN | READY |
 | PROTECTION_TCC | READY |
-| AMPACITY | BLOCKED — `P8C5P310` |
 
-El bloqueo P3 no es eléctrico: una asignación `PROJECT_DATA` todavía entra al perfil histórico con `base.origin=P2_CATALOG`. Ejecutar P3 en ese estado permitiría que Workspace V3 rotule una ampacidad de proyecto como **CATÁLOGO P2**.
-
-P8C5 bloquea esa transición y exige:
+El gate devuelve:
 
 ```text
-PROJECT_DATA → P2_PROJECT → etiqueta visual PROYECTO P2
+readiness_status = READY_FOR_CONTROLLED_EXECUTION
+all_requested_ready = true
+next_gate = P8D_CONTROLLED_EXECUTION
 ```
 
-antes de P8D. No se acepta corregir solo el texto del navegador: la semántica debe quedar primero correcta en el objeto P3 canónico.
+Esto sigue siendo readiness: no ejecuta Solve, `ampacity.evaluar`, `calc_sc`, evaluación TCC, capacidad de corte, I²t, clearing time ni coordinación.
 
 ## Gate visual del piloto real
 
 La ruta visual sigue siendo **Workspace V5**. No se crea una interfaz paralela para P8.
 
-Antes de mostrar el primer resultado real deben cumplirse estas reglas:
+Antes de mostrar el primer resultado real se conservan estas reglas:
 
 1. la identidad visual del conductor no puede sobrescribir el binding técnico P2/P3;
-2. un conductor `PROJECT_DATA` debe distinguirse visualmente de un producto `CATALOG_DATA`;
-3. V3 no debe rotular una Iz base de proyecto como `CATÁLOGO P2`;
+2. un conductor `PROJECT_DATA` se distingue de un producto `CATALOG_DATA`;
+3. V3 muestra `PROYECTO P2` para base real del expediente y `CATÁLOGO P2` para biblioteca;
 4. V4 conserva barra de falla, motor, caso MAX/MIN y madurez;
 5. V5 solo muestra curvas TCC cuando exista dataset numérico real materializado;
-6. V5 debe conservar Icu/Ics/Icw de breaker separadas del poder de corte de fuse;
+6. V5 conserva Icu/Ics/Icw de breaker separadas del poder de corte de fuse;
 7. ningún panel JavaScript recalcula ingeniería;
 8. cada resultado debe pertenecer a la revisión vigente del modelo.
 
-## Criterio para pasar a P8D
+## P8D — siguiente gate
 
-P8D solo comienza cuando todos los scopes solicitados por el manifiesto real estén materializados y P8C5 devuelva `READY_FOR_CONTROLLED_EXECUTION`.
+P8D es la primera fase que puede ejecutar estudios sobre el manifiesto real. Debe consumir el readiness P8C5 ya verde y ejecutar de forma explícita, secuencial y trazable solo los scopes solicitados.
+
+La ejecución no habilita dispatch automático ni cross-check. Cada resultado debe registrar motor, escenario, revisión/model hash y procedencia antes de entrar a Workspace/P7.
 
 `READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED` y `READY_FOR_CONTROLLED_EXECUTION` son estados distintos y no se sustituyen entre sí.
 
