@@ -1,0 +1,28 @@
+name: p8c4a-real-engineering-materializer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8c4a-materializer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8C4A focused tests
+        run: python -m pytest -q tests/test_p8c4a_real_engineering_materializer.py
+      - name: Verify P8C4A remains non-executing and P5 pending
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_engineering_materializer
+          assert real_engineering_materializer.SCHEMA == "MCP_ELECTRICO_P8C4A_REAL_ENGINEERING_MATERIALIZER_V1"
+          assert real_engineering_materializer.STATUS_P3_MATERIALIZED == "P3_MATERIALIZED_P5_PENDING"
+          print("P8C4A non-executing P3 materialization contract PASS")
+          PY

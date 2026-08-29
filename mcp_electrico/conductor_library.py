@@ -5,7 +5,9 @@ Reglas de diseño:
 - cada conductor conserva fuente y condiciones de ampacidad;
 - OpenDSS solo recibe R1/X1 cuando ambos existen para la formación elegida;
 - la ampacidad puede aplicarse aun si la impedancia queda pendiente;
-- la asignación al alimentador se conserva separada del catálogo de producto.
+- la asignación al alimentador se conserva separada del catálogo de producto;
+- P8C4A admite además una asignación de conductor de proyecto explícita,
+  separada del catálogo interno y sin sustituir R1/X1 del expediente.
 """
 
 from __future__ import annotations
@@ -92,9 +94,9 @@ def obtener_conductor(codigo: str) -> dict[str, Any]:
 def _assignment_is_current(full_name: str, assignment: dict[str, Any]) -> bool:
     """Evita reutilizar estado huérfano tras recrear un circuito con el mismo nombre.
 
-    `aplicar_conductor()` sincroniza deliberadamente la descripción de catálogo
-    con el metadato visual. Si ese espejo desaparece o cambia, la asignación ya
-    no puede demostrarse como perteneciente al modelo activo y se descarta.
+    Las asignaciones P2 sincronizan deliberadamente su descripción con el
+    metadato visual. Si ese espejo desaparece o cambia, la asignación ya no
+    puede demostrarse como perteneciente al modelo activo y se descarta.
     """
     try:
         if not dss.Circuit.SetActiveElement(full_name):
@@ -146,6 +148,99 @@ def _preserve_visual_feeder(nombre_elemento: str, conductor: str, ampacidad_a: f
     )
 
 
+def _line_for_assignment(nombre_elemento: str) -> str:
+    full_name = str(nombre_elemento or "").strip()
+    if "." not in full_name:
+        full_name = f"Line.{full_name}"
+    if not full_name.lower().startswith("line."):
+        raise ValueError("La biblioteca v1 solo puede asignar conductores a elementos Line.*")
+    if not dss.Circuit.SetActiveElement(full_name):
+        raise ValueError(f"Elemento no encontrado en el circuito: {full_name}")
+    return full_name
+
+
+def registrar_asignacion_proyecto(
+    nombre_elemento: str,
+    codigo: str,
+    ampacidad_base_a: float,
+    referencia_ampacidad: str,
+    referencia_instalacion: str,
+    descripcion: str | None = None,
+    fuente_url: str | None = None,
+) -> dict[str, Any]:
+    """Registra una ampacidad base P2 proveniente del expediente real.
+
+    Esta ruta NO incorpora el conductor al catálogo interno y NO cambia R1/X1.
+    La topología P8C3B conserva las impedancias explícitas del proyecto; P8C4A
+    únicamente vincula la identidad del conductor y su ampacidad base trazable
+    para que P3 pueda materializar Ib/In/Iz sin fingir un producto de catálogo.
+    """
+    _sync_circuit()
+    full_name = _line_for_assignment(nombre_elemento)
+    key = full_name.lower()
+    if key in _assignments:
+        raise ValueError(f"Asignación de conductor ya existente para {full_name}; no se sobrescribe silenciosamente.")
+
+    code = str(codigo or "").strip()
+    if not code:
+        raise ValueError("codigo de conductor de proyecto es obligatorio.")
+    try:
+        ampacity = float(ampacidad_base_a)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("ampacidad_base_a debe ser numérica y mayor que cero.") from exc
+    if ampacity <= 0:
+        raise ValueError("ampacidad_base_a debe ser mayor que cero.")
+
+    ampacity_ref = str(referencia_ampacidad or "").strip()
+    installation_ref = str(referencia_instalacion or "").strip()
+    if not ampacity_ref:
+        raise ValueError("referencia_ampacidad es obligatoria para un conductor de proyecto.")
+    if not installation_ref:
+        raise ValueError("referencia_instalacion es obligatoria para un conductor de proyecto.")
+
+    label = str(descripcion or "").strip() or code
+    url = str(fuente_url or "").strip() or None
+    dss(f"Edit {full_name} NormAmps={ampacity}")
+    _preserve_visual_feeder(full_name, label, ampacity)
+
+    assignment = {
+        "elemento": full_name,
+        "codigo": code,
+        "origen": "PROJECT_DATA",
+        "instalacion": "project_explicit",
+        "descripcion": label,
+        "ampacidad_aplicada_a": ampacity,
+        "formacion": None,
+        "r1_aplicado_ohm_km": None,
+        "x1_aplicado_ohm_km": None,
+        "impedancia_actualizada": False,
+        "motivo_impedancia_no_actualizada": (
+            "P8C4A conserva R1/X1 ya declarados en topology; la ficha P3 no reemplaza la impedancia del expediente."
+        ),
+        "fuente": {
+            "type": "PROJECT_DATA",
+            "reference": ampacity_ref,
+            "url": url,
+        },
+        "condiciones_ampacidad": {
+            "basis": "EXPLICIT_PROJECT_BASE_AMPACITY",
+            "installation_reference": installation_ref,
+            "ampacity_reference": ampacity_ref,
+        },
+        "producto": {
+            "nivel": None,
+            "familia": None,
+            "fabricante": None,
+            "referencia": code,
+            "seccion_mm2": None,
+            "pantalla_mm2": None,
+            "rdc20_ohm_km": None,
+        },
+    }
+    _assignments[key] = assignment
+    return deepcopy(assignment)
+
+
 def aplicar_conductor(
     nombre_elemento: str,
     codigo: str,
@@ -159,13 +254,7 @@ def aplicar_conductor(
     para la formación asociada a esa instalación.
     """
     _sync_circuit()
-    full_name = nombre_elemento.strip()
-    if "." not in full_name:
-        full_name = f"Line.{full_name}"
-    if not full_name.lower().startswith("line."):
-        raise ValueError("La biblioteca v1 solo puede aplicarse a elementos Line.*")
-    if not dss.Circuit.SetActiveElement(full_name):
-        raise ValueError(f"Elemento no encontrado en el circuito: {full_name}")
+    full_name = _line_for_assignment(nombre_elemento)
 
     product = obtener_conductor(codigo)
     installation_key = instalacion.strip().lower()
@@ -205,6 +294,7 @@ def aplicar_conductor(
     assignment = {
         "elemento": full_name,
         "codigo": product["code"],
+        "origen": "CATALOG_DATA",
         "instalacion": installation_key,
         "descripcion": label,
         "ampacidad_aplicada_a": ampacity,
