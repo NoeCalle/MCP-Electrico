@@ -1,0 +1,72 @@
+{
+  "protection": {
+    "devices": [
+      {
+        "id": "REEMPLAZAR",
+        "type": "circuit_breaker",
+        "protected_element": "Line.REEMPLAZAR",
+        "in_a": null,
+        "ue_kv": null,
+        "icu_ka": null,
+        "ics_ka": null,
+        "icw_ka": null,
+        "breaking_capacity_ka": null,
+        "standard_reference": "REEMPLAZAR: norma/especificación aplicable al equipo",
+        "source_reference": "REEMPLAZAR: ficha/cuadro aprobado del dispositivo",
+        "manufacturer": null,
+        "series": null,
+        "model": null,
+        "poles": null,
+        "utilization_category": null,
+        "settings": {
+          "ir_a": null,
+          "isd_a": null,
+          "ii_a": null,
+          "source_reference": "REEMPLAZAR si se declaran ajustes"
+        },
+        "curve_id": "REEMPLAZAR",
+        "curve_type": "MANUFACTURER_TCC",
+        "curve_source_reference": "REEMPLAZAR: documento de la curva",
+        "curve_revision": null,
+        "source_url": null,
+        "curve_source_url": null
+      }
+    ],
+    "tcc_datasets": [
+      {
+        "device_id": "REEMPLAZAR",
+        "dataset_id": "REEMPLAZAR",
+        "curve_id": "REEMPLAZAR: debe coincidir con devices[].curve_id",
+        "shape": "BAND",
+        "time_semantics": "TOTAL_CLEARING_TIME",
+        "source_type": "MANUFACTURER_DATASET",
+        "source_reference": "REEMPLAZAR: fuente numérica trazable",
+        "revision": null,
+        "digitization_method": null,
+        "segments": [
+          {
+            "id": "REEMPLAZAR",
+            "points": [
+              {
+                "current_a": null,
+                "time_min_s": null,
+                "time_max_s": null
+              },
+              {
+                "current_a": null,
+                "time_min_s": null,
+                "time_max_s": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "notes": [
+    "Los null son placeholders y bloquean P8C4B hasta ser reemplazados por datos reales.",
+    "Para circuit_breaker, Icu es el rating P5 autoritativo. breaking_capacity_ka solo existe temporalmente como alias legacy P8B y, si se usa, debe ser igual a Icu.",
+    "Para fuse, use breaking_capacity_ka y no declare Icu/Ics/Icw.",
+    "SINGLE usa time_s; BAND usa time_min_s/time_max_s. No se sintetizan puntos ni se extrapola."
+  ]
+}

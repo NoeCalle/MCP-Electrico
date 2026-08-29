@@ -1,0 +1,28 @@
+name: p8c4b-real-protection-materializer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8c4b-materializer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8C4B focused tests
+        run: python -m pytest -q tests/test_p8c4b_real_protection_materializer.py
+      - name: Verify P8C4B remains non-executing
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_protection_materializer
+          assert real_protection_materializer.SCHEMA == "MCP_ELECTRICO_P8C4B_REAL_PROTECTION_MATERIALIZER_V1"
+          assert real_protection_materializer.STATUS_MATERIALIZED == "P5_TCC_MATERIALIZED_NOT_EXECUTED"
+          print("P8C4B non-executing P5/TCC materialization contract PASS")
+          PY
