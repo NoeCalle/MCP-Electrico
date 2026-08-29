@@ -266,30 +266,51 @@ def _short_circuit_issues(manifest: dict[str, Any], scope: str) -> list[dict[str
 
 
 def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]:
+    """Valida que P8B pueda materializar sin adivinar el alcance 1F-T actual.
+
+    Replica únicamente precondiciones explícitas de P2 Z0 y P4C07/pandapower;
+    no calcula impedancias, no interpreta ensayos y no amplía el alcance.
+    """
     issues: list[dict[str, str]] = []
-    for code, path in (
-        ("P8B_Z001", "zero_sequence.source.r0_max_ohm"),
-        ("P8B_Z002", "zero_sequence.source.x0_max_ohm"),
-        ("P8B_Z003", "zero_sequence.source.r0_min_ohm"),
-        ("P8B_Z004", "zero_sequence.source.x0_min_ohm"),
-    ):
+
+    source_fields = (
+        ("P8B_Z001", "zero_sequence.source.r0_max_ohm", "r"),
+        ("P8B_Z002", "zero_sequence.source.x0_max_ohm", "x"),
+        ("P8B_Z003", "zero_sequence.source.r0_min_ohm", "r"),
+        ("P8B_Z004", "zero_sequence.source.x0_min_ohm", "x"),
+    )
+    for code, path, component in source_fields:
         value = _get(manifest, path)
         if not _present(value):
             issues.append(_issue(code, path, "Secuencia cero de fuente requerida para falla a tierra MAX/MIN.", scope))
-        elif not _nonnegative(value):
-            issues.append(_issue(f"{code}V", path, "La impedancia de secuencia cero no puede ser negativa en el alcance pasivo P8B.", scope))
+        elif component == "x" and not _positive(value):
+            issues.append(_issue(
+                f"{code}V",
+                path,
+                "X0 de fuente debe ser numérica y mayor que cero para el puente 1F-T pandapower actual; no se aproxima X0=0.",
+                scope,
+            ))
+        elif component == "r" and not _nonnegative(value):
+            issues.append(_issue(
+                f"{code}V",
+                path,
+                "R0 de fuente debe ser numérica y no negativa.",
+                scope,
+            ))
 
     topology = manifest.get("topology") or {}
-    known_line_ids = {
-        str(item.get("id")).strip()
+    topology_lines = {
+        str(item.get("id")).strip(): item
         for item in topology.get("lines") or []
         if isinstance(item, dict) and _present(item.get("id"))
     }
-    known_transformer_ids = {
-        str(item.get("id")).strip()
+    topology_transformers = {
+        str(item.get("id")).strip(): item
         for item in topology.get("transformers") or []
         if isinstance(item, dict) and _present(item.get("id"))
     }
+    known_line_ids = set(topology_lines)
+    known_transformer_ids = set(topology_transformers)
 
     lines_z0 = _get(manifest, "zero_sequence.lines") or []
     transformers_z0 = _get(manifest, "zero_sequence.transformers") or []
@@ -307,10 +328,28 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
             for key in ("r0_ohm_km", "x0_ohm_km", "c0_nf_km"):
                 if _present(line.get(key)) and not _nonnegative(line.get(key)):
                     issues.append(_issue("P8B_Z012", f"zero_sequence.lines[{i}].{key}", f"{key} no puede ser negativo.", scope))
+            if _present(line.get("r0_ohm_km")) and _present(line.get("x0_ohm_km")):
+                if _number(line.get("r0_ohm_km")) and _number(line.get("x0_ohm_km")):
+                    if float(line["r0_ohm_km"]) == 0.0 and float(line["x0_ohm_km"]) == 0.0:
+                        issues.append(_issue(
+                            "P8B_Z016",
+                            f"zero_sequence.lines[{i}]",
+                            "La Z0 de línea debe ser distinta de cero; no se acepta R0=X0=0.",
+                            scope,
+                        ))
             if _present(line.get("id")):
                 identifier = str(line["id"]).strip()
                 if identifier not in known_line_ids:
                     issues.append(_issue("P8B_Z013", f"zero_sequence.lines[{i}].id", "La ficha Z0 debe referenciar una línea existente de topology.lines.", scope))
+                else:
+                    phases = topology_lines[identifier].get("phases")
+                    if _number(phases) and int(float(phases)) != 3:
+                        issues.append(_issue(
+                            "P8B_Z017",
+                            f"topology.lines[{identifier}].phases",
+                            "P2 Z0 v1 solo materializa líneas trifásicas para el alcance 1F-T actual.",
+                            scope,
+                        ))
                 if identifier in seen:
                     issues.append(_issue("P8B_Z014", f"zero_sequence.lines[{i}].id", "No se permiten fichas Z0 duplicadas para la misma línea.", scope))
                 seen.add(identifier)
@@ -326,16 +365,111 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
             if not isinstance(trafo, dict):
                 issues.append(_issue("P8B_Z021", f"zero_sequence.transformers[{i}]", "La ficha Z0 de transformador debe ser un objeto estructurado.", scope))
                 continue
-            for key in ("id", "uk0_percent", "ur0_percent", "neutral_side", "neutral_mode"):
+
+            required = (
+                "id",
+                "uk0_percent",
+                "ur0_percent",
+                "magnetizing_z0_ratio_percent",
+                "magnetizing_r_over_x",
+                "leakage_share_hv",
+                "neutral_side",
+                "neutral_mode",
+            )
+            for key in required:
                 if not _present(trafo.get(key)):
                     issues.append(_issue("P8B_Z021", f"zero_sequence.transformers[{i}].{key}", f"Dato de transformador Z0 requerido: {key}.", scope))
-            for key in ("uk0_percent", "ur0_percent"):
+
+            uk0 = trafo.get("uk0_percent")
+            ur0 = trafo.get("ur0_percent")
+            if _present(uk0) and not _positive(uk0):
+                issues.append(_issue("P8B_Z022", f"zero_sequence.transformers[{i}].uk0_percent", "uk0_percent debe ser numérico y mayor que cero.", scope))
+            if _present(ur0) and not _nonnegative(ur0):
+                issues.append(_issue("P8B_Z022", f"zero_sequence.transformers[{i}].ur0_percent", "ur0_percent debe ser numérico y no negativo.", scope))
+            if _number(uk0) and _number(ur0) and float(ur0) > float(uk0):
+                issues.append(_issue(
+                    "P8B_Z026",
+                    f"zero_sequence.transformers[{i}]",
+                    "Se requiere 0 <= ur0_percent <= uk0_percent; no se corrige una ficha Z0 contradictoria.",
+                    scope,
+                ))
+
+            for key in ("magnetizing_z0_ratio_percent", "magnetizing_r_over_x"):
                 if _present(trafo.get(key)) and not _nonnegative(trafo.get(key)):
-                    issues.append(_issue("P8B_Z022", f"zero_sequence.transformers[{i}].{key}", f"{key} no puede ser negativo.", scope))
+                    issues.append(_issue("P8B_Z027", f"zero_sequence.transformers[{i}].{key}", f"{key} debe ser numérico y no negativo.", scope))
+            share = trafo.get("leakage_share_hv")
+            if _present(share) and (not _number(share) or not 0.0 <= float(share) <= 1.0):
+                issues.append(_issue(
+                    "P8B_Z028",
+                    f"zero_sequence.transformers[{i}].leakage_share_hv",
+                    "leakage_share_hv debe estar entre 0 y 1.",
+                    scope,
+                ))
+
+            side = str(trafo.get("neutral_side") or "").strip().lower()
+            mode = str(trafo.get("neutral_mode") or "").strip().lower()
+            if side and side not in {"hv", "lv"}:
+                issues.append(_issue("P8B_Z029", f"zero_sequence.transformers[{i}].neutral_side", "neutral_side debe ser hv o lv.", scope))
+            if mode and mode not in {"solid", "impedance", "ungrounded"}:
+                issues.append(_issue("P8B_Z030", f"zero_sequence.transformers[{i}].neutral_mode", "neutral_mode debe ser solid, impedance o ungrounded.", scope))
+
+            rn = trafo.get("rn_ohm")
+            xn = trafo.get("xn_ohm")
+            if mode == "solid":
+                invalid_rn = _present(rn) and (not _number(rn) or float(rn) != 0.0)
+                invalid_xn = _present(xn) and (not _number(xn) or float(xn) != 0.0)
+                if invalid_rn or invalid_xn:
+                    issues.append(_issue(
+                        "P8B_Z031",
+                        f"zero_sequence.transformers[{i}]",
+                        "neutral_mode=solid no admite rn_ohm/xn_ohm distintos de cero.",
+                        scope,
+                    ))
+            elif mode == "impedance":
+                if not _present(rn) or not _present(xn):
+                    issues.append(_issue(
+                        "P8B_Z032",
+                        f"zero_sequence.transformers[{i}]",
+                        "neutral_mode=impedance requiere rn_ohm y xn_ohm explícitos.",
+                        scope,
+                    ))
+                elif not _nonnegative(rn) or not _nonnegative(xn):
+                    issues.append(_issue(
+                        "P8B_Z033",
+                        f"zero_sequence.transformers[{i}]",
+                        "rn_ohm y xn_ohm deben ser numéricos y no negativos.",
+                        scope,
+                    ))
+                elif float(rn) == 0.0 and float(xn) == 0.0:
+                    issues.append(_issue(
+                        "P8B_Z034",
+                        f"zero_sequence.transformers[{i}]",
+                        "neutral_mode=impedance requiere impedancia de neutro distinta de cero.",
+                        scope,
+                    ))
+            elif mode == "ungrounded" and (_present(rn) or _present(xn)):
+                issues.append(_issue(
+                    "P8B_Z035",
+                    f"zero_sequence.transformers[{i}]",
+                    "neutral_mode=ungrounded no admite rn_ohm/xn_ohm finitos.",
+                    scope,
+                ))
+
             if _present(trafo.get("id")):
                 identifier = str(trafo["id"]).strip()
                 if identifier not in known_transformer_ids:
                     issues.append(_issue("P8B_Z023", f"zero_sequence.transformers[{i}].id", "La ficha Z0 debe referenciar un transformador existente de topology.transformers.", scope))
+                else:
+                    vector_group = str(topology_transformers[identifier].get("vector_group") or "").strip()
+                    if side in {"hv", "lv"} and len(vector_group) >= 2:
+                        connection_code = vector_group[0] if side == "hv" else vector_group[1]
+                        if connection_code.lower() != "y":
+                            issues.append(_issue(
+                                "P8B_Z036",
+                                f"zero_sequence.transformers[{i}].neutral_side",
+                                f"El lado {side} declarado para el neutro no es wye en vector_group={vector_group!r}.",
+                                scope,
+                            ))
                 if identifier in seen_t:
                     issues.append(_issue("P8B_Z024", f"zero_sequence.transformers[{i}].id", "No se permiten fichas Z0 duplicadas para el mismo transformador.", scope))
                 seen_t.add(identifier)
