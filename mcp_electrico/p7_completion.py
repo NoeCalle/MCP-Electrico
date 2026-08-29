@@ -11,6 +11,7 @@ from copy import deepcopy
 from typing import Any
 
 from . import (
+    capability_alignment,
     engine_selection,
     p5_completion,
     project_report,
@@ -47,6 +48,7 @@ def _criterion(cid: str, name: str, done: bool, evidence: str, blocker: str) -> 
 
 
 def _criteria() -> list[dict[str, Any]]:
+    capability_alignment.align_p5_capabilities()
     p5 = p5_completion.evaluar_cierre_p5()
     matrix = validation_status.get_validation_matrix()
     engines = engine_selection.obtener_capacidades_motores()
