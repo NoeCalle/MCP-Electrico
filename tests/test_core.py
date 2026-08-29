@@ -34,6 +34,35 @@ def test_crear_circuito_limpia_metadatos_criticos():
     assert core.listar_cargas_criticas() == []
 
 
+def test_crear_circuito_permite_barra_fuente_explicita_sin_sourcebus_fantasma():
+    core.crear_circuito("source_custom", 22.9, bus_fuente="red_mt")
+    core.agregar_linea(
+        "entrada",
+        "red_mt",
+        "se_mt",
+        longitud_km=0.01,
+        r1_ohm_km=0.1,
+        x1_ohm_km=0.1,
+    )
+
+    assert dss.Circuit.SetActiveElement("Vsource.source")
+    source_bus = dss.CktElement.BusNames()[0].split(".")[0].lower()
+    assert source_bus == "red_mt"
+    buses = {bus.lower() for bus in dss.Circuit.AllBusNames()}
+    assert "red_mt" in buses
+    assert "sourcebus" not in buses
+
+
+def test_crear_circuito_rechaza_barra_fuente_vacia_antes_de_mutar_modelo():
+    core.crear_circuito("modelo_previo", 0.4)
+    previous = dss.Circuit.Name()
+
+    with pytest.raises(ValueError, match="bus_fuente"):
+        core.crear_circuito("modelo_invalido", 22.9, bus_fuente="  ")
+
+    assert dss.Circuit.Name() == previous
+
+
 def test_contingencia_restaurada_deja_topologia_y_solucion_coherentes():
     flujo = _circuito_bt_simple()
     assert flujo["convergio"] is True
