@@ -72,9 +72,17 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
     },
     "protection_coordination": {
         "preferred": "mcp+pandapower", "alternatives": [], "module": "protection_coordination",
-        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "P5 combinará datos de falla/protección con reglas MCP y capacidades de pandapower cuando apliquen.",
-        "requirements": ["P4 IEC 60909", "curvas/ajustes de protección", "biblioteca de dispositivos"],
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": (
+            "P5-v1 implementa protección y coordinación temporal puntual en la capa MCP, consumiendo "
+            "corrientes de falla trazables cuando corresponda. No declara selectividad integral, backup ni cascading."
+        ),
+        "requirements": [
+            "P4 IEC 60909 o corriente de falla explícita y trazable",
+            "dispositivos y curvas/ajustes P5 explícitos",
+            "TOTAL_CLEARING_TIME para promoción automática a clearing time",
+            "relación downstream/upstream declarada para coordinación temporal puntual",
+        ],
     },
     "arc_flash_ieee1584": {
         "preferred": "mcp", "alternatives": [], "module": "arc_flash_ieee1584",
