@@ -45,8 +45,8 @@ def test_crear_circuito_permite_barra_fuente_explicita_sin_sourcebus_fantasma():
         x1_ohm_km=0.1,
     )
 
-    assert dss.Circuit.SetActiveElement("Vsource.source")
-    source_bus = dss.CktElement.BusNames()[0].split(".")[0].lower()
+    dss("? Vsource.source.bus1")
+    source_bus = str(dss.Text.Result()).split(".")[0].strip().lower()
     assert source_bus == "red_mt"
     buses = {bus.lower() for bus in dss.Circuit.AllBusNames()}
     assert "red_mt" in buses
