@@ -16,8 +16,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Run P8B focused tests
-        run: python -m pytest -q tests/test_p8b_real_pilot_intake.py
+      - name: Run P8B/P8C2 focused tests
+        run: python -m pytest -q tests/test_p8b_real_pilot_intake.py tests/test_p8c2_z0_intake_contract.py
       - name: Verify empty real-project template fails closed
         run: |
           python examples/evaluate_p8b_real_pilot_intake.py \
