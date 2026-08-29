@@ -21,6 +21,7 @@ def _complete_manifest() -> dict:
             "PROTECTION_TCC",
         ],
         "source": {
+            "bus": "sourcebus",
             "kv_ll": 22.9,
             "scc_max_mva": 350.0,
             "x_r_max": 10.0,
@@ -28,10 +29,10 @@ def _complete_manifest() -> dict:
             "x_r_min": 6.0,
         },
         "topology": {
-            "buses": ["sourcebus", "se_mt", "tgbt", "load_bus"],
+            "buses": ["sourcebus", "tgbt", "load_bus"],
             "transformers": [{
                 "id": "Transformer.tr01",
-                "bus_hv": "se_mt",
+                "bus_hv": "sourcebus",
                 "bus_lv": "tgbt",
                 "kva": 1000.0,
                 "kv_hv": 22.9,
@@ -192,7 +193,7 @@ def test_p8b_obviously_invalid_source_values_fail_closed():
     result = real_pilot_intake.evaluar_admision(manifest)
     assert result["ready_to_build_model"] is False
     codes = {item["code"] for item in result["issues"]}
-    assert "P8B_BASE_09" in codes
+    assert "P8B_BASE_10" in codes
     assert "P8B_SC01V" in codes
     assert "P8B_SC04V" in codes
     assert result["electrical_calculation_performed"] is False
@@ -256,5 +257,32 @@ def test_p8b_cross_references_for_z0_ampacity_and_protection_fail_closed():
     assert result["ready_to_build_model"] is False
     codes = {item["code"] for item in result["issues"]}
     assert "P8B_Z013" in codes
+    assert "P8B_Z015" in codes
     assert "P8B_P304" in codes
     assert "P8B_P504" in codes
+
+
+def test_p8b_source_bus_must_exist_and_topology_must_be_connected():
+    manifest = _complete_manifest()
+    manifest["source"]["bus"] = "ghost_source"
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    assert any(item["code"] == "P8B_TOPO03" for item in result["issues"])
+
+    manifest = _complete_manifest()
+    manifest["topology"]["buses"].append("isolated_bus")
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    issue = next(item for item in result["issues"] if item["code"] == "P8B_TOPO40")
+    assert "isolated_bus" in issue["message"]
+
+
+def test_p8b_ground_fault_requires_z0_coverage_for_full_scope():
+    manifest = _complete_manifest()
+    manifest["zero_sequence"]["lines"] = []
+    manifest["zero_sequence"]["transformers"] = []
+    result = real_pilot_intake.evaluar_admision(manifest)
+    assert result["ready_to_build_model"] is False
+    codes = {item["code"] for item in result["issues"]}
+    assert "P8B_Z010" in codes
+    assert "P8B_Z020" in codes
