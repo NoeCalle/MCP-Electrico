@@ -162,4 +162,5 @@ def test_p7c_contract_and_tools_keep_professional_emission_closed():
         "obtener_contrato_reporte_p7c",
         "exportar_reporte_tecnico_p7c",
         "exportar_reporte_desde_archivo_p7c",
+        "evaluar_cierre_p7d_engineering_preview",
     ]
