@@ -106,6 +106,29 @@ jobs:
         with:
           name: mcp-electrico-project-p7a
           path: project_p7a.json
+      - name: Reconstruct and verify P7B project netlist
+        run: |
+          python examples/reconstruct_project_p7b.py --output reconstruction_p7b.json --source-netlist p7b_ci_source_dss --reconstructed p7b_ci_reconstructed
+          test -s reconstruction_p7b.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("reconstruction_p7b.json").read_text(encoding="utf-8"))
+          assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", result
+          assert result["integrity"]["status"] == "HASH_MATCH", result
+          assert result["roundtrip"]["canonical_netlist_match"] is True, result
+          assert result["restoration"]["netlist"] == "RESTORED_VERIFIED", result
+          assert result["restoration"]["studies"] == "NOT_RESTORED_REQUIRES_RECALCULATION", result
+          assert result["stored_results_promoted_to_current"] is False, result
+          assert result["engineering_preview_ready"] is False, result
+          assert result["professional_emission"] is False, result
+          print(result)
+          PY
+      - name: Upload P7B reconstruction evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-reconstruction-p7b
+          path: reconstruction_p7b.json
       - name: Generate technical single-line diagram
         run: |
           python examples/unifilar_tecnico.py

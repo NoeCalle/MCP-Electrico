@@ -118,7 +118,7 @@ def test_p7a_export_never_overwrites_and_file_verifies(tmp_path):
     assert project_snapshot.verificar_snapshot(stored)["status"] == "HASH_MATCH"
 
 
-def test_p7a_public_tools_are_narrow_and_do_not_import_model():
+def test_p7a_public_tools_remain_distinct_after_p7b_extension():
     class FakeMCP:
         def __init__(self):
             self.names = []
@@ -131,9 +131,11 @@ def test_p7a_public_tools_are_narrow_and_do_not_import_model():
 
     fake = FakeMCP()
     project_snapshot_tools.register(fake)
-    assert fake.names == [
+    p7a_names = fake.names[:3]
+    assert p7a_names == [
         "construir_snapshot_proyecto_p7a",
         "exportar_snapshot_proyecto_p7a",
         "verificar_snapshot_proyecto_p7a",
     ]
-    assert not any("import" in name.lower() or "reconstru" in name.lower() for name in fake.names)
+    assert not any("import" in name.lower() or "reconstru" in name.lower() for name in p7a_names)
+    assert "reconstruir_snapshot_proyecto_p7b" in fake.names[3:]

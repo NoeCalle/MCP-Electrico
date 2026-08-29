@@ -139,6 +139,15 @@ def _netlist_payload(directorio: str) -> dict[str, Any]:
     }
 
 
+def construir_netlist_canonico(directorio: str) -> dict[str, Any]:
+    """Exporta el circuito activo con la misma canonización usada por P7A.
+
+    P7B usa esta función para demostrar round-trip archivo por archivo después
+    de reconstruir un snapshot. No ejecuta estudios ni altera resultados MCP.
+    """
+    return _netlist_payload(directorio)
+
+
 def _limitations(validation: dict[str, Any]) -> dict[str, list[str]]:
     return {
         name: [str(item) for item in (record.get("limitations") or [])]
