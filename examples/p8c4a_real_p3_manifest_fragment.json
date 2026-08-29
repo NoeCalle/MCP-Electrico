@@ -1,0 +1,28 @@
+{
+  "ampacity": [
+    {
+      "element_id": "Line.REEMPLAZAR",
+      "conductor_code": "REEMPLAZAR",
+      "conductor_description": "REEMPLAZAR: identificación del cable/conductor del expediente",
+      "base_ampacity_a": null,
+      "norm_id": "REEMPLAZAR: referencia P3 registrada",
+      "ib_a": null,
+      "ib_reference": "REEMPLAZAR: cálculo/lista de cargas/metodología de Ib",
+      "in_a": null,
+      "in_reference": "REEMPLAZAR: cuadro/hoja de protección que sustenta In",
+      "installation_reference": "REEMPLAZAR: detalle de instalación y condiciones reales",
+      "ampacity_reference": "REEMPLAZAR: fuente aprobada de la ampacidad base",
+      "base_conditions_confirmed": false,
+      "factors": [
+        {
+          "id": "REEMPLAZAR",
+          "value": null,
+          "reference": "REEMPLAZAR: tabla/cálculo/fuente del factor",
+          "condition": "REEMPLAZAR: condición que justifica el factor"
+        }
+      ],
+      "source_url": null
+    }
+  ],
+  "note": "Use factors explícitos o base_conditions_confirmed=true, nunca ambos. Los null son placeholders y bloquean P8C4A hasta ser sustituidos por datos reales trazables."
+}
