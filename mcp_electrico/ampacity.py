@@ -537,7 +537,8 @@ def evaluar(nombre_elemento: str) -> dict[str, Any]:
         and evidence.get("automatic_normative_lookup")
     )
     profile_base = profile["base"]
-    p2_origin = str(profile_base.get("origin") or "")
+    assignment_origin = str(profile_base.get("assignment_origin") or "")
+    p2_origin = "P2_PROJECT" if assignment_origin == "PROJECT_DATA" else "P2_CATALOG"
     p2_source = deepcopy(profile_base["source"])
 
     return {
