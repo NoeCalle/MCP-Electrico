@@ -1,0 +1,49 @@
+name: p8a-substation-pilot
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8a-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8A substation pilot
+        run: |
+          python examples/p8a_substation_pilot.py --output-dir p8a_ci
+          test -s p8a_ci/p8a_pilot_summary.json
+          test -s p8a_ci/p8a_workspace_v5.html
+          test -s p8a_ci/p8a_project_snapshot.json
+          test -s p8a_ci/p8a_technical_report.html
+          grep -q '"schema": "MCP_ELECTRICO_P8A_SUBSTATION_PILOT_V1"' p8a_ci/p8a_pilot_summary.json
+          grep -q '"case_kind": "SYNTHETIC_REALISTIC_PRODUCT_PILOT"' p8a_ci/p8a_pilot_summary.json
+          grep -q '"ok": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p3_ampacity_pass": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p4_3ph_max_min": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p4_1ph_ground_max_min": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p5_breaking_capacity": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p5_clearing_time": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p5_conductor_thermal": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"p5_temporal_coordination": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"snapshot_hash_match": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"arc_flash_deferred": true' p8a_ci/p8a_pilot_summary.json
+          grep -q '"professional_emission": false' p8a_ci/p8a_pilot_summary.json
+          grep -q 'MCP-P5-PROTECTION-V5' p8a_ci/p8a_workspace_v5.html
+          grep -q 'NO APTO PARA EMISIÓN PROFESIONAL' p8a_ci/p8a_technical_report.html
+      - name: Upload P8A pilot dossier
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-p8a-substation-pilot
+          path: |
+            p8a_ci/p8a_pilot_summary.json
+            p8a_ci/p8a_workspace_v5.html
+            p8a_ci/p8a_project_snapshot.json
+            p8a_ci/p8a_technical_report.html
