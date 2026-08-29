@@ -10,6 +10,8 @@ from . import (
     p2_completion,
     p5_completion_tools,
     professional_data,
+    project_reconstruction_tools,
+    project_report_tools,
     project_snapshot_tools,
     protection_check_tools,
     protection_clearing_tools,
@@ -258,9 +260,8 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
         result["zero_sequence"] = zero_sequence.snapshot()
         return result
 
-    # P3, P4 y P5 conservan registros separados. Cada mutación P5 que cambie
-    # el modelo de protección invalida estudios posteriores vía on_model_change.
-    # Las evaluaciones read-only P5 se registran por separado en workspace_state.
+    # P3–P7 conservan contratos separados. Las evaluaciones read-only se
+    # registran sin convertir la capa de expediente en motor de cálculo.
     ampacity_tools.register(mcp)
     iec60909_tools.register(mcp)
     protection_tools.register(mcp, on_model_change=changed)
@@ -274,3 +275,5 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     protection_coordination_tools.register(mcp, on_result=study_result)
     p5_completion_tools.register(mcp)
     project_snapshot_tools.register(mcp)
+    project_reconstruction_tools.register(mcp)
+    project_report_tools.register(mcp)
