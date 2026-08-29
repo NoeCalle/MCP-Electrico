@@ -69,7 +69,10 @@ def _evidence_label(item: dict[str, Any]) -> tuple[str, str]:
 
 def _base_evidence_label(item: dict[str, Any]) -> tuple[str, str]:
     evidence = item.get("base_evidence") or {}
-    if str(evidence.get("origin") or "") == "P2_CATALOG":
+    origin = str(evidence.get("origin") or "")
+    if origin == "P2_PROJECT":
+        return "PROYECTO P2", "p3-evidence-project"
+    if origin == "P2_CATALOG":
         return "CATÁLOGO P2", "p3-evidence-base"
     if bool(evidence.get("primary")):
         return "PRIMARIA", "p3-evidence-primary"
@@ -219,6 +222,7 @@ def _css() -> str:
 .p3-evidence-secondary { color:#92400e; background:#fef3c7; }
 .p3-evidence-manual { color:#1e40af; background:#dbeafe; }
 .p3-evidence-base { color:#475569; background:#e2e8f0; }
+.p3-evidence-project { color:#075985; background:#e0f2fe; }
 .p3-evidence-mixed { color:#6b21a8; background:#f3e8ff; }
 .p3-evidence-incomplete { color:#b91c1c; background:#fee2e2; }
 .p3-panel tr.p3-fail td:first-child { border-left:3px solid #dc2626; }
