@@ -99,6 +99,7 @@ def _base_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         "project.id": "Identificador del proyecto real.",
         "project.name": "Nombre del proyecto/subestación.",
         "project.source_reference": "Referencia del expediente/plano/fuente de datos.",
+        "source.bus": "Barra explícita de conexión de la red aguas arriba.",
         "source.kv_ll": "Tensión nominal LL de la red aguas arriba.",
         "topology.buses": "Lista explícita de barras.",
         "topology.transformers": "Transformadores del alcance.",
@@ -109,7 +110,7 @@ def _base_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         if not _present(_get(manifest, path)):
             issues.append(_issue(f"P8B_BASE_{index:02d}", path, message))
     if _present(_get(manifest, "source.kv_ll")) and not _positive(_get(manifest, "source.kv_ll")):
-        issues.append(_issue("P8B_BASE_09", "source.kv_ll", "La tensión nominal LL debe ser numérica y mayor que cero."))
+        issues.append(_issue("P8B_BASE_10", "source.kv_ll", "La tensión nominal LL debe ser numérica y mayor que cero."))
     return issues
 
 
@@ -124,13 +125,17 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
     buses_raw = topology.get("buses") or []
     buses = [str(item).strip() for item in buses_raw if _present(item)]
     bus_set = set(buses)
+    source_bus = str(_get(manifest, "source.bus") or "").strip()
 
     if len(buses) != len(buses_raw):
         issues.append(_issue("P8B_TOPO01", "topology.buses", "Cada barra debe tener un identificador no vacío."))
     if len(bus_set) != len(buses):
         issues.append(_issue("P8B_TOPO02", "topology.buses", "Los identificadores de barra deben ser únicos."))
+    if source_bus and source_bus not in bus_set:
+        issues.append(_issue("P8B_TOPO03", "source.bus", "La barra de la fuente debe existir en topology.buses."))
 
     seen_ids: set[str] = set()
+    adjacency: dict[str, set[str]] = {bus: set() for bus in bus_set}
 
     for i, trafo in enumerate(topology.get("transformers") or []):
         if not isinstance(trafo, dict):
@@ -151,6 +156,12 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         for key in ("bus_hv", "bus_lv"):
             if _present(trafo.get(key)) and str(trafo[key]).strip() not in bus_set:
                 issues.append(_issue("P8B_TOPO16", f"topology.transformers[{i}].{key}", "La barra referenciada no existe en topology.buses."))
+        if _present(trafo.get("bus_hv")) and _present(trafo.get("bus_lv")):
+            a = str(trafo["bus_hv"]).strip()
+            b = str(trafo["bus_lv"]).strip()
+            if a in bus_set and b in bus_set:
+                adjacency[a].add(b)
+                adjacency[b].add(a)
         if _present(trafo.get("id")):
             identifier = str(trafo["id"]).strip()
             if identifier in seen_ids:
@@ -174,6 +185,12 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         for key in ("bus1", "bus2"):
             if _present(line.get(key)) and str(line[key]).strip() not in bus_set:
                 issues.append(_issue("P8B_TOPO25", f"topology.lines[{i}].{key}", "La barra referenciada no existe en topology.buses."))
+        if _present(line.get("bus1")) and _present(line.get("bus2")):
+            a = str(line["bus1"]).strip()
+            b = str(line["bus2"]).strip()
+            if a in bus_set and b in bus_set:
+                adjacency[a].add(b)
+                adjacency[b].add(a)
         if _present(line.get("id")):
             identifier = str(line["id"]).strip()
             if identifier in seen_ids:
@@ -202,6 +219,23 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
             if identifier in seen_ids:
                 issues.append(_issue("P8B_TOPO37", f"topology.loads[{i}].id", "El ID de elemento debe ser único en la topología."))
             seen_ids.add(identifier)
+
+    if source_bus in bus_set:
+        visited = {source_bus}
+        stack = [source_bus]
+        while stack:
+            current = stack.pop()
+            for neighbor in adjacency.get(current, set()):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    stack.append(neighbor)
+        disconnected = sorted(bus_set - visited)
+        if disconnected:
+            issues.append(_issue(
+                "P8B_TOPO40",
+                "topology",
+                "La topología del alcance debe ser conexa desde source.bus; barras aisladas: " + ", ".join(disconnected) + ".",
+            ))
 
     return issues
 
@@ -259,10 +293,10 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
 
     lines_z0 = _get(manifest, "zero_sequence.lines") or []
     transformers_z0 = _get(manifest, "zero_sequence.transformers") or []
+    seen: set[str] = set()
     if not lines_z0:
         issues.append(_issue("P8B_Z010", "zero_sequence.lines", "R0/X0/C0 explícitos por línea/cable del alcance.", scope))
     else:
-        seen: set[str] = set()
         for i, line in enumerate(lines_z0):
             if not isinstance(line, dict):
                 issues.append(_issue("P8B_Z011", f"zero_sequence.lines[{i}]", "La ficha Z0 de línea debe ser un objeto estructurado.", scope))
@@ -280,11 +314,14 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
                 if identifier in seen:
                     issues.append(_issue("P8B_Z014", f"zero_sequence.lines[{i}].id", "No se permiten fichas Z0 duplicadas para la misma línea.", scope))
                 seen.add(identifier)
+        missing_line_z0 = sorted(known_line_ids - seen)
+        if missing_line_z0:
+            issues.append(_issue("P8B_Z015", "zero_sequence.lines", "Falta ficha Z0 para líneas del alcance: " + ", ".join(missing_line_z0) + ".", scope))
 
+    seen_t: set[str] = set()
     if not transformers_z0:
         issues.append(_issue("P8B_Z020", "zero_sequence.transformers", "Ficha Z0 + neutro/puesta a tierra de transformador requerida.", scope))
     else:
-        seen_t: set[str] = set()
         for i, trafo in enumerate(transformers_z0):
             if not isinstance(trafo, dict):
                 issues.append(_issue("P8B_Z021", f"zero_sequence.transformers[{i}]", "La ficha Z0 de transformador debe ser un objeto estructurado.", scope))
@@ -302,6 +339,9 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
                 if identifier in seen_t:
                     issues.append(_issue("P8B_Z024", f"zero_sequence.transformers[{i}].id", "No se permiten fichas Z0 duplicadas para el mismo transformador.", scope))
                 seen_t.add(identifier)
+        missing_trafo_z0 = sorted(known_transformer_ids - seen_t)
+        if missing_trafo_z0:
+            issues.append(_issue("P8B_Z025", "zero_sequence.transformers", "Falta ficha Z0 para transformadores del alcance: " + ", ".join(missing_trafo_z0) + ".", scope))
     return issues
 
 
