@@ -34,6 +34,24 @@ def _present(value: Any) -> bool:
     return True
 
 
+def _positive(value: Any) -> bool:
+    if isinstance(value, bool) or value is None:
+        return False
+    try:
+        return float(value) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _nonnegative(value: Any) -> bool:
+    if isinstance(value, bool) or value is None:
+        return False
+    try:
+        return float(value) >= 0
+    except (TypeError, ValueError):
+        return False
+
+
 def _get(data: dict[str, Any], path: str) -> Any:
     value: Any = data
     for part in path.split("."):
@@ -59,8 +77,8 @@ def obtener_contrato_p8b() -> dict[str, Any]:
         "crosscheck": False,
         "professional_emission": False,
         "note": (
-            "P8B verifica presencia y trazabilidad de entradas. La suficiencia eléctrica "
-            "final sigue siendo evaluada por los gates P2/P3/P4/P5 después de construir el modelo."
+            "P8B verifica presencia, trazabilidad y plausibilidad básica de entradas. "
+            "La suficiencia eléctrica final sigue siendo evaluada por los gates P2/P3/P4/P5 después de construir el modelo."
         ),
     }
 
@@ -80,33 +98,54 @@ def _base_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
     for index, (path, message) in enumerate(required.items(), start=1):
         if not _present(_get(manifest, path)):
             issues.append(_issue(f"P8B_BASE_{index:02d}", path, message))
+    if _present(_get(manifest, "source.kv_ll")) and not _positive(_get(manifest, "source.kv_ll")):
+        issues.append(_issue("P8B_BASE_09", "source.kv_ll", "La tensión nominal LL debe ser numérica y mayor que cero."))
     return issues
 
 
 def _positive_sequence_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
-    for code, path, message in (
+    source_fields = (
         ("P8B_SC01", "source.scc_max_mva", "Scc3 MAX explícita de la red aguas arriba."),
         ("P8B_SC02", "source.x_r_max", "X/R MAX explícito de la red aguas arriba."),
         ("P8B_SC03", "source.scc_min_mva", "Scc3 MIN explícita para escenario mínimo."),
         ("P8B_SC04", "source.x_r_min", "X/R MIN explícito para escenario mínimo."),
-    ):
-        if not _present(_get(manifest, path)):
+    )
+    for code, path, message in source_fields:
+        value = _get(manifest, path)
+        if not _present(value):
             issues.append(_issue(code, path, message, scope))
+        elif not _positive(value):
+            issues.append(_issue(f"{code}V", path, f"{message} El valor debe ser numérico y mayor que cero.", scope))
 
     for i, trafo in enumerate(_get(manifest, "topology.transformers") or []):
         for key in ("id", "bus_hv", "bus_lv", "kva", "kv_hv", "kv_lv", "uk_percent", "vector_group"):
             if not _present(trafo.get(key)):
                 issues.append(_issue("P8B_SC10", f"topology.transformers[{i}].{key}", f"Dato P2 de transformador requerido: {key}.", scope))
+        for key in ("kva", "kv_hv", "kv_lv", "uk_percent"):
+            if _present(trafo.get(key)) and not _positive(trafo.get(key)):
+                issues.append(_issue("P8B_SC12", f"topology.transformers[{i}].{key}", f"{key} debe ser numérico y mayor que cero.", scope))
         if not (_present(trafo.get("x_r")) or _present(trafo.get("load_loss_kw"))):
             issues.append(_issue("P8B_SC11", f"topology.transformers[{i}]", "Se requiere X/R o pérdidas de carga trazables para separar R/X.", scope))
+        elif _present(trafo.get("x_r")) and not _positive(trafo.get("x_r")):
+            issues.append(_issue("P8B_SC13", f"topology.transformers[{i}].x_r", "X/R debe ser numérico y mayor que cero.", scope))
+        elif _present(trafo.get("load_loss_kw")) and not _nonnegative(trafo.get("load_loss_kw")):
+            issues.append(_issue("P8B_SC14", f"topology.transformers[{i}].load_loss_kw", "Las pérdidas de carga no pueden ser negativas.", scope))
 
     for i, line in enumerate(_get(manifest, "topology.lines") or []):
         for key in ("id", "bus1", "bus2", "length_km", "r1_ohm_km", "x1_ohm_km"):
             if not _present(line.get(key)):
                 issues.append(_issue("P8B_SC20", f"topology.lines[{i}].{key}", f"Dato de secuencia positiva requerido: {key}.", scope))
-        if scope == "IEC60909_3PH_MAX_MIN" and not _present(line.get("endtemp_min_c")):
-            issues.append(_issue("P8B_SC21", f"topology.lines[{i}].endtemp_min_c", "Temperatura final explícita para cálculo MIN; no se inventa.", scope))
+        if _present(line.get("length_km")) and not _positive(line.get("length_km")):
+            issues.append(_issue("P8B_SC22", f"topology.lines[{i}].length_km", "La longitud debe ser numérica y mayor que cero.", scope))
+        for key in ("r1_ohm_km", "x1_ohm_km"):
+            if _present(line.get(key)) and not _nonnegative(line.get(key)):
+                issues.append(_issue("P8B_SC23", f"topology.lines[{i}].{key}", f"{key} no puede ser negativo en el alcance pasivo P8B.", scope))
+        if scope == "IEC60909_3PH_MAX_MIN":
+            if not _present(line.get("endtemp_min_c")):
+                issues.append(_issue("P8B_SC21", f"topology.lines[{i}].endtemp_min_c", "Temperatura final explícita para cálculo MIN; no se inventa.", scope))
+            elif not _positive(line.get("endtemp_min_c")):
+                issues.append(_issue("P8B_SC24", f"topology.lines[{i}].endtemp_min_c", "La temperatura final MIN debe ser numérica y mayor que cero.", scope))
     return issues
 
 
@@ -118,8 +157,11 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
         ("P8B_Z003", "zero_sequence.source.r0_min_ohm"),
         ("P8B_Z004", "zero_sequence.source.x0_min_ohm"),
     ):
-        if not _present(_get(manifest, path)):
+        value = _get(manifest, path)
+        if not _present(value):
             issues.append(_issue(code, path, "Secuencia cero de fuente requerida para falla a tierra MAX/MIN.", scope))
+        elif not _nonnegative(value):
+            issues.append(_issue(f"{code}V", path, "La impedancia de secuencia cero no puede ser negativa en el alcance pasivo P8B.", scope))
 
     lines_z0 = _get(manifest, "zero_sequence.lines") or []
     transformers_z0 = _get(manifest, "zero_sequence.transformers") or []
@@ -130,6 +172,9 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
             for key in ("id", "r0_ohm_km", "x0_ohm_km", "c0_nf_km"):
                 if not _present(line.get(key)):
                     issues.append(_issue("P8B_Z011", f"zero_sequence.lines[{i}].{key}", f"Dato Z0 requerido: {key}.", scope))
+            for key in ("r0_ohm_km", "x0_ohm_km", "c0_nf_km"):
+                if _present(line.get(key)) and not _nonnegative(line.get(key)):
+                    issues.append(_issue("P8B_Z012", f"zero_sequence.lines[{i}].{key}", f"{key} no puede ser negativo.", scope))
 
     if not transformers_z0:
         issues.append(_issue("P8B_Z020", "zero_sequence.transformers", "Ficha Z0 + neutro/puesta a tierra de transformador requerida.", scope))
@@ -138,6 +183,9 @@ def _ground_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str]]
             for key in ("id", "uk0_percent", "ur0_percent", "neutral_side", "neutral_mode"):
                 if not _present(trafo.get(key)):
                     issues.append(_issue("P8B_Z021", f"zero_sequence.transformers[{i}].{key}", f"Dato de transformador Z0 requerido: {key}.", scope))
+            for key in ("uk0_percent", "ur0_percent"):
+                if _present(trafo.get(key)) and not _nonnegative(trafo.get(key)):
+                    issues.append(_issue("P8B_Z022", f"zero_sequence.transformers[{i}].{key}", f"{key} no puede ser negativo.", scope))
     return issues
 
 
@@ -150,6 +198,9 @@ def _ampacity_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, str
         for key in ("element_id", "conductor_code", "ib_a", "in_a", "installation_reference", "ampacity_reference"):
             if not _present(item.get(key)):
                 issues.append(_issue("P8B_P302", f"ampacity[{i}].{key}", f"Entrada P3 requerida: {key}.", scope))
+        for key in ("ib_a", "in_a"):
+            if _present(item.get(key)) and not _positive(item.get(key)):
+                issues.append(_issue("P8B_P303", f"ampacity[{i}].{key}", f"{key} debe ser numérico y mayor que cero.", scope))
     return issues
 
 
@@ -164,6 +215,9 @@ def _protection_issues(manifest: dict[str, Any], scope: str) -> list[dict[str, s
             for key in ("id", "type", "protected_element", "in_a", "ue_kv", "breaking_capacity_ka", "source_reference"):
                 if not _present(item.get(key)):
                     issues.append(_issue("P8B_P502", f"protection.devices[{i}].{key}", f"Entrada P5 requerida: {key}.", scope))
+            for key in ("in_a", "ue_kv", "breaking_capacity_ka"):
+                if _present(item.get(key)) and not _positive(item.get(key)):
+                    issues.append(_issue("P8B_P503", f"protection.devices[{i}].{key}", f"{key} debe ser numérico y mayor que cero.", scope))
     if not datasets:
         issues.append(_issue("P8B_P510", "protection.tcc_datasets", "Curvas/datasets TCC trazables requeridos para coordinación.", scope))
     else:
@@ -183,6 +237,8 @@ def evaluar_admision(manifest: dict[str, Any]) -> dict[str, Any]:
     normalized = [str(item).strip().upper() for item in requested if str(item).strip()]
     unknown = sorted(set(normalized) - ALLOWED_SCOPE)
     issues = _base_issues(manifest)
+    if not normalized:
+        issues.append(_issue("P8B_SCOPE00", "requested_scope", "Debe declararse al menos un estudio/alcance solicitado."))
     for item in unknown:
         issues.append(_issue("P8B_SCOPE01", "requested_scope", f"Scope no soportado por P8B: {item}.", item))
 
@@ -220,7 +276,7 @@ def evaluar_admision(manifest: dict[str, Any]) -> dict[str, Any]:
         "crosscheck": False,
         "professional_emission": False,
         "note": (
-            "INPUTS_PRESENT solo significa que P8B encontró los campos declarados. "
+            "INPUTS_PRESENT solo significa que P8B encontró campos declarados y plausibilidad básica. "
             "P2/P3/P4/P5 deben validar coherencia, alcance y aptitud después de modelar."
         ),
     }
