@@ -47,7 +47,13 @@ def _active_element_is_open(full_name: str) -> bool:
 
 
 def _collect_active_model() -> dict[str, Any]:
-    """Extrae entradas sin ejecutar ``Solve`` ni leer resultados de OpenDSS."""
+    """Extrae entradas sin ejecutar ``Solve`` ni leer resultados de OpenDSS.
+
+    La tensión nominal se resuelve con precedencia explícita P2: fuente y
+    transformadores profesionales, propagación por líneas, y solo después
+    ``dss.Bus.kVBase()`` como fallback. Así un kVBase implícito/stale de OpenDSS
+    no puede sobrescribir un nivel LV declarado por un transformador P2.
+    """
     circuit_name = str(dss.Circuit.Name() or "")
     if not circuit_name:
         return {
@@ -63,6 +69,7 @@ def _collect_active_model() -> dict[str, Any]:
 
     buses: list[dict[str, Any]] = []
     voltage_by_bus: dict[str, float] = {}
+    dss_voltage_by_bus: dict[str, float] = {}
     for name in dss.Circuit.AllBusNames():
         dss.Circuit.SetActiveBus(name)
         kv_base_ln = float(dss.Bus.kVBase())
@@ -76,7 +83,7 @@ def _collect_active_model() -> dict[str, Any]:
             }
         )
         if vn:
-            voltage_by_bus[name.lower()] = vn
+            dss_voltage_by_bus[name.lower()] = vn
 
     if source:
         voltage_by_bus["sourcebus"] = float(source["kv_ll"])
@@ -122,7 +129,7 @@ def _collect_active_model() -> dict[str, Any]:
             voltage_by_bus[str(record["buses"]["hv"]).lower()] = float(record["rating"]["kv_hv"])
             voltage_by_bus[str(record["buses"]["lv"]).lower()] = float(record["rating"]["kv_lv"])
 
-    # Propaga el nivel nominal a través de líneas, sin usar resultados de flujo.
+    # Propaga primero los niveles nominales explícitos P2 a través de líneas.
     for _ in range(max(1, len(lines) + 1)):
         changed = False
         for line in lines:
@@ -135,6 +142,10 @@ def _collect_active_model() -> dict[str, Any]:
                 changed = True
         if not changed:
             break
+
+    # OpenDSS se usa únicamente como fallback para barras no resueltas por P2.
+    for name, vn in dss_voltage_by_bus.items():
+        voltage_by_bus.setdefault(name, float(vn))
 
     for bus in buses:
         resolved = voltage_by_bus.get(str(bus["name"]).lower())
