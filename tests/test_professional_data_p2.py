@@ -100,6 +100,40 @@ def test_red_equivalente_guarda_max_min_y_no_inventa_secuencia_cero():
     assert minimum["active_equivalent"]["z1_ohm"] == pytest.approx(22.9**2 / 250)
 
 
+def test_red_equivalente_vincula_barra_fuente_explicita_del_modelo():
+    core.crear_circuito("p2_source_custom", 22.9, bus_fuente="red_concesionaria")
+    professional_data.reset()
+
+    source = professional_data.definir_red_equivalente(
+        kv_ll=22.9,
+        scc_max_mva=500,
+        x_r_max=10,
+        scc_min_mva=250,
+        x_r_min=7,
+        fuente_referencia="concesionaria - estudio CC",
+        bus_fuente="red_concesionaria",
+    )
+
+    assert source["bus"] == "red_concesionaria"
+    assert source["bus_provenance"]["origin"] == "usuario"
+    assert source["bus_provenance"]["reference"] == "concesionaria - estudio CC"
+    dss("? Vsource.source.bus1")
+    assert str(dss.Text.Result()).split(".")[0].strip().lower() == "red_concesionaria"
+
+
+def test_red_equivalente_rechaza_barra_fuente_que_no_coincide_con_opendss():
+    core.crear_circuito("p2_source_mismatch", 22.9, bus_fuente="red_real")
+    professional_data.reset()
+
+    with pytest.raises(ValueError, match="P2SRC007"):
+        professional_data.definir_red_equivalente(
+            kv_ll=22.9,
+            scc_max_mva=500,
+            x_r_max=10,
+            bus_fuente="barra_equivocada",
+        )
+
+
 def test_workspace_v2_serializa_y_muestra_datos_profesionales(tmp_path):
     _new("p2_workspace")
     _professional_transformer()

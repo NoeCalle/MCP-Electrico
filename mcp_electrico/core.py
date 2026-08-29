@@ -97,21 +97,38 @@ def _estado_cargas_criticas() -> list[dict[str, Any]]:
     return estados
 
 
-def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
-    """Crea un circuito nuevo y limpia también el estado auxiliar del MCP."""
+def crear_circuito(
+    nombre: str,
+    kv_base: float,
+    frecuencia: int = 60,
+    bus_fuente: str = "sourcebus",
+) -> str:
+    """Crea un circuito y fija explícitamente la barra de la fuente OpenDSS.
+
+    ``bus_fuente`` conserva ``sourcebus`` como valor compatible para llamadas
+    históricas. Los flujos P8 de proyecto real deben pasarlo siempre desde el
+    manifiesto admitido; el motor no necesita renombrar ni inferir esa barra.
+    """
     if kv_base <= 0:
         raise ValueError("kv_base debe ser mayor que cero.")
     if frecuencia <= 0:
         raise ValueError("frecuencia debe ser mayor que cero.")
+    source_bus = str(bus_fuente or "").strip()
+    if not source_bus:
+        raise ValueError("bus_fuente debe ser una barra explícita no vacía.")
 
     dss("Clear")
     dss(
         f"New Circuit.{nombre} basekv={kv_base} Frequency={frecuencia}"
     )
+    # ``New Circuit`` crea Vsource.source inicialmente en ``sourcebus``. Se
+    # reubica de inmediato, antes de agregar cualquier otro elemento, para que
+    # el modelo efectivo use la barra declarada por el usuario/proyecto.
+    dss(f"Edit Vsource.source Bus1={source_bus}")
 
     global _voltage_bases, _bus_voltage_bases_ll
     _voltage_bases = {float(kv_base)}
-    _bus_voltage_bases_ll = {"sourcebus": float(kv_base)}
+    _bus_voltage_bases_ll = {_bus_key(source_bus): float(kv_base)}
     _cargas_criticas.clear()
     _recalcular_bases_de_tension()
     return f"Circuito '{nombre}' creado a {kv_base} kV, {frecuencia} Hz"
