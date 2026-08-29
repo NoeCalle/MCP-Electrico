@@ -2,7 +2,13 @@ from copy import deepcopy
 import json
 from pathlib import Path
 
-from mcp_electrico import core, project_snapshot, project_snapshot_tools, workspace_state
+from mcp_electrico import (
+    core,
+    project_reconstruction_tools,
+    project_snapshot,
+    project_snapshot_tools,
+    workspace_state,
+)
 
 
 def _case(name: str = "p7a") -> None:
@@ -118,7 +124,7 @@ def test_p7a_export_never_overwrites_and_file_verifies(tmp_path):
     assert project_snapshot.verificar_snapshot(stored)["status"] == "HASH_MATCH"
 
 
-def test_p7a_public_tools_remain_distinct_after_p7b_extension():
+def test_p7a_and_p7b_public_tools_are_registered_once_and_separately():
     class FakeMCP:
         def __init__(self):
             self.names = []
@@ -131,11 +137,17 @@ def test_p7a_public_tools_remain_distinct_after_p7b_extension():
 
     fake = FakeMCP()
     project_snapshot_tools.register(fake)
-    p7a_names = fake.names[:3]
-    assert p7a_names == [
+    assert fake.names == [
         "construir_snapshot_proyecto_p7a",
         "exportar_snapshot_proyecto_p7a",
         "verificar_snapshot_proyecto_p7a",
     ]
-    assert not any("import" in name.lower() or "reconstru" in name.lower() for name in p7a_names)
-    assert "reconstruir_snapshot_proyecto_p7b" in fake.names[3:]
+    assert not any("import" in name.lower() or "reconstru" in name.lower() for name in fake.names)
+
+    project_reconstruction_tools.register(fake)
+    assert fake.names[3:] == [
+        "obtener_contrato_reconstruccion_p7b",
+        "reconstruir_snapshot_proyecto_p7b",
+        "reconstruir_archivo_proyecto_p7b",
+    ]
+    assert len(fake.names) == len(set(fake.names))
