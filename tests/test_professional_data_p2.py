@@ -117,8 +117,8 @@ def test_red_equivalente_vincula_barra_fuente_explicita_del_modelo():
     assert source["bus"] == "red_concesionaria"
     assert source["bus_provenance"]["origin"] == "usuario"
     assert source["bus_provenance"]["reference"] == "concesionaria - estudio CC"
-    assert dss.Circuit.SetActiveElement("Vsource.source")
-    assert dss.CktElement.BusNames()[0].split(".")[0].lower() == "red_concesionaria"
+    dss("? Vsource.source.bus1")
+    assert str(dss.Text.Result()).split(".")[0].strip().lower() == "red_concesionaria"
 
 
 def test_red_equivalente_rechaza_barra_fuente_que_no_coincide_con_opendss():
