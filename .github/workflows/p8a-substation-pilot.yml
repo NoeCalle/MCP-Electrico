@@ -16,6 +16,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
+      - name: Probe P8A P5D inputs
+        run: python examples/p8a_p5_probe.py
       - name: Run P8A substation pilot
         run: |
           python examples/p8a_substation_pilot.py --output-dir p8a_ci
