@@ -11,8 +11,8 @@ P7 no cambia la madurez de P1–P5 ni habilita emisión profesional. Su finalida
 ```text
 P7A  snapshot canónico + SHA-256                DONE / EXPERIMENTAL
 P7B  reconstrucción verificable del netlist     DONE / EXPERIMENTAL
-P7C  resumen técnico HTML/PDF reproducible      NEXT / ACTIVE HANDOFF
-P7D  gate mínimo Engineering Preview 0.9         PENDING
+P7C  resumen técnico HTML/PDF reproducible      DONE / EXPERIMENTAL
+P7D  gate mínimo Engineering Preview 0.9         NEXT / ACTIVE HANDOFF
 
 P6 IEEE 1584 = DEFERRED
 professional_emission = false
@@ -98,7 +98,7 @@ exportar_snapshot_proyecto_p7a
 verificar_snapshot_proyecto_p7a
 ```
 
-CI ya demuestra:
+CI demuestra:
 
 1. mismo estado + directorios distintos => mismo hash;
 2. cambio de modelo => hash distinto;
@@ -108,9 +108,7 @@ CI ya demuestra:
 6. timestamp Save Circuit canonizado sin alterar datos eléctricos;
 7. P2/P3/P5 + gobernanza presentes;
 8. `reproducible_project=EXPERIMENTAL`;
-9. `professional_report=NOT_IMPLEMENTED`;
-10. `engineering_preview_ready=false`;
-11. `professional_emission=false`.
+9. `professional_emission=false`.
 
 # P7B — reconstrucción verificable del netlist
 
@@ -194,6 +192,8 @@ netlist = RESTORED_MISMATCH_CLEARED
 
 y el circuito no verificado se limpia para que no quede disponible accidentalmente.
 
+P7B fija las rutas del ejemplo/CI antes de ejecutar OpenDSS porque `Compile/Save Circuit` puede cambiar el directorio de trabajo del proceso. Esta regresión queda cubierta explícitamente.
+
 ## Estados que NO se restauran automáticamente
 
 El netlist OpenDSS y los estados estructurados MCP se tratan por separado.
@@ -226,37 +226,143 @@ reconstruir_snapshot_proyecto_p7b
 reconstruir_archivo_proyecto_p7b
 ```
 
-## Gate P7B
+# P7C — reporte técnico reproducible
 
-P7B se cierra exigiendo en CI:
+Implementación:
 
-1. hash válido obligatorio antes de escribir;
-2. round-trip canónico real `true`;
-3. tampering bloqueado sin tocar el circuito previo;
-4. path traversal bloqueado antes de escribir;
-5. master ausente/inconsistente bloqueado;
-6. mismatch de round-trip limpiado;
-7. estudios históricos no promovidos;
-8. `project_reconstruction=EXPERIMENTAL`;
-9. `professional_report=NOT_IMPLEMENTED`;
-10. `engineering_preview_ready=false`;
-11. `professional_emission=false`.
+- `mcp_electrico.project_report`;
+- `mcp_electrico.project_report_tools`;
+- `validation_status.technical_report = EXPERIMENTAL`;
+- `validation_status.professional_report = NOT_IMPLEMENTED`.
 
-# P7C — siguiente
+Schema:
 
-P7C deberá convertir el snapshot verificable en un **resumen técnico reproducible HTML/PDF** consumiendo únicamente datos ya preparados por Python/MCP.
+```text
+MCP_ELECTRICO_P7C_TECHNICAL_REPORT_V1
+```
 
-Como mínimo deberá incluir:
+## Fuente única y determinismo
 
-- identificación del proyecto y hash P7A;
-- revisión del modelo;
-- motores/versiones usados;
-- fuentes y procedencia;
-- resultados vigentes claramente separados de resultados obsoletos/no recalculados;
-- estado de madurez de cada módulo;
-- warnings y limitaciones;
-- unifilar/workspace apto para impresión;
-- P3, P4 y P5 cuando existan resultados vigentes;
+P7C no consulta el circuito activo ni vuelve a ejecutar estudios. La entrada es un snapshot P7A completo y verificable:
+
+```text
+P7A snapshot
+   ↓
+verificar SHA-256 = HASH_MATCH
+   ↓
+clasificar resultados por revisión congelada
+   ↓
+construir contenido técnico canónico
+   ↓
+report_sha256
+   ↓
+HTML print-ready
+```
+
+La construcción está bloqueada si el hash P7A no coincide. Un mismo snapshot debe producir exactamente:
+
+```text
+same report_data
+same report_sha256
+same HTML
+```
+
+El hash del reporte usa:
+
+```text
+algorithm = sha256
+scope = canonical_p7c_report_data
+```
+
+## Contenido
+
+El reporte incluye, cuando existen en el snapshot:
+
+- circuito y revisión de modelo;
+- SHA-256 P7A y SHA-256 P7C;
+- estudios vigentes en la revisión congelada;
+- resultados históricos/no vigentes separados explícitamente;
+- datos profesionales P2;
+- secuencia cero P2;
+- ampacidad P3;
+- protección y datasets TCC P5;
+- madurez de módulos y limitaciones;
+- versiones de motores;
+- matriz/criterio de selección de motores;
+- gate P5;
+- P6 IEEE 1584 = `DEFERRED`;
+- `automatic_dispatch=false`;
+- `crosscheck=false`;
 - `professional_emission=false`.
 
-P7C no debe recalcular ingeniería en HTML/JavaScript y reutilizará el mismo workspace visual.
+## HTML / PDF
+
+P7C genera HTML determinista y apto para impresión A4. La exportación PDF en esta etapa es:
+
+```text
+pdf_export_mode = BROWSER_PRINT
+native_pdf_generation = false
+```
+
+El botón `Imprimir / Guardar PDF` ejecuta únicamente:
+
+```text
+window.print()
+```
+
+El navegador no calcula, interpola ni modifica valores de ingeniería. El HTML contiene además el payload técnico canónico como `application/json` para trazabilidad, no como motor de cálculo.
+
+La salida muestra de forma visible:
+
+```text
+NO APTO PARA EMISIÓN PROFESIONAL
+engineering_preview_ready=false
+professional_report=false
+professional_emission=false
+```
+
+## Tools P7C
+
+```text
+obtener_contrato_reporte_p7c
+exportar_reporte_tecnico_p7c
+exportar_reporte_desde_archivo_p7c
+```
+
+## Evidencia CI P7C
+
+CI debe demostrar:
+
+1. snapshot origen `HASH_MATCH`;
+2. HTML real generado;
+3. mismo snapshot => mismo hash y mismo HTML;
+4. tampering bloqueado antes de escribir;
+5. separación current/historical por revisión;
+6. marcador `NO APTO PARA EMISIÓN PROFESIONAL` visible;
+7. `BROWSER_PRINT` explícito;
+8. cero cálculo de ingeniería en navegador;
+9. `technical_report=EXPERIMENTAL`;
+10. `professional_report=NOT_IMPLEMENTED`;
+11. `engineering_preview_ready=false`;
+12. `professional_emission=false`.
+
+# P7D — siguiente
+
+P7D será el gate mínimo para **MCP Eléctrico 0.9 — Engineering Preview**. Deberá verificar como mínimo:
+
+- P5 `READY_WITH_LIMITATIONS` y benchmark integral verde;
+- P7A snapshot/hash reproducible;
+- P7B reconstrucción DSS round-trip verificable;
+- P7C reporte técnico reproducible;
+- Workspace V5 existente y sin cálculo eléctrico JavaScript;
+- limitaciones y madurez visibles;
+- P6 IEEE 1584 explícitamente `DEFERRED`;
+- `professional_emission=false`.
+
+Solo P7D podrá cambiar:
+
+```text
+engineering_preview_ready = true
+```
+
+Eso habilitará uso operativo interno controlado; no habilitará emisión profesional.
