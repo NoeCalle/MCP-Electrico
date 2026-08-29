@@ -1,6 +1,8 @@
 from copy import deepcopy
 import json
 from pathlib import Path
+import subprocess
+import sys
 
 from opendssdirect import dss
 
@@ -167,6 +169,45 @@ def test_p7b_invalid_json_file_is_fail_closed(tmp_path):
     assert result["status"] == "INVALID_SNAPSHOT_JSON"
     assert result["stored_results_promoted_to_current"] is False
     assert str(dss.Circuit.Name()) == "p7b_json_sentinel"
+
+
+def test_p7b_cli_example_exits_cleanly_and_emits_verified_evidence(tmp_path):
+    repo_root = Path(__file__).resolve().parents[1]
+    output = tmp_path / "reconstruction_p7b.json"
+    source_netlist = tmp_path / "source_dss"
+    reconstructed = tmp_path / "reconstructed"
+    process = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "examples" / "reconstruct_project_p7b.py"),
+            "--output", str(output),
+            "--source-netlist", str(source_netlist),
+            "--reconstructed", str(reconstructed),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert output.is_file(), {
+        "returncode": process.returncode,
+        "stdout": process.stdout,
+        "stderr": process.stderr,
+    }
+    result = json.loads(output.read_text(encoding="utf-8"))
+    assert process.returncode == 0, {
+        "returncode": process.returncode,
+        "stdout": process.stdout,
+        "stderr": process.stderr,
+        "result": result,
+    }
+    assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+    assert result["integrity"]["status"] == "HASH_MATCH"
+    assert result["roundtrip"]["canonical_netlist_match"] is True
+    assert result["stored_results_promoted_to_current"] is False
+    assert result["engineering_preview_ready"] is False
+    assert result["professional_emission"] is False
 
 
 def test_p7b_contract_tools_and_maturity_are_explicit():
