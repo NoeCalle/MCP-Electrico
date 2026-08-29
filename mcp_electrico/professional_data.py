@@ -28,6 +28,23 @@ def _active_circuit_name() -> str:
         return ""
 
 
+def _bus_key(raw: str) -> str:
+    return str(raw).split(".")[0].strip().lower()
+
+
+def _active_source_bus() -> str:
+    """Devuelve la barra efectiva de ``Vsource.source`` sin asumir sourcebus."""
+    try:
+        if not dss.Circuit.SetActiveElement("Vsource.source"):
+            return ""
+        buses = dss.CktElement.BusNames()
+        if not buses:
+            return ""
+        return str(buses[0]).split(".")[0].strip()
+    except Exception:
+        return ""
+
+
 def _sync() -> None:
     global _circuit_name, _source
     current = _active_circuit_name()
@@ -260,6 +277,12 @@ def _equivalent_from_scenario(kv_ll: float, scenario: dict[str, Any]) -> dict[st
 
 def _apply_source_scenario(record: dict[str, Any]) -> dict[str, Any]:
     """Aplica solo secuencia positiva; no obliga a OpenDSS a recalcular Z0."""
+    current_bus = _active_source_bus()
+    expected_bus = str(record.get("bus") or "").strip()
+    if expected_bus and _bus_key(current_bus) != _bus_key(expected_bus):
+        raise ValueError(
+            f"P2SRC023: Vsource.source está en {current_bus!r}, no en la barra P2 declarada {expected_bus!r}."
+        )
     scenario_name = record["active_scenario"]
     scenario = record["scenarios"].get(scenario_name)
     if scenario is None:
@@ -281,14 +304,46 @@ def definir_red_equivalente(
     escenario_activo: str = "max",
     fuente_referencia: str | None = None,
     fuente_url: str | None = None,
+    bus_fuente: str | None = None,
 ) -> dict[str, Any]:
-    """Define equivalente positivo-secuencia; no deriva Z0 desde Scc3."""
+    """Define equivalente positivo-secuencia sin inferir la barra de un piloto P8.
+
+    Si ``bus_fuente`` se declara, debe coincidir con la barra efectiva de
+    ``Vsource.source``. Si se omite, se lee la barra del modelo activo para
+    mantener compatibilidad con circuitos históricos.
+    """
     _sync()
     global _source
     if not _circuit_name:
         raise ValueError("P2SRC001: no existe un circuito activo.")
     if kv_ll <= 0:
         raise ValueError("P2SRC002: kv_ll debe ser positivo.")
+
+    actual_bus = _active_source_bus()
+    if not actual_bus:
+        raise ValueError("P2SRC005: no se pudo resolver la barra efectiva de Vsource.source.")
+    if bus_fuente is not None:
+        requested_bus = str(bus_fuente).strip()
+        if not requested_bus:
+            raise ValueError("P2SRC006: bus_fuente explícito no puede estar vacío.")
+        if _bus_key(requested_bus) != _bus_key(actual_bus):
+            raise ValueError(
+                f"P2SRC007: bus_fuente={requested_bus!r} no coincide con Vsource.source={actual_bus!r}."
+            )
+        source_bus = requested_bus.split(".")[0]
+        bus_provenance = {
+            "origin": "usuario",
+            "reference": fuente_referencia or "dato_explicito_usuario",
+            "url": fuente_url,
+        }
+    else:
+        source_bus = actual_bus
+        bus_provenance = {
+            "origin": "modelo_activo",
+            "reference": "Vsource.source.Bus1",
+            "url": None,
+        }
+
     max_s = _source_scenario("max", scc_max_mva, x_r_max)
     min_s = _source_scenario("min", scc_min_mva, x_r_min)
     active = str(escenario_activo).lower()
@@ -298,6 +353,8 @@ def definir_red_equivalente(
         raise ValueError("P2SRC004: no puede activarse el escenario mínimo si no fue definido.")
     record = {
         "id": "Source.sourcebus",
+        "bus": source_bus,
+        "bus_provenance": bus_provenance,
         "mode": "thevenin_positive_sequence",
         "kv_ll": float(kv_ll),
         "scenarios": {"max": max_s, "min": min_s},
