@@ -1,0 +1,30 @@
+name: p8c5a-project-ampacity-origin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8c5a-origin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8C5A focused tests
+        run: python -m pytest -q tests/test_p8c5a_project_ampacity_origin.py tests/test_p8c5_integrated_readiness.py
+      - name: Verify P8C5A semantic contract
+        run: |
+          python - <<'PY'
+          from mcp_electrico import ampacity, workspace_p3_view
+          assert ampacity._assignment_base_origin({"origen": "PROJECT_DATA"}) == "P2_PROJECT"
+          assert ampacity._assignment_base_origin({"origen": "CATALOG_DATA"}) == "P2_CATALOG"
+          assert workspace_p3_view._base_evidence_label({"base_evidence": {"origin": "P2_PROJECT"}})[0] == "PROYECTO P2"
+          assert workspace_p3_view._base_evidence_label({"base_evidence": {"origin": "P2_CATALOG"}})[0] == "CATÁLOGO P2"
+          print("P8C5A project/catalog origin semantic contract PASS")
+          PY
