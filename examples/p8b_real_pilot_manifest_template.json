@@ -15,6 +15,9 @@
   "source": {
     "bus": null,
     "kv_ll": null,
+    "frequency_hz": null,
+    "pu": null,
+    "angle_deg": null,
     "scc_max_mva": null,
     "x_r_max": null,
     "scc_min_mva": null,
@@ -40,5 +43,9 @@
   "protection": {
     "devices": [],
     "tcc_datasets": []
+  },
+  "study_inputs": {
+    "voltage_drop_limit_pct": null,
+    "short_circuit_buses": []
   }
 }
