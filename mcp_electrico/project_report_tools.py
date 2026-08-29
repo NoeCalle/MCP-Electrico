@@ -1,8 +1,8 @@
-"""Tools MCP P7C para reporte técnico reproducible."""
+"""Tools MCP P7C/P7D para reporte técnico y gate Engineering Preview."""
 
 from __future__ import annotations
 
-from . import project_report
+from . import p7_completion, project_report
 
 
 def register(mcp) -> None:
@@ -29,3 +29,8 @@ def register(mcp) -> None:
             ruta_snapshot,
             ruta_salida=ruta_salida,
         )
+
+    @mcp.tool()
+    def evaluar_cierre_p7d_engineering_preview() -> dict:
+        """Evalúa el gate de MCP Eléctrico 0.9 sin habilitar emisión profesional."""
+        return p7_completion.evaluar_cierre_p7()

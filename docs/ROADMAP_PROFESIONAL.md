@@ -20,10 +20,10 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P4 — IEC 60909 | **COMPLETA CON LIMITACIONES (P4 v1)** | cortocircuito dentro del alcance declarado |
 | P5 — Protección y TCC | **COMPLETA CON LIMITACIONES (P5 v1)** | protección-conductor, TCC, clearing time, coordinación temporal y V5 |
 | P6 — IEEE 1584 | **DEFERRED** | Arc Flash formal cuando se reactive |
-| P7 — Expediente reproducible | **NEXT / ACTIVE HANDOFF** | paquete mínimo reproducible para uso interno |
-| P8 — Engineering Preview 0.9 | **PENDIENTE** | uso operativo controlado en proyectos reales |
+| P7 — Expediente reproducible | **COMPLETA CON LIMITACIONES (P7 mínimo)** | snapshot, reconstrucción, reporte y gate de uso interno |
+| P8 — Engineering Preview 0.9 | **ACTIVA — PILOTO REAL** | uso operativo controlado en proyectos reales |
 
-**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6 IEEE 1584 queda diferida por decisión de producto. El siguiente bloque es P7 mínimo y después P8 Engineering Preview 0.9. Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
+**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6 IEEE 1584 queda diferida por decisión de producto. P7A–P7D cierran el expediente mínimo y habilitan MCP Eléctrico 0.9 Engineering Preview para uso interno controlado. El siguiente paso es un piloto de subestación real; Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
 
 **Estado actual:**
 
@@ -31,24 +31,31 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 P3C01–P3C13 DONE
 P4C01–P4C12 DONE
 P5A–P5G DONE
+P7A–P7D DONE
 
 P4 = READY_WITH_LIMITATIONS
 P5 = READY_WITH_LIMITATIONS
 P6 = DEFERRED
-P7 = NEXT / ACTIVE_HANDOFF
-P8 = ENGINEERING_PREVIEW_0_9_PENDING
+P7 = READY_WITH_LIMITATIONS
+P8 = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
 P5 next_phase                = P7_REPRODUCIBLE_DOSSIER_MINIMUM
 
+P7 engineering_preview_ready = true
+P7 internal_use_ready        = true
+P7 allowed_use               = CONTROLLED_INTERNAL_ENGINEERING_PREVIEW
+P7 next_activity             = REAL_SUBSTATION_PILOT
+
+professional_report = false
 professional_emission = false
 automatic_dispatch = false
 crosscheck=false
 automatic_normative_lookup = false
 ```
 
-Usable internamente no equivale a `professional_emission=true`. La futura Engineering Preview debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
+Usable internamente no equivale a `professional_emission=true`. La Engineering Preview 0.9 debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
 
 ## Principio rector
 
@@ -354,30 +361,41 @@ Lee permanece separado como método simplificado/experimental y no sustituye IEE
 
 ## Fase P7 — Expediente reproducible
 
-**Estado: NEXT / ACTIVE HANDOFF — ALCANCE MÍNIMO OPERACIONAL.**
+**Estado: COMPLETA CON LIMITACIONES — P7A–P7D DONE.**
 
-P7 debe priorizar que el trabajo pueda guardarse, reconstruirse y revisarse:
+P7 cierra el paquete mínimo para guardar, reconstruir y revisar trabajo real sin abrir emisión profesional:
 
-- modelo/export DSS;
-- identificación de `model_revision`;
-- resultados reproducibles;
-- fuentes y versiones;
-- assumptions/warnings/limitations;
-- matriz de validación;
-- QA;
-- resumen de estudios;
-- HTML/PDF razonable;
-- hashes cuando corresponda.
+- **P7A:** snapshot canónico del proyecto + SHA-256 determinista;
+- **P7B:** reconstrucción verificable/fail-closed del netlist DSS y round-trip canónico;
+- **P7C:** reporte técnico reproducible desde snapshot `HASH_MATCH`, HTML print-ready y `BROWSER_PRINT`;
+- **P7D:** gate formal para `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`.
 
-P7 es el blocker explícito restante antes de declarar `engineering_preview_ready=true`.
+El gate P7D exige Workspace V5, política determinista de motores, P5 operativo, P6 IEEE 1584 diferido y frontera profesional cerrada.
+
+Cuando todos sus criterios están `DONE`:
+
+```text
+phase_status              = READY_WITH_LIMITATIONS
+product_release           = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+engineering_preview_ready = true
+internal_use_ready        = true
+allowed_use               = CONTROLLED_INTERNAL_ENGINEERING_PREVIEW
+next_activity             = REAL_SUBSTATION_PILOT
+professional_report       = false
+professional_emission     = false
+```
+
+P7 no eleva automáticamente la madurez de sus módulos ni convierte el reporte P7C en un informe profesional.
+
+Detalle: `docs/P7_ENGINEERING_PREVIEW.md`.
 
 ## Fase P8 — Engineering Preview 0.9 y camino a 1.0
 
-**Estado: PENDIENTE.**
+**Estado: ACTIVA — PILOTO REAL.**
 
-Objetivo inmediato: **MCP Eléctrico 0.9 — Engineering Preview**, para uso interno/controlado en proyectos reales.
+MCP Eléctrico 0.9 — Engineering Preview queda habilitado para uso interno/controlado dentro de los alcances y limitaciones declarados.
 
-Alcance esperado previo al preview:
+Alcance disponible para el piloto:
 
 - flujo y caída de tensión;
 - datos profesionales fuente/transformador/conductor;
@@ -388,10 +406,12 @@ Alcance esperado previo al preview:
 - TCC y clearing time;
 - coordinación temporal puntual;
 - Workspace V5;
-- expediente/reproducibilidad mínima P7;
-- límites y procedencia visibles.
+- snapshot/reconstrucción/reporte P7;
+- límites, fuentes, versiones y hashes visibles.
 
-La experiencia con proyectos reales alimentará el endurecimiento de P7/P8. Después podrá reactivarse P6 y ampliar el workspace hasta una futura **1.0 profesional**.
+El siguiente paso no es ampliar alcance: es modelar una **subestación real** representativa, ejecutar el flujo de trabajo completo y registrar fricciones de modelado, UX, trazabilidad y reporte. Esa experiencia alimentará el endurecimiento hacia una futura **1.0 profesional**.
+
+P6 IEEE 1584 continúa `DEFERRED`; se reactivará posteriormente y deberá integrarse al mismo workspace, consumiendo P4/P5 donde corresponda.
 
 `professional_emission=false` sigue siendo distinto de “usable internamente”. La emisión profesional solo se habilitará cuando los gates normativos, benchmarks, QA y revisión requeridos estén cerrados legítimamente.
 
