@@ -1,0 +1,28 @@
+name: p8c3-real-model-materializer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8c3-materializer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8C3B focused tests
+        run: python -m pytest -q tests/test_p8c3b_real_model_materializer.py
+      - name: Verify materializer contract remains non-executing
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_model_materializer
+          assert real_model_materializer.STATUS_BUILT == "MODEL_BUILT_NOT_EXECUTED"
+          assert real_model_materializer.SCHEMA == "MCP_ELECTRICO_P8C3_REAL_MODEL_MATERIALIZER_V1"
+          print("P8C3B non-executing materializer contract PASS")
+          PY
