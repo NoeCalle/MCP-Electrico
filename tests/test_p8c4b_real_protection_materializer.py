@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+import pytest
+
 from mcp_electrico import (
     conductor_library,
     protection_curves,
@@ -9,6 +11,15 @@ from mcp_electrico import (
     real_protection_materializer,
     workspace_state,
 )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_p5_state():
+    protection_data.reset()
+    protection_curves.reset()
+    yield
+    protection_data.reset()
+    protection_curves.reset()
 
 
 def _manifest() -> dict:
