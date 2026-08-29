@@ -13,6 +13,7 @@
     "PROTECTION_TCC"
   ],
   "source": {
+    "bus": null,
     "kv_ll": null,
     "scc_max_mva": null,
     "x_r_max": null,
