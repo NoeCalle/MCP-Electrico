@@ -1,11 +1,8 @@
-"""P8A — piloto integral y reproducible de una subestación MT/BT.
+"""P8A — piloto integral reproducible de una subestación MT/BT.
 
-El caso es deliberadamente SINTÉTICO pero técnicamente realista. Su objetivo es
-recorrer el producto 0.9 de punta a punta y descubrir fricción de modelado,
-trazabilidad, workspace y reporte antes de introducir datos de un proyecto real.
-
-No constituye un estudio profesional ni usa curvas de fabricante. Las TCC P5
-son TEST_DATA explícitas y ``professional_emission`` permanece en false.
+Caso SINTÉTICO pero técnicamente realista para recorrer MCP Eléctrico 0.9 de
+punta a punta. No representa una instalación existente, no usa curvas de
+fabricante y mantiene ``professional_emission=false``.
 """
 
 from __future__ import annotations
@@ -42,6 +39,11 @@ from mcp_electrico import (
 
 SCHEMA = "MCP_ELECTRICO_P8A_SUBSTATION_PILOT_V1"
 CASE_ID = "P8A_SYNTHETIC_22K9_0K48_SUBSTATION_V1"
+TEMPERATURES_MIN = {
+    "Line.mt_feeder": 90.0,
+    "Line.lv_main": 90.0,
+    "Line.lv_crit": 90.0,
+}
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -51,7 +53,7 @@ def _write_json(path: Path, value: Any) -> None:
     )
 
 
-def _reset_runtime() -> None:
+def _reset() -> None:
     professional_data.reset()
     zero_sequence.reset()
     conductor_library.reset()
@@ -60,105 +62,88 @@ def _reset_runtime() -> None:
     protection_curves.reset()
 
 
-def _register_test_curves() -> None:
+def _register_breaker(
+    name: str,
+    element: str,
+    in_a: float,
+    curve_id: str,
+    dataset_id: str,
+    points: list[dict[str, float]],
+) -> None:
     protection_data.definir_dispositivo(
-        nombre="QF_MAIN_LV",
+        nombre=name,
         tipo="circuit_breaker",
-        elemento_protegido="Line.lv_main",
-        in_a=630.0,
+        elemento_protegido=element,
+        in_a=in_a,
         ue_kv=0.48,
         fabricante="PILOT_TEST_DATA",
-        modelo="SYNTHETIC_MAIN_BREAKER",
+        modelo=f"SYNTHETIC_{name}",
         polos=3,
         norma_referencia="IEC 60947-2:2024 — referencia objetivo P5C",
         icu_ka=36.0,
         ics_ka=25.0,
-        fuente_referencia="P8A synthetic pilot breaker rating; replace with project datasheet",
+        fuente_referencia="P8A synthetic rating; replace with approved project datasheet",
     )
     protection_data.vincular_curva(
+        name,
+        curva_id=curve_id,
+        tipo_curva="TEST_CURVE",
+        fuente_referencia="P8A synthetic TEST_DATA; not manufacturer data",
+        revision="P8A-v1",
+    )
+    protection_curves.registrar_dataset(
+        dataset_id=dataset_id,
+        curve_id=curve_id,
+        shape="BAND",
+        time_semantics="TOTAL_CLEARING_TIME",
+        segments=[{"id": "pilot_band", "points": points}],
+        source_type="TEST_DATA",
+        source_reference="P8A synthetic coordination dataset; no manufacturer claim",
+        revision="P8A-v1",
+    )
+    protection_curves.vincular_dataset_dispositivo(name, dataset_id)
+
+
+def _register_protection() -> None:
+    _register_breaker(
         "QF_MAIN_LV",
-        curva_id="P8A_QF_MAIN_TEST_CURVE",
-        tipo_curva="TEST_CURVE",
-        fuente_referencia="P8A synthetic TEST_DATA; not manufacturer data",
-        revision="P8A-v1",
+        "Line.lv_main",
+        630.0,
+        "P8A_QF_MAIN_TEST_CURVE",
+        "P8A_QF_MAIN_TEST_DATASET",
+        [
+            {"current_a": 630.0, "time_min_s": 15.0, "time_max_s": 18.0},
+            {"current_a": 1500.0, "time_min_s": 4.0, "time_max_s": 5.0},
+            {"current_a": 5000.0, "time_min_s": 0.80, "time_max_s": 1.00},
+            {"current_a": 20000.0, "time_min_s": 0.25, "time_max_s": 0.30},
+            {"current_a": 50000.0, "time_min_s": 0.12, "time_max_s": 0.15},
+        ],
     )
-    protection_curves.registrar_dataset(
-        dataset_id="P8A_QF_MAIN_TEST_DATASET",
-        curve_id="P8A_QF_MAIN_TEST_CURVE",
-        shape="BAND",
-        time_semantics="TOTAL_CLEARING_TIME",
-        segments=[{
-            "id": "main_band",
-            "points": [
-                {"current_a": 630.0, "time_min_s": 15.0, "time_max_s": 18.0},
-                {"current_a": 1500.0, "time_min_s": 4.0, "time_max_s": 5.0},
-                {"current_a": 5000.0, "time_min_s": 0.80, "time_max_s": 1.00},
-                {"current_a": 20000.0, "time_min_s": 0.25, "time_max_s": 0.30},
-                {"current_a": 50000.0, "time_min_s": 0.12, "time_max_s": 0.15},
-            ],
-        }],
-        source_type="TEST_DATA",
-        source_reference="P8A synthetic coordination dataset; no manufacturer claim",
-        revision="P8A-v1",
-    )
-    protection_curves.vincular_dataset_dispositivo(
-        "QF_MAIN_LV", "P8A_QF_MAIN_TEST_DATASET"
-    )
-
-    protection_data.definir_dispositivo(
-        nombre="QF_CRIT_LV",
-        tipo="circuit_breaker",
-        elemento_protegido="Line.lv_crit",
-        in_a=400.0,
-        ue_kv=0.48,
-        fabricante="PILOT_TEST_DATA",
-        modelo="SYNTHETIC_CRITICAL_BREAKER",
-        polos=3,
-        norma_referencia="IEC 60947-2:2024 — referencia objetivo P5C",
-        icu_ka=36.0,
-        ics_ka=25.0,
-        fuente_referencia="P8A synthetic pilot breaker rating; replace with project datasheet",
-    )
-    protection_data.vincular_curva(
+    _register_breaker(
         "QF_CRIT_LV",
-        curva_id="P8A_QF_CRIT_TEST_CURVE",
-        tipo_curva="TEST_CURVE",
-        fuente_referencia="P8A synthetic TEST_DATA; not manufacturer data",
-        revision="P8A-v1",
-    )
-    protection_curves.registrar_dataset(
-        dataset_id="P8A_QF_CRIT_TEST_DATASET",
-        curve_id="P8A_QF_CRIT_TEST_CURVE",
-        shape="BAND",
-        time_semantics="TOTAL_CLEARING_TIME",
-        segments=[{
-            "id": "critical_band",
-            "points": [
-                {"current_a": 400.0, "time_min_s": 10.0, "time_max_s": 12.0},
-                {"current_a": 1000.0, "time_min_s": 2.0, "time_max_s": 2.4},
-                {"current_a": 5000.0, "time_min_s": 0.15, "time_max_s": 0.18},
-                {"current_a": 20000.0, "time_min_s": 0.040, "time_max_s": 0.050},
-                {"current_a": 50000.0, "time_min_s": 0.025, "time_max_s": 0.030},
-            ],
-        }],
-        source_type="TEST_DATA",
-        source_reference="P8A synthetic coordination dataset; no manufacturer claim",
-        revision="P8A-v1",
-    )
-    protection_curves.vincular_dataset_dispositivo(
-        "QF_CRIT_LV", "P8A_QF_CRIT_TEST_DATASET"
+        "Line.lv_crit",
+        400.0,
+        "P8A_QF_CRIT_TEST_CURVE",
+        "P8A_QF_CRIT_TEST_DATASET",
+        [
+            {"current_a": 400.0, "time_min_s": 10.0, "time_max_s": 12.0},
+            {"current_a": 1000.0, "time_min_s": 2.0, "time_max_s": 2.4},
+            {"current_a": 5000.0, "time_min_s": 0.15, "time_max_s": 0.18},
+            {"current_a": 20000.0, "time_min_s": 0.040, "time_max_s": 0.050},
+            {"current_a": 50000.0, "time_min_s": 0.025, "time_max_s": 0.030},
+        ],
     )
 
 
-def _build_model(output_dir: Path) -> dict[str, Any]:
-    workspace_path = output_dir / "p8a_workspace_v5.html"
+def _build_model(out: Path) -> dict[str, Any]:
+    workspace_path = out / "p8a_workspace_v5.html"
     server.configurar_workspace(
         str(workspace_path),
         titulo="P8A — Subestación 22.9/0.48 kV · Engineering Preview",
         auto_regenerar=True,
     )
     server.crear_circuito("p8a_substation", 22.9)
-    _reset_runtime()
+    _reset()
 
     source = professional_data.definir_red_equivalente(
         kv_ll=22.9,
@@ -167,14 +152,14 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         scc_min_mva=180.0,
         x_r_min=6.0,
         escenario_activo="max",
-        fuente_referencia="P8A synthetic utility equivalent for product pilot",
+        fuente_referencia="P8A synthetic utility equivalent",
     )
-    source_z0 = zero_sequence.definir_fuente(
+    zero_sequence.definir_fuente(
         r0_max_ohm=0.15,
         x0_max_ohm=0.45,
         r0_min_ohm=0.25,
         x0_min_ohm=0.80,
-        fuente_referencia="P8A synthetic zero-sequence utility equivalent",
+        fuente_referencia="P8A synthetic utility Z0",
     )
 
     core.agregar_linea(
@@ -187,11 +172,8 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         "air_trefoil_30c",
     )
     zero_sequence.definir_linea(
-        "Line.mt_feeder",
-        r0_ohm_km=0.60,
-        x0_ohm_km=0.30,
-        c0_nf_km=250.0,
-        fuente_referencia="P8A synthetic explicit Z0/C0 input; verify with project cable data",
+        "Line.mt_feeder", 0.60, 0.30, 250.0,
+        fuente_referencia="P8A synthetic explicit MT Z0/C0",
     )
 
     transformer = professional_data.agregar_transformador_profesional(
@@ -208,9 +190,9 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         i0_percent=0.6,
         fabricante="PILOT_TEST_DATA",
         modelo="SYNTHETIC_1000KVA_DYN11",
-        fuente_referencia="P8A synthetic transformer nameplate; replace with approved datasheet",
+        fuente_referencia="P8A synthetic transformer nameplate",
     )
-    transformer_z0 = zero_sequence.definir_transformador(
+    zero_sequence.definir_transformador(
         "Transformer.tr_01",
         uk0_percent=5.5,
         ur0_percent=0.6,
@@ -219,7 +201,7 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         leakage_share_hv=0.5,
         neutral_side="lv",
         neutral_mode="solid",
-        fuente_referencia="P8A synthetic transformer Z0/neutral data",
+        fuente_referencia="P8A synthetic transformer Z0/neutral",
     )
 
     core.agregar_linea(
@@ -227,34 +209,29 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         fases=3, r1_ohm_km=0.08, x1_ohm_km=0.07,
     )
     zero_sequence.definir_linea(
-        "Line.lv_main",
-        r0_ohm_km=0.24,
-        x0_ohm_km=0.12,
-        c0_nf_km=100.0,
-        fuente_referencia="P8A synthetic LV feeder Z0/C0",
+        "Line.lv_main", 0.24, 0.12, 100.0,
+        fuente_referencia="P8A synthetic LV main Z0/C0",
     )
     core.agregar_linea(
         "lv_crit", "db_main", "crit_bus", 0.040,
         fases=3, r1_ohm_km=0.12, x1_ohm_km=0.08,
     )
     zero_sequence.definir_linea(
-        "Line.lv_crit",
-        r0_ohm_km=0.36,
-        x0_ohm_km=0.15,
-        c0_nf_km=100.0,
-        fuente_referencia="P8A synthetic LV critical feeder Z0/C0",
+        "Line.lv_crit", 0.36, 0.15, 100.0,
+        fuente_referencia="P8A synthetic LV critical Z0/C0",
     )
-
     core.agregar_carga("load_general", "db_main", 120.0, 40.0, fases=3, kv=0.48)
     core.agregar_carga("load_critical", "crit_bus", 250.0, 80.0, fases=3, kv=0.48)
 
     server.configurar_etiqueta_carga_unifilar("load_general", "DB-MAIN · CARGA GENERAL")
     server.configurar_etiqueta_carga_unifilar("load_critical", "DB-CRIT · CARGA CRÍTICA")
+    # IMPORTANTE: el conductor visual MT conserva exactamente la descripción
+    # canónica de la asignación P2. Cambiarla aquí invalidaría trazabilidad P3.
     server.configurar_alimentador_unifilar(
         "Line.mt_feeder",
         etiqueta="MT-01",
         proteccion="breaker",
-        conductor="N2XSY Cu 70 mm² · 18/30 kV",
+        conductor=mt_conductor["descripcion"],
         corriente_nominal_a=40.0,
         capacidad_ruptura_ka=25.0,
     )
@@ -275,31 +252,75 @@ def _build_model(output_dir: Path) -> dict[str, Any]:
         capacidad_ruptura_ka=36.0,
     )
 
-    p3_profile = ampacity.definir_condiciones(
+    ampacity.definir_condiciones(
         nombre_elemento="Line.mt_feeder",
         norma_id="IEC_60364_5_52_2009_A1_2024",
         in_proteccion_a=40.0,
         confirmar_condiciones_base=True,
         ib_diseno_a=25.0,
         referencia_in="P8A synthetic MT protection schedule",
-        referencia_ib="P8A design current below 1 MVA transformer full-load HV current",
+        referencia_ib="P8A explicit design current",
         referencia_condiciones_instalacion=(
-            "P8A assumes the catalog air/trefoil/30 C base condition for product-flow testing; "
-            "must be replaced by project installation evidence"
+            "P8A confirms catalog air/trefoil/30 C base condition only for product-flow testing; "
+            "replace with project evidence"
         ),
     )
-
-    _register_test_curves()
-
+    _register_protection()
     workspace_state.mark_model_changed("p8a_complete_model_and_engineering_data")
     return {
-        "workspace_path": str(workspace_path),
+        "workspace_path": workspace_path,
         "source": source,
-        "source_z0": source_z0,
         "mt_conductor": mt_conductor,
         "transformer": transformer,
-        "transformer_z0": transformer_z0,
-        "p3_profile": p3_profile,
+    }
+
+
+def _p5_checks(fault_3ph: dict[str, Any], fault_main: dict[str, Any]) -> dict[str, Any]:
+    fault_crit_ka = float(fault_3ph["scenarios"]["max"]["results"]["ikss_ka"])
+    fault_main_ka = float(fault_main["results"]["ikss_ka"])
+    fault_a = fault_crit_ka * 1000.0
+
+    tcc = protection_curves.evaluar_dispositivo("QF_CRIT_LV", fault_a)
+    clearing_down = protection_clearing_time.evaluar_tiempo_despeje("QF_CRIT_LV", fault_a)
+    clearing_up = protection_clearing_time.evaluar_tiempo_despeje("QF_MAIN_LV", fault_a)
+    breaking_down = protection_checks.evaluar_capacidad_corte(
+        "QF_CRIT_LV", fault_crit_ka, 0.48,
+        fuente_corriente="P8A IEC 60909 3F MAX at crit_bus",
+        tipo_falla="3ph", escenario="max",
+    )
+    breaking_up = protection_checks.evaluar_capacidad_corte(
+        "QF_MAIN_LV", fault_main_ka, 0.48,
+        fuente_corriente="P8A IEC 60909 3F MAX at db_main",
+        tipo_falla="3ph", escenario="max",
+    )
+    conservative_time = float(clearing_down["clearing_time"]["conservative_time_s"])
+    thermal = protection_checks.evaluar_soportabilidad_termica_conductor(
+        elemento="Line.lv_crit",
+        corriente_falla_ka=fault_crit_ka,
+        tiempo_despeje_s=conservative_time,
+        seccion_mm2=240.0,
+        k_a_sqrt_s_per_mm2=143.0,
+        fuente_k="P8A explicit synthetic k; verify before professional use",
+        fuente_tiempo="P8A P5D conservative clearing time from TEST_DATA",
+        fuente_seccion="P8A synthetic cable schedule: 240 mm²",
+    )
+    coordination = protection_coordination.evaluar_coordinacion_temporal(
+        dispositivo_downstream="QF_CRIT_LV",
+        corriente_downstream_a=fault_a,
+        dispositivo_upstream="QF_MAIN_LV",
+        corriente_upstream_a=fault_a,
+        margen_minimo_s=0.10,
+        fuente_relacion="P8A declared radial QF_MAIN_LV -> QF_CRIT_LV",
+        fuente_corrientes="P8A explicit through-current for 3F fault at crit_bus",
+    )
+    return {
+        "tcc": tcc,
+        "clearing_down": clearing_down,
+        "clearing_up": clearing_up,
+        "breaking_down": breaking_down,
+        "breaking_up": breaking_up,
+        "thermal": thermal,
+        "coordination": coordination,
     }
 
 
@@ -313,7 +334,6 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
         "summary": out / "p8a_pilot_summary.json",
         "netlist": out / "p8a_netlist_dss",
     }
-
     model = _build_model(out)
 
     power_flow = server.ejecutar_flujo_potencia()
@@ -321,23 +341,14 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
     p3 = ampacity.evaluar("Line.mt_feeder")
     workspace_state.record_study("ampacity", p3, action="p8a_ampacity")
 
-    line_temperatures = {
-        "Line.mt_feeder": 90.0,
-        "Line.lv_main": 90.0,
-        "Line.lv_crit": 90.0,
-    }
     fault_3ph = iec60909_suite.ejecutar_3ph_max_min(
-        "crit_bus",
-        line_endtemp_degree_c=line_temperatures,
+        "crit_bus", line_endtemp_degree_c=TEMPERATURES_MIN
     )
     workspace_state.record_study("iec60909_3ph", fault_3ph, action="p8a_iec60909_3ph")
-    fault_db_main_max = iec60909.ejecutar_3ph("max", "db_main")
-
-    fault_1ph_max = iec60909_single_phase_ground.ejecutar_1ph_ground(
-        "crit_bus", "max"
-    )
+    fault_main = iec60909.ejecutar_3ph("max", "db_main")
+    fault_1ph_max = iec60909_single_phase_ground.ejecutar_1ph_ground("crit_bus", "max")
     fault_1ph_min = iec60909_single_phase_ground.ejecutar_1ph_ground(
-        "crit_bus", "min", line_endtemp_degree_c=line_temperatures
+        "crit_bus", "min", line_endtemp_degree_c=TEMPERATURES_MIN
     )
     fault_1ph = {
         "schema": "MCP_ELECTRICO_P8A_1PH_GROUND_PAIR_V1",
@@ -345,77 +356,22 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
         "min": fault_1ph_min,
         "professional_emission": False,
     }
-    workspace_state.record_study(
-        "iec60909_1ph_ground", fault_1ph, action="p8a_iec60909_1ph_ground"
-    )
+    workspace_state.record_study("iec60909_1ph_ground", fault_1ph, action="p8a_1ph")
 
-    fault_crit_ka = float(fault_3ph["scenarios"]["max"]["results"]["ikss_ka"])
-    fault_main_ka = float(fault_db_main_max["results"]["ikss_ka"])
-    fault_crit_a = fault_crit_ka * 1000.0
-
-    tcc_down = protection_curves.evaluar_dispositivo("QF_CRIT_LV", fault_crit_a)
-    clearing_down = protection_clearing_time.evaluar_tiempo_despeje(
-        "QF_CRIT_LV", fault_crit_a
-    )
-    clearing_up = protection_clearing_time.evaluar_tiempo_despeje(
-        "QF_MAIN_LV", fault_crit_a
-    )
-    breaking_down = protection_checks.evaluar_capacidad_corte(
-        "QF_CRIT_LV",
-        fault_crit_ka,
-        0.48,
-        fuente_corriente="P8A IEC 60909 3F MAX at crit_bus",
-        tipo_falla="3ph",
-        escenario="max",
-    )
-    breaking_up = protection_checks.evaluar_capacidad_corte(
-        "QF_MAIN_LV",
-        fault_main_ka,
-        0.48,
-        fuente_corriente="P8A IEC 60909 3F MAX at db_main",
-        tipo_falla="3ph",
-        escenario="max",
-    )
-    clearing_conservative = float(clearing_down["clearing_time"]["conservative_time_s"])
-    thermal = protection_checks.evaluar_soportabilidad_termica_conductor(
-        elemento="Line.lv_crit",
-        corriente_falla_ka=fault_crit_ka,
-        tiempo_despeje_s=clearing_conservative,
-        seccion_mm2=240.0,
-        k_a_sqrt_s_per_mm2=143.0,
-        fuente_k="P8A explicit synthetic k input; verify against project conductor/standard before professional use",
-        fuente_tiempo="P8A P5D conservative clearing time from TEST_DATA",
-        fuente_seccion="P8A synthetic cable schedule: 240 mm²",
-    )
-    coordination = protection_coordination.evaluar_coordinacion_temporal(
-        dispositivo_downstream="QF_CRIT_LV",
-        corriente_downstream_a=fault_crit_a,
-        dispositivo_upstream="QF_MAIN_LV",
-        corriente_upstream_a=fault_crit_a,
-        margen_minimo_s=0.10,
-        fuente_relacion="P8A declared radial relation: QF_MAIN_LV upstream of QF_CRIT_LV",
-        fuente_corrientes="P8A IEC 60909 3F MAX fault at crit_bus; explicit same through-current in radial path",
-    )
-
-    workspace_state.record_study(
-        "protection_tcc_evaluation", tcc_down, action="p8a_tcc"
-    )
+    p5 = _p5_checks(fault_3ph, fault_main)
+    workspace_state.record_study("protection_tcc_evaluation", p5["tcc"], action="p8a_tcc")
     workspace_state.record_study(
         "protection_breaking_capacity",
-        {"downstream": breaking_down, "upstream": breaking_up},
-        action="p8a_breaking_capacity",
+        {"downstream": p5["breaking_down"], "upstream": p5["breaking_up"]},
+        action="p8a_breaking",
     )
-    workspace_state.record_study(
-        "protection_conductor_thermal", thermal, action="p8a_conductor_thermal"
-    )
+    workspace_state.record_study("protection_conductor_thermal", p5["thermal"], action="p8a_thermal")
     workspace_state.record_study(
         "protection_clearing_time",
-        {"downstream": clearing_down, "upstream": clearing_up},
-        action="p8a_clearing_time",
+        {"downstream": p5["clearing_down"], "upstream": p5["clearing_up"]},
+        action="p8a_clearing",
     )
-    workspace_state.record_study(
-        "protection_coordination", coordination, action="p8a_coordination"
-    )
+    workspace_state.record_study("protection_coordination", p5["coordination"], action="p8a_coordination")
     server.regenerar_workspace()
 
     snapshot = project_snapshot.construir_snapshot(str(paths["netlist"]))
@@ -432,22 +388,19 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
         and fault_3ph["scenarios"]["max"]["results"]["ikss_ka"]
         > fault_3ph["scenarios"]["min"]["results"]["ikss_ka"] > 0,
         "p4_1ph_ground_max_min": bool(fault_1ph_max.get("ok"))
-        and bool(fault_1ph_min.get("ok"))
-        and fault_1ph_max["results"]["ikss_ka"] > 0
-        and fault_1ph_min["results"]["ikss_ka"] > 0,
-        "p5_breaking_capacity": breaking_down.get("status") == "PASS"
-        and breaking_up.get("status") == "PASS",
-        "p5_clearing_time": clearing_down.get("status") == "CLEARING_TIME_READY"
-        and clearing_up.get("status") == "CLEARING_TIME_READY",
-        "p5_conductor_thermal": thermal.get("status") == "PASS",
-        "p5_temporal_coordination": coordination.get("status") == "PASS",
+        and bool(fault_1ph_min.get("ok")),
+        "p5_breaking_capacity": p5["breaking_down"].get("status") == "PASS"
+        and p5["breaking_up"].get("status") == "PASS",
+        "p5_clearing_time": p5["clearing_down"].get("status") == "CLEARING_TIME_READY"
+        and p5["clearing_up"].get("status") == "CLEARING_TIME_READY",
+        "p5_conductor_thermal": p5["thermal"].get("status") == "PASS",
+        "p5_temporal_coordination": p5["coordination"].get("status") == "PASS",
         "workspace_v5_written": paths["workspace"].exists(),
         "snapshot_hash_match": verification.get("status") == "HASH_MATCH",
         "technical_report_written": bool(report.get("ok")) and Path(report["path"]).exists(),
         "arc_flash_deferred": p7d.get("arc_flash_ieee1584") == "DEFERRED",
         "professional_emission_closed": p7d.get("professional_emission") is False,
     }
-
     result: dict[str, Any] = {
         "schema": SCHEMA,
         "case_id": CASE_ID,
@@ -457,10 +410,8 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
         "model": {
             "nominal_system": "22.9/0.48 kV",
             "utility_source": model["source"],
-            "utility_zero_sequence": model["source_z0"],
             "mt_conductor": model["mt_conductor"],
             "transformer": model["transformer"],
-            "transformer_zero_sequence": model["transformer_z0"],
         },
         "studies": {
             "power_flow": power_flow,
@@ -468,10 +419,10 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
             "ampacity_p3": p3,
             "iec60909_3ph": fault_3ph,
             "iec60909_1ph_ground": fault_1ph,
-            "breaking_capacity": {"downstream": breaking_down, "upstream": breaking_up},
-            "clearing_time": {"downstream": clearing_down, "upstream": clearing_up},
-            "conductor_thermal": thermal,
-            "temporal_coordination": coordination,
+            "breaking_capacity": {"downstream": p5["breaking_down"], "upstream": p5["breaking_up"]},
+            "clearing_time": {"downstream": p5["clearing_down"], "upstream": p5["clearing_up"]},
+            "conductor_thermal": p5["thermal"],
+            "temporal_coordination": p5["coordination"],
         },
         "p7": {
             "snapshot_verification": verification,
@@ -481,11 +432,12 @@ def run(output_dir: str | Path = "salida_p8a_substation") -> dict[str, Any]:
         },
         "outputs": {key: str(value) for key, value in paths.items()},
         "pilot_findings": [
-            "El caso usa datos sintéticos: debe reemplazarse la procedencia P2/Z0/P5 antes de un proyecto real.",
-            "P3 usa una condición base de catálogo confirmada explícitamente para probar el flujo; no crea un lookup normativo profesional automático.",
-            "Las TCC son TEST_DATA sintéticas y solo ejercitan P5B-P5E; no existe claim de fabricante ni selectividad integral.",
-            "El chequeo térmico usa sección y k explícitos del piloto; deben validarse contra el conductor y norma del proyecto real.",
-            "IEEE 1584 permanece DEFERRED y no forma parte del piloto P8A.",
+            "El caso usa datos sintéticos; P2/Z0/P5 deben sustituirse por documentación aprobada en el piloto real.",
+            "La descripción visual del conductor P2 debe preservar la identidad canónica para no invalidar trazabilidad P3.",
+            "P3 usa condición base de catálogo confirmada explícitamente; no crea lookup normativo profesional automático.",
+            "Las TCC son TEST_DATA sintéticas; no existe claim de fabricante ni selectividad integral.",
+            "El chequeo térmico usa sección y k explícitos que deben validarse en el proyecto real.",
+            "IEEE 1584 permanece DEFERRED.",
         ],
         "professional_report": False,
         "professional_emission": False,
