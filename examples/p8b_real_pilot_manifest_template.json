@@ -1,0 +1,44 @@
+{
+  "project": {
+    "id": "REEMPLAZAR",
+    "name": "REEMPLAZAR",
+    "source_reference": "REEMPLAZAR: SLD / expediente / revisión"
+  },
+  "requested_scope": [
+    "POWER_FLOW",
+    "VOLTAGE_DROP",
+    "IEC60909_3PH_MAX_MIN",
+    "IEC60909_1PH_GROUND_MAX_MIN",
+    "AMPACITY",
+    "PROTECTION_TCC"
+  ],
+  "source": {
+    "bus": null,
+    "kv_ll": null,
+    "scc_max_mva": null,
+    "x_r_max": null,
+    "scc_min_mva": null,
+    "x_r_min": null
+  },
+  "topology": {
+    "buses": [],
+    "transformers": [],
+    "lines": [],
+    "loads": []
+  },
+  "zero_sequence": {
+    "source": {
+      "r0_max_ohm": null,
+      "x0_max_ohm": null,
+      "r0_min_ohm": null,
+      "x0_min_ohm": null
+    },
+    "lines": [],
+    "transformers": []
+  },
+  "ampacity": [],
+  "protection": {
+    "devices": [],
+    "tcc_datasets": []
+  }
+}

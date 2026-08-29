@@ -1,4 +1,4 @@
-"""Registro de tools MCP para gobernanza técnica y datos profesionales P2–P7."""
+"""Registro de tools MCP para gobernanza técnica y datos profesionales P2–P8."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from . import (
     protection_coordination_tools,
     protection_tcc_tools,
     protection_tools,
+    real_pilot_intake_tools,
     runtime_safety,
     validation_status,
     zero_sequence,
@@ -260,8 +261,8 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
         result["zero_sequence"] = zero_sequence.snapshot()
         return result
 
-    # P3–P7 conservan contratos separados. Las evaluaciones read-only se
-    # registran sin convertir la capa de expediente en motor de cálculo.
+    # P3–P8 conservan contratos separados. Las evaluaciones read-only se
+    # registran sin convertir la capa de expediente/admisión en motor de cálculo.
     ampacity_tools.register(mcp)
     iec60909_tools.register(mcp)
     protection_tools.register(mcp, on_model_change=changed)
@@ -277,3 +278,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     project_snapshot_tools.register(mcp)
     project_reconstruction_tools.register(mcp)
     project_report_tools.register(mcp)
+    real_pilot_intake_tools.register(mcp)

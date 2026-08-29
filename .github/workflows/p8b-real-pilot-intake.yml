@@ -1,0 +1,39 @@
+name: p8b-real-pilot-intake
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8b-intake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8B focused tests
+        run: python -m pytest -q tests/test_p8b_real_pilot_intake.py
+      - name: Verify empty real-project template fails closed
+        run: |
+          python examples/evaluate_p8b_real_pilot_intake.py \
+            --input examples/p8b_real_pilot_manifest_template.json \
+            --output p8b_template_result.json
+          test -s p8b_template_result.json
+          grep -q '"schema": "MCP_ELECTRICO_P8B_REAL_PILOT_INTAKE_V1"' p8b_template_result.json
+          grep -q '"intake_status": "BLOCKED_MISSING_INPUTS"' p8b_template_result.json
+          grep -q '"ready_to_build_model": false' p8b_template_result.json
+          grep -q '"electrical_calculation_performed": false' p8b_template_result.json
+          grep -q '"model_mutation_performed": false' p8b_template_result.json
+          grep -q '"automatic_defaults": false' p8b_template_result.json
+          grep -q '"professional_emission": false' p8b_template_result.json
+          grep -q '"code": "P8B_BASE_04"' p8b_template_result.json
+      - name: Upload P8B template evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-p8b-real-pilot-intake
+          path: p8b_template_result.json
