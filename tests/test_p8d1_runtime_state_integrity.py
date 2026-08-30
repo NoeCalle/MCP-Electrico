@@ -134,7 +134,9 @@ def _manifest() -> dict:
 
 
 def _line_r1() -> float:
-    assert core.dss.Lines.Name("feeder") > 0
+    names = [str(name).strip().lower() for name in core.dss.Lines.AllNames()]
+    assert "feeder" in names
+    core.dss.Lines.Name("feeder")
     return float(core.dss.Lines.R1())
 
 
