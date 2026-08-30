@@ -145,40 +145,101 @@ def _assert_r1(stage: str, expected: float) -> None:
     )
 
 
-def test_p8d1_p4_must_not_mutate_active_opendss_line_r1():
-    manifest = _manifest()
-    readiness = real_integrated_readiness.evaluar_readiness_integral(manifest)
+def _prepare() -> float:
+    readiness = real_integrated_readiness.evaluar_readiness_integral(_manifest())
     assert readiness["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION"
-
     baseline = _line_r1()
     _assert_r1("P8C5 readiness", baseline)
+    return baseline
 
+
+def _run_power_flow(baseline: float) -> None:
     studies.analizar_flujo_operacion()
     _assert_r1("P1 power flow", baseline)
 
+
+def _run_voltage_drop(baseline: float) -> None:
+    _run_power_flow(baseline)
     studies.analizar_caida_tension(5.0)
     _assert_r1("P1 voltage drop", baseline)
 
+
+def _run_ampacity(baseline: float) -> None:
+    _run_voltage_drop(baseline)
     ampacity.evaluar_todos()
     _assert_r1("P3 ampacity", baseline)
 
-    iec60909.ejecutar_3ph("max", "load_bus")
+
+def _run_3ph_max(baseline: float) -> None:
+    _run_ampacity(baseline)
+    result = iec60909.ejecutar_3ph("max", "load_bus")
+    assert result["ok"] is True
     _assert_r1("P4 3ph MAX", baseline)
 
-    temperatures = {"Line.feeder": 90.0}
-    iec60909.ejecutar_3ph(
+
+def _run_3ph_min(baseline: float) -> None:
+    _run_3ph_max(baseline)
+    result = iec60909.ejecutar_3ph(
         "min",
         "load_bus",
-        line_endtemp_degree_c=temperatures,
+        line_endtemp_degree_c={"Line.feeder": 90.0},
     )
+    assert result["ok"] is True
     _assert_r1("P4 3ph MIN", baseline)
 
-    iec60909_single_phase_ground.ejecutar_1ph_ground("load_bus", "max")
+
+def _run_1ph_max(baseline: float) -> None:
+    _run_3ph_min(baseline)
+    result = iec60909_single_phase_ground.ejecutar_1ph_ground("load_bus", "max")
+    assert result["ok"] is True
     _assert_r1("P4 1ph-ground MAX", baseline)
 
-    iec60909_single_phase_ground.ejecutar_1ph_ground(
+
+def _run_1ph_min(baseline: float) -> None:
+    _run_1ph_max(baseline)
+    result = iec60909_single_phase_ground.ejecutar_1ph_ground(
         "load_bus",
         "min",
-        line_endtemp_degree_c=temperatures,
+        line_endtemp_degree_c={"Line.feeder": 90.0},
     )
+    assert result["ok"] is True
     _assert_r1("P4 1ph-ground MIN", baseline)
+
+
+def test_runtime_r1_00_readiness_baseline():
+    _prepare()
+
+
+def test_runtime_r1_10_after_p1_power_flow():
+    baseline = _prepare()
+    _run_power_flow(baseline)
+
+
+def test_runtime_r1_20_after_p1_voltage_drop():
+    baseline = _prepare()
+    _run_voltage_drop(baseline)
+
+
+def test_runtime_r1_30_after_p3_ampacity():
+    baseline = _prepare()
+    _run_ampacity(baseline)
+
+
+def test_runtime_r1_40_after_p4_3ph_max():
+    baseline = _prepare()
+    _run_3ph_max(baseline)
+
+
+def test_runtime_r1_50_after_p4_3ph_min():
+    baseline = _prepare()
+    _run_3ph_min(baseline)
+
+
+def test_runtime_r1_60_after_p4_1ph_ground_max():
+    baseline = _prepare()
+    _run_1ph_max(baseline)
+
+
+def test_runtime_r1_70_after_p4_1ph_ground_min():
+    baseline = _prepare()
+    _run_1ph_min(baseline)
