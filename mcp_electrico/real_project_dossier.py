@@ -1,8 +1,11 @@
-"""P8E2 — dossier reproducible del proyecto real ejecutado P1/P3/P4/P5.
+"""P8E2/P8F2 — dossier reproducible e íntegro del proyecto real.
 
 Orquesta una sola ejecución P8D2 en el proceso principal y congela sus
 resultados en Workspace V5 + P7A + P7C. La reconstrucción P7B se verifica en un
 proceso hijo para no destruir ni rebindear el modelo activo del usuario.
+
+P8F2 añade un gate de integridad: el dossier solo se promociona a READY cuando
+cada artefacto y archivo de netlist queda inventariado y verificado por SHA-256.
 """
 
 from __future__ import annotations
@@ -19,6 +22,7 @@ from typing import Any
 from opendssdirect import dss
 
 from . import (
+    dossier_integrity,
     project_report,
     project_snapshot,
     real_protection_execution,
@@ -135,7 +139,7 @@ def generar_dossier(
     manifest: dict[str, Any],
     directorio_salida: str = "mcp_electrico_real_dossier",
 ) -> dict[str, Any]:
-    """Ejecuta P8D2 y genera Workspace/P7A/P7B/P7C trazables del mismo estado."""
+    """Ejecuta P8D2 y genera Workspace/P7A/P7B/P7C con integridad P8F2."""
     if not isinstance(manifest, dict):
         raise TypeError("manifest debe ser dict.")
 
@@ -149,6 +153,7 @@ def generar_dossier(
             "manifest_sha256": manifest_sha,
             "p8d2_execution": execution,
             "artifact_generation_performed": False,
+            "integrity_index_generated": False,
             "p7b_isolated": True,
             "automatic_dispatch": False,
             "crosscheck": False,
@@ -165,6 +170,7 @@ def generar_dossier(
         "snapshot": target / "project_snapshot_p7a.json",
         "report": target / "project_report_p7c.html",
         "reconstruction": target / "reconstruction_p7b.json",
+        "integrity": target / dossier_integrity.INDEX_NAME,
         "netlist": target / "p7a_netlist",
         "reconstructed": target / "p7b_reconstructed",
     }
@@ -212,6 +218,24 @@ def generar_dossier(
                 "P8E2ISO001: la verificación P7B aislada alteró el circuito/revisión del proceso principal."
             )
 
+        integrity_context = {
+            "manifest_sha256": manifest_sha,
+            "model_revision": revision_after,
+            "p8d2_schema": execution.get("schema"),
+            "p8d2_execution_status": execution.get("execution_status"),
+            "p7a_payload_sha256": (snapshot.get("hash") or {}).get("value"),
+            "p7c_report_sha256": (report.get("report_hash") or {}).get("value"),
+            "p7c_source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
+            "workspace_version": 5,
+            "professional_emission": False,
+        }
+        integrity = dossier_integrity.construir_indice(target, context=integrity_context)
+        integrity_verification = integrity.get("verification") or {}
+        if integrity_verification.get("status") != dossier_integrity.STATUS_VERIFIED:
+            raise RuntimeError(
+                f"P8F2I001: índice de integridad del dossier no verificó: {integrity_verification}"
+            )
+
         return {
             "schema": SCHEMA,
             "status": STATUS_READY,
@@ -243,9 +267,20 @@ def generar_dossier(
                 "source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
                 "browser_engineering_calculation": False,
             },
+            "integrity": {
+                "status": integrity_verification.get("status"),
+                "ok": integrity_verification.get("ok"),
+                "index_path": str(paths["integrity"]),
+                "payload_sha256": integrity_verification.get("payload_sha256"),
+                "index_file_sha256": integrity.get("index_file_sha256"),
+                "verified_file_count": integrity_verification.get("verified_file_count"),
+                "portable_relative_paths": True,
+                "self_hash_included": False,
+            },
             "trace_files": {
                 "manifest": str(paths["manifest"]),
                 "execution_p8d2": str(paths["execution"]),
+                "integrity_index": str(paths["integrity"]),
             },
             "automatic_dispatch": False,
             "automatic_fault_binding": False,
@@ -263,6 +298,7 @@ def generar_dossier(
             "output_directory": str(target),
             "active_circuit_preserved": _active_circuit() == circuit_before,
             "model_revision_preserved": workspace_state.status().get("model_revision") == revision_before,
+            "integrity_index_generated": paths["integrity"].is_file(),
             "p7b_isolated": True,
             "automatic_dispatch": False,
             "crosscheck": False,
