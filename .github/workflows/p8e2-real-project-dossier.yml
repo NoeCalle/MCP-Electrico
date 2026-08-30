@@ -1,0 +1,29 @@
+name: p8e2-real-project-dossier
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8e2-dossier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: P8E2 real dossier end-to-end
+        run: python -m pytest -q tests/test_p8e2_real_project_dossier.py
+      - name: P7 regression chain
+        run: python -m pytest -q tests/test_p7a_project_snapshot.py tests/test_p7b_project_reconstruction.py tests/test_p7c_project_report.py
+      - name: Verify P8E2 isolation boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_project_dossier
+          assert real_project_dossier.P7B_OK == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+          print("P8E2 isolated P7B dossier boundary PASS")
+          PY
