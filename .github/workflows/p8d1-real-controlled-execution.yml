@@ -1,0 +1,55 @@
+name: p8d1-real-controlled-execution
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8d1-execution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Core 10 execute P1 P3 P4 with P5 pending
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_executes_p1_p3_p4_and_leaves_p5_explicitly_pending
+      - name: Core 20 execute without P5 and route P8E
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_without_p5_finishes_and_routes_to_p8e
+      - name: Core 30 readiness blocker prevents studies
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_readiness_blocker_prevents_all_studies
+      - name: Core 40 multiple fault buses no silent selection
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_multiple_fault_buses_executes_all_without_selecting_one_for_workspace
+      - name: Core 50 repeated execution rebuilds cleanly
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_rebuilds_cleanly_on_repeated_execution
+      - name: P8C5 integrated readiness regression
+        run: python -m pytest -q tests/test_p8c5_integrated_readiness.py
+      - name: R1 00 readiness baseline
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_00_readiness_baseline
+      - name: R1 10 after P1 power flow
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_10_after_p1_power_flow
+      - name: R1 20 after P1 voltage drop
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_20_after_p1_voltage_drop
+      - name: R1 30 after P3 ampacity
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_30_after_p3_ampacity
+      - name: R1 40 after P4 3ph MAX
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_40_after_p4_3ph_max
+      - name: R1 50 after P4 3ph MIN
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_50_after_p4_3ph_min
+      - name: R1 60 after P4 1ph-ground MAX
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_60_after_p4_1ph_ground_max
+      - name: R1 70 after P4 1ph-ground MIN
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_70_after_p4_1ph_ground_min
+      - name: Verify P8D1 execution boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_controlled_execution as p8d1
+          assert p8d1.PROTECTION not in p8d1.EXECUTABLE_SCOPES
+          assert p8d1.SC_3PH in p8d1.EXECUTABLE_SCOPES
+          assert p8d1.SC_1PH in p8d1.EXECUTABLE_SCOPES
+          print("P8D1 explicit P1/P3/P4 boundary PASS")
+          PY
