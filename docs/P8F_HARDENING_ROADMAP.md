@@ -8,17 +8,17 @@ P6 IEEE 1584 permanece `DEFERRED` y no forma parte de este cierre.
 
 | Subhito | Estado | Objetivo |
 | --- | --- | --- |
-| P8F1 | IN PROGRESS | exponer una única entrada MCP para ejecutar el piloto real y generar su dossier P8E2 |
-| P8F2 | PENDING | integridad del dossier: inventario/hash de artefactos y verificación cruzada antes de promover `DOSSIER_READY` |
+| P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` delegando en la misma cadena P8E2 |
+| P8F2 | IN PROGRESS | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
 | P8F3 | PENDING | repetición/aislamiento: segunda ejecución limpia, sin contaminación de estado ni sobrescritura silenciosa |
 | P8F4 | PENDING | first-use operacional: ejemplo de manifiesto real, contrato de errores y smoke test desde el servidor MCP |
 | P8F5 | PENDING | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
 
 ## P8F1 — entrypoint MCP integral
 
-La admisión P8B ya estaba expuesta como tool MCP, pero P8E2 solo existía como orquestador Python. P8F1 cierra esa brecha sin crear una ruta de cálculo paralela.
+La admisión P8B ya estaba expuesta como tool MCP, pero P8E2 solo existía como orquestador Python. P8F1 cerró esa brecha sin crear una ruta de cálculo paralela.
 
-La nueva entrada pública es:
+La entrada pública es:
 
 ```text
 generar_dossier_piloto_real(manifest, directorio_salida)
@@ -36,7 +36,47 @@ manifest
 
 P8F1 no importa ni invoca directamente OpenDSS, pandapower, `calc_sc`, flujo, capacidad de corte ni clearing time. La tool delega únicamente en `real_project_dossier.generar_dossier()`.
 
-Se conservan cerradas estas políticas:
+## P8F2 — integridad del dossier
+
+P8F2 añade `dossier_integrity.json` como último artefacto del paquete. P8E2 solo puede devolver:
+
+```text
+DOSSIER_READY_ENGINEERING_PREVIEW
+```
+
+cuando el índice se construyó y `verificar_integridad_dossier_real()` devuelve:
+
+```text
+DOSSIER_INTEGRITY_VERIFIED
+```
+
+El índice usa SHA-256 y rutas relativas. Inventaría el conjunto exacto de archivos del dossier, incluidos los archivos de los directorios `p7a_netlist` y `p7b_reconstructed`.
+
+Verifica:
+
+- presencia de los artefactos obligatorios;
+- conjunto exacto de archivos, sin extras silenciosos;
+- tamaño y SHA-256 de cada archivo;
+- hash canónico del payload del propio índice;
+- rutas relativas seguras, sin `..` ni rutas absolutas;
+- ausencia de symlinks, para que los bytes verificados residan dentro del paquete;
+- contexto trazable a manifest, revisión de modelo, P8D2, P7A y P7C.
+
+El índice raíz no se incluye a sí mismo (`self_hash_included=false`) para evitar una referencia hash circular. Un archivo anidado que casualmente se llame `dossier_integrity.json` sí se considera parte del paquete y debe estar indexado.
+
+### Frontera de seguridad
+
+P8F2 proporciona **integridad respecto del índice congelado**, no autenticidad del autor. SHA-256 por sí solo no sustituye una firma digital, certificado, sello de tiempo confiable ni gate de emisión profesional. Un actor capaz de reemplazar simultáneamente archivos e índice puede construir un nuevo paquete autoconsistente.
+
+Por tanto:
+
+```text
+professional_emission = false
+```
+
+permanece cerrado.
+
+## Políticas invariantes
 
 ```text
 automatic_defaults = false
@@ -45,8 +85,6 @@ automatic_fault_binding = false
 crosscheck = false
 professional_emission = false
 ```
-
-El éxito sigue siendo `DOSSIER_READY_ENGINEERING_PREVIEW`; no equivale a emisión profesional.
 
 ## Fricciones reales que P8F debe endurecer
 
