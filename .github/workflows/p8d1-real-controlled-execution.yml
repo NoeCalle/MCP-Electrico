@@ -16,8 +16,18 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Run P8D1 core tests
-        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py tests/test_p8c5_integrated_readiness.py
+      - name: Core 10 execute P1 P3 P4 with P5 pending
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_executes_p1_p3_p4_and_leaves_p5_explicitly_pending
+      - name: Core 20 execute without P5 and route P8E
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_without_p5_finishes_and_routes_to_p8e
+      - name: Core 30 readiness blocker prevents studies
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_readiness_blocker_prevents_all_studies
+      - name: Core 40 multiple fault buses no silent selection
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_multiple_fault_buses_executes_all_without_selecting_one_for_workspace
+      - name: Core 50 repeated execution rebuilds cleanly
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py::test_p8d1_rebuilds_cleanly_on_repeated_execution
+      - name: P8C5 integrated readiness regression
+        run: python -m pytest -q tests/test_p8c5_integrated_readiness.py
       - name: R1 00 readiness baseline
         run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_00_readiness_baseline
       - name: R1 10 after P1 power flow
