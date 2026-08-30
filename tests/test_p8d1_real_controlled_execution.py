@@ -232,6 +232,10 @@ def test_p8d1_without_p5_finishes_and_routes_to_p8e():
 
 
 def test_p8d1_readiness_blocker_prevents_all_studies():
+    seeded = real_controlled_execution.ejecutar_controlado(_manifest(["POWER_FLOW"]))
+    assert seeded["execution_status"] == "CONTROLLED_EXECUTION_COMPLETED"
+    assert workspace_state.status()["studies"]
+
     manifest = _manifest()
     manifest["source"]["frequency_hz"] = None
 
@@ -243,6 +247,8 @@ def test_p8d1_readiness_blocker_prevents_all_studies():
     assert result["ampacity_calculation_performed"] is False
     assert result["short_circuit_calculation_performed"] is False
     assert result["protection_calculation_performed"] is False
+    assert result["automatic_fault_binding"] is False
+    assert result["workspace_studies"] == []
     assert result["next_gate"] == "P8C5_READINESS_REPAIR"
     assert workspace_state.status()["studies"] == {}
 
