@@ -1,0 +1,36 @@
+name: p8f2-dossier-integrity
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8f2-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8F2 integrity tests
+        run: python -m pytest -q tests/test_p8f2_dossier_integrity.py
+      - name: Run P8E2 dossier regression
+        run: python -m pytest -q tests/test_p8e2_real_project_dossier.py
+      - name: Run P8F1 MCP entrypoint regression
+        run: python -m pytest -q tests/test_p8f1_real_pilot_mcp_entrypoint.py
+      - name: Verify P8F2 public boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import dossier_integrity, real_project_dossier_tools
+          contract = real_project_dossier_tools.obtener_contrato_p8f2()
+          assert contract["integrity_schema"] == dossier_integrity.SCHEMA
+          assert contract["success_status"] == "DOSSIER_INTEGRITY_VERIFIED"
+          assert contract["exact_file_set_required"] is True
+          assert contract["portable_relative_paths"] is True
+          assert contract["professional_emission"] is False
+          print("P8F2 dossier integrity boundary PASS")
+          PY
