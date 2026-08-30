@@ -1,0 +1,37 @@
+name: p8f1-real-pilot-mcp-entrypoint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8f1-entrypoint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8F1 MCP entrypoint tests
+        run: python -m pytest -q tests/test_p8f1_real_pilot_mcp_entrypoint.py
+      - name: Run P8E2 dossier regression
+        run: python -m pytest -q tests/test_p8e2_real_project_dossier.py
+      - name: Run P8D2 protection regression
+        run: python -m pytest -q tests/test_p8d2_real_protection_execution.py
+      - name: Verify public boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_project_dossier_tools
+          contract = real_project_dossier_tools.obtener_contrato_p8f1()
+          assert contract["entrypoint"] == "generar_dossier_piloto_real"
+          assert contract["automatic_defaults"] is False
+          assert contract["automatic_dispatch"] is False
+          assert contract["automatic_fault_binding"] is False
+          assert contract["crosscheck"] is False
+          assert contract["professional_emission"] is False
+          print("P8F1 controlled MCP entrypoint PASS")
+          PY
