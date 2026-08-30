@@ -1,0 +1,38 @@
+name: p8e1-real-workspace-v5
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8e1-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: P8E1 10 render integrated P8D2 result
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_renderiza_binding_p4_p5_y_resultado_integrado_vigente
+      - name: P8E1 20 stale and revision gate
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_no_promueve_resultado_p8d2_obsoleto_o_revision_inconsistente
+      - name: P8E1 30 idempotency
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_es_idempotente_y_no_duplica_resultado_integrado
+      - name: P8E1 40 no browser engineering
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_no_agrega_javascript_ni_recalcula_ingenieria
+      - name: Workspace P5 regression
+        run: python -m pytest -q tests/test_workspace_p5.py
+      - name: P8D2 regression
+        run: python -m pytest -q tests/test_p8d2_real_protection_execution.py
+      - name: Verify P8E1 visual boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import workspace_p8d2_view
+          assert workspace_p8d2_view.STUDY_KEY == "protection_tcc"
+          assert workspace_p8d2_view.EXPECTED_SCHEMA == "MCP_ELECTRICO_P8D2_PROTECTION_RESULTS_V1"
+          print("P8E1 read-only Workspace V5 boundary PASS")
+          PY
