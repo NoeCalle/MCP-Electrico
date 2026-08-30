@@ -16,8 +16,24 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Run P8D1 focused tests
-        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py tests/test_p8d1_runtime_state_integrity.py tests/test_p8c5_integrated_readiness.py
+      - name: Run P8D1 core tests
+        run: python -m pytest -q tests/test_p8d1_real_controlled_execution.py tests/test_p8c5_integrated_readiness.py
+      - name: R1 00 readiness baseline
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_00_readiness_baseline
+      - name: R1 10 after P1 power flow
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_10_after_p1_power_flow
+      - name: R1 20 after P1 voltage drop
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_20_after_p1_voltage_drop
+      - name: R1 30 after P3 ampacity
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_30_after_p3_ampacity
+      - name: R1 40 after P4 3ph MAX
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_40_after_p4_3ph_max
+      - name: R1 50 after P4 3ph MIN
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_50_after_p4_3ph_min
+      - name: R1 60 after P4 1ph-ground MAX
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_60_after_p4_1ph_ground_max
+      - name: R1 70 after P4 1ph-ground MIN
+        run: python -m pytest -q tests/test_p8d1_runtime_state_integrity.py::test_runtime_r1_70_after_p4_1ph_ground_min
       - name: Verify P8D1 execution boundary
         run: |
           python - <<'PY'
