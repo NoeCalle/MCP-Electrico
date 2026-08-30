@@ -28,6 +28,9 @@ def test_p8f1_contract_keeps_all_automatic_behaviour_closed():
     assert contract["entrypoint"] == "generar_dossier_piloto_real"
     assert contract["orchestrator_schema"] == "MCP_ELECTRICO_P8E2_REAL_PROJECT_DOSSIER_V1"
     assert contract["success_status"] == "DOSSIER_READY_ENGINEERING_PREVIEW"
+    assert contract["integrity_required_before_success"] is True
+    assert contract["integrity_schema"] == "MCP_ELECTRICO_P8F2_DOSSIER_INTEGRITY_V1"
+    assert contract["integrity_verifier"] == "verificar_integridad_dossier_real"
     assert contract["automatic_defaults"] is False
     assert contract["automatic_dispatch"] is False
     assert contract["automatic_fault_binding"] is False
@@ -42,7 +45,9 @@ def test_p8_registry_exposes_admission_contract_and_integral_dossier(monkeypatch
     assert "obtener_contrato_p8b_admision_real" in mcp.tools
     assert "evaluar_admision_piloto_real" in mcp.tools
     assert "obtener_contrato_p8f1_piloto_real" in mcp.tools
+    assert "obtener_contrato_p8f2_integridad_dossier" in mcp.tools
     assert "generar_dossier_piloto_real" in mcp.tools
+    assert "verificar_integridad_dossier_real" in mcp.tools
 
     calls = []
 
@@ -70,12 +75,14 @@ def test_p8_registry_exposes_admission_contract_and_integral_dossier(monkeypatch
     assert result["professional_emission"] is False
 
 
-def test_professional_registry_reaches_p8f1_entrypoint():
+def test_professional_registry_reaches_p8f1_entrypoint_and_p8f2_verifier():
     mcp = FakeMCP()
     professional_tools.register(mcp)
 
     assert "generar_dossier_piloto_real" in mcp.tools
     assert "obtener_contrato_p8f1_piloto_real" in mcp.tools
+    assert "obtener_contrato_p8f2_integridad_dossier" in mcp.tools
+    assert "verificar_integridad_dossier_real" in mcp.tools
 
 
 def test_p8f1_registry_has_no_direct_engine_or_study_calculation_route():
