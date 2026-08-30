@@ -40,8 +40,8 @@ P7A snapshot + P7B reconstrucción + P7C reporte
 | P8C5 | DONE | readiness integral P1/P3/P4/P5 sin ejecutar estudios |
 | P8C5A | DONE | `PROJECT_DATA → P2_PROJECT` y etiqueta visual `PROYECTO P2` |
 | P8D1 | DONE | ejecución controlada real P1/P3/P4; P5 queda pendiente con binding explícito |
-| P8D2 | NEXT | binding explícito dispositivo → falla P4 + ejecución P5 |
-| P8E | PENDING | Workspace V5 + snapshot/reconstrucción/reporte del caso real |
+| P8D2 | DONE | binding explícito dispositivo → resultado P4 + capacidad de corte/TCC/clearing P5 |
+| P8E | NEXT | Workspace V5 + snapshot/reconstrucción/reporte del caso real |
 | P8F | PENDING | hardening derivado de fricciones del piloto |
 
 P6 IEEE 1584 permanece `DEFERRED` y no bloquea este recorrido.
@@ -166,27 +166,44 @@ Un manifiesto nuevo que queda bloqueado por readiness invalida los estudios visi
 
 P5 queda deliberadamente fuera de P8D1. Tener dispositivo y TCC materializados no basta para saber qué corriente de P4 debe alimentar cada chequeo.
 
-## P8D2 — siguiente gate: binding P4 → P5
+## P8D2 — binding P4 → P5 cerrado
 
-P8D2 debe declarar por dispositivo, como mínimo:
+P8D2 declara por dispositivo:
 
 - `device_id`;
 - `fault_bus`;
 - `fault_type` (`3ph` o `1ph-ground`);
 - `case` (`max` o `min`);
-- la magnitud de corriente consumida del resultado P4 (`ikss_ka`);
-- procedencia y revisión/modelo del resultado P4.
+- `current_quantity=ikss_ka`;
+- `operating_voltage_kv` explícita;
+- `source_reference` del binding;
+- `thermal_check` opcional, únicamente con sección, coeficiente `k` y procedencias explícitas.
 
-El binding debe fallar cerrado si falta un dato, si la barra no fue ejecutada en P4, si el tipo/caso no coincide con el resultado seleccionado o si existen varias alternativas sin selección explícita.
+El binding falla cerrado si falta un dato, si la barra no fue ejecutada en P4, si tipo/caso no coinciden con el resultado seleccionado, si la magnitud no es `ikss_ka`, si la tensión explícita contradice el `vn_kv` disponible o si existen alternativas sin una selección inequívoca.
 
-P8D2 debe reutilizar el resultado P4 ya ejecutado; no debe relanzar silenciosamente otro escenario de cortocircuito. Con binding válido podrá evaluar capacidad de corte y, cuando el dataset numérico sea `TOTAL_CLEARING_TIME` y la corriente esté dentro de dominio, promover clearing time para los chequeos P5 soportados.
+P8D2 ejecuta P1/P3/P4 una sola vez mediante la corrida controlada P8D1 y luego **reutiliza esos payloads P4 dentro de P5**. No relanza otro escenario de cortocircuito dentro de P5 (`p4_recalculation_inside_p5=false`).
 
-Se conserva la separación semántica:
+Con binding válido:
 
-- breaker: Icu para capacidad de corte; Ics/Icw solo como ratings distintos y no sustitutos;
-- fuse: `breaking_capacity_ka`;
-- TCC: solo dataset numérico real;
-- sin `automatic_fault_binding`.
+- breaker: `protection_checks.evaluar_capacidad_corte()` usa únicamente Icu; Ics/Icw permanecen visibles y no intervienen en el PASS de capacidad de corte;
+- fuse: se usa únicamente `breaking_capacity_ka`;
+- TCC: el dataset numérico materializado se evalúa a la corriente `Ik''` ligada;
+- clearing time: solo `TOTAL_CLEARING_TIME` dentro de dominio se promueve mediante P5D;
+- chequeo térmico: solo se ejecuta cuando el binding trae sección, `k` y fuentes explícitas; usa el `conservative_time_s` promovido por P5D.
+
+Si la TCC está fuera de dominio o su semántica no permite clearing time, la ejecución queda parcial y **no se promociona `protection_tcc` a Workspace**. Un estudio P5 se registra solo cuando todos los dispositivos tienen clearing time numérico realmente listo.
+
+P8D2 conserva:
+
+```text
+automatic_dispatch = false
+automatic_fault_binding = false
+p4_recalculation_inside_p5 = false
+crosscheck = false
+professional_emission = false
+```
+
+La siguiente frontera es P8E: presentar esta cadena real en Workspace V5 y producir el dossier reproducible P7A/P7B/P7C sin recalcular ingeniería en JavaScript.
 
 ## Gate visual del piloto real
 
@@ -203,7 +220,7 @@ Antes de mostrar el primer resultado real se conservan estas reglas:
 7. ningún panel JavaScript recalcula ingeniería;
 8. cada resultado debe pertenecer a la revisión vigente del modelo.
 
-`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION` y `CONTROLLED_EXECUTION_COMPLETED` son estados distintos y no se sustituyen entre sí.
+`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED` y `PROTECTION_EXECUTION_COMPLETED` son estados distintos y no se sustituyen entre sí.
 
 ```text
 automatic_defaults = false
