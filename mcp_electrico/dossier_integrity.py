@@ -1,8 +1,9 @@
 """P8F2 — integridad portable del dossier real P8E2.
 
 El índice cubre por SHA-256 todos los archivos del dossier salvo el propio
-índice. No contiene rutas absolutas ni timestamps; puede verificarse después de
-copiar el directorio completo a otra ubicación.
+índice raíz. No contiene rutas absolutas ni timestamps; puede verificarse
+después de copiar el directorio completo a otra ubicación. Los symlinks se
+rechazan para impedir que el inventario siga contenido fuera del dossier.
 """
 
 from __future__ import annotations
@@ -58,18 +59,33 @@ def _file_sha256(path: Path) -> str:
 
 
 def _relative_files(root: Path) -> list[Path]:
+    root_index = root / INDEX_NAME
     return sorted(
         (
             path
             for path in root.rglob("*")
-            if path.is_file() and path.name != INDEX_NAME
+            if path.is_file() and path != root_index
         ),
         key=lambda path: path.relative_to(root).as_posix(),
     )
 
 
+def _symlink_issues(root: Path) -> list[dict[str, Any]]:
+    issues = []
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            issues.append(
+                {
+                    "code": "P8F2S004",
+                    "path": path.relative_to(root).as_posix(),
+                    "message": "El dossier no admite symlinks; todos los bytes deben residir dentro del paquete.",
+                }
+            )
+    return issues
+
+
 def _validate_required_structure(root: Path) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
+    issues: list[dict[str, Any]] = _symlink_issues(root)
     for name in REQUIRED_TOP_LEVEL:
         path = root / name
         if not path.is_file():
@@ -79,8 +95,8 @@ def _validate_required_structure(root: Path) -> list[dict[str, Any]]:
         if not path.is_dir():
             issues.append({"code": "P8F2S002", "path": name, "message": "Falta directorio obligatorio del dossier."})
             continue
-        if not any(item.is_file() for item in path.rglob("*")):
-            issues.append({"code": "P8F2S003", "path": name, "message": "El directorio obligatorio no contiene archivos."})
+        if not any(item.is_file() for item in path.rglob("*") if not item.is_symlink()):
+            issues.append({"code": "P8F2S003", "path": name, "message": "El directorio obligatorio no contiene archivos propios."})
     return issues
 
 
@@ -95,7 +111,7 @@ def construir_indice(
 
     structure_issues = _validate_required_structure(root)
     if structure_issues:
-        raise ValueError(f"P8F2I002: estructura de dossier incompleta: {structure_issues}")
+        raise ValueError(f"P8F2I002: estructura de dossier incompleta o insegura: {structure_issues}")
 
     files = _relative_files(root)
     records = []
@@ -114,6 +130,7 @@ def construir_indice(
         "hash_algorithm": "sha256",
         "portable_relative_paths": True,
         "self_hash_included": False,
+        "symlinks_allowed": False,
         "required_top_level": list(REQUIRED_TOP_LEVEL),
         "required_directories": list(REQUIRED_DIRECTORIES),
         "file_count": len(records),
@@ -202,6 +219,9 @@ def verificar_indice(ruta_indice: str | Path) -> dict[str, Any]:
             continue
         declared_paths.add(relative)
         path = root / rel_path
+        if path.is_symlink():
+            issues.append({"code": "P8F2V015", "path": relative, "message": "Archivo indexado convertido en symlink."})
+            continue
         if not path.is_file():
             issues.append({"code": "P8F2V010", "path": relative, "message": "Archivo indexado ausente."})
             continue
@@ -236,5 +256,6 @@ def verificar_indice(ruta_indice: str | Path) -> dict[str, Any]:
         "verified_file_count": len(declared_paths),
         "issues": issues,
         "portable_relative_paths": True,
+        "symlinks_allowed": False,
         "professional_emission": False,
     }
