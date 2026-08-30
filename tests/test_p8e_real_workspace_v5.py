@@ -3,9 +3,13 @@ from mcp_electrico import workspace_p5_view, workspace_p8d2_view
 
 def _base_html() -> str:
     return '''<!doctype html><html><head><style></style></head><body>
-<div class="tabs"><button type="button" class="tab" data-tab="cortocircuito">Cortocircuito</button></div>
-<div class="workspace-content"><section class="panel" id="panel-cortocircuito"></section></div>
-<aside class="inspector"><select id="elementSelect"><option value="Line.feeder">Feeder</option></select></aside>
+<div class="tabs">
+  <button type="button" class="tab" data-tab="cortocircuito">Cortocircuito</button>
+</div>
+<div class="workspace-content">
+  <section class="panel" id="panel-cortocircuito"></section>
+  </div>
+  <aside class="inspector"><select id="elementSelect"><option value="Line.feeder">Feeder</option></select></aside>
 </body></html>'''
 
 
