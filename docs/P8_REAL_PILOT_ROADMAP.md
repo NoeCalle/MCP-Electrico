@@ -39,7 +39,8 @@ P7A snapshot + P7B reconstrucción + P7C reporte
 | P8C4B | DONE | dispositivos P5 + curva + dataset TCC numérico real |
 | P8C5 | DONE | readiness integral P1/P3/P4/P5 sin ejecutar estudios |
 | P8C5A | DONE | `PROJECT_DATA → P2_PROJECT` y etiqueta visual `PROYECTO P2` |
-| P8D | NEXT | primera ejecución controlada del proyecto real |
+| P8D1 | DONE | ejecución controlada real P1/P3/P4; P5 queda pendiente con binding explícito |
+| P8D2 | NEXT | binding explícito dispositivo → falla P4 + ejecución P5 |
 | P8E | PENDING | Workspace V5 + snapshot/reconstrucción/reporte del caso real |
 | P8F | PENDING | hardening derivado de fricciones del piloto |
 
@@ -147,6 +148,46 @@ next_gate = P8D_CONTROLLED_EXECUTION
 
 Esto sigue siendo readiness: no ejecuta Solve, `ampacity.evaluar`, `calc_sc`, evaluación TCC, capacidad de corte, I²t, clearing time ni coordinación.
 
+## P8D1 — primera ejecución controlada real
+
+P8D1 consume el readiness P8C5 y ejecuta una secuencia fija, explícita y trazable:
+
+1. `POWER_FLOW` — OpenDSS;
+2. `VOLTAGE_DROP` — OpenDSS;
+3. `AMPACITY` — P3 MCP;
+4. `IEC60909_3PH_MAX_MIN` — pandapower explícito;
+5. `IEC60909_1PH_GROUND_MAX_MIN` — pandapower explícito con Z0.
+
+No existe selección automática de motor, target de falla, cross-check ni emisión profesional. Si hay varias barras de cortocircuito, todas se ejecutan y Workspace conserva el agregado; no se elige una silenciosamente.
+
+La regresión P8D1 verifica además que `Line.R1` de OpenDSS permanece invariante desde readiness hasta 3F MAX/MIN y 1F-T MAX/MIN. El diagnóstico del piloto descartó una mutación térmica de `Line.R1`.
+
+Un manifiesto nuevo que queda bloqueado por readiness invalida los estudios visibles de la ejecución anterior en Workspace. Esto evita que un resultado previo pueda parecer perteneciente al intento bloqueado, sin reconstruir ni modificar el modelo OpenDSS activo.
+
+P5 queda deliberadamente fuera de P8D1. Tener dispositivo y TCC materializados no basta para saber qué corriente de P4 debe alimentar cada chequeo.
+
+## P8D2 — siguiente gate: binding P4 → P5
+
+P8D2 debe declarar por dispositivo, como mínimo:
+
+- `device_id`;
+- `fault_bus`;
+- `fault_type` (`3ph` o `1ph-ground`);
+- `case` (`max` o `min`);
+- la magnitud de corriente consumida del resultado P4 (`ikss_ka`);
+- procedencia y revisión/modelo del resultado P4.
+
+El binding debe fallar cerrado si falta un dato, si la barra no fue ejecutada en P4, si el tipo/caso no coincide con el resultado seleccionado o si existen varias alternativas sin selección explícita.
+
+P8D2 debe reutilizar el resultado P4 ya ejecutado; no debe relanzar silenciosamente otro escenario de cortocircuito. Con binding válido podrá evaluar capacidad de corte y, cuando el dataset numérico sea `TOTAL_CLEARING_TIME` y la corriente esté dentro de dominio, promover clearing time para los chequeos P5 soportados.
+
+Se conserva la separación semántica:
+
+- breaker: Icu para capacidad de corte; Ics/Icw solo como ratings distintos y no sustitutos;
+- fuse: `breaking_capacity_ka`;
+- TCC: solo dataset numérico real;
+- sin `automatic_fault_binding`.
+
 ## Gate visual del piloto real
 
 La ruta visual sigue siendo **Workspace V5**. No se crea una interfaz paralela para P8.
@@ -162,17 +203,12 @@ Antes de mostrar el primer resultado real se conservan estas reglas:
 7. ningún panel JavaScript recalcula ingeniería;
 8. cada resultado debe pertenecer a la revisión vigente del modelo.
 
-## P8D — siguiente gate
-
-P8D es la primera fase que puede ejecutar estudios sobre el manifiesto real. Debe consumir el readiness P8C5 ya verde y ejecutar de forma explícita, secuencial y trazable solo los scopes solicitados.
-
-La ejecución no habilita dispatch automático ni cross-check. Cada resultado debe registrar motor, escenario, revisión/model hash y procedencia antes de entrar a Workspace/P7.
-
-`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED` y `READY_FOR_CONTROLLED_EXECUTION` son estados distintos y no se sustituyen entre sí.
+`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION` y `CONTROLLED_EXECUTION_COMPLETED` son estados distintos y no se sustituyen entre sí.
 
 ```text
 automatic_defaults = false
 automatic_dispatch = false
+automatic_fault_binding = false
 crosscheck = false
 professional_emission = false
 ```
