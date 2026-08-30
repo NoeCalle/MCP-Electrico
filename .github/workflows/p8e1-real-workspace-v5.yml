@@ -16,8 +16,18 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
-      - name: Run P8E1 focused tests
-        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py tests/test_workspace_p5.py tests/test_p8d2_real_protection_execution.py
+      - name: P8E1 10 render integrated P8D2 result
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_renderiza_binding_p4_p5_y_resultado_integrado_vigente
+      - name: P8E1 20 stale and revision gate
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_no_promueve_resultado_p8d2_obsoleto_o_revision_inconsistente
+      - name: P8E1 30 idempotency
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_es_idempotente_y_no_duplica_resultado_integrado
+      - name: P8E1 40 no browser engineering
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py::test_p8e1_no_agrega_javascript_ni_recalcula_ingenieria
+      - name: Workspace P5 regression
+        run: python -m pytest -q tests/test_workspace_p5.py
+      - name: P8D2 regression
+        run: python -m pytest -q tests/test_p8d2_real_protection_execution.py
       - name: Verify P8E1 visual boundary
         run: |
           python - <<'PY'
