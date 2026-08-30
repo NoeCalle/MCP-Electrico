@@ -19,6 +19,7 @@ from . import (
     protection_tcc_tools,
     protection_tools,
     real_pilot_intake_tools,
+    real_project_tools,
     runtime_safety,
     validation_status,
     zero_sequence,
@@ -279,3 +280,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     project_reconstruction_tools.register(mcp)
     project_report_tools.register(mcp)
     real_pilot_intake_tools.register(mcp)
+    real_project_tools.register(mcp)
