@@ -54,11 +54,13 @@ def test_p8f2_ready_requires_verified_exact_artifact_index(pristine_dossier):
     assert index["payload"]["context"]["manifest_sha256"] == result["manifest_sha256"]
     assert index["payload"]["context"]["p7a_payload_sha256"] == result["p7a"]["sha256"]
     assert index["payload"]["context"]["p7c_report_sha256"] == result["p7c"]["report_sha256"]
+    assert index["payload"]["symlinks_allowed"] is False
     assert "dossier_integrity.json" not in {item["path"] for item in index["payload"]["files"]}
 
     verification = dossier_integrity.verificar_indice(index_path)
     assert verification["ok"] is True
     assert verification["status"] == "DOSSIER_INTEGRITY_VERIFIED"
+    assert verification["symlinks_allowed"] is False
     assert verification["issues"] == []
 
 
@@ -102,6 +104,38 @@ def test_p8f2_detects_unindexed_extra_file(pristine_dossier, tmp_path):
     assert verification["ok"] is False
     issue = next(item for item in verification["issues"] if item["code"] == "P8F2V013")
     assert "untracked_note.txt" in issue["unindexed_files"]
+
+
+def test_p8f2_nested_file_named_like_index_is_not_silently_ignored(pristine_dossier, tmp_path):
+    root, _result = pristine_dossier
+    copied = tmp_path / "nested-index-name"
+    shutil.copytree(root, copied)
+    nested = copied / "p7a_netlist" / "dossier_integrity.json"
+    nested.write_text("nested extra bytes", encoding="utf-8")
+
+    verification = dossier_integrity.verificar_indice(copied / "dossier_integrity.json")
+
+    assert verification["ok"] is False
+    issue = next(item for item in verification["issues"] if item["code"] == "P8F2V013")
+    assert "p7a_netlist/dossier_integrity.json" in issue["unindexed_files"]
+
+
+def test_p8f2_rejects_symlinks_in_frozen_package(pristine_dossier, tmp_path):
+    root, _result = pristine_dossier
+    copied = tmp_path / "symlinked"
+    shutil.copytree(root, copied)
+    outside = tmp_path / "outside.txt"
+    outside.write_text("external bytes", encoding="utf-8")
+    link = copied / "p7a_netlist" / "external-link.txt"
+    link.symlink_to(outside)
+
+    verification = dossier_integrity.verificar_indice(copied / "dossier_integrity.json")
+
+    assert verification["ok"] is False
+    assert any(
+        issue.get("code") == "P8F2S004" and issue.get("path") == "p7a_netlist/external-link.txt"
+        for issue in verification["issues"]
+    )
 
 
 def test_p8f2_detects_missing_required_artifact(pristine_dossier, tmp_path):
