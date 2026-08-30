@@ -20,6 +20,8 @@ ejecución controlada P1/P3/P4/P5
 Workspace V5
         ↓
 P7A snapshot + P7B reconstrucción + P7C reporte
+        ↓
+P8F hardening + entrada MCP controlada
 ```
 
 `professional_emission=false` durante todo P8 mientras no exista un gate posterior que la habilite legítimamente.
@@ -41,10 +43,14 @@ P7A snapshot + P7B reconstrucción + P7C reporte
 | P8C5A | DONE | `PROJECT_DATA → P2_PROJECT` y etiqueta visual `PROYECTO P2` |
 | P8D1 | DONE | ejecución controlada real P1/P3/P4; P5 queda pendiente con binding explícito |
 | P8D2 | DONE | binding explícito dispositivo → resultado P4 + capacidad de corte/TCC/clearing P5 |
-| P8E | NEXT | Workspace V5 + snapshot/reconstrucción/reporte del caso real |
-| P8F | PENDING | hardening derivado de fricciones del piloto |
+| P8E1 | DONE | Workspace V5 consume el agregado P8D2 vigente sin recalcular ingeniería |
+| P8E2 | DONE | dossier real: Workspace V5 + P7A snapshot + P7B reconstrucción aislada + P7C reporte |
+| P8F1 | IN PROGRESS | entrada MCP única para ejecutar la misma cadena P8E2 desde el servidor |
+| P8F2–P8F5 | PENDING | integridad, repetición, first-use operacional y gate final P8 |
 
 P6 IEEE 1584 permanece `DEFERRED` y no bloquea este recorrido.
+
+El detalle de hardening se mantiene en `docs/P8F_HARDENING_ROADMAP.md`.
 
 ## P8C4A — datos P3 reales
 
@@ -203,13 +209,60 @@ crosscheck = false
 professional_emission = false
 ```
 
-La siguiente frontera es P8E: presentar esta cadena real en Workspace V5 y producir el dossier reproducible P7A/P7B/P7C sin recalcular ingeniería en JavaScript.
+## P8E — presentación y dossier real cerrados
+
+P8E1 integra el resultado agregado `protection_tcc` de P8D2 en el mismo Workspace V5 existente. No crea una segunda interfaz y no recalcula ingeniería en JavaScript.
+
+La vista solo presenta el agregado cuando el estudio está vigente y su `model_revision` coincide. Por dispositivo conserva:
+
+- `fault_bus`;
+- `fault_type`;
+- `case` MAX/MIN;
+- `ikss_ka` realmente consumido;
+- capacidad de corte y margen ya calculados;
+- clearing time promovido por P5D;
+- procedencia P4 y referencia del binding;
+- Icu/Ics/Icw separados para breaker y poder de corte separado para fuse.
+
+P8E2 genera el dossier reproducible del mismo estado calculado:
+
+- `manifest.json`;
+- `execution_p8d2.json`;
+- `workspace_v5.html`;
+- `project_snapshot_p7a.json` con SHA-256 verificable;
+- `reconstruction_p7b.json`;
+- `project_report_p7c.html`;
+- netlist P7A y directorio reconstruido P7B.
+
+P7B se ejecuta en un proceso hijo para demostrar el round-trip canónico sin destruir o rebindear el circuito, P2/P3/P5 ni los estudios vigentes del proceso principal. P7C consume el snapshot P7A y no recalcula la ingeniería.
+
+El éxito de P8E2 es:
+
+```text
+DOSSIER_READY_ENGINEERING_PREVIEW
+```
+
+Este estado no equivale a emisión profesional.
+
+## P8F — hardening para uso controlado
+
+P8F no incorpora nuevos estudios eléctricos. Endurece la cadena que ya pasó el piloto y la convierte en una ruta operable desde el servidor MCP.
+
+P8F1 cierra la primera brecha detectada: P8B estaba expuesto como tool MCP, mientras P8E2 solo era invocable como módulo Python. La entrada pública queda:
+
+```text
+generar_dossier_piloto_real(manifest, directorio_salida)
+```
+
+Esta tool no implementa motores ni cálculos propios; delega únicamente en P8E2, por lo que conserva P8D1/P8D2 como fronteras obligatorias.
+
+Los siguientes bloques P8F están definidos en `docs/P8F_HARDENING_ROADMAP.md` y cubren integridad de artefactos, repetición/aislamiento, first-use operacional y gate final de P8.
 
 ## Gate visual del piloto real
 
 La ruta visual sigue siendo **Workspace V5**. No se crea una interfaz paralela para P8.
 
-Antes de mostrar el primer resultado real se conservan estas reglas:
+Se conservan estas reglas:
 
 1. la identidad visual del conductor no puede sobrescribir el binding técnico P2/P3;
 2. un conductor `PROJECT_DATA` se distingue de un producto `CATALOG_DATA`;
@@ -220,7 +273,7 @@ Antes de mostrar el primer resultado real se conservan estas reglas:
 7. ningún panel JavaScript recalcula ingeniería;
 8. cada resultado debe pertenecer a la revisión vigente del modelo.
 
-`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED` y `PROTECTION_EXECUTION_COMPLETED` son estados distintos y no se sustituyen entre sí.
+`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED`, `PROTECTION_EXECUTION_COMPLETED` y `DOSSIER_READY_ENGINEERING_PREVIEW` son estados distintos y no se sustituyen entre sí.
 
 ```text
 automatic_defaults = false
