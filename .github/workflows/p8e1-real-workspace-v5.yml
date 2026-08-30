@@ -1,0 +1,28 @@
+name: p8e1-real-workspace-v5
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8e1-workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8E1 focused tests
+        run: python -m pytest -q tests/test_p8e_real_workspace_v5.py tests/test_workspace_p5.py tests/test_p8d2_real_protection_execution.py
+      - name: Verify P8E1 visual boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import workspace_p8d2_view
+          assert workspace_p8d2_view.STUDY_KEY == "protection_tcc"
+          assert workspace_p8d2_view.EXPECTED_SCHEMA == "MCP_ELECTRICO_P8D2_PROTECTION_RESULTS_V1"
+          print("P8E1 read-only Workspace V5 boundary PASS")
+          PY
