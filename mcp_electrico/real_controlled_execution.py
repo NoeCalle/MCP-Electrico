@@ -113,8 +113,6 @@ def _execute_3ph(manifest: dict[str, Any]) -> dict[str, Any]:
         "automatic_target_selection": False,
         "professional_emission": False,
     }
-    # V4 histórico consume el schema por-bus. Para un único target se conserva
-    # exactamente esa forma; con varios targets no se elige uno silenciosamente.
     if len(targets) == 1:
         workspace_state.record_study(
             "iec60909_3ph", targets[0]["result"], action="p8d1_iec60909_3ph"
@@ -178,6 +176,7 @@ def ejecutar_controlado(manifest: dict[str, Any]) -> dict[str, Any]:
     revision_before = workspace_state.status().get("model_revision")
 
     if readiness.get("readiness_status") != real_integrated_readiness.STATUS_READY:
+        blocked_workspace = workspace_state.reset_for_circuit("p8d1_readiness_blocked")
         return {
             "schema": SCHEMA,
             "execution_status": STATUS_BLOCKED,
@@ -186,13 +185,14 @@ def ejecutar_controlado(manifest: dict[str, Any]) -> dict[str, Any]:
             "pending_scopes": requested,
             "readiness": readiness,
             "results": {},
-            "model_revision": revision_before,
+            "model_revision": blocked_workspace.get("model_revision"),
             "workspace_studies": [],
             "electrical_calculation_performed": False,
             "ampacity_calculation_performed": False,
             "short_circuit_calculation_performed": False,
             "protection_calculation_performed": False,
             "automatic_dispatch": False,
+            "automatic_fault_binding": False,
             "crosscheck": False,
             "professional_emission": False,
             "next_gate": "P8C5_READINESS_REPAIR",
@@ -201,7 +201,6 @@ def ejecutar_controlado(manifest: dict[str, Any]) -> dict[str, Any]:
     results: dict[str, Any] = {}
     executed: list[str] = []
 
-    # Secuencia deliberadamente fija. No se selecciona motor dinámicamente.
     if POWER_FLOW in requested:
         results[POWER_FLOW] = _execute_power_flow()
         executed.append(POWER_FLOW)
