@@ -9,8 +9,8 @@ P6 IEEE 1584 permanece `DEFERRED` y no forma parte de este cierre.
 | Subhito | Estado | Objetivo |
 | --- | --- | --- |
 | P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` delegando en la misma cadena P8E2 |
-| P8F2 | IN PROGRESS | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
-| P8F3 | PENDING | repetición/aislamiento: segunda ejecución limpia, sin contaminación de estado ni sobrescritura silenciosa |
+| P8F2 | DONE | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
+| P8F3 | NEXT | repetición/aislamiento: segunda ejecución limpia, sin contaminación de estado ni sobrescritura silenciosa |
 | P8F4 | PENDING | first-use operacional: ejemplo de manifiesto real, contrato de errores y smoke test desde el servidor MCP |
 | P8F5 | PENDING | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
 
@@ -75,6 +75,18 @@ professional_emission = false
 ```
 
 permanece cerrado.
+
+## P8F3 — siguiente frontera
+
+P8F3 comprobará el comportamiento operacional al repetir la misma ruta integral. El objetivo no es exigir que todos los bytes entre dos corridas sean idénticos, porque las revisiones de modelo y metadatos de ejecución pueden cambiar legítimamente. El gate será más útil:
+
+- la segunda corrida debe crear un dossier independiente y no sobrescribir el primero;
+- ambos dossiers deben conservar su propio índice P8F2 verificable;
+- el primer dossier debe seguir intacto después de ejecutar el segundo;
+- el proceso principal debe quedar asociado únicamente a la revisión vigente de la corrida más reciente;
+- un segundo intento bloqueado no debe corromper el dossier ya entregado;
+- el mismo manifiesto debe conservar el mismo `manifest_sha256`;
+- no se añadirá ningún tipo de cálculo nuevo.
 
 ## Políticas invariantes
 
