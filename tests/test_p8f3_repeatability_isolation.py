@@ -6,7 +6,23 @@ import runpy
 
 import pytest
 
-from mcp_electrico import dossier_integrity, real_project_dossier, workspace_state
+from mcp_electrico import (
+    dossier_integrity,
+    real_project_dossier,
+    real_project_dossier_tools,
+    workspace_state,
+)
+
+
+class FakeMCP:
+    def __init__(self):
+        self.tools = {}
+
+    def tool(self):
+        def decorator(fn):
+            self.tools[fn.__name__] = fn
+            return fn
+        return decorator
 
 
 def _manifest() -> dict:
@@ -151,6 +167,28 @@ def test_p8f3_blocked_second_attempt_creates_no_new_delivery_and_preserves_first
     # El intento bloqueado es el estado lógico más reciente: P8D2 limpia los
     # estudios visibles previos en vez de aparentar que pertenecen al intento.
     assert workspace_state.status()["studies"] == {}
+
+
+def test_p8f3_public_contract_documents_repeatability_without_new_entrypoint():
+    contract = real_project_dossier_tools.obtener_contrato_p8f3()
+    assert contract["schema"] == "MCP_ELECTRICO_P8F3_REPEATABILITY_CONTRACT_V1"
+    assert contract["entrypoint"] == "generar_dossier_piloto_real"
+    assert contract["output_collision_policy"] == "SUFFIX_INCREMENT"
+    assert contract["first_collision_suffix"] == "_2"
+    assert contract["silent_overwrite"] is False
+    assert contract["blocked_execution_creates_delivery_directory"] is False
+    assert contract["prior_delivery_mutation_allowed"] is False
+    assert contract["each_success_requires_independent_integrity_verification"] is True
+    assert contract["same_manifest_same_manifest_sha256"] is True
+    assert contract["same_manifest_requires_same_p7a_sha256"] is False
+    assert contract["new_calculation_types_added"] is False
+    assert contract["professional_emission"] is False
+
+    mcp = FakeMCP()
+    real_project_dossier_tools.register(mcp)
+    assert "obtener_contrato_p8f3_repeticion_dossier" in mcp.tools
+    assert "generar_dossier_piloto_real" in mcp.tools
+    assert not any(name.startswith("generar_dossier_p8f3") for name in mcp.tools)
 
 
 def test_p8f3_keeps_automatic_behaviour_closed(repeated_success):
