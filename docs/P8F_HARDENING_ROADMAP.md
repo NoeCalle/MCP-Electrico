@@ -1,74 +1,72 @@
 # P8F — Hardening posterior al primer piloto real
 
-P8A–P8E demostraron la cadena integral del primer proyecto real. P8F no amplía tipos de cálculo: convierte esa cadena ya demostrada en una ruta de uso controlada, repetible y operable desde MCP Eléctrico 0.9 Engineering Preview.
+P8A–P8E demostraron la cadena integral del piloto. P8F no añadió tipos de cálculo: convirtió esa cadena en una ruta pública, íntegra, repetible y operable desde MCP Eléctrico 0.9 Engineering Preview.
 
-P6 IEEE 1584 permanece `DEFERRED` y no forma parte de este cierre.
+P6 IEEE 1584 permanece `DEFERRED` y no bloquea este cierre.
 
-## Estado
+## Estado final
 
-| Subhito | Estado | Objetivo |
+| Subhito | Estado | Resultado |
 | --- | --- | --- |
-| P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` delegando en la misma cadena P8E2 |
-| P8F2 | DONE | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
-| P8F3 | DONE | repetición/aislamiento: entregas independientes, collision-safe y sin sobrescritura silenciosa |
-| P8F4 | DONE | first-use por MCP stdio real: ejemplo, contrato de errores y smoke `server.py` end-to-end |
-| P8F5 | NEXT | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
+| P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` sobre la misma cadena P8E2 |
+| P8F2 | DONE | `dossier_integrity.json`, SHA-256 portable y conjunto exacto antes de `DOSSIER_READY` |
+| P8F3 | DONE | repetición collision-safe, entregas independientes y sin sobrescritura silenciosa |
+| P8F4 | DONE | first-use por MCP stdio real contra `server.py`, con ejemplo y contrato de errores |
+| P8F5 | DONE | gate ejecutable para iniciar uso real controlado + checklist de datos/procedencias |
 
-## P8F1 — entrypoint MCP integral
+```text
+P8F = CLOSED
+next_activity = FIRST_CONTROLLED_REAL_PROJECT
+allowed_use = CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW
+professional_emission = false
+```
 
-La admisión P8B ya estaba expuesta como tool MCP, pero P8E2 solo existía como orquestador Python. P8F1 cerró esa brecha sin crear una ruta de cálculo paralela.
+## P8F1 — entrypoint público único
 
-La entrada pública es:
+La ruta de ejecución real es:
 
 ```text
 generar_dossier_piloto_real(manifest, directorio_salida)
 ```
 
-Su contrato obliga a reutilizar la cadena existente:
+No implementa una segunda ingeniería. Delega en P8E2 y conserva P8D1/P8D2 como fronteras obligatorias.
 
 ```text
 manifest
-  → P8D1: P8B/P8C readiness + P1/P3/P4
-  → P8D2: binding explícito P4→P5 + TCC/clearing
-  → P8E1: Workspace V5
-  → P8E2: P7A snapshot + P7B reconstrucción + P7C reporte
+  → P8B/P8C readiness
+  → P8D1 P1/P3/P4
+  → P8D2 binding explícito P4→P5 + TCC/clearing
+  → P8E1 Workspace V5
+  → P8E2 P7A/P7B/P7C
 ```
 
-P8F1 no importa ni invoca directamente OpenDSS, pandapower, `calc_sc`, flujo, capacidad de corte ni clearing time. La tool delega únicamente en `real_project_dossier.generar_dossier()`.
+## P8F2 — integridad de entrega
 
-## P8F2 — integridad del dossier
-
-P8F2 añade `dossier_integrity.json` como último artefacto del paquete. P8E2 solo puede devolver:
+P8E2 solo puede promover:
 
 ```text
 DOSSIER_READY_ENGINEERING_PREVIEW
 ```
 
-cuando el índice se construyó y `verificar_integridad_dossier_real()` devuelve:
+si `dossier_integrity.json` verifica:
 
 ```text
 DOSSIER_INTEGRITY_VERIFIED
 ```
 
-El índice usa SHA-256 y rutas relativas. Inventa el conjunto exacto de archivos del dossier, incluidos `p7a_netlist` y `p7b_reconstructed`.
+La verificación cubre:
 
-Verifica:
+- artefactos obligatorios;
+- conjunto exacto de archivos;
+- tamaño + SHA-256 por archivo;
+- netlist P7A y reconstrucción P7B;
+- rutas relativas portables;
+- rechazo de rutas inseguras y symlinks;
+- contexto de manifest, revisión, P8D2, P7A y P7C.
 
-- presencia de los artefactos obligatorios;
-- conjunto exacto de archivos, sin extras silenciosos;
-- tamaño y SHA-256 de cada archivo;
-- hash canónico del payload del propio índice;
-- rutas relativas seguras, sin `..` ni rutas absolutas;
-- ausencia de symlinks;
-- contexto trazable a manifest, revisión de modelo, P8D2, P7A y P7C.
+SHA-256 demuestra integridad respecto del índice congelado, no autoría. No sustituye firma digital, certificado ni emisión profesional.
 
-El índice raíz no se incluye a sí mismo (`self_hash_included=false`) para evitar una referencia hash circular. Un archivo anidado que casualmente se llame `dossier_integrity.json` sí se considera parte del paquete.
-
-P8F2 aporta integridad respecto del índice congelado, no autenticidad del autor. SHA-256 no sustituye firma digital, certificado, sello de tiempo confiable ni gate de emisión profesional.
-
-## P8F3 — repetición y aislamiento cerrados
-
-La política pública es:
+## P8F3 — repetición y aislamiento
 
 ```text
 output_collision_policy = SUFFIX_INCREMENT
@@ -76,39 +74,13 @@ silent_overwrite = false
 blocked_execution_creates_delivery_directory = false
 ```
 
-Cada resultado declara:
+Si `dossier` ya existe, la nueva entrega usa `dossier_2`, luego `_3`, etc. El dossier previo permanece byte-intacto y verificable. Un intento posterior bloqueado no crea una entrega nueva ni modifica la ya congelada.
 
-- `requested_output_directory`;
-- `output_directory` realmente usado;
-- `output_directory_collision_avoided`.
+## P8F4 — first-use por protocolo MCP
 
-Si `real_dossier` ya contiene una entrega, una nueva ejecución exitosa usa `real_dossier_2`, luego `_3`, etc. El dossier anterior no se reabre ni modifica.
+El cliente `examples/p8_first_use_mcp.py` usa el SDK MCP y levanta `server.py` por stdio. No importa `mcp_electrico`, OpenDSS, pandapower ni P8E2.
 
-Las regresiones integrales demuestran que:
-
-- dos ejecuciones exitosas del mismo manifiesto producen dossiers distintos;
-- el primer dossier permanece byte-intacto después de crear el segundo;
-- cada entrega conserva su propio índice P8F2 verificable;
-- el mismo manifiesto conserva el mismo `manifest_sha256`;
-- no se exige que el SHA P7A sea idéntico entre corridas;
-- Workspace queda ligado a la revisión de la ejecución exitosa más reciente;
-- un intento posterior bloqueado no crea una nueva entrega ni altera el dossier válido previo.
-
-`generar_dossier_piloto_real` sigue siendo el único entrypoint de ejecución.
-
-## P8F4 — first-use operacional cerrado
-
-P8F4 demuestra la ruta desde un **cliente MCP externo a la lógica de ingeniería**.
-
-Se añadieron:
-
-- `examples/p8_first_use_manifest.json`: plantilla completa y ejecutable marcada explícitamente como ejemplo;
-- `examples/p8_first_use_mcp.py`: cliente SDK MCP sin imports de `mcp_electrico`, OpenDSS o pandapower;
-- `obtener_contrato_p8f4_primer_uso()`: secuencia pública y contrato fail-closed de errores;
-- `docs/P8F4_FIRST_USE_MCP.md`: guía para sustituir el ejemplo por datos/procedencias del expediente;
-- workflow `p8f4-first-use-operational`: smoke real por stdio.
-
-El smoke levanta `server.py` y descubre/ejecuta por protocolo:
+Secuencia pública probada:
 
 ```text
 evaluar_admision_piloto_real
@@ -118,74 +90,90 @@ generar_dossier_piloto_real
 verificar_integridad_dossier_real
 ```
 
-El gate ya demostró en CI:
+Estados de éxito:
 
 ```text
-intake_status = READY_TO_BUILD_MODEL
-execution_status = DOSSIER_READY_ENGINEERING_PREVIEW
-integrity_status = DOSSIER_INTEGRITY_VERIFIED
+READY_TO_BUILD_MODEL
+DOSSIER_READY_ENGINEERING_PREVIEW
+DOSSIER_INTEGRITY_VERIFIED
 ```
 
-La ejecución completa detrás del servidor conserva P1/P3/P4/P5, Workspace V5 y P7A/P7B/P7C. El cliente no implementa una segunda ruta de cálculo.
+`examples/p8_first_use_manifest.json` es una plantilla ejecutable de demostración. Sus valores `EJEMPLO P8F4` deben sustituirse por datos y procedencias del expediente real.
 
-### Contrato de errores
+Guía: `docs/P8F4_FIRST_USE_MCP.md`.
 
-P8F4 distingue y documenta:
+## P8F5 — gate final de uso real controlado
 
-- `BLOCKED_MISSING_INPUTS`: reparar manifiesto y repetir admisión;
-- `BLOCKED_BY_P8D2_EXECUTION`: reparar entradas/binding explícitos;
-- `DOSSIER_ARTIFACT_GENERATION_FAILED`: no usar el directorio parcial como entrega;
-- `DOSSIER_INTEGRITY_MISMATCH`: restaurar/regenerar desde una fuente controlada.
+La tool:
 
-No existe reparación ni retry automáticos.
+```text
+evaluar_cierre_p8f5_uso_real_controlado()
+```
 
-## P8F5 — siguiente frontera
+comprueba contratos ejecutables, no estados escritos a mano. El gate se rompe si cambia de forma insegura cualquiera de estas fronteras:
 
-P8F5 no añadirá cálculos. Será el gate final de P8 y debe responder una pregunta de producto: **¿está MCP Eléctrico listo para iniciar uso controlado con un expediente real bajo Engineering Preview?**
+1. P7D deja de estar listo como Engineering Preview;
+2. P8B deja de ser admisión read-only/fail-closed;
+3. se abre auto-dispatch, auto fault-binding o cross-check;
+4. P8E2 deja de ser el orquestador del entrypoint público;
+5. P8F2 deja de ser obligatorio antes de READY;
+6. P8F3 permite sobrescritura o mutación de entregas previas;
+7. P8F4 deja de declarar la secuencia pública por MCP stdio;
+8. Workspace V5 deja de ser la ruta visual P8D2 vigente;
+9. P6 entra implícitamente o se abre `professional_emission`.
 
-El cierre debe comprobar al menos:
+Con los contratos actuales devuelve:
 
-- P8A–P8F4 cerrados y documentados;
-- entrypoint público único y smoke MCP stdio verde;
-- P8F2/P8F3 vigentes;
-- Workspace V5 y dossier P7 verificables;
-- lista explícita de datos que el usuario debe aportar antes de una corrida real;
-- límites y módulos experimentales visibles;
-- P6 `DEFERRED` no bloqueante;
-- `professional_emission=false`.
+```text
+phase_status = READY_FOR_CONTROLLED_REAL_PROJECT_USE
+p8_closed = true
+controlled_real_project_use_ready = true
+product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+allowed_use = CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW
+next_activity = FIRST_CONTROLLED_REAL_PROJECT
+```
 
-## Políticas invariantes
+La segunda tool P8F5 es:
+
+```text
+obtener_checklist_p8f5_datos_proyecto_real()
+```
+
+El checklist detallado se mantiene en `docs/P8_CONTROLLED_REAL_USE_CHECKLIST.md`.
+
+## Límites que siguen cerrados
 
 ```text
 automatic_defaults = false
 automatic_dispatch = false
 automatic_fault_binding = false
 crosscheck = false
+professional_report = false
 professional_emission = false
 ```
 
-## Fricciones reales endurecidas por P8F
+Además:
 
-1. un intento bloqueado nunca deja estudios previos aparentando vigencia;
-2. ningún runtime intermedio puede mutar silenciosamente parámetros eléctricos del modelo;
-3. P4→P5 continúa siendo un binding explícito y verificable;
-4. Workspace solo presenta resultados de la revisión vigente;
-5. P7B permanece aislado del proceso principal;
-6. un dossier parcial no se promociona como listo;
-7. los artefactos se verifican por contenido y procedencia;
-8. repetir el flujo no sobrescribe silenciosamente una entrega anterior;
-9. la ruta pública MCP es la misma cadena probada en CI;
-10. el primer uso por protocolo ya no depende de imports internos.
+- OpenDSS sigue siendo el motor por defecto;
+- pandapower se usa explícitamente para IEC 60909 dentro del alcance validado con limitaciones;
+- `iec60909_full_conformance_claim=false`;
+- P6 IEEE 1584 sigue `DEFERRED`;
+- Workspace V5 es visual/read-only respecto de los resultados calculados;
+- la revisión humana de ingeniería sigue siendo obligatoria antes de usar conclusiones en un entregable profesional.
 
-## Criterio de salida de P8F
+## Resultado de P8F
 
-P8F se considerará cerrado cuando P8F5 confirme que un usuario puede entregar un manifiesto real completo al servidor MCP y obtener, mediante una única tool controlada, un resultado Engineering Preview con:
+P8F cerró las fricciones observadas en el piloto:
 
-- ejecución P1/P3/P4/P5 trazable;
-- Workspace V5;
-- dossier P7A/P7B/P7C verificable;
-- artefactos íntegros y no sobrescritos;
-- estado del proceso principal preservado;
-- errores fail-closed legibles;
-- ninguna selección automática de motor, falla, caso o protección;
-- `professional_emission=false`.
+- estado stale fail-closed;
+- mutación silenciosa de parámetros bloqueada por regresiones;
+- binding P4→P5 explícito;
+- Workspace ligado a revisión vigente;
+- P7B aislado;
+- dossier parcial no promovible;
+- integridad verificable;
+- entregas no sobrescritas;
+- ruta MCP pública probada end-to-end;
+- checklist real y gate de uso controlado disponibles como tools.
+
+P8F5 no convierte el producto en una herramienta de emisión profesional. Convierte el piloto en una **ruta de uso real controlado dentro de Engineering Preview**.

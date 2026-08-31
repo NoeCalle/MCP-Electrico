@@ -1,293 +1,363 @@
-# P8 — Subroadmap del primer piloto real
+# P8 — Roadmap del primer piloto real
 
-Este documento descompone la fase P8 del roadmap profesional sin ampliar el alcance declarado de MCP Eléctrico 0.9 Engineering Preview.
+P8 demuestra y endurece la transición de MCP Eléctrico 0.9 desde módulos validados por separado hacia una ruta completa para **uso real controlado bajo Engineering Preview**.
 
-## Regla del piloto
+P8 queda cerrado sin ampliar el alcance profesional declarado. `professional_emission=false` permanece obligatorio.
 
-El objetivo no es hacer más tipos de cálculo. El objetivo es demostrar que un expediente real puede recorrer una cadena reproducible, trazable y fail-closed sin copiar datos sintéticos de P8A ni inventar valores faltantes.
+## Cadena demostrada
 
 ```text
 expediente / SLD / fichas / estudios
         ↓
-P8B admisión de entradas
+P8B admisión fail-closed
         ↓
-P8C reconstrucción y materialización
+P8C materialización + readiness
         ↓
-readiness por estudio
+P8D ejecución controlada P1/P3/P4/P5
         ↓
-ejecución controlada P1/P3/P4/P5
+P8E Workspace V5 + dossier P7A/P7B/P7C
         ↓
-Workspace V5
+P8F entrada MCP + integridad + repetición + first-use + gate final
         ↓
-P7A snapshot + P7B reconstrucción + P7C reporte
-        ↓
-P8F hardening + entrada MCP controlada
+FIRST_CONTROLLED_REAL_PROJECT
 ```
 
-`professional_emission=false` durante todo P8 mientras no exista un gate posterior que la habilite legítimamente.
-
-## Estado de subhitos
+## Estado final de subhitos
 
 | Subhito | Estado | Resultado |
 | --- | --- | --- |
 | P8A | DONE | piloto integral sintético 22.9/0.48 kV |
-| P8B | DONE | intake real, topología construible y gates por scope |
-| P8C1 | DONE | identidad de `source.bus` real hasta OpenDSS/P2 |
-| P8C2 | DONE | contrato Z0 alineado con materialización 1F-T |
-| P8C3A | DONE | pandapower deja de depender de `sourcebus` literal |
-| P8C3B | DONE | `manifest → OpenDSS + P2 + Z0` reproducible, sin estudios |
-| P8C3C | DONE | separación `MODEL_BUILT` vs `STUDY_READY` por scope |
-| P8C4A | DONE | conductor real + Ib/In/Iz base + condiciones/factores P3 |
-| P8C4B | DONE | dispositivos P5 + curva + dataset TCC numérico real |
-| P8C5 | DONE | readiness integral P1/P3/P4/P5 sin ejecutar estudios |
-| P8C5A | DONE | `PROJECT_DATA → P2_PROJECT` y etiqueta visual `PROYECTO P2` |
-| P8D1 | DONE | ejecución controlada real P1/P3/P4; P5 queda pendiente con binding explícito |
-| P8D2 | DONE | binding explícito dispositivo → resultado P4 + capacidad de corte/TCC/clearing P5 |
-| P8E1 | DONE | Workspace V5 consume el agregado P8D2 vigente sin recalcular ingeniería |
-| P8E2 | DONE | dossier real: Workspace V5 + P7A snapshot + P7B reconstrucción aislada + P7C reporte |
-| P8F1 | DONE | entrada MCP única para ejecutar la misma cadena P8E2 desde el servidor |
-| P8F2 | DONE | índice SHA-256 portable y verificación del conjunto exacto del dossier antes de READY |
-| P8F3 | DONE | repetición collision-safe, dossiers independientes y aislamiento ante intentos bloqueados |
-| P8F4 | NEXT | first-use operacional desde la ruta MCP pública |
-| P8F5 | PENDING | gate final P8 y checklist para uso controlado con expedientes reales |
+| P8B | DONE | intake real, trazabilidad y gates por scope |
+| P8C1 | DONE | identidad de `source.bus` hasta OpenDSS/P2 |
+| P8C2 | DONE | contrato Z0 para materialización 1F-T |
+| P8C3A | DONE | pandapower independiente de `sourcebus` literal |
+| P8C3B | DONE | `manifest → OpenDSS + P2 + Z0` reproducible |
+| P8C3C | DONE | separación `MODEL_BUILT` vs `STUDY_READY` |
+| P8C4A | DONE | conductor real + Ib/In/Iz + condiciones/factores P3 |
+| P8C4B | DONE | dispositivos P5 + dataset TCC numérico |
+| P8C5 | DONE | readiness integral P1/P3/P4/P5 sin ejecución |
+| P8C5A | DONE | `PROJECT_DATA → P2_PROJECT → PROYECTO P2` |
+| P8D1 | DONE | ejecución controlada P1/P3/P4 |
+| P8D2 | DONE | binding explícito P4→P5 + capacidad/TCC/clearing |
+| P8E1 | DONE | resultado P8D2 vigente integrado en Workspace V5 |
+| P8E2 | DONE | dossier real Workspace + P7A/P7B/P7C |
+| P8F1 | DONE | entrypoint MCP único `generar_dossier_piloto_real` |
+| P8F2 | DONE | integridad SHA-256 del conjunto exacto del dossier |
+| P8F3 | DONE | repetición collision-safe y no sobrescritura |
+| P8F4 | DONE | first-use end-to-end por MCP stdio contra `server.py` |
+| P8F5 | DONE | gate final + checklist de datos para expediente real |
 
-P6 IEEE 1584 permanece `DEFERRED` y no bloquea este recorrido.
+```text
+P8 = CLOSED
+phase_status = READY_FOR_CONTROLLED_REAL_PROJECT_USE
+allowed_use = CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW
+next_activity = FIRST_CONTROLLED_REAL_PROJECT
+```
 
-El detalle de hardening se mantiene en `docs/P8F_HARDENING_ROADMAP.md`.
+P6 IEEE 1584 permanece `DEFERRED` y no bloquea P8.
 
-## P8C4A — datos P3 reales
+## P8B — admisión real
 
-Un código de cable del proyecto no necesita existir en la biblioteca interna de fabricantes. P8C4A permite registrar una asignación `PROJECT_DATA` con:
+La admisión inspecciona el manifiesto sin construir el modelo ni ejecutar ingeniería.
 
-- `element_id`;
-- `conductor_code`;
-- `base_ampacity_a` explícita;
-- `ampacity_reference`;
-- `installation_reference`;
-- `norm_id` registrado;
-- `ib_a` + `ib_reference`;
-- `in_a` + `in_reference`;
-- factores explícitos con referencia **o** `base_conditions_confirmed=true`.
+La tool pública es:
 
-El binding P3 de proyecto fija `NormAmps` para conservar la ampacidad base, pero no reemplaza R1/X1: las impedancias siguen siendo las declaradas en `topology.lines` por el expediente.
+```text
+evaluar_admision_piloto_real(manifest)
+```
 
-P8C4A materializa datos. No ejecuta `Ib <= In <= Iz` y no convierte materialización en cumplimiento.
+Estados relevantes:
 
-## P8C4B — dispositivos P5 y TCC numérico
+```text
+READY_TO_BUILD_MODEL
+BLOCKED_MISSING_INPUTS
+```
 
-P8C4B materializa P5A/P5B solo cuando el manifiesto contiene datos suficientes para construir el objeto de protección y la curva numérica sin inferencias.
+P8B conserva:
 
-### Dispositivos
+```text
+electrical_calculation = false
+model_mutation = false
+automatic_defaults = false
+automatic_dispatch = false
+crosscheck = false
+professional_emission = false
+```
 
-La semántica de capacidad de corte depende del tipo:
+## P8C — materialización y readiness
 
-- `circuit_breaker`: Icu obligatoria; Ics/Icw opcionales y separadas;
-- `fuse`: `breaking_capacity_ka` obligatorio; Icu/Ics/Icw no aplican.
+P8C convierte datos explícitos del proyecto en un modelo trazable sin confundir materialización con cumplimiento.
 
-Mientras P8B conserve su campo histórico genérico, un breaker puede declarar también `breaking_capacity_ka` **únicamente como alias legacy explícito igual a Icu**. El materializador P5 no lo usa como rating del interruptor.
-
-Cada dispositivo conserva además:
-
-- In y Ue;
-- norma/referencia explícita;
-- fabricante/serie/modelo cuando existen;
-- ajustes Ir/Isd/Ii solo si están declarados en amperios y con procedencia;
-- identidad y procedencia de curva.
-
-Cuando existe una ficha P3 del mismo `Line.*`, In P5 debe coincidir exactamente con In P3.
-
-### TCC
-
-Metadata de curva no equivale a dataset ejecutable. P8C4B exige:
-
-- `curve_id` y `dataset_id`;
-- vínculo inequívoco dataset ↔ curve ↔ device;
-- `shape=SINGLE|BAND`;
-- semántica de tiempo;
-- tipo y referencia de fuente;
-- al menos un segmento;
-- ID explícito por segmento;
-- al menos dos puntos por segmento;
-- corrientes estrictamente crecientes;
-- tiempos positivos;
-- `time_min_s <= time_max_s` en bandas;
-- dominios de segmentos sin solaparse ni tocarse.
-
-Una curva `MANUFACTURER_DIGITIZED` requiere además método de digitalización explícito.
-
-P8C4B no evalúa la curva, no interpola tiempos de un caso de falla y no ejecuta capacidad de corte, I²t, clearing time ni coordinación. Solo deja los objetos P5A/P5B materializados y verificables.
-
-No se digitalizan ni sintetizan curvas de fabricante automáticamente.
-
-## P8C5/P8C5A — readiness integral cerrado
-
-P8C5 materializa una sola vez hasta la capa más alta solicitada y después inspecciona el modelo activo. No reconstruye el modelo tras P3/P5 y no ejecuta estudios.
-
-P8C5A cerró el único blocker detectado en el primer ensamblaje integral: la ruta histórica P3 rotulaba toda base P2 no normativa como `P2_CATALOG`, aunque la asignación proviniera del expediente.
-
-La semántica queda ahora separada:
+### Datos P2 y origen
 
 ```text
 PROJECT_DATA → P2_PROJECT → PROYECTO P2
 CATALOG_DATA → P2_CATALOG → CATÁLOGO P2
 ```
 
-Los perfiles P3 nuevos guardan campos genéricos `assignment_*`. Para una asignación `PROJECT_DATA`, los campos `catalog_*` quedan vacíos y no contienen datos de proyecto. Los perfiles históricos de catálogo continúan siendo legibles mediante fallback compatible.
+Los datos de proyecto no se presentan como catálogo ni norma.
 
-El resultado `ampacity.evaluar()` propaga el origen hasta `base_evidence`, y Workspace V3 consume esa evidencia sin recalcular ni inferir procedencia en JavaScript.
+### Ampacidad P3
 
-Con P8C5A, el manifiesto integral focalizado queda:
+Un conductor real puede provenir del expediente aunque no exista en la biblioteca interna. El manifiesto declara ampacidad base, Ib, In, instalación, factores/condiciones y procedencias.
 
-| Scope | Estado pre-P8D |
-| --- | --- |
-| POWER_FLOW | READY |
-| VOLTAGE_DROP | READY |
-| AMPACITY | READY |
-| IEC60909 3F MAX/MIN | READY |
-| IEC60909 1F-T MAX/MIN | READY |
-| PROTECTION_TCC | READY |
+P8C no sustituye R1/X1 del expediente por la ampacidad ni por datos visuales.
 
-El gate devuelve:
+### Protección P5 y TCC
+
+Se mantienen semánticas distintas:
+
+- breaker: Icu obligatoria para capacidad de corte; Ics/Icw separadas;
+- fuse: `breaking_capacity_ka`;
+- metadata TCC no equivale a dataset ejecutable;
+- el dataset numérico debe incluir shape, semántica temporal, segmentos, puntos y procedencia.
+
+No se sintetizan ni digitalizan curvas automáticamente.
+
+### Readiness integral
+
+Los scopes del piloto pueden llegar a:
 
 ```text
-readiness_status = READY_FOR_CONTROLLED_EXECUTION
-all_requested_ready = true
-next_gate = P8D_CONTROLLED_EXECUTION
+POWER_FLOW = READY
+VOLTAGE_DROP = READY
+AMPACITY = READY
+IEC60909_3PH_MAX_MIN = READY
+IEC60909_1PH_GROUND_MAX_MIN = READY
+PROTECTION_TCC = READY
 ```
 
-Esto sigue siendo readiness: no ejecuta Solve, `ampacity.evaluar`, `calc_sc`, evaluación TCC, capacidad de corte, I²t, clearing time ni coordinación.
+sin ejecutar todavía los estudios.
 
-## P8D1 — primera ejecución controlada real
+## P8D — ejecución controlada real
 
-P8D1 consume el readiness P8C5 y ejecuta una secuencia fija, explícita y trazable:
+### P8D1
 
-1. `POWER_FLOW` — OpenDSS;
-2. `VOLTAGE_DROP` — OpenDSS;
-3. `AMPACITY` — P3 MCP;
-4. `IEC60909_3PH_MAX_MIN` — pandapower explícito;
-5. `IEC60909_1PH_GROUND_MAX_MIN` — pandapower explícito con Z0.
+Secuencia fija:
 
-No existe selección automática de motor, target de falla, cross-check ni emisión profesional. Si hay varias barras de cortocircuito, todas se ejecutan y Workspace conserva el agregado; no se elige una silenciosamente.
+1. POWER_FLOW — OpenDSS;
+2. VOLTAGE_DROP — OpenDSS;
+3. AMPACITY — MCP P3;
+4. IEC60909 3F MAX/MIN — pandapower explícito;
+5. IEC60909 1F-T MAX/MIN — pandapower explícito con Z0.
 
-La regresión P8D1 verifica además que `Line.R1` de OpenDSS permanece invariante desde readiness hasta 3F MAX/MIN y 1F-T MAX/MIN. El diagnóstico del piloto descartó una mutación térmica de `Line.R1`.
+Si existen varias barras solicitadas no se elige una silenciosamente. Las regresiones verifican además que `Line.R1` permanece invariante durante la cadena.
 
-Un manifiesto nuevo que queda bloqueado por readiness invalida los estudios visibles de la ejecución anterior en Workspace. Esto evita que un resultado previo pueda parecer perteneciente al intento bloqueado, sin reconstruir ni modificar el modelo OpenDSS activo.
+### P8D2 — binding P4→P5
 
-P5 queda deliberadamente fuera de P8D1. Tener dispositivo y TCC materializados no basta para saber qué corriente de P4 debe alimentar cada chequeo.
-
-## P8D2 — binding P4 → P5 cerrado
-
-P8D2 declara por dispositivo:
+Por dispositivo se declara explícitamente:
 
 - `device_id`;
 - `fault_bus`;
-- `fault_type` (`3ph` o `1ph-ground`);
-- `case` (`max` o `min`);
+- `fault_type`;
+- `case` MAX/MIN;
 - `current_quantity=ikss_ka`;
-- `operating_voltage_kv` explícita;
-- `source_reference` del binding;
-- `thermal_check` opcional, únicamente con sección, coeficiente `k` y procedencias explícitas.
+- `operating_voltage_kv`;
+- `source_reference`;
+- datos térmicos opcionales con procedencia.
 
-El binding falla cerrado si falta un dato, si la barra no fue ejecutada en P4, si tipo/caso no coinciden con el resultado seleccionado, si la magnitud no es `ikss_ka`, si la tensión explícita contradice el `vn_kv` disponible o si existen alternativas sin una selección inequívoca.
+P8D2 reutiliza los payloads P4 ejecutados por P8D1:
 
-P8D2 ejecuta P1/P3/P4 una sola vez mediante la corrida controlada P8D1 y luego **reutiliza esos payloads P4 dentro de P5**. No relanza otro escenario de cortocircuito dentro de P5 (`p4_recalculation_inside_p5=false`).
+```text
+p4_recalculation_inside_p5 = false
+automatic_fault_binding = false
+```
 
 Con binding válido:
 
-- breaker: `protection_checks.evaluar_capacidad_corte()` usa únicamente Icu; Ics/Icw permanecen visibles y no intervienen en el PASS de capacidad de corte;
-- fuse: se usa únicamente `breaking_capacity_ka`;
-- TCC: el dataset numérico materializado se evalúa a la corriente `Ik''` ligada;
-- clearing time: solo `TOTAL_CLEARING_TIME` dentro de dominio se promueve mediante P5D;
-- chequeo térmico: solo se ejecuta cuando el binding trae sección, `k` y fuentes explícitas; usa el `conservative_time_s` promovido por P5D.
+- breaker usa Icu para el PASS de capacidad de corte;
+- fuse usa su poder de corte;
+- TCC se evalúa a la `Ik''` ligada;
+- clearing se promueve solo con `TOTAL_CLEARING_TIME` dentro de dominio;
+- chequeo térmico solo se ejecuta con sección, `k` y referencias explícitas.
 
-Si la TCC está fuera de dominio o su semántica no permite clearing time, la ejecución queda parcial y **no se promociona `protection_tcc` a Workspace**. Un estudio P5 se registra solo cuando todos los dispositivos tienen clearing time numérico realmente listo.
+Un resultado TCC incompleto/no promocionable no aparece como estudio P5 vigente en Workspace.
 
-P8D2 conserva:
+## P8E — Workspace y dossier reproducible
+
+### P8E1 — Workspace V5
+
+P8 usa el mismo Workspace V5; no existe una interfaz paralela.
+
+La vista integrada P8D2 es read-only y solo consume `protection_tcc` vigente de la revisión actual. Muestra, entre otros:
+
+- barra/tipo de falla;
+- caso MAX/MIN;
+- `ikss_ka` consumido;
+- capacidad de corte y margen;
+- clearing time;
+- procedencia P4;
+- referencia del binding;
+- Icu/Ics/Icw separadas para breaker.
+
+El navegador no recalcula ingeniería.
+
+### P8E2 — dossier
+
+La ruta integral genera:
 
 ```text
-automatic_dispatch = false
-automatic_fault_binding = false
-p4_recalculation_inside_p5 = false
-crosscheck = false
-professional_emission = false
+manifest.json
+execution_p8d2.json
+workspace_v5.html
+project_snapshot_p7a.json
+reconstruction_p7b.json
+project_report_p7c.html
+p7a_netlist/
+p7b_reconstructed/
+dossier_integrity.json
 ```
 
-## P8E — presentación y dossier real cerrados
+P7B se verifica en proceso hijo para no rebindear/destruir el estado principal. P7C consume el snapshot P7A y no recalcula ingeniería.
 
-P8E1 integra el resultado agregado `protection_tcc` de P8D2 en el mismo Workspace V5 existente. No crea una segunda interfaz y no recalcula ingeniería en JavaScript.
-
-La vista solo presenta el agregado cuando el estudio está vigente y su `model_revision` coincide. Por dispositivo conserva:
-
-- `fault_bus`;
-- `fault_type`;
-- `case` MAX/MIN;
-- `ikss_ka` realmente consumido;
-- capacidad de corte y margen ya calculados;
-- clearing time promovido por P5D;
-- procedencia P4 y referencia del binding;
-- Icu/Ics/Icw separados para breaker y poder de corte separado para fuse.
-
-P8E2 genera el dossier reproducible del mismo estado calculado:
-
-- `manifest.json`;
-- `execution_p8d2.json`;
-- `workspace_v5.html`;
-- `project_snapshot_p7a.json` con SHA-256 verificable;
-- `reconstruction_p7b.json`;
-- `project_report_p7c.html`;
-- netlist P7A y directorio reconstruido P7B;
-- `dossier_integrity.json`, exigido por P8F2 antes de promover el dossier a READY.
-
-P7B se ejecuta en un proceso hijo para demostrar el round-trip canónico sin destruir o rebindear el circuito, P2/P3/P5 ni los estudios vigentes del proceso principal. P7C consume el snapshot P7A y no recalcula la ingeniería.
-
-El éxito de P8E2/P8F2 es:
+El estado de entrega es:
 
 ```text
 DOSSIER_READY_ENGINEERING_PREVIEW
-+ DOSSIER_INTEGRITY_VERIFIED
 ```
 
-Este estado no equivale a autenticidad mediante firma digital ni a emisión profesional.
+únicamente cuando P8F2 verifica integridad.
 
-## P8F — hardening para uso controlado
+## P8F — hardening de producto
 
-P8F no incorpora nuevos estudios eléctricos. Endurece la cadena que ya pasó el piloto y la convierte en una ruta operable desde el servidor MCP.
+Detalle completo: `docs/P8F_HARDENING_ROADMAP.md`.
 
-P8F1 cerró la primera brecha detectada: P8B estaba expuesto como tool MCP, mientras P8E2 solo era invocable como módulo Python. La entrada pública es:
+### P8F1 — entrada MCP
+
+Único entrypoint integral:
 
 ```text
 generar_dossier_piloto_real(manifest, directorio_salida)
 ```
 
-Esta tool no implementa motores ni cálculos propios; delega únicamente en P8E2, por lo que conserva P8D1/P8D2 como fronteras obligatorias.
+La tool delega en P8E2. No implementa un segundo flujo eléctrico.
 
-P8F2 endurece la entrega: P8E2 solo devuelve READY cuando `dossier_integrity.json` verifica por SHA-256 el conjunto exacto de artefactos, incluidos los netlists P7A/P7B. La verificación es portable por rutas relativas, rechaza archivos extra, modificaciones, ausencias y symlinks. Es un gate de integridad de contenido, no una firma de autor.
+### P8F2 — integridad
 
-P8F3 endurece la repetición: si una ruta solicitada ya contiene una entrega, se crea un sufijo incremental (`_2`, `_3`, ...). Cada dossier conserva su propio índice P8F2 y el anterior permanece intacto. Un intento bloqueado no crea una nueva entrega; Workspace mantiene la semántica fail-closed del intento más reciente. El mismo manifiesto conserva el mismo `manifest_sha256`, pero no se exige que cada snapshot P7A tenga el mismo hash porque una nueva ejecución puede producir otra revisión de modelo.
+`dossier_integrity.json` inventaría tamaño y SHA-256 de cada archivo con rutas relativas. Detecta modificación, ausencia, archivos extra, rutas inseguras y symlinks.
 
-La siguiente frontera es P8F4: first-use operacional desde las tools MCP públicas, con manifiesto de ejemplo, contrato de errores y smoke test del registro real del servidor.
+```text
+DOSSIER_INTEGRITY_VERIFIED
+```
 
-## Gate visual del piloto real
+significa integridad respecto del índice, no autenticidad/firma profesional.
 
-La ruta visual sigue siendo **Workspace V5**. No se crea una interfaz paralela para P8.
+### P8F3 — repetición
 
-Se conservan estas reglas:
+```text
+output_collision_policy = SUFFIX_INCREMENT
+silent_overwrite = false
+```
 
-1. la identidad visual del conductor no puede sobrescribir el binding técnico P2/P3;
-2. un conductor `PROJECT_DATA` se distingue de un producto `CATALOG_DATA`;
-3. V3 muestra `PROYECTO P2` para base real del expediente y `CATÁLOGO P2` para biblioteca;
-4. V4 conserva barra de falla, motor, caso MAX/MIN y madurez;
-5. V5 solo muestra curvas TCC cuando exista dataset numérico real materializado;
-6. V5 conserva Icu/Ics/Icw de breaker separadas del poder de corte de fuse;
-7. ningún panel JavaScript recalcula ingeniería;
-8. cada resultado debe pertenecer a la revisión vigente del modelo.
+Una segunda entrega usa `_2`, luego `_3`, etc. Cada dossier se verifica de forma independiente. Un intento bloqueado no crea una nueva entrega.
 
-`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED`, `PROTECTION_EXECUTION_COMPLETED`, `DOSSIER_READY_ENGINEERING_PREVIEW` y `DOSSIER_INTEGRITY_VERIFIED` son estados distintos y no se sustituyen entre sí.
+### P8F4 — first-use público
+
+`examples/p8_first_use_mcp.py` levanta `server.py` por MCP stdio y ejecuta únicamente tools públicas:
+
+```text
+evaluar_admision_piloto_real
+→ generar_dossier_piloto_real
+→ verificar_integridad_dossier_real
+```
+
+La plantilla `examples/p8_first_use_manifest.json` es demostrativa y no debe presentarse como evidencia real.
+
+Guía: `docs/P8F4_FIRST_USE_MCP.md`.
+
+### P8F5 — gate final
+
+Tool:
+
+```text
+evaluar_cierre_p8f5_uso_real_controlado()
+```
+
+El gate se basa en contratos ejecutables P7/P8 y falla cerrado si se reabre una política crítica.
+
+Con la release actual devuelve:
+
+```text
+READY_FOR_CONTROLLED_REAL_PROJECT_USE
+```
+
+La tool:
+
+```text
+obtener_checklist_p8f5_datos_proyecto_real()
+```
+
+devuelve los 10 bloques de datos/procedencias requeridos antes de una corrida real.
+
+Checklist legible: `docs/P8_CONTROLLED_REAL_USE_CHECKLIST.md`.
+
+## Matriz de motores vigente
+
+```text
+OpenDSS = motor por defecto
+pandapower = IEC 60909 explícito/experimental
+MCP = ampacidad/protección y gobernanza
+```
+
+Se mantiene:
+
+```text
+automatic_dispatch = false
+crosscheck = false
+iec60909_full_conformance_claim = false
+```
+
+P4 ha sido revisado contra IEC 60909-0:2026 con limitaciones declaradas; esto no constituye un claim de conformidad integral de la edición.
+
+## Gate visual
+
+La ruta visual única sigue siendo **Workspace V5**.
+
+Reglas:
+
+1. visualización no sobrescribe bindings técnicos;
+2. `PROJECT_DATA` se distingue de `CATALOG_DATA`;
+3. V3 conserva evidencia P3;
+4. V4 conserva motor, barra y caso IEC 60909;
+5. V5 presenta TCC solo con dataset numérico materializado;
+6. breaker Icu/Ics/Icw permanecen separados del fuse;
+7. JavaScript no recalcula ingeniería;
+8. solo se presenta la revisión vigente;
+9. P8D2 integrado usa el mismo Workspace, no una UI paralela.
+
+## Fronteras profesionales
+
+P8 cerrado **no** significa:
+
+- certificación del software;
+- conformidad normativa integral;
+- garantía de que cualquier entrada sea correcta;
+- validación automática del criterio del ingeniero;
+- firma digital/autenticidad del dossier;
+- autorización para emitir entregables profesionales sin revisión humana.
+
+Permanece:
 
 ```text
 automatic_defaults = false
 automatic_dispatch = false
 automatic_fault_binding = false
 crosscheck = false
+professional_report = false
 professional_emission = false
+P6_IEEE1584 = DEFERRED
 ```
+
+## Siguiente actividad
+
+P8 ya no tiene un subhito de desarrollo pendiente para iniciar el piloto de campo.
+
+La siguiente actividad es:
+
+```text
+FIRST_CONTROLLED_REAL_PROJECT
+```
+
+El primer expediente debe comenzar con una red acotada, trazable y bien documentada. Antes de ejecutar, usar `docs/P8_CONTROLLED_REAL_USE_CHECKLIST.md` y el preflight P8B.
+
+Las fricciones encontradas durante ese uso real deberán entrar como nuevos issues/hardening posteriores, sin reabrir automáticamente P8 ni debilitar sus gates.
