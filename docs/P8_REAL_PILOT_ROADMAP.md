@@ -47,8 +47,9 @@ P8F hardening + entrada MCP controlada
 | P8E2 | DONE | dossier real: Workspace V5 + P7A snapshot + P7B reconstrucción aislada + P7C reporte |
 | P8F1 | DONE | entrada MCP única para ejecutar la misma cadena P8E2 desde el servidor |
 | P8F2 | DONE | índice SHA-256 portable y verificación del conjunto exacto del dossier antes de READY |
-| P8F3 | NEXT | repetición/aislamiento y no sobrescritura silenciosa de entregas |
-| P8F4–P8F5 | PENDING | first-use operacional y gate final P8 |
+| P8F3 | DONE | repetición collision-safe, dossiers independientes y aislamiento ante intentos bloqueados |
+| P8F4 | NEXT | first-use operacional desde la ruta MCP pública |
+| P8F5 | PENDING | gate final P8 y checklist para uso controlado con expedientes reales |
 
 P6 IEEE 1584 permanece `DEFERRED` y no bloquea este recorrido.
 
@@ -262,7 +263,9 @@ Esta tool no implementa motores ni cálculos propios; delega únicamente en P8E2
 
 P8F2 endurece la entrega: P8E2 solo devuelve READY cuando `dossier_integrity.json` verifica por SHA-256 el conjunto exacto de artefactos, incluidos los netlists P7A/P7B. La verificación es portable por rutas relativas, rechaza archivos extra, modificaciones, ausencias y symlinks. Es un gate de integridad de contenido, no una firma de autor.
 
-La siguiente frontera es P8F3: repetir la ruta completa sin sobrescribir entregas ni contaminar estado, manteniendo cada dossier independientemente verificable.
+P8F3 endurece la repetición: si una ruta solicitada ya contiene una entrega, se crea un sufijo incremental (`_2`, `_3`, ...). Cada dossier conserva su propio índice P8F2 y el anterior permanece intacto. Un intento bloqueado no crea una nueva entrega; Workspace mantiene la semántica fail-closed del intento más reciente. El mismo manifiesto conserva el mismo `manifest_sha256`, pero no se exige que cada snapshot P7A tenga el mismo hash porque una nueva ejecución puede producir otra revisión de modelo.
+
+La siguiente frontera es P8F4: first-use operacional desde las tools MCP públicas, con manifiesto de ejemplo, contrato de errores y smoke test del registro real del servidor.
 
 ## Gate visual del piloto real
 

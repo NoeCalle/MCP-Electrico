@@ -1,11 +1,11 @@
-"""P8E2/P8F2 — dossier reproducible e íntegro del proyecto real.
+"""P8E2/P8F2/P8F3 — dossier reproducible, íntegro y repetible.
 
 Orquesta una sola ejecución P8D2 en el proceso principal y congela sus
 resultados en Workspace V5 + P7A + P7C. La reconstrucción P7B se verifica en un
 proceso hijo para no destruir ni rebindear el modelo activo del usuario.
 
-P8F2 añade un gate de integridad: el dossier solo se promociona a READY cuando
-cada artefacto y archivo de netlist queda inventariado y verificado por SHA-256.
+P8F2 exige integridad SHA-256 antes de READY. P8F3 hace explícita la asignación
+del directorio de entrega y evita sobrescribir silenciosamente dossiers previos.
 """
 
 from __future__ import annotations
@@ -145,12 +145,16 @@ def generar_dossier(
 
     manifest_copy = deepcopy(manifest)
     manifest_sha = _manifest_hash(manifest_copy)
+    requested_output = Path(directorio_salida).expanduser().resolve()
     execution = real_protection_execution.ejecutar_protecciones(deepcopy(manifest_copy))
     if execution.get("execution_status") != real_protection_execution.STATUS_COMPLETED:
         return {
             "schema": SCHEMA,
             "status": STATUS_BLOCKED_EXECUTION,
             "manifest_sha256": manifest_sha,
+            "requested_output_directory": str(requested_output),
+            "output_directory": None,
+            "output_directory_collision_avoided": False,
             "p8d2_execution": execution,
             "artifact_generation_performed": False,
             "integrity_index_generated": False,
@@ -162,7 +166,8 @@ def generar_dossier(
 
     circuit_before = _active_circuit()
     revision_before = workspace_state.status().get("model_revision")
-    target = _safe_dir(directorio_salida)
+    target = _safe_dir(requested_output)
+    collision_avoided = target != requested_output
     paths = {
         "manifest": target / "manifest.json",
         "execution": target / "execution_p8d2.json",
@@ -240,6 +245,9 @@ def generar_dossier(
             "schema": SCHEMA,
             "status": STATUS_READY,
             "manifest_sha256": manifest_sha,
+            "requested_output_directory": str(requested_output),
+            "output_directory": str(target),
+            "output_directory_collision_avoided": collision_avoided,
             "model_revision": revision_after,
             "active_circuit_preserved": True,
             "p8d2_execution_status": execution.get("execution_status"),
@@ -294,8 +302,10 @@ def generar_dossier(
             "schema": SCHEMA,
             "status": STATUS_FAILED_ARTIFACT,
             "manifest_sha256": manifest_sha,
-            "error": str(exc),
+            "requested_output_directory": str(requested_output),
             "output_directory": str(target),
+            "output_directory_collision_avoided": collision_avoided,
+            "error": str(exc),
             "active_circuit_preserved": _active_circuit() == circuit_before,
             "model_revision_preserved": workspace_state.status().get("model_revision") == revision_before,
             "integrity_index_generated": paths["integrity"].is_file(),

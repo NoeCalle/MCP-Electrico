@@ -10,8 +10,8 @@ P6 IEEE 1584 permanece `DEFERRED` y no forma parte de este cierre.
 | --- | --- | --- |
 | P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` delegando en la misma cadena P8E2 |
 | P8F2 | DONE | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
-| P8F3 | NEXT | repetición/aislamiento: segunda ejecución limpia, sin contaminación de estado ni sobrescritura silenciosa |
-| P8F4 | PENDING | first-use operacional: ejemplo de manifiesto real, contrato de errores y smoke test desde el servidor MCP |
+| P8F3 | DONE | repetición/aislamiento: entregas independientes, collision-safe y sin sobrescritura silenciosa |
+| P8F4 | NEXT | first-use operacional: ejemplo de manifiesto real, contrato de errores y smoke test desde el servidor MCP |
 | P8F5 | PENDING | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
 
 ## P8F1 — entrypoint MCP integral
@@ -68,25 +68,51 @@ El índice raíz no se incluye a sí mismo (`self_hash_included=false`) para evi
 
 P8F2 proporciona **integridad respecto del índice congelado**, no autenticidad del autor. SHA-256 por sí solo no sustituye una firma digital, certificado, sello de tiempo confiable ni gate de emisión profesional. Un actor capaz de reemplazar simultáneamente archivos e índice puede construir un nuevo paquete autoconsistente.
 
-Por tanto:
+Por tanto `professional_emission=false` permanece cerrado.
+
+## P8F3 — repetición y aislamiento cerrados
+
+P8F3 prueba el comportamiento operacional de la misma ruta integral cuando se ejecuta repetidamente.
+
+La política pública es:
 
 ```text
-professional_emission = false
+output_collision_policy = SUFFIX_INCREMENT
+silent_overwrite = false
+blocked_execution_creates_delivery_directory = false
 ```
 
-permanece cerrado.
+Cada resultado declara:
 
-## P8F3 — siguiente frontera
+- `requested_output_directory`;
+- `output_directory` realmente usado;
+- `output_directory_collision_avoided`.
 
-P8F3 comprobará el comportamiento operacional al repetir la misma ruta integral. El objetivo no es exigir que todos los bytes entre dos corridas sean idénticos, porque las revisiones de modelo y metadatos de ejecución pueden cambiar legítimamente. El gate será más útil:
+Si `real_dossier` ya contiene una entrega, una nueva ejecución exitosa usa `real_dossier_2`, luego `_3`, etc. El dossier anterior no se reabre ni modifica.
 
-- la segunda corrida debe crear un dossier independiente y no sobrescribir el primero;
-- ambos dossiers deben conservar su propio índice P8F2 verificable;
-- el primer dossier debe seguir intacto después de ejecutar el segundo;
-- el proceso principal debe quedar asociado únicamente a la revisión vigente de la corrida más reciente;
-- un segundo intento bloqueado no debe corromper el dossier ya entregado;
-- el mismo manifiesto debe conservar el mismo `manifest_sha256`;
-- no se añadirá ningún tipo de cálculo nuevo.
+Las regresiones integrales demuestran que:
+
+- dos ejecuciones exitosas del mismo manifiesto producen dossiers distintos;
+- el primer dossier permanece byte-intacto después de crear el segundo;
+- cada entrega conserva su propio `dossier_integrity.json` P8F2 verificable;
+- el mismo manifiesto conserva el mismo `manifest_sha256`;
+- no se exige que el SHA P7A sea idéntico entre corridas, porque una nueva ejecución puede tener otra revisión de modelo;
+- Workspace queda ligado a la revisión de la ejecución exitosa más reciente;
+- si el intento posterior queda bloqueado antes de P8D2, no se crea `_2` ni se altera el dossier válido previo;
+- el intento bloqueado puede limpiar los estudios lógicos actuales como conducta fail-closed, sin invalidar la entrega congelada anterior.
+
+P8F3 no añade una segunda tool de ejecución. `generar_dossier_piloto_real` sigue siendo el único entrypoint; `obtener_contrato_p8f3_repeticion_dossier()` solo documenta su política.
+
+## P8F4 — siguiente frontera
+
+P8F4 convertirá la cadena ya endurecida en una experiencia de primer uso comprobable desde el servidor MCP. Debe cubrir:
+
+- un manifiesto de ejemplo realista y completo, sin datos sintéticos ocultos ni defaults automáticos;
+- guía mínima de campos y procedencias necesarias para poder construir un manifiesto desde expediente/SLD/fichas;
+- contrato de estados y errores esperables del entrypoint;
+- smoke test que registre las tools desde el mismo `server.py` y ejecute la ruta pública, no el módulo interno;
+- verificación posterior del dossier con la tool MCP pública de P8F2;
+- ninguna ampliación de cálculos y `professional_emission=false`.
 
 ## Políticas invariantes
 

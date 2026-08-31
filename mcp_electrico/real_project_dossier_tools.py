@@ -1,4 +1,4 @@
-"""P8F1/P8F2 — entrada MCP controlada e integridad del piloto real P8."""
+"""P8F1/P8F2/P8F3 — entrada MCP, integridad y repetición controlada P8."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ from . import dossier_integrity, real_project_dossier
 
 SCHEMA = "MCP_ELECTRICO_P8F1_REAL_PILOT_MCP_ENTRYPOINT_V1"
 INTEGRITY_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F2_DOSSIER_INTEGRITY_CONTRACT_V1"
+REPEATABILITY_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F3_REPEATABILITY_CONTRACT_V1"
 
 
 def obtener_contrato_p8f1() -> dict:
@@ -20,6 +21,7 @@ def obtener_contrato_p8f1() -> dict:
         "integrity_required_before_success": True,
         "integrity_schema": dossier_integrity.SCHEMA,
         "integrity_verifier": "verificar_integridad_dossier_real",
+        "collision_safe_output": True,
         "execution_chain": [
             "P8B/P8C readiness inside P8D1",
             "P8D1 P1/P3/P4 controlled execution",
@@ -27,6 +29,7 @@ def obtener_contrato_p8f1() -> dict:
             "P8E1 Workspace V5",
             "P8E2 P7A/P7B/P7C dossier",
             "P8F2 exact artifact-set SHA-256 verification",
+            "P8F3 collision-safe independent delivery",
         ],
         "automatic_defaults": False,
         "automatic_dispatch": False,
@@ -54,6 +57,26 @@ def obtener_contrato_p8f2() -> dict:
     }
 
 
+def obtener_contrato_p8f3() -> dict:
+    """Describe cómo se preservan entregas al repetir el mismo flujo."""
+    return {
+        "schema": REPEATABILITY_CONTRACT_SCHEMA,
+        "entrypoint": "generar_dossier_piloto_real",
+        "output_collision_policy": "SUFFIX_INCREMENT",
+        "first_collision_suffix": "_2",
+        "silent_overwrite": False,
+        "blocked_execution_creates_delivery_directory": False,
+        "prior_delivery_mutation_allowed": False,
+        "each_success_requires_independent_integrity_verification": True,
+        "same_manifest_same_manifest_sha256": True,
+        "same_manifest_requires_same_p7a_sha256": False,
+        "current_workspace_belongs_to_latest_attempt": True,
+        "blocked_latest_attempt_may_clear_current_studies_fail_closed": True,
+        "new_calculation_types_added": False,
+        "professional_emission": False,
+    }
+
+
 def register(mcp) -> None:
     @mcp.tool()
     def obtener_contrato_p8f1_piloto_real() -> dict:
@@ -66,16 +89,22 @@ def register(mcp) -> None:
         return obtener_contrato_p8f2()
 
     @mcp.tool()
+    def obtener_contrato_p8f3_repeticion_dossier() -> dict:
+        """Devuelve la política de repetición, aislamiento y no sobrescritura."""
+        return obtener_contrato_p8f3()
+
+    @mcp.tool()
     def generar_dossier_piloto_real(
         manifest: dict,
         directorio_salida: str = "mcp_electrico_real_dossier",
     ) -> dict:
-        """Ejecuta el piloto real y genera un dossier íntegro y verificable.
+        """Ejecuta el piloto real y genera una entrega íntegra sin sobrescribir previas.
 
         La operación falla cerrada si P8D2 no completa o si P8F2 no puede
-        verificar el conjunto exacto de artefactos por SHA-256. No selecciona
-        motor, falla, caso, curva ni rating automáticamente y no habilita
-        emisión profesional.
+        verificar el conjunto exacto de artefactos por SHA-256. Si el directorio
+        solicitado ya contiene una entrega, P8F3 crea un sufijo incremental en
+        vez de modificarla. No selecciona motor, falla, caso, curva ni rating
+        automáticamente y no habilita emisión profesional.
         """
         return real_project_dossier.generar_dossier(
             manifest,
