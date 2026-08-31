@@ -1,0 +1,128 @@
+name: p8f5-final-real-use-gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  p8f5-final-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Evaluate P8F5 final gate and checklist
+        run: python -m pytest -q tests/test_p8f5_controlled_real_use_gate.py
+
+      - name: Re-run public P8F4 first-use smoke
+        run: |
+          python examples/p8_first_use_mcp.py \
+            --manifest examples/p8_first_use_manifest.json \
+            --output-dir "$RUNNER_TEMP/p8f5_real_dossier" \
+            --summary "$RUNNER_TEMP/p8f5_first_use_smoke.json"
+
+      - name: Call P8F5 gate through actual server.py MCP stdio
+        run: |
+          python - <<'PY'
+          import asyncio
+          import json
+          import os
+          from pathlib import Path
+          import sys
+
+          from mcp import ClientSession, StdioServerParameters
+          from mcp.client.stdio import stdio_client
+
+          root = Path.cwd().resolve()
+
+          def as_dict(result):
+              structured = getattr(result, "structured_content", None)
+              if isinstance(structured, dict):
+                  return structured
+              for block in getattr(result, "content", []) or []:
+                  text = getattr(block, "text", None)
+                  if isinstance(text, str):
+                      try:
+                          value = json.loads(text)
+                      except json.JSONDecodeError:
+                          continue
+                      if isinstance(value, dict):
+                          return value
+              raise RuntimeError("P8F5CI001: resultado MCP no interpretable")
+
+          async def main():
+              env = os.environ.copy()
+              env["PYTHONPATH"] = str(root) + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+              params = StdioServerParameters(
+                  command=sys.executable,
+                  args=[str(root / "server.py")],
+                  cwd=str(root),
+                  env=env,
+              )
+              async with stdio_client(params) as (read, write):
+                  async with ClientSession(read, write) as session:
+                      await session.initialize()
+                      tools = {tool.name for tool in (await session.list_tools()).tools}
+                      assert "evaluar_cierre_p8f5_uso_real_controlado" in tools
+                      assert "obtener_checklist_p8f5_datos_proyecto_real" in tools
+
+                      gate = as_dict(await session.call_tool("evaluar_cierre_p8f5_uso_real_controlado", arguments={}))
+                      checklist = as_dict(await session.call_tool("obtener_checklist_p8f5_datos_proyecto_real", arguments={}))
+
+                      assert gate["phase_status"] == "READY_FOR_CONTROLLED_REAL_PROJECT_USE"
+                      assert gate["p8_closed"] is True
+                      assert gate["controlled_real_project_use_ready"] is True
+                      assert gate["product_release"] == "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW"
+                      assert gate["allowed_use"] == "CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW"
+                      assert gate["next_activity"] == "FIRST_CONTROLLED_REAL_PROJECT"
+                      assert gate["pending_criteria"] == []
+                      assert gate["professional_emission"] is False
+                      assert gate["automatic_dispatch"] is False
+                      assert gate["automatic_fault_binding"] is False
+                      assert gate["crosscheck"] is False
+                      assert gate["iec60909_full_conformance_claim"] is False
+                      assert gate["arc_flash_ieee1584"] == "DEFERRED"
+
+                      assert checklist["schema"] == "MCP_ELECTRICO_P8F5_REAL_PROJECT_INPUT_CHECKLIST_V1"
+                      assert len(checklist["items"]) == 10
+                      assert checklist["example_is_project_evidence"] is False
+                      assert checklist["professional_emission"] is False
+
+          asyncio.run(main())
+          PY
+
+      - name: Verify P8F5 source boundary
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path("mcp_electrico/p8_completion.py").read_text(encoding="utf-8")
+          tools = Path("mcp_electrico/p8_completion_tools.py").read_text(encoding="utf-8")
+          forbidden = (
+              "opendssdirect",
+              "pandapower.shortcircuit",
+              "calc_sc(",
+              "ejecutar_protecciones(",
+              "generar_dossier(",
+          )
+          for token in forbidden:
+              assert token not in source, token
+              assert token not in tools, token
+          PY
+
+      - name: Regress P8F3 repeatability and P8F2 integrity
+        run: |
+          python -m pytest -q \
+            tests/test_p8f3_repeatability_isolation.py \
+            tests/test_p8f2_dossier_integrity.py
+
+      - name: Regress P7D Engineering Preview boundary
+        run: python -m pytest -q tests/test_p7d_mcp_tool.py
