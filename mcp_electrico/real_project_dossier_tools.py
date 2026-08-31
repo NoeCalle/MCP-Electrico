@@ -1,12 +1,13 @@
-"""P8F1/P8F2/P8F3 — entrada MCP, integridad y repetición controlada P8."""
+"""P8F1–P8F4 — entrada MCP, integridad, repetición y primer uso P8."""
 
 from __future__ import annotations
 
-from . import dossier_integrity, real_project_dossier
+from . import dossier_integrity, real_pilot_intake, real_project_dossier
 
 SCHEMA = "MCP_ELECTRICO_P8F1_REAL_PILOT_MCP_ENTRYPOINT_V1"
 INTEGRITY_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F2_DOSSIER_INTEGRITY_CONTRACT_V1"
 REPEATABILITY_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F3_REPEATABILITY_CONTRACT_V1"
+FIRST_USE_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F4_FIRST_USE_OPERATIONAL_CONTRACT_V1"
 
 
 def obtener_contrato_p8f1() -> dict:
@@ -77,6 +78,70 @@ def obtener_contrato_p8f3() -> dict:
     }
 
 
+def obtener_contrato_p8f4() -> dict:
+    """Devuelve la secuencia pública y el contrato de errores del primer uso real."""
+    return {
+        "schema": FIRST_USE_CONTRACT_SCHEMA,
+        "example_manifest": "examples/p8_first_use_manifest.json",
+        "example_is_project_data": False,
+        "example_requires_replacement_with_project_sources": True,
+        "transport_smoke": "MCP_STDIO_SERVER_PY",
+        "recommended_sequence": [
+            {
+                "step": 1,
+                "tool": "evaluar_admision_piloto_real",
+                "success_status_field": "intake_status",
+                "success_status": real_pilot_intake.STATUS_READY,
+            },
+            {
+                "step": 2,
+                "tool": "generar_dossier_piloto_real",
+                "success_status_field": "status",
+                "success_status": real_project_dossier.STATUS_READY,
+            },
+            {
+                "step": 3,
+                "tool": "verificar_integridad_dossier_real",
+                "success_status_field": "status",
+                "success_status": dossier_integrity.STATUS_VERIFIED,
+            },
+        ],
+        "failure_contract": {
+            "admission": {
+                "status": real_pilot_intake.STATUS_BLOCKED,
+                "inspect": ["issues", "issue_count", "study_input_readiness"],
+                "delivery_created": False,
+                "action": "REPAIR_MANIFEST_AND_REPEAT_ADMISSION",
+            },
+            "execution": {
+                "status": real_project_dossier.STATUS_BLOCKED_EXECUTION,
+                "inspect": ["p8d2_execution.execution_status", "p8d2_execution.issues", "p8d2_execution.next_gate"],
+                "delivery_created": False,
+                "action": "REPAIR_EXPLICIT_ENGINEERING_INPUT_OR_BINDING",
+            },
+            "artifact_generation": {
+                "status": real_project_dossier.STATUS_FAILED_ARTIFACT,
+                "inspect": ["error", "output_directory", "integrity_index_generated"],
+                "delivery_is_usable": False,
+                "action": "DO_NOT_USE_PARTIAL_DIRECTORY_AS_DELIVERY",
+            },
+            "integrity": {
+                "status": dossier_integrity.STATUS_MISMATCH,
+                "inspect": ["issues"],
+                "delivery_is_usable": False,
+                "action": "RESTORE_OR_REGENERATE_FROM_TRUSTED_INPUT",
+            },
+        },
+        "automatic_repair": False,
+        "automatic_retry": False,
+        "automatic_defaults": False,
+        "automatic_dispatch": False,
+        "automatic_fault_binding": False,
+        "crosscheck": False,
+        "professional_emission": False,
+    }
+
+
 def register(mcp) -> None:
     @mcp.tool()
     def obtener_contrato_p8f1_piloto_real() -> dict:
@@ -92,6 +157,11 @@ def register(mcp) -> None:
     def obtener_contrato_p8f3_repeticion_dossier() -> dict:
         """Devuelve la política de repetición, aislamiento y no sobrescritura."""
         return obtener_contrato_p8f3()
+
+    @mcp.tool()
+    def obtener_contrato_p8f4_primer_uso() -> dict:
+        """Devuelve la secuencia pública y estados de reparación del primer uso P8."""
+        return obtener_contrato_p8f4()
 
     @mcp.tool()
     def generar_dossier_piloto_real(
