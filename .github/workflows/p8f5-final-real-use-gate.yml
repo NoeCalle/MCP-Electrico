@@ -19,8 +19,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
-      - name: Evaluate P8F5 final gate and checklist
-        run: python -m pytest -q tests/test_p8f5_controlled_real_use_gate.py
+      - name: Evaluate P8F5 final gate checklist and roadmap contract
+        run: |
+          python -m pytest -q \
+            tests/test_p8f5_controlled_real_use_gate.py \
+            tests/test_p8f5_roadmap_contract.py
 
       - name: Re-run public P8F4 first-use smoke
         run: |
