@@ -1,8 +1,8 @@
-"""Tools MCP P8 para admisión y ejecución controlada del piloto real."""
+"""Tools MCP P8 para admisión, ejecución y cierre de uso real controlado."""
 
 from __future__ import annotations
 
-from . import real_pilot_intake, real_project_dossier_tools
+from . import p8_completion_tools, real_pilot_intake, real_project_dossier_tools
 
 
 def register(mcp) -> None:
@@ -16,6 +16,7 @@ def register(mcp) -> None:
         """Revisa presencia/trazabilidad de entradas sin construir ni calcular el modelo."""
         return real_pilot_intake.evaluar_admision(manifest)
 
-    # P8F1 añade la entrada integral sin crear una ruta de cálculo paralela:
-    # delega en P8E2 y conserva P8D1/P8D2 como fronteras obligatorias.
+    # La ejecución integral conserva P8D1/P8D2/P8E como fronteras obligatorias.
     real_project_dossier_tools.register(mcp)
+    # P8F5 solo evalúa contratos/readiness y expone el checklist; no calcula ingeniería.
+    p8_completion_tools.register(mcp)
