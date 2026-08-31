@@ -1,0 +1,41 @@
+name: p8f3-repeatability-isolation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  p8f3-repeatability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run P8F3 repeated-success tests
+        run: python -m pytest -q tests/test_p8f3_repeatability_isolation.py -k "second_success or first_dossier or both_successful or same_manifest"
+      - name: Run P8F3 blocked-repeat test
+        run: python -m pytest -q tests/test_p8f3_repeatability_isolation.py -k "blocked_second"
+      - name: Run P8F3 public contract tests
+        run: python -m pytest -q tests/test_p8f3_repeatability_isolation.py -k "public_contract or automatic_behaviour"
+      - name: Run P8F2 integrity regression
+        run: python -m pytest -q tests/test_p8f2_dossier_integrity.py
+      - name: Run P8E2 dossier regression
+        run: python -m pytest -q tests/test_p8e2_real_project_dossier.py
+      - name: Verify P8F3 boundary
+        run: |
+          python - <<'PY'
+          from mcp_electrico import real_project_dossier_tools
+          contract = real_project_dossier_tools.obtener_contrato_p8f3()
+          assert contract["entrypoint"] == "generar_dossier_piloto_real"
+          assert contract["output_collision_policy"] == "SUFFIX_INCREMENT"
+          assert contract["silent_overwrite"] is False
+          assert contract["blocked_execution_creates_delivery_directory"] is False
+          assert contract["new_calculation_types_added"] is False
+          assert contract["professional_emission"] is False
+          print("P8F3 repeatability/isolation boundary PASS")
+          PY
