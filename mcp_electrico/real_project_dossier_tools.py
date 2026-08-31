@@ -1,14 +1,11 @@
-"""P8F1 — entrada MCP controlada al piloto real P8.
-
-La tool no implementa un segundo flujo de cálculo: delega íntegramente en
-P8E2, que a su vez ejecuta P8D2 y conserva todos sus gates fail-closed.
-"""
+"""P8F1/P8F2 — entrada MCP controlada e integridad del piloto real P8."""
 
 from __future__ import annotations
 
-from . import real_project_dossier
+from . import dossier_integrity, real_project_dossier
 
 SCHEMA = "MCP_ELECTRICO_P8F1_REAL_PILOT_MCP_ENTRYPOINT_V1"
+INTEGRITY_CONTRACT_SCHEMA = "MCP_ELECTRICO_P8F2_DOSSIER_INTEGRITY_CONTRACT_V1"
 
 
 def obtener_contrato_p8f1() -> dict:
@@ -20,17 +17,39 @@ def obtener_contrato_p8f1() -> dict:
         "success_status": real_project_dossier.STATUS_READY,
         "blocked_status": real_project_dossier.STATUS_BLOCKED_EXECUTION,
         "artifact_failure_status": real_project_dossier.STATUS_FAILED_ARTIFACT,
+        "integrity_required_before_success": True,
+        "integrity_schema": dossier_integrity.SCHEMA,
+        "integrity_verifier": "verificar_integridad_dossier_real",
         "execution_chain": [
             "P8B/P8C readiness inside P8D1",
             "P8D1 P1/P3/P4 controlled execution",
             "P8D2 explicit P4->P5 fault binding",
             "P8E1 Workspace V5",
             "P8E2 P7A/P7B/P7C dossier",
+            "P8F2 exact artifact-set SHA-256 verification",
         ],
         "automatic_defaults": False,
         "automatic_dispatch": False,
         "automatic_fault_binding": False,
         "crosscheck": False,
+        "professional_emission": False,
+    }
+
+
+def obtener_contrato_p8f2() -> dict:
+    """Devuelve el contrato portable de integridad del dossier."""
+    return {
+        "schema": INTEGRITY_CONTRACT_SCHEMA,
+        "integrity_schema": dossier_integrity.SCHEMA,
+        "index_name": dossier_integrity.INDEX_NAME,
+        "success_status": dossier_integrity.STATUS_VERIFIED,
+        "failure_status": dossier_integrity.STATUS_MISMATCH,
+        "hash_algorithm": "sha256",
+        "portable_relative_paths": True,
+        "exact_file_set_required": True,
+        "self_hash_included": False,
+        "required_top_level": list(dossier_integrity.REQUIRED_TOP_LEVEL),
+        "required_directories": list(dossier_integrity.REQUIRED_DIRECTORIES),
         "professional_emission": False,
     }
 
@@ -42,17 +61,30 @@ def register(mcp) -> None:
         return obtener_contrato_p8f1()
 
     @mcp.tool()
+    def obtener_contrato_p8f2_integridad_dossier() -> dict:
+        """Devuelve el contrato SHA-256 del dossier Engineering Preview."""
+        return obtener_contrato_p8f2()
+
+    @mcp.tool()
     def generar_dossier_piloto_real(
         manifest: dict,
         directorio_salida: str = "mcp_electrico_real_dossier",
     ) -> dict:
-        """Ejecuta el piloto real P1/P3/P4/P5 y genera Workspace + P7A/P7B/P7C.
+        """Ejecuta el piloto real y genera un dossier íntegro y verificable.
 
-        La operación falla cerrada si P8D2 no completa. No selecciona motor,
-        falla, caso, curva ni rating automáticamente y no habilita emisión
-        profesional.
+        La operación falla cerrada si P8D2 no completa o si P8F2 no puede
+        verificar el conjunto exacto de artefactos por SHA-256. No selecciona
+        motor, falla, caso, curva ni rating automáticamente y no habilita
+        emisión profesional.
         """
         return real_project_dossier.generar_dossier(
             manifest,
             directorio_salida=directorio_salida,
         )
+
+    @mcp.tool()
+    def verificar_integridad_dossier_real(
+        ruta_indice: str,
+    ) -> dict:
+        """Revalida un dossier copiado usando su dossier_integrity.json."""
+        return dossier_integrity.verificar_indice(ruta_indice)

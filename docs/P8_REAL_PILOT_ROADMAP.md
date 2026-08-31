@@ -45,8 +45,10 @@ P8F hardening + entrada MCP controlada
 | P8D2 | DONE | binding explícito dispositivo → resultado P4 + capacidad de corte/TCC/clearing P5 |
 | P8E1 | DONE | Workspace V5 consume el agregado P8D2 vigente sin recalcular ingeniería |
 | P8E2 | DONE | dossier real: Workspace V5 + P7A snapshot + P7B reconstrucción aislada + P7C reporte |
-| P8F1 | IN PROGRESS | entrada MCP única para ejecutar la misma cadena P8E2 desde el servidor |
-| P8F2–P8F5 | PENDING | integridad, repetición, first-use operacional y gate final P8 |
+| P8F1 | DONE | entrada MCP única para ejecutar la misma cadena P8E2 desde el servidor |
+| P8F2 | DONE | índice SHA-256 portable y verificación del conjunto exacto del dossier antes de READY |
+| P8F3 | NEXT | repetición/aislamiento y no sobrescritura silenciosa de entregas |
+| P8F4–P8F5 | PENDING | first-use operacional y gate final P8 |
 
 P6 IEEE 1584 permanece `DEFERRED` y no bloquea este recorrido.
 
@@ -232,23 +234,25 @@ P8E2 genera el dossier reproducible del mismo estado calculado:
 - `project_snapshot_p7a.json` con SHA-256 verificable;
 - `reconstruction_p7b.json`;
 - `project_report_p7c.html`;
-- netlist P7A y directorio reconstruido P7B.
+- netlist P7A y directorio reconstruido P7B;
+- `dossier_integrity.json`, exigido por P8F2 antes de promover el dossier a READY.
 
 P7B se ejecuta en un proceso hijo para demostrar el round-trip canónico sin destruir o rebindear el circuito, P2/P3/P5 ni los estudios vigentes del proceso principal. P7C consume el snapshot P7A y no recalcula la ingeniería.
 
-El éxito de P8E2 es:
+El éxito de P8E2/P8F2 es:
 
 ```text
 DOSSIER_READY_ENGINEERING_PREVIEW
++ DOSSIER_INTEGRITY_VERIFIED
 ```
 
-Este estado no equivale a emisión profesional.
+Este estado no equivale a autenticidad mediante firma digital ni a emisión profesional.
 
 ## P8F — hardening para uso controlado
 
 P8F no incorpora nuevos estudios eléctricos. Endurece la cadena que ya pasó el piloto y la convierte en una ruta operable desde el servidor MCP.
 
-P8F1 cierra la primera brecha detectada: P8B estaba expuesto como tool MCP, mientras P8E2 solo era invocable como módulo Python. La entrada pública queda:
+P8F1 cerró la primera brecha detectada: P8B estaba expuesto como tool MCP, mientras P8E2 solo era invocable como módulo Python. La entrada pública es:
 
 ```text
 generar_dossier_piloto_real(manifest, directorio_salida)
@@ -256,7 +260,9 @@ generar_dossier_piloto_real(manifest, directorio_salida)
 
 Esta tool no implementa motores ni cálculos propios; delega únicamente en P8E2, por lo que conserva P8D1/P8D2 como fronteras obligatorias.
 
-Los siguientes bloques P8F están definidos en `docs/P8F_HARDENING_ROADMAP.md` y cubren integridad de artefactos, repetición/aislamiento, first-use operacional y gate final de P8.
+P8F2 endurece la entrega: P8E2 solo devuelve READY cuando `dossier_integrity.json` verifica por SHA-256 el conjunto exacto de artefactos, incluidos los netlists P7A/P7B. La verificación es portable por rutas relativas, rechaza archivos extra, modificaciones, ausencias y symlinks. Es un gate de integridad de contenido, no una firma de autor.
+
+La siguiente frontera es P8F3: repetir la ruta completa sin sobrescribir entregas ni contaminar estado, manteniendo cada dossier independientemente verificable.
 
 ## Gate visual del piloto real
 
@@ -273,7 +279,7 @@ Se conservan estas reglas:
 7. ningún panel JavaScript recalcula ingeniería;
 8. cada resultado debe pertenecer a la revisión vigente del modelo.
 
-`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED`, `PROTECTION_EXECUTION_COMPLETED` y `DOSSIER_READY_ENGINEERING_PREVIEW` son estados distintos y no se sustituyen entre sí.
+`READY_TO_BUILD_MODEL`, `MODEL_BUILT_NOT_EXECUTED`, `P3_MATERIALIZED`, `P5_TCC_MATERIALIZED_NOT_EXECUTED`, `READY_FOR_CONTROLLED_EXECUTION`, `CONTROLLED_EXECUTION_COMPLETED`, `PROTECTION_EXECUTION_COMPLETED`, `DOSSIER_READY_ENGINEERING_PREVIEW` y `DOSSIER_INTEGRITY_VERIFIED` son estados distintos y no se sustituyen entre sí.
 
 ```text
 automatic_defaults = false
