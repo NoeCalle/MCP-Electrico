@@ -1,0 +1,99 @@
+name: p8f4-first-use-operational
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  p8f4-first-use:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Validate P8F4 contract and example manifest
+        run: python -m pytest -q tests/test_p8f4_first_use_contract.py
+
+      - name: Run first-use through public MCP stdio server
+        run: |
+          python examples/p8_first_use_mcp.py \
+            --manifest examples/p8_first_use_manifest.json \
+            --output-dir "$RUNNER_TEMP/p8f4_real_dossier" \
+            --summary "$RUNNER_TEMP/p8f4_stdio_smoke.json"
+
+      - name: Verify public smoke result and dossier files
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          summary = json.loads((Path(os.environ["RUNNER_TEMP"]) / "p8f4_stdio_smoke.json").read_text(encoding="utf-8"))
+          assert summary["schema"] == "MCP_ELECTRICO_P8F4_STDIO_SMOKE_V1"
+          assert summary["ok"] is True
+          assert summary["stage"] == "COMPLETE"
+          assert summary["tool_transport"] == "MCP_STDIO_SERVER_PY"
+          assert summary["server_entrypoint"] == "server.py"
+          assert summary["contract_schema"] == "MCP_ELECTRICO_P8F4_FIRST_USE_OPERATIONAL_CONTRACT_V1"
+          assert summary["intake_status"] == "READY_TO_BUILD_MODEL"
+          assert summary["execution_status"] == "DOSSIER_READY_ENGINEERING_PREVIEW"
+          assert summary["integrity_status"] == "DOSSIER_INTEGRITY_VERIFIED"
+          assert summary["automatic_dispatch"] is False
+          assert summary["automatic_fault_binding"] is False
+          assert summary["crosscheck"] is False
+          assert summary["professional_emission"] is False
+
+          dossier = Path(summary["output_directory"])
+          assert dossier.is_dir()
+          for name in (
+              "manifest.json",
+              "execution_p8d2.json",
+              "workspace_v5.html",
+              "project_snapshot_p7a.json",
+              "reconstruction_p7b.json",
+              "project_report_p7c.html",
+              "dossier_integrity.json",
+          ):
+              assert (dossier / name).is_file(), name
+          assert Path(summary["integrity_index"]).resolve() == (dossier / "dossier_integrity.json").resolve()
+          PY
+
+      - name: Verify first-use client has no direct engineering route
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path("examples/p8_first_use_mcp.py").read_text(encoding="utf-8")
+          required = (
+              "ClientSession",
+              "stdio_client",
+              "server.py",
+              "evaluar_admision_piloto_real",
+              "generar_dossier_piloto_real",
+              "verificar_integridad_dossier_real",
+          )
+          for token in required:
+              assert token in source, token
+
+          forbidden = (
+              "mcp_electrico",
+              "opendssdirect",
+              "pandapower",
+              "real_project_dossier",
+              "real_protection_execution",
+              "calc_sc",
+          )
+          for token in forbidden:
+              assert token not in source, token
+          PY
+
+      - name: Run P8F2 and P8E2 regression
+        run: python -m pytest -q tests/test_p8f2_dossier_integrity.py tests/test_p8e2_real_project_dossier.py

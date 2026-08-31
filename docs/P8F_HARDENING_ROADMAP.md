@@ -11,8 +11,8 @@ P6 IEEE 1584 permanece `DEFERRED` y no forma parte de este cierre.
 | P8F1 | DONE | entrada MCP única `generar_dossier_piloto_real` delegando en la misma cadena P8E2 |
 | P8F2 | DONE | integridad del dossier: inventario SHA-256 y verificación exacta antes de promover `DOSSIER_READY` |
 | P8F3 | DONE | repetición/aislamiento: entregas independientes, collision-safe y sin sobrescritura silenciosa |
-| P8F4 | NEXT | first-use operacional: ejemplo de manifiesto real, contrato de errores y smoke test desde el servidor MCP |
-| P8F5 | PENDING | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
+| P8F4 | DONE | first-use por MCP stdio real: ejemplo, contrato de errores y smoke `server.py` end-to-end |
+| P8F5 | NEXT | gate final P8 y checklist para iniciar uso controlado con expedientes reales |
 
 ## P8F1 — entrypoint MCP integral
 
@@ -50,7 +50,7 @@ cuando el índice se construyó y `verificar_integridad_dossier_real()` devuelve
 DOSSIER_INTEGRITY_VERIFIED
 ```
 
-El índice usa SHA-256 y rutas relativas. Inventaría el conjunto exacto de archivos del dossier, incluidos los archivos de los directorios `p7a_netlist` y `p7b_reconstructed`.
+El índice usa SHA-256 y rutas relativas. Inventa el conjunto exacto de archivos del dossier, incluidos `p7a_netlist` y `p7b_reconstructed`.
 
 Verifica:
 
@@ -59,20 +59,14 @@ Verifica:
 - tamaño y SHA-256 de cada archivo;
 - hash canónico del payload del propio índice;
 - rutas relativas seguras, sin `..` ni rutas absolutas;
-- ausencia de symlinks, para que los bytes verificados residan dentro del paquete;
+- ausencia de symlinks;
 - contexto trazable a manifest, revisión de modelo, P8D2, P7A y P7C.
 
-El índice raíz no se incluye a sí mismo (`self_hash_included=false`) para evitar una referencia hash circular. Un archivo anidado que casualmente se llame `dossier_integrity.json` sí se considera parte del paquete y debe estar indexado.
+El índice raíz no se incluye a sí mismo (`self_hash_included=false`) para evitar una referencia hash circular. Un archivo anidado que casualmente se llame `dossier_integrity.json` sí se considera parte del paquete.
 
-### Frontera de seguridad
-
-P8F2 proporciona **integridad respecto del índice congelado**, no autenticidad del autor. SHA-256 por sí solo no sustituye una firma digital, certificado, sello de tiempo confiable ni gate de emisión profesional. Un actor capaz de reemplazar simultáneamente archivos e índice puede construir un nuevo paquete autoconsistente.
-
-Por tanto `professional_emission=false` permanece cerrado.
+P8F2 aporta integridad respecto del índice congelado, no autenticidad del autor. SHA-256 no sustituye firma digital, certificado, sello de tiempo confiable ni gate de emisión profesional.
 
 ## P8F3 — repetición y aislamiento cerrados
-
-P8F3 prueba el comportamiento operacional de la misma ruta integral cuando se ejecuta repetidamente.
 
 La política pública es:
 
@@ -94,25 +88,71 @@ Las regresiones integrales demuestran que:
 
 - dos ejecuciones exitosas del mismo manifiesto producen dossiers distintos;
 - el primer dossier permanece byte-intacto después de crear el segundo;
-- cada entrega conserva su propio `dossier_integrity.json` P8F2 verificable;
+- cada entrega conserva su propio índice P8F2 verificable;
 - el mismo manifiesto conserva el mismo `manifest_sha256`;
-- no se exige que el SHA P7A sea idéntico entre corridas, porque una nueva ejecución puede tener otra revisión de modelo;
+- no se exige que el SHA P7A sea idéntico entre corridas;
 - Workspace queda ligado a la revisión de la ejecución exitosa más reciente;
-- si el intento posterior queda bloqueado antes de P8D2, no se crea `_2` ni se altera el dossier válido previo;
-- el intento bloqueado puede limpiar los estudios lógicos actuales como conducta fail-closed, sin invalidar la entrega congelada anterior.
+- un intento posterior bloqueado no crea una nueva entrega ni altera el dossier válido previo.
 
-P8F3 no añade una segunda tool de ejecución. `generar_dossier_piloto_real` sigue siendo el único entrypoint; `obtener_contrato_p8f3_repeticion_dossier()` solo documenta su política.
+`generar_dossier_piloto_real` sigue siendo el único entrypoint de ejecución.
 
-## P8F4 — siguiente frontera
+## P8F4 — first-use operacional cerrado
 
-P8F4 convertirá la cadena ya endurecida en una experiencia de primer uso comprobable desde el servidor MCP. Debe cubrir:
+P8F4 demuestra la ruta desde un **cliente MCP externo a la lógica de ingeniería**.
 
-- un manifiesto de ejemplo realista y completo, sin datos sintéticos ocultos ni defaults automáticos;
-- guía mínima de campos y procedencias necesarias para poder construir un manifiesto desde expediente/SLD/fichas;
-- contrato de estados y errores esperables del entrypoint;
-- smoke test que registre las tools desde el mismo `server.py` y ejecute la ruta pública, no el módulo interno;
-- verificación posterior del dossier con la tool MCP pública de P8F2;
-- ninguna ampliación de cálculos y `professional_emission=false`.
+Se añadieron:
+
+- `examples/p8_first_use_manifest.json`: plantilla completa y ejecutable marcada explícitamente como ejemplo;
+- `examples/p8_first_use_mcp.py`: cliente SDK MCP sin imports de `mcp_electrico`, OpenDSS o pandapower;
+- `obtener_contrato_p8f4_primer_uso()`: secuencia pública y contrato fail-closed de errores;
+- `docs/P8F4_FIRST_USE_MCP.md`: guía para sustituir el ejemplo por datos/procedencias del expediente;
+- workflow `p8f4-first-use-operational`: smoke real por stdio.
+
+El smoke levanta `server.py` y descubre/ejecuta por protocolo:
+
+```text
+evaluar_admision_piloto_real
+        ↓
+generar_dossier_piloto_real
+        ↓
+verificar_integridad_dossier_real
+```
+
+El gate ya demostró en CI:
+
+```text
+intake_status = READY_TO_BUILD_MODEL
+execution_status = DOSSIER_READY_ENGINEERING_PREVIEW
+integrity_status = DOSSIER_INTEGRITY_VERIFIED
+```
+
+La ejecución completa detrás del servidor conserva P1/P3/P4/P5, Workspace V5 y P7A/P7B/P7C. El cliente no implementa una segunda ruta de cálculo.
+
+### Contrato de errores
+
+P8F4 distingue y documenta:
+
+- `BLOCKED_MISSING_INPUTS`: reparar manifiesto y repetir admisión;
+- `BLOCKED_BY_P8D2_EXECUTION`: reparar entradas/binding explícitos;
+- `DOSSIER_ARTIFACT_GENERATION_FAILED`: no usar el directorio parcial como entrega;
+- `DOSSIER_INTEGRITY_MISMATCH`: restaurar/regenerar desde una fuente controlada.
+
+No existe reparación ni retry automáticos.
+
+## P8F5 — siguiente frontera
+
+P8F5 no añadirá cálculos. Será el gate final de P8 y debe responder una pregunta de producto: **¿está MCP Eléctrico listo para iniciar uso controlado con un expediente real bajo Engineering Preview?**
+
+El cierre debe comprobar al menos:
+
+- P8A–P8F4 cerrados y documentados;
+- entrypoint público único y smoke MCP stdio verde;
+- P8F2/P8F3 vigentes;
+- Workspace V5 y dossier P7 verificables;
+- lista explícita de datos que el usuario debe aportar antes de una corrida real;
+- límites y módulos experimentales visibles;
+- P6 `DEFERRED` no bloqueante;
+- `professional_emission=false`.
 
 ## Políticas invariantes
 
@@ -124,23 +164,22 @@ crosscheck = false
 professional_emission = false
 ```
 
-## Fricciones reales que P8F debe endurecer
+## Fricciones reales endurecidas por P8F
 
-El primer recorrido integral dejó lecciones que ahora pasan a ser gates de producto:
-
-1. un intento bloqueado nunca puede dejar estudios previos aparentando vigencia;
+1. un intento bloqueado nunca deja estudios previos aparentando vigencia;
 2. ningún runtime intermedio puede mutar silenciosamente parámetros eléctricos del modelo;
-3. P4→P5 debe continuar siendo un binding explícito y verificable;
+3. P4→P5 continúa siendo un binding explícito y verificable;
 4. Workspace solo presenta resultados de la revisión vigente;
-5. P7B debe permanecer aislado del proceso principal;
-6. un dossier parcial no debe promocionarse como listo;
-7. los artefactos del dossier deben poder verificarse por contenido y procedencia;
-8. repetir el mismo flujo no debe sobrescribir silenciosamente una entrega anterior;
-9. la ruta pública MCP debe ser la misma cadena probada en CI, no una implementación alternativa.
+5. P7B permanece aislado del proceso principal;
+6. un dossier parcial no se promociona como listo;
+7. los artefactos se verifican por contenido y procedencia;
+8. repetir el flujo no sobrescribe silenciosamente una entrega anterior;
+9. la ruta pública MCP es la misma cadena probada en CI;
+10. el primer uso por protocolo ya no depende de imports internos.
 
 ## Criterio de salida de P8F
 
-P8F se considerará cerrado cuando un usuario pueda entregar un manifiesto real completo al servidor MCP y obtener, mediante una única tool controlada, un resultado Engineering Preview con:
+P8F se considerará cerrado cuando P8F5 confirme que un usuario puede entregar un manifiesto real completo al servidor MCP y obtener, mediante una única tool controlada, un resultado Engineering Preview con:
 
 - ejecución P1/P3/P4/P5 trazable;
 - Workspace V5;

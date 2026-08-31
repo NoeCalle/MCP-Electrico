@@ -1,0 +1,210 @@
+{
+  "project": {
+    "id": "P8F4-FIRST-USE-001",
+    "name": "Subestación ejemplo de primer uso P8F4",
+    "source_reference": "EJEMPLO CONTROLADO P8F4 - sustituir por expediente real"
+  },
+  "requested_scope": [
+    "POWER_FLOW",
+    "VOLTAGE_DROP",
+    "AMPACITY",
+    "IEC60909_3PH_MAX_MIN",
+    "IEC60909_1PH_GROUND_MAX_MIN",
+    "PROTECTION_TCC"
+  ],
+  "source": {
+    "bus": "red_mt",
+    "kv_ll": 22.9,
+    "frequency_hz": 60.0,
+    "pu": 1.0,
+    "angle_deg": 0.0,
+    "scc_max_mva": 350.0,
+    "x_r_max": 10.0,
+    "scc_min_mva": 180.0,
+    "x_r_min": 6.0,
+    "source_reference": "EJEMPLO P8F4 - estudio de red aguas arriba"
+  },
+  "topology": {
+    "buses": [
+      "red_mt",
+      "tgbt",
+      "load_bus"
+    ],
+    "transformers": [
+      {
+        "id": "Transformer.tr01",
+        "bus_hv": "red_mt",
+        "bus_lv": "tgbt",
+        "kva": 1000.0,
+        "kv_hv": 22.9,
+        "kv_lv": 0.48,
+        "uk_percent": 6.0,
+        "vector_group": "Dyn11",
+        "x_r": 10.0,
+        "no_load_loss_kw": 1.8,
+        "i0_percent": 0.6,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -2,
+        "tap_max": 2,
+        "tap_step_percent": 2.5,
+        "tap_pos": 0,
+        "source_reference": "EJEMPLO P8F4 - placa/ficha de transformador"
+      }
+    ],
+    "lines": [
+      {
+        "id": "Line.feeder",
+        "bus1": "tgbt",
+        "bus2": "load_bus",
+        "phases": 3,
+        "length_km": 0.05,
+        "r1_ohm_km": 0.12,
+        "x1_ohm_km": 0.08,
+        "c1_nf_km": 0.0,
+        "endtemp_min_c": 90.0,
+        "source_reference": "EJEMPLO P8F4 - cuadro de cables"
+      }
+    ],
+    "loads": [
+      {
+        "id": "Load.load1",
+        "bus": "load_bus",
+        "phases": 3,
+        "kv": 0.48,
+        "kw": 250.0,
+        "kvar": 80.0,
+        "connection": "wye",
+        "model": 1,
+        "source_reference": "EJEMPLO P8F4 - lista de cargas"
+      }
+    ]
+  },
+  "zero_sequence": {
+    "source": {
+      "r0_max_ohm": 0.15,
+      "x0_max_ohm": 0.45,
+      "r0_min_ohm": 0.25,
+      "x0_min_ohm": 0.8,
+      "source_reference": "EJEMPLO P8F4 - estudio Z0 de utility"
+    },
+    "lines": [
+      {
+        "id": "Line.feeder",
+        "r0_ohm_km": 0.36,
+        "x0_ohm_km": 0.15,
+        "c0_nf_km": 100.0,
+        "source_reference": "EJEMPLO P8F4 - cálculo Z0 de cable"
+      }
+    ],
+    "transformers": [
+      {
+        "id": "Transformer.tr01",
+        "uk0_percent": 5.5,
+        "ur0_percent": 0.6,
+        "magnetizing_z0_ratio_percent": 100.0,
+        "magnetizing_r_over_x": 0.0,
+        "leakage_share_hv": 0.5,
+        "neutral_side": "lv",
+        "neutral_mode": "solid",
+        "source_reference": "EJEMPLO P8F4 - ensayo/cálculo Z0 de transformador"
+      }
+    ]
+  },
+  "ampacity": [
+    {
+      "element_id": "Line.feeder",
+      "conductor_code": "EXAMPLE-CABLE-01",
+      "conductor_description": "EXAMPLE-CABLE-01 - alimentador de demostración",
+      "base_ampacity_a": 500.0,
+      "norm_id": "IEC_60364_5_52_2009_A1_2024",
+      "ib_a": 350.0,
+      "ib_reference": "EJEMPLO P8F4 - demanda y dimensionamiento",
+      "in_a": 400.0,
+      "in_reference": "EJEMPLO P8F4 - cuadro de protecciones",
+      "installation_reference": "EJEMPLO P8F4 - detalle de instalación",
+      "ampacity_reference": "EJEMPLO P8F4 - cálculo de ampacidad",
+      "base_conditions_confirmed": true,
+      "factors": []
+    }
+  ],
+  "protection": {
+    "devices": [
+      {
+        "id": "QF01",
+        "type": "circuit_breaker",
+        "protected_element": "Line.feeder",
+        "in_a": 400.0,
+        "ue_kv": 0.48,
+        "icu_ka": 36.0,
+        "ics_ka": 25.0,
+        "breaking_capacity_ka": 36.0,
+        "standard_reference": "IEC 60947-2 - EJEMPLO P8F4",
+        "source_reference": "EJEMPLO P8F4 - cuadro aprobado de protecciones",
+        "manufacturer": "EXAMPLE_MANUFACTURER",
+        "model": "EXAMPLE_BREAKER_400A",
+        "poles": 3,
+        "curve_id": "QF01-EXAMPLE-TCC",
+        "curve_type": "MANUFACTURER_TCC",
+        "curve_source_reference": "EJEMPLO P8F4 - curva TCC",
+        "curve_revision": "EXAMPLE-REV-A"
+      }
+    ],
+    "tcc_datasets": [
+      {
+        "device_id": "QF01",
+        "dataset_id": "QF01-TCC-EXAMPLE-REV-A",
+        "curve_id": "QF01-EXAMPLE-TCC",
+        "shape": "BAND",
+        "time_semantics": "TOTAL_CLEARING_TIME",
+        "source_type": "MANUFACTURER_DATASET",
+        "source_reference": "EJEMPLO P8F4 - datos numéricos TCC",
+        "revision": "EXAMPLE-REV-A",
+        "segments": [
+          {
+            "id": "full_range",
+            "points": [
+              {
+                "current_a": 400.0,
+                "time_min_s": 10.0,
+                "time_max_s": 12.0
+              },
+              {
+                "current_a": 4000.0,
+                "time_min_s": 0.1,
+                "time_max_s": 0.12
+              },
+              {
+                "current_a": 40000.0,
+                "time_min_s": 0.04,
+                "time_max_s": 0.05
+              },
+              {
+                "current_a": 100000.0,
+                "time_min_s": 0.02,
+                "time_max_s": 0.03
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "fault_bindings": [
+      {
+        "device_id": "QF01",
+        "fault_bus": "load_bus",
+        "fault_type": "3ph",
+        "case": "max",
+        "current_quantity": "ikss_ka",
+        "operating_voltage_kv": 0.48,
+        "source_reference": "EJEMPLO P8F4 - binding explícito de duty"
+      }
+    ]
+  },
+  "study_inputs": {
+    "voltage_drop_limit_pct": 5.0,
+    "short_circuit_buses": [
+      "load_bus"
+    ]
+  }
+}
