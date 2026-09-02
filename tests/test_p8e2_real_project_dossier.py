@@ -21,7 +21,7 @@ def test_p8e2_generates_workspace_snapshot_reconstruction_and_report_without_des
     result = real_project_dossier.generar_dossier(manifest, str(output))
 
     assert result["schema"] == "MCP_ELECTRICO_P8E2_REAL_PROJECT_DOSSIER_V1"
-    assert result["status"] == "DOSSIER_READY_ENGINEERING_PREVIEW"
+    assert result["status"] == "DOSSIER_READY_ENGINEERING_PREVIEW", result
     assert result["p8d2_execution_status"] == "PROTECTION_EXECUTION_COMPLETED"
     assert result["active_circuit_preserved"] is True
     assert result["p7a"]["status"] == "HASH_MATCH"
@@ -72,8 +72,11 @@ def test_p8e2_generates_workspace_snapshot_reconstruction_and_report_without_des
     assert snapshot["hash"]["value"] == result["p7a"]["sha256"]
 
     reconstruction = json.loads((output / "reconstruction_p7b.json").read_text(encoding="utf-8"))
-    assert reconstruction["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+    assert reconstruction["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", reconstruction
     assert reconstruction["roundtrip"]["canonical_netlist_match"] is True
+    assert reconstruction["load_command"] == "Redirect"
+    assert reconstruction["compile_performed"] is False
+    assert reconstruction["redirect_performed"] is True
     assert reconstruction["isolation_mode"] == "OPENDSS_NEW_CONTEXT"
     assert reconstruction["isolated_context"] is True
     assert reconstruction["isolated_process"] is False
