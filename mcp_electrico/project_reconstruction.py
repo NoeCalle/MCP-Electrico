@@ -13,6 +13,7 @@ mismo proceso y evita destruir o rebindear el circuito activo del servidor MCP.
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
 import json
 import os
 from pathlib import Path
@@ -245,6 +246,53 @@ def _context_netlist_payload(engine: Any, directory: str | Path) -> dict[str, An
     }
 
 
+def _content_sha256(content: str) -> str:
+    return sha256(str(content).encode("utf-8")).hexdigest()
+
+
+def _netlist_diff_summary(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
+    """Resume un mismatch sin incrustar el contenido completo de los DSS."""
+    def file_map(value: dict[str, Any]) -> dict[str, dict[str, Any]]:
+        mapped: dict[str, dict[str, Any]] = {}
+        for item in value.get("files") or []:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "")
+            if name:
+                mapped[name.lower()] = item
+        return mapped
+
+    expected_files = file_map(expected)
+    actual_files = file_map(actual)
+    expected_keys = set(expected_files)
+    actual_keys = set(actual_files)
+    changed: list[dict[str, Any]] = []
+    for key in sorted(expected_keys & actual_keys):
+        expected_content = str(expected_files[key].get("content") or "")
+        actual_content = str(actual_files[key].get("content") or "")
+        if expected_content == actual_content:
+            continue
+        changed.append(
+            {
+                "name_expected": str(expected_files[key].get("name") or key),
+                "name_actual": str(actual_files[key].get("name") or key),
+                "expected_sha256": _content_sha256(expected_content),
+                "actual_sha256": _content_sha256(actual_content),
+                "expected_bytes": len(expected_content.encode("utf-8")),
+                "actual_bytes": len(actual_content.encode("utf-8")),
+            }
+        )
+    return {
+        "missing_files": [str(expected_files[key].get("name") or key) for key in sorted(expected_keys - actual_keys)],
+        "extra_files": [str(actual_files[key].get("name") or key) for key in sorted(actual_keys - expected_keys)],
+        "changed_files": changed,
+        "master_file_expected": expected.get("master_file"),
+        "master_file_actual": actual.get("master_file"),
+        "canonicalization_match": expected.get("canonicalization") == actual.get("canonicalization"),
+        "paths_included_match": expected.get("paths_included") == actual.get("paths_included"),
+    }
+
+
 def _clear_core_runtime_metadata() -> None:
     # Compile de OpenDSS no pasa por core.crear_circuito; limpiamos solo
     # metadatos auxiliares del MCP para no heredar cargas críticas/bases previas.
@@ -324,6 +372,8 @@ def _reconstruir_snapshot_engine(
         result["previous_circuit"] = previous_circuit
         result["write_performed"] = False
         result["compile_performed"] = False
+        result["redirect_performed"] = False
+        result["load_command"] = None
         if isolation_mode:
             result["isolation_mode"] = isolation_mode
         return result
@@ -337,6 +387,8 @@ def _reconstruir_snapshot_engine(
         result["previous_circuit"] = previous_circuit
         result["write_performed"] = False
         result["compile_performed"] = False
+        result["redirect_performed"] = False
+        result["load_command"] = None
         result["error"] = str(exc)
         if isolation_mode:
             result["isolation_mode"] = isolation_mode
@@ -346,17 +398,20 @@ def _reconstruir_snapshot_engine(
     target = _safe_target_dir(directorio_reconstruccion)
     master = _materialize(netlist, target)
     _diagnostic_stage("NETLIST_MATERIALIZED", master_file=str(master))
+    load_command = "Redirect" if isolation_mode == ISOLATION_MODE_CONTEXT else "Compile"
+    compile_performed = load_command == "Compile"
+    redirect_performed = load_command == "Redirect"
 
     try:
         _diagnostic_stage("DSS_CLEAR_STARTED")
         engine("Clear")
         _diagnostic_stage("DSS_CLEAR_COMPLETED")
-        _diagnostic_stage("DSS_COMPILE_STARTED", master_file=str(master))
-        engine(f'Compile "{master}"')
-        _diagnostic_stage("DSS_COMPILE_COMPLETED")
+        _diagnostic_stage("DSS_LOAD_STARTED", load_command=load_command, master_file=str(master))
+        engine(f'{load_command} "{master}"')
+        _diagnostic_stage("DSS_LOAD_COMPLETED", load_command=load_command)
         reconstructed_circuit = _active_circuit_name(engine).strip()
         if not reconstructed_circuit:
-            raise RuntimeError("P7B030: Compile no produjo un circuito activo.")
+            raise RuntimeError(f"P7B030: {load_command} no produjo un circuito activo.")
         if reset_structured_state:
             _reset_structured_state("p7b_reconstructed_netlist")
             _diagnostic_stage("STRUCTURED_STATE_RESET", circuit=reconstructed_circuit)
@@ -375,7 +430,8 @@ def _reconstruir_snapshot_engine(
             "file_count_actual": roundtrip.get("file_count"),
         }
         if not match:
-            _diagnostic_stage("ROUNDTRIP_MISMATCH")
+            roundtrip_info["mismatch"] = _netlist_diff_summary(netlist, roundtrip)
+            _diagnostic_stage("ROUNDTRIP_MISMATCH", mismatch=roundtrip_info["mismatch"])
             _clear_failed_reconstruction(
                 "p7b_roundtrip_mismatch",
                 engine=engine,
@@ -388,7 +444,9 @@ def _reconstruir_snapshot_engine(
                 "materialized_directory": str(target),
                 "master_file": str(master),
                 "write_performed": True,
-                "compile_performed": True,
+                "compile_performed": compile_performed,
+                "redirect_performed": redirect_performed,
+                "load_command": load_command,
                 "roundtrip": roundtrip_info,
                 "active_circuit_after_failure": _active_circuit_name(engine),
             })
@@ -408,7 +466,9 @@ def _reconstruir_snapshot_engine(
             "materialized_directory": str(target),
             "master_file": str(master),
             "write_performed": True,
-            "compile_performed": True,
+            "compile_performed": compile_performed,
+            "redirect_performed": redirect_performed,
+            "load_command": load_command,
             "roundtrip": roundtrip_info,
         })
         if reset_structured_state:
@@ -433,7 +493,9 @@ def _reconstruir_snapshot_engine(
             "materialized_directory": str(target),
             "master_file": str(master),
             "write_performed": True,
-            "compile_performed": True,
+            "compile_performed": compile_performed,
+            "redirect_performed": redirect_performed,
+            "load_command": load_command,
             "error": str(exc),
             "active_circuit_after_failure": _active_circuit_name(engine),
         })
@@ -467,8 +529,9 @@ def reconstruir_snapshot_contexto_aislado(
     la verificación canónica archivo por archivo.
     """
     isolated = dss.NewContext()
-    # OpenDSSDirect recomienda evitar cambios del cwd cuando se usan contextos
-    # múltiples. Los scripts se compilan desde una ruta absoluta.
+    # Con múltiples contextos evitamos mutar el cwd del proceso. DSS-Extensions
+    # mantiene internamente las rutas de Redirect; Master.dss se carga por ruta
+    # absoluta en el contexto aislado.
     isolated.Basic.AllowChangeDir(False)
     result = _reconstruir_snapshot_engine(
         snapshot,
