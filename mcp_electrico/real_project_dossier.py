@@ -36,6 +36,7 @@ STATUS_BLOCKED_EXECUTION = "BLOCKED_BY_P8D2_EXECUTION"
 STATUS_FAILED_ARTIFACT = "DOSSIER_ARTIFACT_GENERATION_FAILED"
 STATUS_READY = "DOSSIER_READY_ENGINEERING_PREVIEW"
 P7B_OK = "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+P7B_ISOLATED_TIMEOUT_S = 120
 
 
 def _canonical_json(value: Any) -> str:
@@ -82,56 +83,118 @@ def _active_circuit() -> str:
         return ""
 
 
+def _tail(value: Any, limit: int = 4000) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        text = value.decode("utf-8", errors="replace")
+    else:
+        text = str(value)
+    return text[-limit:]
+
+
+def _read_p7b_stage(path: Path) -> dict[str, Any] | None:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
 def _p7b_isolated(snapshot_path: Path, reconstruction_dir: Path, result_path: Path) -> dict[str, Any]:
+    stage_path = result_path.with_name("p7b_isolated_stage.json")
     script = r'''
 import json
+import os
 from pathlib import Path
 import sys
-from mcp_electrico import project_reconstruction
 
 snapshot_path = Path(sys.argv[1])
 reconstruction_dir = Path(sys.argv[2])
 result_path = Path(sys.argv[3])
+stage_path = Path(sys.argv[4])
+
+def stage(name, **extra):
+    payload = {
+        "schema": "MCP_ELECTRICO_P7B_ISOLATED_STAGE_V1",
+        "stage": name,
+        "professional_emission": False,
+    }
+    payload.update(extra)
+    stage_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False),
+        encoding="utf-8",
+    )
+
+stage("CHILD_STARTED")
+os.environ["MCP_ELECTRICO_P7B_STAGE_FILE"] = str(stage_path)
+from mcp_electrico import project_reconstruction
+stage("MODULE_IMPORTED")
 snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+stage("SNAPSHOT_LOADED")
 result = project_reconstruction.reconstruir_snapshot(
     snapshot,
     directorio_reconstruccion=str(reconstruction_dir),
 )
+stage("RESULT_READY", result_status=result.get("status"))
 result_path.write_text(
     json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False),
     encoding="utf-8",
 )
+stage("RESULT_WRITTEN", result_status=result.get("status"))
 raise SystemExit(0 if result.get("status") == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED" else 3)
 '''
     env = os.environ.copy()
     package_root = str(Path(__file__).resolve().parent.parent)
     current_pythonpath = env.get("PYTHONPATH")
     env["PYTHONPATH"] = package_root if not current_pythonpath else package_root + os.pathsep + current_pythonpath
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            script,
-            str(snapshot_path),
-            str(reconstruction_dir),
-            str(result_path),
-        ],
-        text=True,
-        capture_output=True,
-        check=False,
-        env=env,
-    )
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                script,
+                str(snapshot_path),
+                str(reconstruction_dir),
+                str(result_path),
+                str(stage_path),
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+            timeout=P7B_ISOLATED_TIMEOUT_S,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return {
+            "schema": "MCP_ELECTRICO_P8E2_P7B_ISOLATED_FAILURE_V1",
+            "status": "P7B_ISOLATED_PROCESS_TIMEOUT",
+            "timeout_s": P7B_ISOLATED_TIMEOUT_S,
+            "last_stage": _read_p7b_stage(stage_path),
+            "stdout": _tail(exc.stdout),
+            "stderr": _tail(exc.stderr),
+            "diagnostic_stage_path": str(stage_path),
+            "professional_emission": False,
+        }
     if not result_path.is_file():
         return {
             "schema": "MCP_ELECTRICO_P8E2_P7B_ISOLATED_FAILURE_V1",
             "status": "P7B_ISOLATED_PROCESS_FAILED",
             "returncode": completed.returncode,
-            "stderr": completed.stderr[-4000:],
+            "last_stage": _read_p7b_stage(stage_path),
+            "stdout": _tail(completed.stdout),
+            "stderr": _tail(completed.stderr),
+            "diagnostic_stage_path": str(stage_path),
             "professional_emission": False,
         }
     result = json.loads(result_path.read_text(encoding="utf-8"))
     result["isolated_process"] = True
     result["isolated_process_returncode"] = completed.returncode
+    result["isolated_process_last_stage"] = _read_p7b_stage(stage_path)
+    try:
+        stage_path.unlink()
+    except FileNotFoundError:
+        pass
     return result
 
 
