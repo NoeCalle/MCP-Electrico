@@ -43,9 +43,12 @@ def test_p7b_new_context_roundtrip_preserves_parent_dss_and_workspace(tmp_path):
         directorio_reconstruccion=str(tmp_path / "isolated_reconstructed"),
     )
 
-    assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+    assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", result
     assert result["roundtrip"]["canonical_netlist_match"] is True
     assert result["reconstructed_circuit"] == "p7b_context_source"
+    assert result["load_command"] == "Redirect"
+    assert result["compile_performed"] is False
+    assert result["redirect_performed"] is True
     assert result["isolation_mode"] == "OPENDSS_NEW_CONTEXT"
     assert result["isolated_context"] is True
     assert result["isolated_process"] is False
@@ -74,6 +77,9 @@ def test_p7b_new_context_integrity_failure_never_touches_parent(tmp_path):
 
     assert result["status"] == "BLOCKED_SNAPSHOT_INTEGRITY"
     assert result["integrity"]["status"] == "HASH_MISMATCH"
+    assert result["load_command"] is None
+    assert result["compile_performed"] is False
+    assert result["redirect_performed"] is False
     assert result["isolation_mode"] == "OPENDSS_NEW_CONTEXT"
     assert result["isolated_context"] is True
     assert str(dss.Circuit.Name() or "") == "p7b_parent_integrity_sentinel"
