@@ -23,7 +23,7 @@ jobs:
 
       - name: Regress P7B/P8E2 isolation on Windows
         run: |
-          python -m pytest -q tests/test_p7b_project_reconstruction.py tests/test_p8e2_real_project_dossier.py
+          python -m pytest -q tests/test_p7b_project_reconstruction.py tests/test_p7b_context_isolation.py tests/test_p8e2_real_project_dossier.py
 
       - name: Run P8F4 first-use through MCP stdio on Windows
         run: |
