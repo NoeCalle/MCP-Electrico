@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import json
 
 from opendssdirect import dss
 
@@ -43,6 +44,8 @@ def test_p7b_new_context_roundtrip_preserves_parent_dss_and_workspace(tmp_path):
         directorio_reconstruccion=str(tmp_path / "isolated_reconstructed"),
     )
 
+    if result["status"] != "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED":
+        print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", result
     assert result["roundtrip"]["canonical_netlist_match"] is True
     assert result["reconstructed_circuit"] == "p7b_context_source"
