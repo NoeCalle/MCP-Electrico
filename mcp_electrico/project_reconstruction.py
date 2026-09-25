@@ -81,6 +81,7 @@ def obtener_contrato_p7b() -> dict[str, Any]:
         "integrity_before_write": True,
         "materialization": "ISOLATED_NEW_DIRECTORY",
         "roundtrip_verification": "CANONICAL_DSS_FILE_BY_FILE",
+        "roundtrip_comparison_normalization": "IGNORE_SAVE_CIRCUIT_BUSCOORDS_MASTER_REFERENCE_ONLY",
         "stored_results_promoted_to_current": False,
         "structured_state_auto_restore": False,
         "isolated_context_supported": True,
@@ -248,6 +249,40 @@ def _context_netlist_payload(engine: Any, directory: str | Path) -> dict[str, An
 
 def _content_sha256(content: str) -> str:
     return sha256(str(content).encode("utf-8")).hexdigest()
+
+
+_ROUNDTRIP_IGNORED_MASTER_DIRECTIVES = {"buscoords buscoords.dss"}
+
+
+def _normalize_master_for_roundtrip(content: str) -> str:
+    """Normaliza solo boilerplate no eléctrico emitido por Save Circuit.
+
+    Con dss.NewContext() y AllowChangeDir(False), DSS-Extensions puede omitir
+    al volver a guardar la referencia generada ``BusCoords BusCoords.dss``
+    aunque el archivo BusCoords.dss siga presente e idéntico. La directiva
+    no altera el modelo eléctrico y P7B no restaura el estado visual. Para no
+    confundir esa diferencia de serialización con una diferencia de ingeniería,
+    se ignora únicamente esa referencia exacta de Master.dss durante la
+    comparación. El contenido de BusCoords.dss continúa verificándose archivo
+    por archivo y cualquier otra diferencia sigue bloqueando P7B.
+    """
+    normalized: list[str] = []
+    for line in str(content).splitlines(keepends=True):
+        raw = line.rstrip("\\r\\n")
+        if raw.strip().lower() in _ROUNDTRIP_IGNORED_MASTER_DIRECTIVES:
+            continue
+        normalized.append(line)
+    return "".join(normalized)
+
+
+def _roundtrip_comparison_payload(netlist: dict[str, Any]) -> dict[str, Any]:
+    normalized = deepcopy(netlist)
+    for item in normalized.get("files") or []:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("name") or "").lower() == "master.dss":
+            item["content"] = _normalize_master_for_roundtrip(str(item.get("content") or ""))
+    return normalized
 
 
 def _netlist_diff_summary(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
@@ -422,12 +457,16 @@ def _reconstruir_snapshot_engine(
         else:
             roundtrip = project_snapshot.construir_netlist_canonico(str(target / "_roundtrip"))
         _diagnostic_stage("ROUNDTRIP_EXPORT_COMPLETED", file_count=roundtrip.get("file_count"))
-        match = roundtrip == netlist
+        match = (
+            _roundtrip_comparison_payload(roundtrip)
+            == _roundtrip_comparison_payload(netlist)
+        )
         roundtrip_info = {
             "performed": True,
             "canonical_netlist_match": match,
             "file_count_expected": netlist["file_count"],
             "file_count_actual": roundtrip.get("file_count"),
+            "comparison_normalization": "IGNORE_SAVE_CIRCUIT_BUSCOORDS_MASTER_REFERENCE_ONLY",
         }
         if not match:
             roundtrip_info["mismatch"] = _netlist_diff_summary(netlist, roundtrip)
