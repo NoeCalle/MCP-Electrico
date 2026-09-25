@@ -235,7 +235,7 @@ El fixture no usa lookup normativo automático ni convierte el dato de proyecto 
 
 ## P10F — Protecciones, TCC y fault bindings explícitos
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #115.
 
 P10F usa `examples/p10_reference_substation_stage5.json` y amplía Stage 4 con dos interruptores de referencia: uno para el feeder MT y otro para el feeder BT.
 
@@ -270,7 +270,46 @@ Los datasets y ratings son `CONTROLLED_REFERENCE_DATA`. Sirven para validar el f
 - `automatic_fault_binding=false`;
 - `professional_emission=false`.
 
-Al cerrar P10F, P10G integrará Workspace V5, snapshot/reconstrucción P7 y dossier reproducible sobre el Stage 5 completo.
+## P10G — Workspace V5 y dossier reproducible
+
+**Estado: IN PROGRESS.**
+
+P10G no cambia los datos eléctricos de Stage 5. Su objetivo es probar que el proyecto de referencia completo atraviesa la cadena de entrega ya construida:
+
+```text
+Stage 5 manifest
+      ↓
+P8D2 execution
+      ↓
+Workspace V5
+      ↓
+P7A snapshot + SHA-256
+      ↓
+P7B isolated reconstruction
+      ↓
+P7C technical HTML
+      ↓
+P8F2 integrity index
+      ↓
+collision-safe dossier
+```
+
+### Criterios de cierre P10G
+
+- la ejecución P8D2 completa sin recalcular P4 dentro de P5;
+- Workspace V5 contiene los dos dispositivos y sus bindings vigentes;
+- P7A devuelve `HASH_MATCH`;
+- P7B usa `OPENDSS_NEW_CONTEXT` y no muta el contexto padre;
+- P7C queda `TECHNICAL_REPORT_READY_FOR_PRINT`, sin emisión profesional;
+- el índice SHA-256 verifica el conjunto exacto de artefactos;
+- el dossier incluye manifest, ejecución, workspace, snapshot, reconstrucción, reporte y netlists;
+- una segunda entrega usa sufijo incremental y no modifica la primera;
+- ambos dossiers siguen verificando integridad de forma independiente;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10G;
+- `professional_report=false`;
+- `professional_emission=false`.
+
+Si este gate pasa, P10 queda cerrado como validación integral del Engineering Preview con un caso controlado propio del producto.
 
 ## Protección de versiones estables
 
