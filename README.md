@@ -15,11 +15,14 @@ El HTML no contiene un segundo chatbot ni usa una API de modelos: ChatGPT sigue
 siendo la interfaz conversacional, OpenDSS sigue siendo el motor eléctrico y el
 workspace es una vista estructurada del estado, propiedades y estudios.
 
-> **Estado:** plataforma en desarrollo con módulos en distintos niveles de madurez.
-> Flujo de potencia, caída de tensión, biblioteca de conductores y ampacidad P3-v1
-> están `VALIDATED_WITH_LIMITATIONS` dentro de alcances publicados. IEC 60909,
-> coordinación/TCC, IEEE 1584 y expediente profesional completo continúan pendientes.
-> La herramienta no sustituye la revisión ni responsabilidad del ingeniero.
+> **Estado:** MCP Eléctrico 0.9 **Engineering Preview** con baseline P9 congelada
+> para iniciar un proyecto real controlado. Flujo de potencia, caída de tensión,
+> ampacidad P3-v1 e IEC 60909 P4-v1 están `VALIDATED_WITH_LIMITATIONS` dentro de
+> alcances publicados; P5/P7/P8 aportan protección-TCC, expediente reproducible y la
+> ruta integral de dossier, conservando sus limitaciones explícitas. P9 endurece
+> Windows/Python 3.12, aislamiento OpenDSS `NewContext`, regresión y repetibilidad MCP
+> stdio. IEEE 1584 y la emisión profesional permanecen fuera de la 0.9. La herramienta
+> no sustituye la revisión ni responsabilidad del ingeniero.
 
 ## 1. Instalación
 
@@ -79,6 +82,11 @@ python -m pytest -q
 
 GitHub Actions ejecuta `pytest`, genera el unifilar técnico y el workspace de
 referencia con estudios y conserva ambos como artefactos en cada PR.
+
+La baseline de hardening 0.9 se documenta en
+`docs/P9_HARDENING_0_9.md`. El siguiente frente de producto es P10:
+incorporación progresiva del proyecto controlado `SE-MIN-01`
+(22.9/4.16/0.48 kV), sin completar datos faltantes mediante supuestos silenciosos.
 
 ## 3. Conectar a un cliente MCP
 

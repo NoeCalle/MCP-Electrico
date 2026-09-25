@@ -208,7 +208,7 @@ p7b_reconstructed/
 dossier_integrity.json
 ```
 
-P7B se verifica en proceso hijo para no rebindear/destruir el estado principal. P7C consume el snapshot P7A y no recalcula ingeniería.
+P7B se verifica en un contexto independiente `dss.NewContext()` para no rebindear/destruir el estado DSS principal, sin depender de un proceso Python hijo. P7C consume el snapshot P7A y no recalcula ingeniería.
 
 El estado de entrega es:
 
