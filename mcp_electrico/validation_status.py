@@ -163,13 +163,14 @@ _MODULES = {
     },
     "project_reconstruction": {
         "status": "EXPERIMENTAL",
-        "basis": "P7B: hash P7A obligatorio + materialización DSS aislada + Compile + round-trip canónico archivo por archivo",
+        "basis": "P7B: hash P7A obligatorio + materialización DSS aislada + contexto OpenDSS independiente + round-trip canónico archivo por archivo",
         "limitations": [
             "P7B-v1 reconstruye y verifica únicamente el netlist eléctrico DSS del schema P7A-v1",
             "P2, secuencia cero, P3, P5 y datasets TCC estructurados no se restauran automáticamente y requieren rebind explícito",
             "Los estudios almacenados en el snapshot no se promueven a resultados vigentes y deben recalcularse",
             "La representación visual histórica no se restaura automáticamente",
             "Un hash inválido bloquea antes de escribir y un round-trip distinto limpia la reconstrucción no verificada",
+            "La comparación round-trip ignora únicamente la referencia Master.dss `BusCoords BusCoords.dss` que Save Circuit puede omitir en NewContext; BusCoords.dss y el resto del netlist siguen verificándose por contenido",
             "El reporte técnico P7C no cambia la política de rebind/recalculation de P7B",
             "engineering_preview_ready=false hasta P7D",
             "professional_emission=false",
