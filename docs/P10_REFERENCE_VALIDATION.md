@@ -272,7 +272,7 @@ Los datasets y ratings son `CONTROLLED_REFERENCE_DATA`. Sirven para validar el f
 
 ## P10G — Workspace V5 y dossier reproducible
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #116.
 
 P10G no cambia los datos eléctricos de Stage 5. Su objetivo es probar que el proyecto de referencia completo atraviesa la cadena de entrega ya construida:
 
@@ -314,3 +314,25 @@ Si este gate pasa, P10 queda cerrado como validación integral del Engineering P
 ## Protección de versiones estables
 
 La baseline 0.9 congelada dispone ahora de la rama de recuperación `stable/0.9-engineering-preview`, anclada al commit de freeze P9D. La política de recuperación y el futuro mirror independiente se documentan en `docs/RELEASE_RECOVERY_POLICY.md`.
+
+
+## Cierre P10
+
+P10 queda cerrado después de validar el caso `MCP-REF-SUB-01` de extremo a extremo:
+
+```text
+P10A fail-closed intake                 DONE
+P10B POWER_FLOW / VOLTAGE_DROP          DONE
+P10C IEC60909 3PH MAX/MIN               DONE
+P10D Z0 + 1PH-GROUND MAX/MIN            DONE
+P10E AMPACITY Ib/In/Iz                  DONE
+P10F PROTECTION_TCC + explicit binding  DONE
+P10G Workspace V5 + P7/P8F dossier      DONE
+
+P10 = CLOSED
+reference_validation = PASSED
+professional_report = false
+professional_emission = false
+```
+
+El cierre prueba que la baseline puede recorrer el flujo integral sobre un caso controlado propio del producto. No convierte los datos sintéticos en evidencia de un proyecto real ni eleva automáticamente la madurez profesional de los módulos.
