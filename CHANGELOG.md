@@ -4,6 +4,37 @@ Registro de la evolución del servidor MCP para OpenDSS. Cada entrada indica
 qué herramientas se agregaron, qué caso de estudio las motivó, y cualquier
 corrección relevante.
 
+## [0.9.0-engineering-preview] - 2026-09-25
+
+### Baseline de producto
+
+- P1–P5 cerrados dentro de sus alcances y limitaciones publicados.
+- P7 habilita snapshot P7A, reconstrucción P7B, reporte P7C y gate Engineering Preview.
+- P8 cierra la ruta integral de proyecto controlado: admisión, readiness, ejecución,
+  Workspace V5, dossier, integridad SHA-256 y entrypoint MCP público.
+- P9 congela la baseline 0.9 antes del primer proyecto minero controlado.
+
+### Hardening P9
+
+- P7B usa `dss.NewContext()` para reconstrucción aislada en el mismo proceso y elimina
+  la dependencia del subprocess Python que provocaba timeout por MCP stdio en Windows.
+- El round-trip normaliza únicamente la referencia no eléctrica
+  `BusCoords BusCoords.dss` que `Save Circuit` puede omitir; `BusCoords.dss` y el
+  resto del netlist siguen comparándose por contenido.
+- `pandapower==3.5.4` queda fijado porque es la versión respaldada por la evidencia y
+  regresión P4 IEC 60909 vigente.
+- P9C ejecuta tres dossiers consecutivos dentro de una única sesión MCP stdio,
+  revalida la primera entrega después de la tercera y prueba Linux/Python 3.11 y
+  Windows/Python 3.12.
+- La baseline conserva `automatic_dispatch=false`, `crosscheck=false`,
+  `professional_emission=false`.
+
+### Siguiente fase
+
+- P10 incorpora progresivamente `SE-MIN-01` 22.9/4.16/0.48 kV con datos y
+  procedencias cerrados en el caso de ingeniería.
+- IEEE 1584 formal permanece diferido; el estimador Lee histórico no sustituye P14.
+
 ## [0.1.0] - Versión inicial
 
 ### Herramientas incluidas
