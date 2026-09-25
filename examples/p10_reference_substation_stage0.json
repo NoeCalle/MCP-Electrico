@@ -1,0 +1,49 @@
+{
+  "project": {
+    "id": "MCP-REF-SUB-01",
+    "name": "Subestacion industrial de referencia MCP",
+    "source_reference": "CONTROLLED_REFERENCE_DATA - docs/P10_REFERENCE_VALIDATION.md"
+  },
+  "requested_scope": [
+    "POWER_FLOW",
+    "VOLTAGE_DROP"
+  ],
+  "source": {
+    "bus": null,
+    "kv_ll": 22.9,
+    "frequency_hz": 60.0,
+    "pu": null,
+    "angle_deg": null,
+    "scc_max_mva": null,
+    "x_r_max": null,
+    "scc_min_mva": null,
+    "x_r_min": null,
+    "source_reference": "P10 Stage 0 - intentionally incomplete"
+  },
+  "topology": {
+    "buses": [],
+    "transformers": [],
+    "lines": [],
+    "loads": []
+  },
+  "zero_sequence": {
+    "source": {
+      "r0_max_ohm": null,
+      "x0_max_ohm": null,
+      "r0_min_ohm": null,
+      "x0_min_ohm": null
+    },
+    "lines": [],
+    "transformers": []
+  },
+  "ampacity": [],
+  "protection": {
+    "devices": [],
+    "tcc_datasets": [],
+    "fault_bindings": []
+  },
+  "study_inputs": {
+    "voltage_drop_limit_pct": null,
+    "short_circuit_buses": []
+  }
+}
