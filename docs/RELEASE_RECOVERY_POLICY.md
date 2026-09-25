@@ -6,17 +6,25 @@ MCP Eléctrico must always preserve a known-good version that can be recovered i
 
 This policy is independent from the P10 engineering reference case.
 
-## Current recovery point
+## Current recovery points
 
 The frozen Engineering Preview 0.9 baseline is anchored at:
 
 ```text
-release_name = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+checkpoint = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 commit_sha = 6720da9183c45df299a584430fddea28f4060d7a
 recovery_branch = stable/0.9-engineering-preview
 ```
 
-The branch was created from the exact P9D freeze commit and must not be used for normal development.
+The completed P10 independent reference-validation baseline is anchored separately at:
+
+```text
+checkpoint = P10_REFERENCE_VALIDATED
+commit_sha = 5228e358cf0716dc963f109a15b9e1a2d309f635
+recovery_branch = stable/p10-reference-validated
+```
+
+Both branches point to exact known-good commits and must not be used for normal development. The P10 checkpoint is a recovery baseline, not a claim of professional release or professional emission.
 
 ## Recovery hierarchy
 
@@ -30,7 +38,7 @@ A mirror repository is intentionally not a development remote. It exists so an a
 ## Rules
 
 - feature work never starts from the stable recovery branch;
-- the stable recovery branch is moved only by an explicit release decision;
+- stable recovery branches are immutable checkpoints; create a new checkpoint rather than force-moving an old one;
 - every future stable release records its exact commit SHA;
 - a recovery operation restores from a recorded SHA, never from memory;
 - release backup does not replace CI, PR review, or branch protection;
@@ -52,4 +60,4 @@ stable release commit
     └── independent mirror repository
 ```
 
-The next time MCP Eléctrico is promoted beyond Engineering Preview 0.9, this document must be updated with the new release SHA before the stable pointer or mirror is changed.
+Every new stable checkpoint or product release must be added here with its exact SHA before it is mirrored externally.
