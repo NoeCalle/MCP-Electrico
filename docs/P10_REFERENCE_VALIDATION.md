@@ -172,7 +172,7 @@ automatic_dispatch        = false
 
 ## P10D — Secuencia cero y 1F-T MAX/MIN
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #113.
 
 P10D usa `examples/p10_reference_substation_stage3.json` y amplía Stage 2 con Z0 explícita, sin introducir todavía ampacidad ni protección.
 
@@ -199,4 +199,42 @@ Los dos transformadores del fixture mantienen grupo `Dyn11` y declaran neutro LV
 - Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10D;
 - `professional_emission=false`.
 
-Al cerrar P10D, P10E incorporará conductores, condiciones de instalación e Ib/In/Iz para validar la capa P3 sobre el mismo proyecto de referencia.
+## P10E — Conductores y ampacidad P3
+
+**Estado: IN PROGRESS.**
+
+P10E usa `examples/p10_reference_substation_stage4.json` y amplía Stage 3 con dos fichas P3 explícitas: una para el feeder MT y otra para el feeder BT.
+
+Stage 4 añade por feeder:
+
+- conductor de proyecto identificado;
+- `Iz_base` explícita y trazable;
+- `Ib` explícita;
+- `In` explícita;
+- referencia de condiciones de instalación;
+- referencia de ampacidad base;
+- factor de corrección explícito y referenciado;
+- norma P3 declarada.
+
+El fixture no usa lookup normativo automático ni convierte el dato de proyecto en catálogo. La procedencia debe mantenerse como `PROJECT_DATA → P2_PROJECT`.
+
+### Criterios de cierre P10E
+
+- P8B acepta las dos fichas P3;
+- P8C4A materializa conductores y perfiles sin ejecutar ampacidad;
+- P8C5 declara `AMPACITY = READY`;
+- P8D1 ejecuta `Ib <= In <= Iz` para ambos feeders;
+- feeder MT: `320 A <= 350 A <= 427.5 A`;
+- feeder BT: `700 A <= 800 A <= 900 A`;
+- ambos resultados son `CUMPLE`;
+- los factores permanecen explícitos y `automatic_normative_lookup=false`;
+- dos ejecuciones consecutivas reproducen los mismos valores;
+- P5 permanece fuera de scope;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10E;
+- `professional_emission=false`.
+
+Al cerrar P10E, P10F incorporará dispositivos, datasets TCC y bindings explícitos de falla para validar protección y coordinación.
+
+## Protección de versiones estables
+
+La baseline 0.9 congelada dispone ahora de la rama de recuperación `stable/0.9-engineering-preview`, anclada al commit de freeze P9D. La política de recuperación y el futuro mirror independiente se documentan en `docs/RELEASE_RECOVERY_POLICY.md`.
