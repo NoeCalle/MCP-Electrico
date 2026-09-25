@@ -86,7 +86,7 @@ P6_IEEE1584 = DEFERRED
 
 ## P10B — Secuencia positiva, flujo y caída de tensión
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #111.
 
 P10B usa `examples/p10_reference_substation_stage1.json` y crea `MCP-REF-SUB-01` con una topología sintética-controlada:
 
@@ -137,4 +137,37 @@ sin activar todavía P3/P4/P5.
 - dos ejecuciones consecutivas producen el mismo resumen de caída de tensión;
 - `professional_emission=false`.
 
-Al cerrar P10B, la siguiente fase será P10C: añadir escenario MIN de fuente y habilitar únicamente IEC 60909 3F MAX/MIN.
+## P10C — IEC 60909 3F MAX/MIN
+
+**Estado: IN PROGRESS.**
+
+P10C usa `examples/p10_reference_substation_stage2.json` y amplía Stage 1 sin introducir todavía secuencia cero, ampacidad ni protección.
+
+Stage 2 añade exclusivamente:
+
+- escenario MIN explícito de la fuente: Scc3 y X/R;
+- temperatura final explícita de los feeders para el caso MIN;
+- buses de cortocircuito declarados: `mv_load_bus` y `lv_load_bus`;
+- scope `IEC60909_3PH_MAX_MIN`.
+
+El backend permanece explícito:
+
+```text
+POWER_FLOW / VOLTAGE_DROP = OpenDSS
+IEC60909_3PH_MAX_MIN      = pandapower
+automatic_dispatch        = false
+```
+
+### Criterios de cierre P10C
+
+- P8B acepta Stage 2 sin completar valores silenciosamente;
+- P8C5 declara el scope 3F `READY` sin ejecutar cortocircuito;
+- pandapower ejecuta MAX y MIN para todos los buses solicitados;
+- no existe selección automática de un único bus objetivo;
+- `Ik'' MAX > Ik'' MIN > 0` en cada bus del fixture;
+- dos ejecuciones consecutivas reproducen las mismas corrientes dentro de tolerancia numérica;
+- no se ejecutan 1F-T, P3 ni P5;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10C;
+- `professional_emission=false`.
+
+Al cerrar P10C, P10D incorporará Z0 explícita de fuente/líneas/transformadores y la topología de neutro para habilitar 1F-T MAX/MIN.
