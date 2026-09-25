@@ -391,29 +391,78 @@ Detalle: `docs/P7_ENGINEERING_PREVIEW.md`.
 
 ## Fase P8 — Engineering Preview 0.9 y camino a 1.0
 
-**Estado: ACTIVA — PILOTO REAL.**
+**Estado: CERRADA — P8A–P8F DONE.**
 
-MCP Eléctrico 0.9 — Engineering Preview queda habilitado para uso interno/controlado dentro de los alcances y limitaciones declarados.
+P8 cerró la cadena integral de uso real controlado del Engineering Preview:
 
-Alcance disponible para el piloto:
+- intake fail-closed del proyecto;
+- materialización explícita del modelo;
+- ejecución P1/P3/P4/P5 sin dispatch oculto;
+- Workspace V5 ligado a la revisión vigente;
+- snapshot P7A, reconstrucción P7B y reporte P7C;
+- dossier con integridad SHA-256;
+- repetición collision-safe;
+- first-use por MCP stdio;
+- gate P8F5 para uso real controlado.
 
-- flujo y caída de tensión;
-- datos profesionales fuente/transformador/conductor;
-- `Ib <= In <= Iz`;
-- IEC 60909 dentro de alcance;
-- protección y capacidad de corte;
-- soportabilidad térmica;
-- TCC y clearing time;
-- coordinación temporal puntual;
-- Workspace V5;
-- snapshot/reconstrucción/reporte P7;
-- límites, fuentes, versiones y hashes visibles.
-
-El siguiente paso no es ampliar alcance: es modelar una **subestación real** representativa, ejecutar el flujo de trabajo completo y registrar fricciones de modelado, UX, trazabilidad y reporte. Esa experiencia alimentará el endurecimiento hacia una futura **1.0 profesional**.
+La reconstrucción P7B usada por el dossier quedó endurecida para Windows/Python 3.12 mediante `dss.NewContext()`, sin subprocess Python y preservando el contexto DSS/Workspace padre.
 
 P6 IEEE 1584 continúa `DEFERRED`; se reactivará posteriormente y deberá integrarse al mismo workspace, consumiendo P4/P5 donde corresponda.
 
-`professional_emission=false` sigue siendo distinto de “usable internamente”. La emisión profesional solo se habilitará cuando los gates normativos, benchmarks, QA y revisión requeridos estén cerrados legítimamente.
+`professional_emission=false` sigue siendo distinto de “usable internamente”.
+
+## Fase P9 — Hardening final y freeze 0.9
+
+**Estado: EN CIERRE — P9A/P9C DONE; P9D EN CURSO.**
+
+P9 no añade nueva funcionalidad eléctrica. Congela la base 0.9 antes de introducir el caso minero SE-MIN-01.
+
+### P9A — portabilidad Windows / aislamiento OpenDSS
+
+**DONE.** PR #106.
+
+- P7B migra de subprocess a `OPENDSS_NEW_CONTEXT`;
+- Windows + Python 3.12 validado;
+- P8F4 por MCP stdio validado;
+- contexto padre y estado estructurado preservados.
+
+### P9B — regresión integral P0–P8
+
+**DONE de facto por CI de PR #106/#107.**
+
+Las lanes históricas P4/P7/P8 y la suite general permanecen verdes junto con la lane Windows de portabilidad.
+
+### P9C — repetibilidad stdio en una sola sesión
+
+**DONE.** PR #107.
+
+- tres dossiers consecutivos en una sola sesión MCP stdio;
+- `OPENDSS_NEW_CONTEXT` en cada ejecución;
+- salidas `dossier`, `dossier_2`, `dossier_3`;
+- integridad independiente y re-verificación del primer dossier;
+- cierre limpio del servidor;
+- Linux/Python 3.11 y Windows/Python 3.12.
+
+### P9D — freeze Engineering Preview 0.9
+
+**IN PROGRESS.**
+
+El freeze debe dejar explícitos:
+
+- release: `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`;
+- allowed_use: `CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW`;
+- professional_emission: `false`;
+- P6 IEEE 1584: `DEFERRED`;
+- ninguna ampliación funcional durante el freeze;
+- siguiente fase: P10 / SE-MIN-01.
+
+Detalle: `docs/P9_ENGINEERING_PREVIEW_FREEZE.md`.
+
+## Fase P10 — SE-MIN-01
+
+**Estado: NEXT.**
+
+Primer proyecto industrial controlado: subestación minera 22.9/4.16/0.48 kV. Se incorporará progresivamente desde bases de diseño y arquitectura hasta flujo, cortocircuito, secuencia cero, cables, motores y protecciones, sin mezclar el desarrollo del caso con el hardening de P9.
 
 ## Regla de emisión
 
