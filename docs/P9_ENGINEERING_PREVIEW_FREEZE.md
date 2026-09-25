@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Congelar una base reproducible y estable antes de incorporar el caso industrial SE-MIN-01.
+Congelar una base reproducible y estable antes de incorporar el caso de referencia controlado MCP-REF-SUB-01.
 
 P9D no añade nuevos cálculos, motores, normas, defaults ni automatismos. Solo fija el estado ya validado por P7/P8/P9 y sus fronteras de uso.
 
@@ -44,13 +44,16 @@ p6_ieee1584           = DEFERRED
 
 ## Gate P9D
 
+**Estado: CLOSED.** El freeze fue integrado mediante PR #109.
+
 P9D se considera cerrado cuando:
 
 - `main` incluye PR #106 y PR #107;
 - todas las suites asociadas al head de PR #107 están verdes;
 - la documentación de roadmap refleja P8 cerrado y P9D como freeze;
 - no se introducen cambios de cálculo junto con el freeze;
-- el siguiente trabajo funcional se abre como P10 / SE-MIN-01.
+- el siguiente trabajo funcional se abre como P10 / MCP-REF-SUB-01;
+- PR #109 queda mergeado en `main` sin cambios de cálculo.
 
 ## Baseline de CI observada
 
@@ -70,7 +73,7 @@ En el head de PR #107 quedaron verdes, entre otras, las lanes:
 ```text
 P9D = FROZEN
 engineering_preview_0_9 = BASELINE_LOCKED
-next_phase = P10_SE_MIN_01
+next_phase = P10_REFERENCE_VALIDATION
 ```
 
 La primera actividad de P10 será incorporar el proyecto minero de forma incremental, empezando por la arquitectura 22.9/4.16/0.48 kV y sus datos trazables, sin reabrir P9 salvo que aparezca una regresión real de plataforma.

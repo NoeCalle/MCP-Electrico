@@ -21,9 +21,11 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P5 — Protección y TCC | **COMPLETA CON LIMITACIONES (P5 v1)** | protección-conductor, TCC, clearing time, coordinación temporal y V5 |
 | P6 — IEEE 1584 | **DEFERRED** | Arc Flash formal cuando se reactive |
 | P7 — Expediente reproducible | **COMPLETA CON LIMITACIONES (P7 mínimo)** | snapshot, reconstrucción, reporte y gate de uso interno |
-| P8 — Engineering Preview 0.9 | **ACTIVA — PILOTO REAL** | uso operativo controlado en proyectos reales |
+| P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
+| P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
+| P10 — Reference Validation | **ACTIVA — P10A STAGE 0** | proyecto de referencia independiente para validar la baseline congelada |
 
-**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6 IEEE 1584 queda diferida por decisión de producto. P7A–P7D cierran el expediente mínimo y habilitan MCP Eléctrico 0.9 Engineering Preview para uso interno controlado. El siguiente paso es un piloto de subestación real; Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
+**Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
 
 **Estado actual:**
 
@@ -37,7 +39,11 @@ P4 = READY_WITH_LIMITATIONS
 P5 = READY_WITH_LIMITATIONS
 P6 = DEFERRED
 P7 = READY_WITH_LIMITATIONS
-P8 = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+P8 = CLOSED
+P9 = FROZEN
+P10 = ACTIVE_STAGE0
+product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+next_activity = P10_REFERENCE_VALIDATION
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -413,9 +419,9 @@ P6 IEEE 1584 continúa `DEFERRED`; se reactivará posteriormente y deberá integ
 
 ## Fase P9 — Hardening final y freeze 0.9
 
-**Estado: EN CIERRE — P9A/P9C DONE; P9D EN CURSO.**
+**Estado: CERRADA — P9A–P9D DONE.**
 
-P9 no añade nueva funcionalidad eléctrica. Congela la base 0.9 antes de introducir el caso minero SE-MIN-01.
+P9 no añade nueva funcionalidad eléctrica. Congela la base 0.9 antes de introducir el caso minero MCP-REF-SUB-01.
 
 ### P9A — portabilidad Windows / aislamiento OpenDSS
 
@@ -445,7 +451,7 @@ Las lanes históricas P4/P7/P8 y la suite general permanecen verdes junto con la
 
 ### P9D — freeze Engineering Preview 0.9
 
-**IN PROGRESS.**
+**DONE.** PR #109.
 
 El freeze debe dejar explícitos:
 
@@ -454,15 +460,15 @@ El freeze debe dejar explícitos:
 - professional_emission: `false`;
 - P6 IEEE 1584: `DEFERRED`;
 - ninguna ampliación funcional durante el freeze;
-- siguiente fase: P10 / SE-MIN-01.
+- siguiente fase: P10 / MCP-REF-SUB-01.
 
 Detalle: `docs/P9_ENGINEERING_PREVIEW_FREEZE.md`.
 
-## Fase P10 — SE-MIN-01
+## Fase P10 — Reference Validation
 
 **Estado: NEXT.**
 
-Primer proyecto industrial controlado: subestación minera 22.9/4.16/0.48 kV. Se incorporará progresivamente desde bases de diseño y arquitectura hasta flujo, cortocircuito, secuencia cero, cables, motores y protecciones, sin mezclar el desarrollo del caso con el hardening de P9.
+Proyecto de referencia controlado e independiente: subestación industrial sintética 22.9/4.16/0.48 kV. Se incorporará progresivamente desde bases de diseño y arquitectura hasta flujo, cortocircuito, secuencia cero, cables, motores y protecciones, sin mezclar el desarrollo del caso con el hardening de P9.
 
 ## Regla de emisión
 
