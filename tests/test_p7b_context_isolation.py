@@ -73,6 +73,7 @@ def test_p7b_new_context_roundtrip_preserves_parent_dss_and_workspace(tmp_path):
             print("P7B_MASTER_UNIFIED_DIFF_END")
     assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", result
     assert result["roundtrip"]["canonical_netlist_match"] is True
+    assert result["roundtrip"]["comparison_normalization"] == "IGNORE_SAVE_CIRCUIT_BUSCOORDS_MASTER_REFERENCE_ONLY"
     assert result["reconstructed_circuit"] == "p7b_context_source"
     assert result["load_command"] == "Redirect"
     assert result["compile_performed"] is False
@@ -112,3 +113,35 @@ def test_p7b_new_context_integrity_failure_never_touches_parent(tmp_path):
     assert result["isolated_context"] is True
     assert str(dss.Circuit.Name() or "") == "p7b_parent_integrity_sentinel"
     assert workspace_state.status() == parent_status
+
+
+def test_p7b_roundtrip_normalization_ignores_only_generated_master_buscoords_reference():
+    expected = {
+        "master_file": "Master.dss",
+        "file_count": 2,
+        "files": [
+            {
+                "name": "Master.dss",
+                "content": "Redirect Load.dss\nBusCoords BusCoords.dss\n",
+            },
+            {
+                "name": "BusCoords.dss",
+                "content": "bus1,10,20\n",
+            },
+        ],
+        "paths_included": False,
+        "canonicalization": {"probe": "same"},
+    }
+    actual = deepcopy(expected)
+    actual["files"][0]["content"] = "Redirect Load.dss\n"
+
+    assert (
+        project_reconstruction._roundtrip_comparison_payload(expected)
+        == project_reconstruction._roundtrip_comparison_payload(actual)
+    )
+
+    actual["files"][1]["content"] = "bus1,99,20\n"
+    assert (
+        project_reconstruction._roundtrip_comparison_payload(expected)
+        != project_reconstruction._roundtrip_comparison_payload(actual)
+    )
