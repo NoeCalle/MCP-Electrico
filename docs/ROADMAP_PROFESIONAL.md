@@ -421,7 +421,7 @@ P6 IEEE 1584 continúa `DEFERRED`; se reactivará posteriormente y deberá integ
 
 **Estado: CERRADA — P9A–P9D DONE.**
 
-P9 no añade nueva funcionalidad eléctrica. Congela la base 0.9 antes de introducir el caso minero MCP-REF-SUB-01.
+P9 no añade nueva funcionalidad eléctrica. Congela la base 0.9 antes de iniciar la validación independiente P10 con MCP-REF-SUB-01.
 
 ### P9A — portabilidad Windows / aislamiento OpenDSS
 
@@ -460,15 +460,38 @@ El freeze debe dejar explícitos:
 - professional_emission: `false`;
 - P6 IEEE 1584: `DEFERRED`;
 - ninguna ampliación funcional durante el freeze;
-- siguiente fase: P10 / MCP-REF-SUB-01.
+- siguiente fase: P10 / MCP-REF-SUB-01 como proyecto de referencia controlado e independiente.
 
 Detalle: `docs/P9_ENGINEERING_PREVIEW_FREEZE.md`.
 
 ## Fase P10 — Reference Validation
 
-**Estado: NEXT.**
+**Estado: CERRADA — P10A–P10G DONE.**
 
-Proyecto de referencia controlado e independiente: subestación industrial sintética 22.9/4.16/0.48 kV. Se incorporará progresivamente desde bases de diseño y arquitectura hasta flujo, cortocircuito, secuencia cero, cables, motores y protecciones, sin mezclar el desarrollo del caso con el hardening de P9.
+P10 validó de extremo a extremo un caso de referencia propio del producto, `MCP-REF-SUB-01`, independiente de cualquier proyecto externo.
+
+Cobertura cerrada:
+
+- Stage 0 fail-closed;
+- flujo y caída de tensión con OpenDSS;
+- IEC 60909 3F MAX/MIN con pandapower;
+- secuencia cero explícita y 1F-T MAX/MIN;
+- ampacidad P3 con procedencia de proyecto;
+- dispositivos P5, TCC y fault bindings explícitos;
+- Workspace V5;
+- snapshot P7A, reconstrucción P7B aislada y reporte P7C;
+- dossier íntegro, portable y collision-safe;
+- CI Linux/Python 3.11 y Windows/Python 3.12.
+
+```text
+P10 = CLOSED
+reference_validation = PASSED
+professional_report = false
+professional_emission = false
+next_activity = POST_P10_HARDENING_DECISION
+```
+
+El cierre no convierte los datos sintéticos del fixture en evidencia de un proyecto real ni habilita emisión profesional. Detalle: `docs/P10_REFERENCE_VALIDATION.md`.
 
 ## Regla de emisión
 
@@ -483,4 +506,4 @@ stable/0.9-engineering-preview
 commit = 6720da9183c45df299a584430fddea28f4060d7a
 ```
 
-La estrategia futura añade tag de release y mirror independiente del repositorio activo. Ver `docs/RELEASE_RECOVERY_POLICY.md`.
+Existe además el checkpoint `stable/p10-reference-validated` anclado al cierre P10. La estrategia futura añade tags de release y un mirror independiente del repositorio activo. Ver `docs/RELEASE_RECOVERY_POLICY.md`.
