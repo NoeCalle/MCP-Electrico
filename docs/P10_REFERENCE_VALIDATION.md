@@ -139,7 +139,7 @@ sin activar todavía P3/P4/P5.
 
 ## P10C — IEC 60909 3F MAX/MIN
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #112.
 
 P10C usa `examples/p10_reference_substation_stage2.json` y amplía Stage 1 sin introducir todavía secuencia cero, ampacidad ni protección.
 
@@ -170,4 +170,33 @@ automatic_dispatch        = false
 - Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10C;
 - `professional_emission=false`.
 
-Al cerrar P10C, P10D incorporará Z0 explícita de fuente/líneas/transformadores y la topología de neutro para habilitar 1F-T MAX/MIN.
+## P10D — Secuencia cero y 1F-T MAX/MIN
+
+**Estado: IN PROGRESS.**
+
+P10D usa `examples/p10_reference_substation_stage3.json` y amplía Stage 2 con Z0 explícita, sin introducir todavía ampacidad ni protección.
+
+Stage 3 añade:
+
+- R0/X0 MAX y MIN de la fuente;
+- R0/X0/C0 de ambos feeders;
+- ficha homopolar de T1 y T2;
+- lado del neutro y modo de puesta a tierra explícitos;
+- scope `IEC60909_1PH_GROUND_MAX_MIN`.
+
+Los dos transformadores del fixture mantienen grupo `Dyn11` y declaran neutro LV sólidamente puesto a tierra únicamente como dato controlado del caso de referencia. No se infiere Z0 desde Z1 ni desde Scc3.
+
+### Criterios de cierre P10D
+
+- P8B acepta Stage 3 sin issues;
+- P8C3B materializa fuente/líneas/transformadores Z0 explícitos;
+- P8C5 ejecuta solo el preflight de proyección 1F-T y declara `READY`;
+- pandapower ejecuta 1F-T MAX/MIN en todos los buses declarados;
+- `Ik'' MAX > Ik'' MIN > 0` en cada bus del fixture;
+- no existe selección automática de bus ni binding de protección;
+- dos ejecuciones consecutivas reproducen las corrientes dentro de tolerancia numérica;
+- P3/P5 permanecen fuera de scope;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10D;
+- `professional_emission=false`.
+
+Al cerrar P10D, P10E incorporará conductores, condiciones de instalación e Ib/In/Iz para validar la capa P3 sobre el mismo proyecto de referencia.
