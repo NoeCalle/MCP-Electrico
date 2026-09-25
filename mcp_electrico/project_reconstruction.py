@@ -268,8 +268,7 @@ def _normalize_master_for_roundtrip(content: str) -> str:
     """
     normalized: list[str] = []
     for line in str(content).splitlines(keepends=True):
-        raw = line.rstrip("\\r\\n")
-        if raw.strip().lower() in _ROUNDTRIP_IGNORED_MASTER_DIRECTIVES:
+        if line.strip().lower() in _ROUNDTRIP_IGNORED_MASTER_DIRECTIVES:
             continue
         normalized.append(line)
     return "".join(normalized)
