@@ -54,6 +54,12 @@ verificar_integridad_dossier_real
 
 La tool `obtener_contrato_p8f4_primer_uso()` expone esta misma secuencia y sus estados de reparación.
 
+### Aislamiento interno de P7B
+
+La verificación de reconstrucción P7B usada por el dossier se ejecuta en un contexto OpenDSS independiente creado mediante `dss.NewContext()`. No se lanza un segundo proceso Python. El round-trip DSS sigue siendo canónico archivo por archivo, pero el circuito y el estado estructurado activos del servidor MCP permanecen en el contexto padre.
+
+Esta separación es parte del contrato de portabilidad de P8F4 y se comprueba en CI tanto en la ruta Linux existente como en una lane Windows/Python 3.12. No habilita ejecución paralela automática ni cambia `automatic_dispatch=false` o `crosscheck=false`.
+
 ## 3. Resultado esperado
 
 Una ejecución sana del smoke devuelve:

@@ -2,7 +2,8 @@
 
 Orquesta una sola ejecución P8D2 en el proceso principal y congela sus
 resultados en Workspace V5 + P7A + P7C. La reconstrucción P7B se verifica en un
-proceso hijo para no destruir ni rebindear el modelo activo del usuario.
+contexto OpenDSS independiente para no destruir ni rebindear el modelo activo
+del usuario y para conservar portabilidad bajo MCP stdio en Windows.
 
 P8F2 exige integridad SHA-256 antes de READY. P8F3 hace explícita la asignación
 del directorio de entrega y evita sobrescribir silenciosamente dossiers previos.
@@ -13,16 +14,14 @@ from __future__ import annotations
 from copy import deepcopy
 from hashlib import sha256
 import json
-import os
 from pathlib import Path
-import subprocess
-import sys
 from typing import Any
 
 from opendssdirect import dss
 
 from . import (
     dossier_integrity,
+    project_reconstruction,
     project_report,
     project_snapshot,
     real_protection_execution,
@@ -36,6 +35,7 @@ STATUS_BLOCKED_EXECUTION = "BLOCKED_BY_P8D2_EXECUTION"
 STATUS_FAILED_ARTIFACT = "DOSSIER_ARTIFACT_GENERATION_FAILED"
 STATUS_READY = "DOSSIER_READY_ENGINEERING_PREVIEW"
 P7B_OK = "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED"
+P7B_ISOLATION_MODE = project_reconstruction.ISOLATION_MODE_CONTEXT
 
 
 def _canonical_json(value: Any) -> str:
@@ -83,55 +83,13 @@ def _active_circuit() -> str:
 
 
 def _p7b_isolated(snapshot_path: Path, reconstruction_dir: Path, result_path: Path) -> dict[str, Any]:
-    script = r'''
-import json
-from pathlib import Path
-import sys
-from mcp_electrico import project_reconstruction
-
-snapshot_path = Path(sys.argv[1])
-reconstruction_dir = Path(sys.argv[2])
-result_path = Path(sys.argv[3])
-snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
-result = project_reconstruction.reconstruir_snapshot(
-    snapshot,
-    directorio_reconstruccion=str(reconstruction_dir),
-)
-result_path.write_text(
-    json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False),
-    encoding="utf-8",
-)
-raise SystemExit(0 if result.get("status") == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED" else 3)
-'''
-    env = os.environ.copy()
-    package_root = str(Path(__file__).resolve().parent.parent)
-    current_pythonpath = env.get("PYTHONPATH")
-    env["PYTHONPATH"] = package_root if not current_pythonpath else package_root + os.pathsep + current_pythonpath
-    completed = subprocess.run(
-        [
-            sys.executable,
-            "-c",
-            script,
-            str(snapshot_path),
-            str(reconstruction_dir),
-            str(result_path),
-        ],
-        text=True,
-        capture_output=True,
-        check=False,
-        env=env,
+    """Ejecuta P7B sobre un contexto DSS independiente, sin proceso hijo."""
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    result = project_reconstruction.reconstruir_snapshot_contexto_aislado(
+        snapshot,
+        directorio_reconstruccion=str(reconstruction_dir),
     )
-    if not result_path.is_file():
-        return {
-            "schema": "MCP_ELECTRICO_P8E2_P7B_ISOLATED_FAILURE_V1",
-            "status": "P7B_ISOLATED_PROCESS_FAILED",
-            "returncode": completed.returncode,
-            "stderr": completed.stderr[-4000:],
-            "professional_emission": False,
-        }
-    result = json.loads(result_path.read_text(encoding="utf-8"))
-    result["isolated_process"] = True
-    result["isolated_process_returncode"] = completed.returncode
+    _write_json(result_path, result)
     return result
 
 
@@ -159,6 +117,7 @@ def generar_dossier(
             "artifact_generation_performed": False,
             "integrity_index_generated": False,
             "p7b_isolated": True,
+            "p7b_isolation_mode": P7B_ISOLATION_MODE,
             "automatic_dispatch": False,
             "crosscheck": False,
             "professional_emission": False,
@@ -215,6 +174,10 @@ def generar_dossier(
         )
         if reconstruction.get("status") != P7B_OK:
             raise RuntimeError(f"P8E2B001: P7B aislado no verificó round-trip: {reconstruction}")
+        if reconstruction.get("isolation_mode") != P7B_ISOLATION_MODE:
+            raise RuntimeError(f"P8E2ISO002: P7B no usó el contexto DSS aislado esperado: {reconstruction}")
+        if reconstruction.get("parent_dss_context_mutated") is not False:
+            raise RuntimeError(f"P8E2ISO003: P7B no confirmó preservación del contexto DSS padre: {reconstruction}")
 
         circuit_after = _active_circuit()
         revision_after = workspace_state.status().get("model_revision")
@@ -232,6 +195,7 @@ def generar_dossier(
             "p7c_report_sha256": (report.get("report_hash") or {}).get("value"),
             "p7c_source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
             "workspace_version": 5,
+            "p7b_isolation_mode": P7B_ISOLATION_MODE,
             "professional_emission": False,
         }
         integrity = dossier_integrity.construir_indice(target, context=integrity_context)
@@ -265,7 +229,11 @@ def generar_dossier(
             "p7b": {
                 "status": reconstruction.get("status"),
                 "result_path": str(paths["reconstruction"]),
-                "isolated_process": True,
+                "isolated_process": False,
+                "isolated_context": True,
+                "isolation_mode": P7B_ISOLATION_MODE,
+                "parent_dss_context_mutated": False,
+                "parent_structured_state_mutated": False,
                 "stored_results_promoted_to_current": False,
             },
             "p7c": {
@@ -310,6 +278,7 @@ def generar_dossier(
             "model_revision_preserved": workspace_state.status().get("model_revision") == revision_before,
             "integrity_index_generated": paths["integrity"].is_file(),
             "p7b_isolated": True,
+            "p7b_isolation_mode": P7B_ISOLATION_MODE,
             "automatic_dispatch": False,
             "crosscheck": False,
             "professional_emission": False,
