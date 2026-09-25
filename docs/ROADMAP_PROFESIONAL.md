@@ -23,7 +23,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P7 — Expediente reproducible | **COMPLETA CON LIMITACIONES (P7 mínimo)** | snapshot, reconstrucción, reporte y gate de uso interno |
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
-| P10 — Reference Validation | **ACTIVA — P10A–P10E DONE / P10F IN PROGRESS** | proyecto de referencia independiente para validar la baseline congelada |
+| P10 — Reference Validation | **ACTIVA — P10A–P10F DONE / P10G IN PROGRESS** | proyecto de referencia independiente para validar la baseline congelada |
 
 **Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
 
@@ -41,9 +41,9 @@ P6 = DEFERRED
 P7 = READY_WITH_LIMITATIONS
 P8 = CLOSED
 P9 = FROZEN
-P10 = ACTIVE_P10F
+P10 = ACTIVE_P10G
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P10F_REFERENCE_PROTECTION
+next_activity = P10G_REFERENCE_DOSSIER
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
