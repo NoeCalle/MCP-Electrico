@@ -50,7 +50,7 @@ P9D se considera cerrado cuando:
 - todas las suites asociadas al head de PR #107 están verdes;
 - la documentación de roadmap refleja P8 cerrado y P9D como freeze;
 - no se introducen cambios de cálculo junto con el freeze;
-- el siguiente trabajo funcional se abre como P10 / SE-MIN-01.
+- el siguiente trabajo funcional se abre como P10 / SE-MIN-01;\n- PR #109 queda mergeado en `main` sin cambios de cálculo.
 
 ## Baseline de CI observada
 
