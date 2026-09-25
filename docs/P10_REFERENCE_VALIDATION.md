@@ -201,7 +201,7 @@ Los dos transformadores del fixture mantienen grupo `Dyn11` y declaran neutro LV
 
 ## P10E — Conductores y ampacidad P3
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #114.
 
 P10E usa `examples/p10_reference_substation_stage4.json` y amplía Stage 3 con dos fichas P3 explícitas: una para el feeder MT y otra para el feeder BT.
 
@@ -233,7 +233,44 @@ El fixture no usa lookup normativo automático ni convierte el dato de proyecto 
 - Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10E;
 - `professional_emission=false`.
 
-Al cerrar P10E, P10F incorporará dispositivos, datasets TCC y bindings explícitos de falla para validar protección y coordinación.
+## P10F — Protecciones, TCC y fault bindings explícitos
+
+**Estado: IN PROGRESS.**
+
+P10F usa `examples/p10_reference_substation_stage5.json` y amplía Stage 4 con dos interruptores de referencia: uno para el feeder MT y otro para el feeder BT.
+
+Stage 5 añade:
+
+- `QF_MV` ligado a `Line.mv_feeder`;
+- `QF_LV` ligado a `Line.lv_feeder`;
+- In P5 exactamente igual a In P3 de cada feeder;
+- Ue e Icu explícitas;
+- Ics declarada únicamente como dato contextual;
+- ajustes Ir/Isd/Ii trazables;
+- dataset TCC BAND por dispositivo;
+- semántica `TOTAL_CLEARING_TIME`;
+- un binding de falla 3F/MAX explícito por dispositivo;
+- reutilización del resultado P4 sin recalcular una falla distinta dentro de P5.
+
+Los datasets y ratings son `CONTROLLED_REFERENCE_DATA`. Sirven para validar el flujo del producto; no representan equipos comerciales ni constituyen una selección de protección de proyecto.
+
+### Criterios de cierre P10F
+
+- P8B acepta dispositivos y datasets P5;
+- P8C4B materializa los dos dispositivos y TCC sin ejecutar protección;
+- P8C5 declara `PROTECTION_TCC = READY`;
+- In P3/P5 queda en estado `MATCH` para ambos feeders;
+- P8D2 consume únicamente los bindings declarados;
+- no existe selección automática de falla, bus, caso o magnitud;
+- ambos interruptores pasan la comparación técnica `Icu >= Ik''` para el resultado ligado;
+- ambos datasets entregan `CLEARING_TIME_READY`;
+- P4 se reutiliza y no se recalcula dentro de P5;
+- dos ejecuciones consecutivas reproducen corriente ligada y clearing time;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan la lane P10F;
+- `automatic_fault_binding=false`;
+- `professional_emission=false`.
+
+Al cerrar P10F, P10G integrará Workspace V5, snapshot/reconstrucción P7 y dossier reproducible sobre el Stage 5 completo.
 
 ## Protección de versiones estables
 
