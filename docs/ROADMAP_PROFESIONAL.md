@@ -21,9 +21,15 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P5 — Protección y TCC | **COMPLETA CON LIMITACIONES (P5 v1)** | protección-conductor, TCC, clearing time, coordinación temporal y V5 |
 | P6 — IEEE 1584 | **DEFERRED** | Arc Flash formal cuando se reactive |
 | P7 — Expediente reproducible | **COMPLETA CON LIMITACIONES (P7 mínimo)** | snapshot, reconstrucción, reporte y gate de uso interno |
-| P8 — Engineering Preview 0.9 | **ACTIVA — PILOTO REAL** | uso operativo controlado en proyectos reales |
+| P8 — Engineering Preview 0.9 | **CERRADA** | ruta de uso real controlado, dossier íntegro y entrypoint MCP público |
+| P9 — Hardening final 0.9 | **CERRADA** | aislamiento NewContext, regresión, repetibilidad stdio y freeze |
+| P10 — Proyecto real controlado | **SIGUIENTE** | SE-MIN-01 22.9/4.16/0.48 kV incorporada progresivamente |
+| P11 — Validación de estudios | PLANIFICADA | contraste del caso real contra referencias independientes |
+| P12 — Expediente de ingeniería | PLANIFICADA | expediente reproducible completo del caso real |
+| P13 — Release 1.0 | PLANIFICADA | gates finales, pruebas negativas y baseline 1.0 |
+| P14 — IEEE 1584 | **DEFERRED** | Arc Flash formal después de estabilizar la cadena anterior |
 
-**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6 IEEE 1584 queda diferida por decisión de producto. P7A–P7D cierran el expediente mínimo y habilitan MCP Eléctrico 0.9 Engineering Preview para uso interno controlado. El siguiente paso es un piloto de subestación real; Arc Flash se retomará posteriormente y no bloquea esta primera etapa operativa.
+**Regla de avance:** P5 está cerrada funcionalmente como `READY_WITH_LIMITATIONS`. P6/IEEE 1584 permanece diferida por decisión de producto. P7–P8 habilitaron MCP Eléctrico 0.9 Engineering Preview y P9 cerró su hardening de portabilidad, aislamiento y repetibilidad. La siguiente fase es P10 con el primer proyecto minero controlado; no se inventan datos faltantes para adelantar estudios.
 
 **Estado actual:**
 
@@ -32,12 +38,16 @@ P3C01–P3C13 DONE
 P4C01–P4C12 DONE
 P5A–P5G DONE
 P7A–P7D DONE
+P8A–P8F5 DONE
+P9A–P9D DONE
 
 P4 = READY_WITH_LIMITATIONS
 P5 = READY_WITH_LIMITATIONS
 P6 = DEFERRED
 P7 = READY_WITH_LIMITATIONS
-P8 = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
+P8 = CLOSED
+P9 = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW_FROZEN
+P10 = NEXT
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -48,6 +58,10 @@ P7 internal_use_ready        = true
 P7 allowed_use               = CONTROLLED_INTERNAL_ENGINEERING_PREVIEW
 P7 next_activity             = REAL_SUBSTATION_PILOT
 
+P9 baseline_status           = FROZEN_FOR_CONTROLLED_REAL_PROJECT
+P9 next_phase                = P10_CONTROLLED_REAL_PROJECT
+P10 project                  = SE-MIN-01
+
 professional_report = false
 professional_emission = false
 automatic_dispatch = false
@@ -55,7 +69,7 @@ crosscheck=false
 automatic_normative_lookup = false
 ```
 
-Usable internamente no equivale a `professional_emission=true`. La Engineering Preview 0.9 debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
+Usable internamente no equivale a `professional_emission=true`. La baseline 0.9 queda congelada por P9 y debe entrar a P10 mediante un proyecto real controlado para descubrir fricción de ingeniería antes de la release 1.0.
 
 ## Principio rector
 
