@@ -1,0 +1,154 @@
+{
+  "project": {
+    "id": "MCP-REF-SUB-01",
+    "name": "Subestacion industrial de referencia MCP - Stage 2",
+    "source_reference": "CONTROLLED_REFERENCE_DATA - P10C IEC 60909 3PH fixture"
+  },
+  "requested_scope": [
+    "POWER_FLOW",
+    "VOLTAGE_DROP",
+    "IEC60909_3PH_MAX_MIN"
+  ],
+  "source": {
+    "bus": "source_22k9",
+    "kv_ll": 22.9,
+    "frequency_hz": 60,
+    "pu": 1,
+    "angle_deg": 0,
+    "scc_max_mva": 250,
+    "x_r_max": 10,
+    "scc_min_mva": 120,
+    "x_r_min": 6,
+    "source_reference": "CONTROLLED_REFERENCE_DATA - MAX/MIN positive-sequence source equivalent"
+  },
+  "topology": {
+    "buses": [
+      "source_22k9",
+      "bus_4k16",
+      "mv_load_bus",
+      "bus_480",
+      "lv_load_bus"
+    ],
+    "transformers": [
+      {
+        "id": "Transformer.t1_main",
+        "bus_hv": "source_22k9",
+        "bus_lv": "bus_4k16",
+        "kva": 5000,
+        "kv_hv": 22.9,
+        "kv_lv": 4.16,
+        "uk_percent": 7.5,
+        "vector_group": "Dyn11",
+        "x_r": 12,
+        "no_load_loss_kw": 6,
+        "i0_percent": 0.5,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -2,
+        "tap_max": 2,
+        "tap_step_percent": 2.5,
+        "tap_pos": 0,
+        "manufacturer": "MCP_REFERENCE",
+        "model": "REF_T1_5MVA",
+        "source_reference": "CONTROLLED_REFERENCE_DATA - transformer T1"
+      },
+      {
+        "id": "Transformer.t2_aux",
+        "bus_hv": "bus_4k16",
+        "bus_lv": "bus_480",
+        "kva": 1000,
+        "kv_hv": 4.16,
+        "kv_lv": 0.48,
+        "uk_percent": 6,
+        "vector_group": "Dyn11",
+        "x_r": 8,
+        "no_load_loss_kw": 1.5,
+        "i0_percent": 0.7,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -2,
+        "tap_max": 2,
+        "tap_step_percent": 2.5,
+        "tap_pos": 0,
+        "manufacturer": "MCP_REFERENCE",
+        "model": "REF_T2_1MVA",
+        "source_reference": "CONTROLLED_REFERENCE_DATA - transformer T2"
+      }
+    ],
+    "lines": [
+      {
+        "id": "Line.mv_feeder",
+        "bus1": "bus_4k16",
+        "bus2": "mv_load_bus",
+        "phases": 3,
+        "length_km": 0.4,
+        "r1_ohm_km": 0.2,
+        "x1_ohm_km": 0.1,
+        "c1_nf_km": 200,
+        "source_reference": "CONTROLLED_REFERENCE_DATA - MV feeder",
+        "endtemp_min_c": 90
+      },
+      {
+        "id": "Line.lv_feeder",
+        "bus1": "bus_480",
+        "bus2": "lv_load_bus",
+        "phases": 3,
+        "length_km": 0.08,
+        "r1_ohm_km": 0.075,
+        "x1_ohm_km": 0.06,
+        "c1_nf_km": 0,
+        "source_reference": "CONTROLLED_REFERENCE_DATA - LV feeder",
+        "endtemp_min_c": 90
+      }
+    ],
+    "loads": [
+      {
+        "id": "Load.mv_process",
+        "bus": "mv_load_bus",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 2000,
+        "kvar": 900,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "CONTROLLED_REFERENCE_DATA - representative MV load"
+      },
+      {
+        "id": "Load.lv_services",
+        "bus": "lv_load_bus",
+        "phases": 3,
+        "kv": 0.48,
+        "kw": 500,
+        "kvar": 200,
+        "connection": "wye",
+        "model": 1,
+        "critical": true,
+        "source_reference": "CONTROLLED_REFERENCE_DATA - representative LV load"
+      }
+    ]
+  },
+  "zero_sequence": {
+    "source": {
+      "r0_max_ohm": null,
+      "x0_max_ohm": null,
+      "r0_min_ohm": null,
+      "x0_min_ohm": null
+    },
+    "lines": [],
+    "transformers": []
+  },
+  "ampacity": [],
+  "protection": {
+    "devices": [],
+    "tcc_datasets": [],
+    "fault_bindings": []
+  },
+  "study_inputs": {
+    "voltage_drop_limit_pct": 5,
+    "short_circuit_buses": [
+      "mv_load_bus",
+      "lv_load_bus"
+    ]
+  }
+}
