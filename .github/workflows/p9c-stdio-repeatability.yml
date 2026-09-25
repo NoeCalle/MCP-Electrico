@@ -1,0 +1,49 @@
+name: p9c-stdio-repeatability
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  same-session-stdio:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+            label: linux-py311
+          - os: windows-latest
+            python: "3.12"
+            label: windows-py312
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install validated dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip check
+
+      - name: Repeat full dossier three times in one MCP stdio session
+        run: |
+          python examples/p9_stdio_repeatability.py --manifest examples/p8_first_use_manifest.json --output-dir p9c_stdio/dossier --summary p9c_stdio/summary.json --repetitions 3
+
+      - name: Upload P9C diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p9c-stdio-repeatability-${{ matrix.label }}
+          if-no-files-found: ignore
+          path: |
+            p9c_stdio/summary.json
+            p9c_stdio/dossier/**
+            p9c_stdio/dossier_2/**
+            p9c_stdio/dossier_3/**
