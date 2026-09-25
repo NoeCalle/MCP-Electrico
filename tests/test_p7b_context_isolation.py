@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import difflib
 import json
+from pathlib import Path
 
 from opendssdirect import dss
 
@@ -46,6 +48,29 @@ def test_p7b_new_context_roundtrip_preserves_parent_dss_and_workspace(tmp_path):
 
     if result["status"] != "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED":
         print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+        expected_master = next(
+            item["content"]
+            for item in snapshot["payload"]["netlist"]["files"]
+            if item["name"].lower() == "master.dss"
+        )
+        actual_master_path = Path(result["materialized_directory"]) / "_roundtrip" / "Master.dss"
+        if actual_master_path.is_file():
+            actual_master = project_snapshot._normalize_dss_content(
+                "Master.dss",
+                actual_master_path.read_text(encoding="utf-8", errors="replace"),
+            )
+            print("P7B_MASTER_UNIFIED_DIFF_BEGIN")
+            print(
+                "".join(
+                    difflib.unified_diff(
+                        expected_master.splitlines(keepends=True),
+                        actual_master.splitlines(keepends=True),
+                        fromfile="expected/Master.dss",
+                        tofile="actual/Master.dss",
+                    )
+                )
+            )
+            print("P7B_MASTER_UNIFIED_DIFF_END")
     assert result["status"] == "RECONSTRUCTED_NETLIST_VERIFIED_WITH_REBIND_REQUIRED", result
     assert result["roundtrip"]["canonical_netlist_match"] is True
     assert result["reconstructed_circuit"] == "p7b_context_source"
