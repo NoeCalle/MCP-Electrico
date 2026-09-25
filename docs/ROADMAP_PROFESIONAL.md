@@ -23,7 +23,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P7 — Expediente reproducible | **COMPLETA CON LIMITACIONES (P7 mínimo)** | snapshot, reconstrucción, reporte y gate de uso interno |
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
-| P10 — Reference Validation | **ACTIVA — P10A–P10C DONE / P10D IN PROGRESS** | proyecto de referencia independiente para validar la baseline congelada |
+| P10 — Reference Validation | **ACTIVA — P10A–P10D DONE / P10E IN PROGRESS** | proyecto de referencia independiente para validar la baseline congelada |
 
 **Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
 
@@ -41,9 +41,9 @@ P6 = DEFERRED
 P7 = READY_WITH_LIMITATIONS
 P8 = CLOSED
 P9 = FROZEN
-P10 = ACTIVE_P10D
+P10 = ACTIVE_P10E
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P10D_REFERENCE_ZERO_SEQUENCE
+next_activity = P10E_REFERENCE_AMPACITY
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -473,3 +473,14 @@ Proyecto de referencia controlado e independiente: subestación industrial sint�
 ## Regla de emisión
 
 `apto_para_emision=true` significa únicamente que un modelo supera los chequeos automáticos requeridos y que los módulos exigidos poseen una madurez aceptable para ese propósito. No significa que el software asuma responsabilidad ni sustituye revisión, criterio, firma o colegiatura del ingeniero responsable.
+
+## Política de recuperación de releases
+
+La baseline `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW` conserva un punto de recuperación separado del desarrollo normal:
+
+```text
+stable/0.9-engineering-preview
+commit = 6720da9183c45df299a584430fddea28f4060d7a
+```
+
+La estrategia futura añade tag de release y mirror independiente del repositorio activo. Ver `docs/RELEASE_RECOVERY_POLICY.md`.
