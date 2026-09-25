@@ -35,6 +35,8 @@ El caso de referencia será deliberadamente pequeño, pero incluirá suficiente 
 
 ## P10A — Stage 0
 
+**Estado: DONE.** PR #110.
+
 `examples/p10_reference_substation_stage0.json` contiene solo la identidad y tensiones nominales del caso.
 
 El intake debe permanecer:
@@ -82,9 +84,11 @@ professional_emission = false
 P6_IEEE1584 = DEFERRED
 ```
 
-## Próxima actividad
+## P10B — Secuencia positiva, flujo y caída de tensión
 
-P10B creará `MCP-REF-SUB-01` con una topología sintética-controlada:
+**Estado: IN PROGRESS.**
+
+P10B usa `examples/p10_reference_substation_stage1.json` y crea `MCP-REF-SUB-01` con una topología sintética-controlada:
 
 ```text
 22.9 kV source
@@ -98,7 +102,18 @@ T2 4.16 / 0.48 kV
 480 V bus + representative LV load
 ```
 
-El primer gate será exclusivamente:
+Los valores eléctricos de Stage 1 son `CONTROLLED_REFERENCE_DATA`: existen para validar el producto y no representan una instalación real ni un benchmark normativo.
+
+P10B declara explícitamente:
+
+- fuente 22.9 kV, 60 Hz, 1.0 pu y equivalente positivo-secuencia de referencia;
+- T1 22.9/4.16 kV y T2 4.16/0.48 kV;
+- dos feeders representativos;
+- una carga MT y una carga BT;
+- pérdidas en vacío, corriente magnetizante, taps, R1/X1/C1 y modelo/conexión de carga para impedir defaults retenidos en el gate P1;
+- criterio configurable de caída de tensión de 5 %, sin claim normativo universal.
+
+El gate de P10B es exclusivamente:
 
 ```text
 P8B intake = READY_TO_BUILD_MODEL
@@ -108,3 +123,18 @@ VOLTAGE_DROP = READY
 ```
 
 sin activar todavía P3/P4/P5.
+
+
+### Criterios de cierre P10B
+
+- P8B acepta Stage 1 sin issues;
+- P8C3B construye el modelo sin ejecutar estudios;
+- `engine_defaults_retained_count = 0`;
+- P8C5 declara POWER_FLOW y VOLTAGE_DROP `READY`;
+- P8D1 ejecuta únicamente esos dos scopes;
+- OpenDSS converge;
+- no se ejecutan P3, P4 ni P5;
+- dos ejecuciones consecutivas producen el mismo resumen de caída de tensión;
+- `professional_emission=false`.
+
+Al cerrar P10B, la siguiente fase será P10C: añadir escenario MIN de fuente y habilitar únicamente IEC 60909 3F MAX/MIN.
