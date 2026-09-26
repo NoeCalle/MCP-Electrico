@@ -126,3 +126,17 @@ def test_p12a_contract_is_cross_industry_and_static_only():
     assert "VFD" in contract["supported_starting_methods"]
     assert contract["automatic_starting_current_derivation"] is False
     assert contract["professional_emission"] is False
+
+
+def test_p12a_requires_explicit_source_strength_for_starting_study():
+    manifest = _manifest()
+    manifest["base_model"]["source"]["scc_max_mva"] = None
+    manifest["base_model"]["source"]["x_r_max"] = None
+
+    result = motor_starting_intake.evaluar_admision_motor(manifest)
+
+    assert result["intake_status"] == "BLOCKED_MOTOR_STARTING_INPUTS"
+    paths = {issue["path"] for issue in result["issues"]}
+    assert "base_model.source.scc_max_mva" in paths
+    assert "base_model.source.x_r_max" in paths
+    assert result["automatic_defaults"] is False
