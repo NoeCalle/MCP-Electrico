@@ -40,7 +40,7 @@ P12 no decide qué contingencia estudiar, qué equipo abrir, qué carga desconec
 
 ## P12A — Contrato fail-closed
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #123.
 
 El paquete de escenarios declara:
 
@@ -56,7 +56,7 @@ P12A no ejecuta cálculos.
 
 ## P12B — Ejecución topológica explícita
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #123.
 
 Foundation v1 soporta únicamente:
 
@@ -73,6 +73,33 @@ Transformer.*
 ```
 
 Cada escenario se ejecuta desde una reconstrucción limpia del modelo base. Después de resolver el flujo y evaluar los criterios declarados, el estado inicial de cada elemento se restaura y verifica. Si la restauración, la revisión del modelo o la convergencia del estado restaurado no pueden comprobarse, P12 no promueve el resultado a PASS/FAIL.
+
+## P12C — Estado explícito de cargas
+
+**Estado: IN PROGRESS.**
+
+P12C añade únicamente acciones declaradas por el usuario:
+
+```text
+DISABLE_LOAD
+ENABLE_LOAD
+```
+
+sobre `Load.*` existente en el manifiesto. No existe algoritmo de shedding ni selección automática de qué carga retirar.
+
+La evaluación de continuidad comprueba ahora dos condiciones distintas para una carga crítica:
+
+```text
+load_enabled = true
+AND
+minimum_voltage_pu <= Vpu <= maximum_voltage_pu (si fue declarado)
+```
+
+Por tanto, una barra energizada no se confunde con una carga realmente en servicio.
+
+Cada cambio Enabled se restaura exactamente después del escenario y participa del mismo gate fail-closed de restauración.
+
+Caso de prueba: `examples/p12c_explicit_load_state_reference.json`.
 
 ## Fronteras v1
 
@@ -103,7 +130,6 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12C — cambios explícitos de estado de cargas y load shedding manual;
 - P12D — fuentes alternativas/generadores y transferencia declarada;
 - P12E — comparación batch, Workspace y dossier de escenarios;
 - fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
