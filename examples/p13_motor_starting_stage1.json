@@ -126,7 +126,9 @@
       "starting_power_factor": 0.25,
       "starting_data_reference": "CONTROLLED_REFERENCE_DATA - explicit locked-rotor current and PF",
       "base_model_includes_running_motor": true,
-      "running_load_element_id": "Load.m01_run"
+      "running_load_element_id": "Load.m01_run",
+      "starting_current_basis": "SUPPLY_LINE_RMS_AT_RATED_VOLTAGE",
+      "starting_power_factor_basis": "FUNDAMENTAL_DISPLACEMENT"
     }
   ],
   "studies": [
