@@ -26,7 +26,8 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
-| P13 — Motores y arranque | **ACTIVA — P13A–P13D DONE / P13E IN PROGRESS** | Workspace read-only y dossier replay-verificado para motores/arranque |
+| P13 — Motores y arranque | **CERRADA ESTÁTICA — P13A–P13E DONE** | intake, arranque estático, perfiles, secuencias, Workspace y dossier replay-verificado |
+| P14 — Runtime & Agent Integration | **ACTIVA — P14A IN PROGRESS** | arranque reproducible, construcción Rev.0 explícita y ergonomía segura para agentes |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -47,9 +48,10 @@ P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = ACTIVE_P12D
-P13 = ACTIVE_P13E
+P13 = CLOSED_STATIC_P13A_TO_P13E
+P14 = ACTIVE_P14A
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P12_OPERATING_SCENARIOS_AND_P13_MOTOR_STARTING
+next_activity = P12_OPERATING_SCENARIOS_AND_P14_RUNTIME_AGENT_INTEGRATION
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
