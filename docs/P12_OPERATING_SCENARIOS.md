@@ -103,7 +103,7 @@ Caso de prueba: `examples/p12c_explicit_load_state_reference.json`.
 
 ## P12D — Tools MCP para escenarios
 
-**Estado: IN PROGRESS.**
+**Estado: IMPLEMENTED — PR #129 PENDING MERGE.**
 
 P12D expone la capa de escenarios mediante tres tools aditivas:
 
@@ -117,12 +117,59 @@ La interfaz MCP no contiene un segundo motor eléctrico ni replica la lógica de
 
 Esto no modifica el contrato congelado de primer uso P8/P11; agrega una capacidad nueva y versionada.
 
+## P12E — Fuentes alternativas y transferencia declarada
+
+**Estado: IN PROGRESS.**
+
+P12E incorpora fuentes alternativas sin asociarlas a una industria concreta. La misma representación puede usarse para una fuente de respaldo en un hospital, data center, planta de manufactura, estación de bombeo, instalación de oil & gas, mina u otra red privada.
+
+Foundation v1 representa cada fuente alternativa como:
+
+```text
+source_type = THEVENIN_VSOURCE_EQUIVALENT
+engine      = OpenDSS Vsource
+sequence    = POSITIVE_SEQUENCE_FOR_POWER_FLOW
+initial     = DISABLED
+```
+
+Cada fuente declara explícitamente barra, tensión, pu, ángulo, Scc trifásica, X/R, elementos de aislamiento requeridos y procedencia. P12E no deriva fortaleza de red ni datos dinámicos.
+
+Las nuevas acciones son:
+
+```text
+ENABLE_ALT_SOURCE
+DISABLE_ALT_SOURCE
+```
+
+### Break-before-make obligatorio
+
+P12E v1 no admite transición cerrada ni paralelismo implícito de fuentes. Antes de `ENABLE_ALT_SOURCE`, todos los elementos listados en `required_isolation_elements` deben haber recibido una acción `OPEN_ELEMENT` previa dentro del mismo escenario.
+
+Por ejemplo:
+
+```text
+OPEN_ELEMENT Transformer.t2_aux
+        ↓
+ENABLE_ALT_SOURCE Vsource.backup_480
+        ↓
+Solve
+        ↓
+critical-service checks
+```
+
+Invertir ese orden bloquea el paquete antes de ejecutar cálculo.
+
+La capa no modela sincronismo, gobernador, AVR, control de inversor, reparto de carga entre fuentes ni dinámica de black-start. Es una representación estática explícita para flujo de potencia.
+
 ## Fronteras v1
 
 ```text
 automatic_contingency_selection = false
 automatic_switching = false
 automatic_load_shedding = false
+automatic_source_selection = false
+automatic_transfer = false
+closed_transition_transfer = false
 crosscheck = false
 professional_emission = false
 ```
@@ -146,6 +193,5 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12E — fuentes alternativas/generadores y transferencia declarada;
 - P12F — comparación batch, Workspace y dossier de escenarios;
 - fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
