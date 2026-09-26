@@ -38,9 +38,9 @@ Neither stable branch is used for normal development or moved automatically with
 1. **Main development history** — ordinary Git history and merged PRs.
 2. **Stable recovery branch** — points to a known-good frozen release candidate/baseline.
 3. **Immutable release tag** — should be created for every stable product release when release tooling is available.
-4. **Independent mirror repository** — future external backup of stable releases, separate from the active development repository.
+4. **Optional external mirror** — deferred. The current project decision is to keep recovery points inside this same repository using immutable SHAs and stable branches.
 
-A mirror repository is intentionally not a development remote. It exists so an accidental destructive change in the active repository does not remove the last known-good product state.
+An external mirror may be reconsidered later, but it is not required for the current development roadmap.
 
 ## Rules
 
@@ -49,7 +49,6 @@ A mirror repository is intentionally not a development remote. It exists so an a
 - every future stable release records its exact commit SHA;
 - a recovery operation restores from a recorded SHA, never from memory;
 - release backup does not replace CI, PR review, or branch protection;
-- the external mirror should contain source, tests, workflows, examples, and release documentation;
 - secrets, local credentials, generated private dossiers, and environment files must never be copied into the backup repository.
 
 ## Future release workflow
@@ -62,12 +61,12 @@ main
 all release gates green
     ↓
 stable release commit
-    ├── release tag
-    ├── stable recovery branch
-    └── independent mirror repository
+    ├── release manifest with exact SHA
+    ├── release tag when tooling is available
+    └── stable recovery branch in this repository
 ```
 
-The next stable promotion must record its exact SHA in a release manifest before any stable pointer or mirror is changed. P11 owns this release-safety process.
+The next stable promotion must record its exact SHA in a release manifest before any stable pointer is changed. P11 owns this release-safety process.
 
 
 ## P11 clean-restore verification
@@ -83,4 +82,18 @@ Linux Python 3.11 = PASS
 Windows Python 3.12 = PASS
 ```
 
-The internal recovery chain is therefore proven. The independent external mirror remains the final operational redundancy layer and must be created separately from the active development repository.
+The internal recovery chain is therefore proven. The current recovery strategy remains inside this repository. An independent external mirror is deferred by project decision and is not a blocker for engineering development.
+
+
+## Current repository-only decision
+
+As of P12 activation, MCP Eléctrico keeps its recovery strategy in the same GitHub repository:
+
+```text
+main = active development
+stable/0.9-engineering-preview = frozen P9 recovery point
+stable/0.9-reference-validated = validated P10 recovery point
+exact commit SHAs = canonical recovery anchors
+```
+
+Creating a second backup repository is deferred. The stable branches must not be used as feature-development branches or moved implicitly with `main`.
