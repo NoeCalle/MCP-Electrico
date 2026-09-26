@@ -1,0 +1,80 @@
+{
+  "project_id": "MCP-REF-MOTOR-MULTI-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P13D explicit motor sequence",
+  "sequences": [
+    {
+      "id": "SEQ-M01-M02",
+      "sequence_reference": "CONTROLLED_REFERENCE_DATA - staggered and overlapping static start states",
+      "motor_ids": [
+        "Motor.m01",
+        "Motor.m02"
+      ],
+      "steps": [
+        {
+          "id": "S0",
+          "elapsed_time_s": 0,
+          "motor_states": [
+            {
+              "motor_id": "Motor.m01",
+              "state": "STARTING_PROFILE_POINT",
+              "profile_id": "PROFILE-M01",
+              "point_id": "M01-T0"
+            },
+            {
+              "motor_id": "Motor.m02",
+              "state": "OFF"
+            }
+          ]
+        },
+        {
+          "id": "S1",
+          "elapsed_time_s": 1.5,
+          "motor_states": [
+            {
+              "motor_id": "Motor.m01",
+              "state": "STARTING_PROFILE_POINT",
+              "profile_id": "PROFILE-M01",
+              "point_id": "M01-T2"
+            },
+            {
+              "motor_id": "Motor.m02",
+              "state": "STARTING_PROFILE_POINT",
+              "profile_id": "PROFILE-M02",
+              "point_id": "M02-T0"
+            }
+          ]
+        },
+        {
+          "id": "S2",
+          "elapsed_time_s": 3,
+          "motor_states": [
+            {
+              "motor_id": "Motor.m01",
+              "state": "RUNNING"
+            },
+            {
+              "motor_id": "Motor.m02",
+              "state": "STARTING_PROFILE_POINT",
+              "profile_id": "PROFILE-M02",
+              "point_id": "M02-T2"
+            }
+          ]
+        },
+        {
+          "id": "S3",
+          "elapsed_time_s": 5,
+          "motor_states": [
+            {
+              "motor_id": "Motor.m01",
+              "state": "RUNNING"
+            },
+            {
+              "motor_id": "Motor.m02",
+              "state": "RUNNING"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
