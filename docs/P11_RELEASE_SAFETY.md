@@ -23,7 +23,7 @@ stable/0.9-reference-validated
 | P11A | release manifest + recovery anchors | SHA y políticas críticas registradas |
 | P11B | core contract regression | cambios incompatibles rompen CI de forma explícita |
 | P11C | export/mirror independiente | copia estable fuera del repo de desarrollo |
-| P11D | stable release candidate | restauración probada desde release limpia |
+| P11D | clean restore proof | restauración probada desde release limpia |
 
 ## P11A — Release manifest
 
@@ -164,7 +164,7 @@ Al cerrar P11C, P11D reconstruirá una copia limpia únicamente desde el bundle 
 
 ## P11D — Restauración limpia desde bundle
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #121.
 
 P11D prueba la recuperación sin depender de `main`, del working tree original ni de GitHub como fuente del código restaurado.
 
@@ -212,4 +212,20 @@ La restauración debe volver exactamente a:
 - el mirror externo continúa separado de la copia de recuperación;
 - `professional_emission=false`.
 
-Si P11D cierra, la implementación interna de Release Safety queda lista para crear el mirror independiente cuando se disponga del repositorio externo.
+P11D quedó cerrado con restauración limpia y smoke integral sobre la copia recuperada.
+
+## Estado de salida P11
+
+```text
+P11A = DONE
+P11B = DONE
+P11C = DONE
+P11D = DONE
+internal_release_safety = READY
+independent_external_mirror = PENDING_EXTERNAL_REPOSITORY
+professional_emission = false
+```
+
+La implementación interna de Release Safety queda cerrada. El único paso pendiente es operacional: crear el repositorio espejo independiente y cargar allí el export verificado siguiendo `docs/RELEASE_MIRROR_RUNBOOK.md`.
+
+Ese mirror no modifica el core, no es una nueva fase de ingeniería y no debe bloquear el desarrollo técnico posterior.
