@@ -1,0 +1,314 @@
+{
+  "project": {
+    "id": "SE-MIN-01",
+    "name": "Planta concentradora de cobre - flujo de carga NORMAL preliminar",
+    "source_reference": "SE-MIN-01 DESIGN BASIS + LOAD LIST 2026-09; project-controlled engineering data",
+    "application_context": "MINERAL_PROCESSING_CONCENTRATOR",
+    "location_context": "SUR_DEL_PERU",
+    "altitude_m": 3800,
+    "operation": "24_7",
+    "scenario": "NORMAL",
+    "reliability_philosophy": "N-1_FUNCTIONAL_WITH_EXPLICIT_LOAD_SHEDDING",
+    "professional_emission": false
+  },
+  "requested_scope": [
+    "POWER_FLOW"
+  ],
+  "source": {
+    "bus": "source_22k9",
+    "kv_ll": 22.9,
+    "frequency_hz": 60,
+    "pu": 1,
+    "angle_deg": 0,
+    "scc_max_mva": null,
+    "x_r_max": null,
+    "scc_min_mva": null,
+    "x_r_min": null,
+    "source_reference": "DESIGN_BASIS - 22.9 kV, 60 Hz; utility short-circuit strength remains TBC"
+  },
+  "topology": {
+    "buses": [
+      "source_22k9",
+      "bus_4k16_A",
+      "bus_4k16_B",
+      "bus_4k16_A_load",
+      "bus_4k16_B_load",
+      "bus_480_A",
+      "bus_480_B",
+      "bus_480_A_load",
+      "bus_480_B_load"
+    ],
+    "transformers": [
+      {
+        "id": "Transformer.TR01",
+        "bus_hv": "source_22k9",
+        "bus_lv": "bus_4k16_A",
+        "kva": 6300,
+        "kv_hv": 22.9,
+        "kv_lv": 4.16,
+        "uk_percent": 8,
+        "vector_group": "Dyn11",
+        "x_r": 10,
+        "no_load_loss_kw": 0,
+        "i0_percent": 0,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -1,
+        "tap_max": 1,
+        "tap_step_percent": 1,
+        "tap_pos": 0,
+        "manufacturer": "TBC",
+        "model": "SE_MIN_01_PRELIMINARY",
+        "source_reference": "PRELIMINARY_DESIGN_DATA - 6.3 MVA, 22.9/4.16 kV, Dyn11, uk=8%, X/R=10; core loss/excitation set to zero as explicit study simplification; tap range is MODEL_PLACEHOLDER"
+      },
+      {
+        "id": "Transformer.TR02",
+        "bus_hv": "source_22k9",
+        "bus_lv": "bus_4k16_B",
+        "kva": 6300,
+        "kv_hv": 22.9,
+        "kv_lv": 4.16,
+        "uk_percent": 8,
+        "vector_group": "Dyn11",
+        "x_r": 10,
+        "no_load_loss_kw": 0,
+        "i0_percent": 0,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -1,
+        "tap_max": 1,
+        "tap_step_percent": 1,
+        "tap_pos": 0,
+        "manufacturer": "TBC",
+        "model": "SE_MIN_01_PRELIMINARY",
+        "source_reference": "PRELIMINARY_DESIGN_DATA - 6.3 MVA, 22.9/4.16 kV, Dyn11, uk=8%, X/R=10; core loss/excitation set to zero as explicit study simplification; tap range is MODEL_PLACEHOLDER"
+      },
+      {
+        "id": "Transformer.TR_AUX_A",
+        "bus_hv": "bus_4k16_A",
+        "bus_lv": "bus_480_A",
+        "kva": 1500,
+        "kv_hv": 4.16,
+        "kv_lv": 0.48,
+        "uk_percent": 6,
+        "vector_group": "Dyn11",
+        "x_r": 8,
+        "no_load_loss_kw": 0,
+        "i0_percent": 0,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -1,
+        "tap_max": 1,
+        "tap_step_percent": 1,
+        "tap_pos": 0,
+        "manufacturer": "TBC",
+        "model": "MODEL_PLACEHOLDER",
+        "source_reference": "MODEL_PLACEHOLDER - only 1.5 MVA and 4.16/0.48 kV are design data; Dyn11, uk=6%, X/R=8 and tap range are temporary study assumptions; core loss/excitation set to zero"
+      },
+      {
+        "id": "Transformer.TR_AUX_B",
+        "bus_hv": "bus_4k16_B",
+        "bus_lv": "bus_480_B",
+        "kva": 1500,
+        "kv_hv": 4.16,
+        "kv_lv": 0.48,
+        "uk_percent": 6,
+        "vector_group": "Dyn11",
+        "x_r": 8,
+        "no_load_loss_kw": 0,
+        "i0_percent": 0,
+        "tap_side": "hv",
+        "tap_neutral": 0,
+        "tap_min": -1,
+        "tap_max": 1,
+        "tap_step_percent": 1,
+        "tap_pos": 0,
+        "manufacturer": "TBC",
+        "model": "MODEL_PLACEHOLDER",
+        "source_reference": "MODEL_PLACEHOLDER - only 1.5 MVA and 4.16/0.48 kV are design data; Dyn11, uk=6%, X/R=8 and tap range are temporary study assumptions; core loss/excitation set to zero"
+      }
+    ],
+    "lines": [
+      {
+        "id": "Line.MV_A_MODEL_LINK",
+        "bus1": "bus_4k16_A",
+        "bus2": "bus_4k16_A_load",
+        "phases": 3,
+        "length_km": 1,
+        "r1_ohm_km": 0,
+        "x1_ohm_km": 0,
+        "c1_nf_km": 0,
+        "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; cable route/R/X remain TBC and voltage-drop study is intentionally out of scope"
+      },
+      {
+        "id": "Line.MV_B_MODEL_LINK",
+        "bus1": "bus_4k16_B",
+        "bus2": "bus_4k16_B_load",
+        "phases": 3,
+        "length_km": 1,
+        "r1_ohm_km": 0,
+        "x1_ohm_km": 0,
+        "c1_nf_km": 0,
+        "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; cable route/R/X remain TBC and voltage-drop study is intentionally out of scope"
+      },
+      {
+        "id": "Line.LV_A_MODEL_LINK",
+        "bus1": "bus_480_A",
+        "bus2": "bus_480_A_load",
+        "phases": 3,
+        "length_km": 1,
+        "r1_ohm_km": 0,
+        "x1_ohm_km": 0,
+        "c1_nf_km": 0,
+        "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; LV feeder data remain TBC and voltage-drop study is intentionally out of scope"
+      },
+      {
+        "id": "Line.LV_B_MODEL_LINK",
+        "bus1": "bus_480_B",
+        "bus2": "bus_480_B_load",
+        "phases": 3,
+        "length_km": 1,
+        "r1_ohm_km": 0,
+        "x1_ohm_km": 0,
+        "c1_nf_km": 0,
+        "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; LV feeder data remain TBC and voltage-drop study is intentionally out of scope"
+      }
+    ],
+    "loads": [
+      {
+        "id": "Load.100_CR_101",
+        "bus": "bus_4k16_A_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 536.842,
+        "kvar": 275.032,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.200_ML_201",
+        "bus": "bus_4k16_A_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 1434.949,
+        "kvar": 291.379,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.200_P_201A",
+        "bus": "bus_4k16_A_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 860.969,
+        "kvar": 174.827,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.300_BL_301A",
+        "bus": "bus_4k16_B_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 456.498,
+        "kvar": 92.696,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.500_P_501A",
+        "bus": "bus_4k16_B_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 1020.408,
+        "kvar": 207.203,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.600_P_601A",
+        "bus": "bus_4k16_B_load",
+        "phases": 3,
+        "kv": 4.16,
+        "kw": 813.138,
+        "kvar": 165.115,
+        "connection": "delta",
+        "model": 1,
+        "critical": false,
+        "source_reference": "SE-MIN-01 NORMAL load list"
+      },
+      {
+        "id": "Load.AUX_480_A_NORMAL",
+        "bus": "bus_480_A_load",
+        "phases": 3,
+        "kv": 0.48,
+        "kw": 597.3,
+        "kvar": 234.3,
+        "connection": "wye",
+        "model": 1,
+        "critical": true,
+        "source_reference": "TR-04-03 auxiliary load summary - NORMAL Bus A aggregate; standby not double-counted"
+      },
+      {
+        "id": "Load.AUX_480_B_NORMAL",
+        "bus": "bus_480_B_load",
+        "phases": 3,
+        "kv": 0.48,
+        "kw": 713.6,
+        "kvar": 238.5,
+        "connection": "wye",
+        "model": 1,
+        "critical": true,
+        "source_reference": "TR-04-03 auxiliary load summary - NORMAL Bus B aggregate; standby not double-counted"
+      }
+    ]
+  },
+  "zero_sequence": {
+    "source": {
+      "r0_max_ohm": null,
+      "x0_max_ohm": null,
+      "r0_min_ohm": null,
+      "x0_min_ohm": null
+    },
+    "lines": [],
+    "transformers": []
+  },
+  "ampacity": [],
+  "protection": {
+    "devices": [],
+    "tcc_datasets": [],
+    "fault_bindings": []
+  },
+  "study_inputs": {
+    "voltage_drop_limit_pct": null,
+    "short_circuit_buses": []
+  },
+  "model_scope_notes": {
+    "normal_ties": {
+      "bus_tie_4k16": "NORMALLY_OPEN_NOT_MATERIALIZED_IN_NORMAL_BASE_CASE",
+      "bus_tie_480": "NORMALLY_OPEN_NOT_MATERIALIZED_IN_NORMAL_BASE_CASE"
+    },
+    "load_totals_expected": {
+      "kw": 6433.704,
+      "kvar": 1679.052,
+      "kva": 6649.193
+    },
+    "excluded_claims": [
+      "No cable voltage-drop claim: route/length/R/X are pending.",
+      "No utility short-circuit claim: Scc and X/R are pending.",
+      "No finalized TR-AUX vector group, impedance, grounding or tap claim.",
+      "No N-1 contingency solved in this NORMAL base case.",
+      "No professional emission."
+    ]
+  }
+}
