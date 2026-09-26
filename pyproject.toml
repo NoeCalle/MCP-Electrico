@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcp-electrico"
+version = "0.9.0.dev0"
+description = "MCP Eléctrico: modelado y estudios eléctricos reproducibles con OpenDSS"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "mcp>=1.0,<2",
+  "opendssdirect.py>=0.9,<0.10",
+  "networkx>=3.2,<4",
+  "pandapower==3.5.4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+]
+
+[project.scripts]
+mcp-electrico = "server:main"
+
+[tool.setuptools]
+py-modules = ["server"]
+
+[tool.setuptools.packages.find]
+include = ["mcp_electrico*"]
