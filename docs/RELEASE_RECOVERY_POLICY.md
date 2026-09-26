@@ -6,9 +6,11 @@ MCP Eléctrico must always preserve a known-good version that can be recovered i
 
 This policy is independent from the P10 engineering reference case.
 
-## Current recovery point
+## Current recovery points
 
-The frozen Engineering Preview 0.9 baseline is anchored at:
+Two known-good anchors are preserved.
+
+### P9 frozen baseline
 
 ```text
 release_name = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
@@ -16,7 +18,20 @@ commit_sha = 6720da9183c45df299a584430fddea28f4060d7a
 recovery_branch = stable/0.9-engineering-preview
 ```
 
-The branch was created from the exact P9D freeze commit and must not be used for normal development.
+This is the exact P9D freeze before the independent P10 reference validation.
+
+### P10 reference-validated baseline
+
+```text
+release_name = MCP_ELECTRICO_0_9_REFERENCE_VALIDATED
+commit_sha = 5228e358cf0716dc963f109a15b9e1a2d309f635
+recovery_branch = stable/0.9-reference-validated
+release_manifest = releases/mcp_electrico_0_9_reference_validated.json
+```
+
+This is the exact P10G merge after the full reference project passed Workspace V5 and reproducible-dossier validation.
+
+Neither stable branch is used for normal development or moved automatically with `main`.
 
 ## Recovery hierarchy
 
@@ -52,4 +67,4 @@ stable release commit
     └── independent mirror repository
 ```
 
-The next time MCP Eléctrico is promoted beyond Engineering Preview 0.9, this document must be updated with the new release SHA before the stable pointer or mirror is changed.
+The next stable promotion must record its exact SHA in a release manifest before any stable pointer or mirror is changed. P11 owns this release-safety process.
