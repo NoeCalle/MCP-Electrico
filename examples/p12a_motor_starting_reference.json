@@ -1,0 +1,38 @@
+{
+  "project": {
+    "id": "MCP-MOTOR-REF-01",
+    "name": "Referencia sector-neutral de arranque de motores",
+    "source_reference": "CONTROLLED_REFERENCE_DATA - P12A"
+  },
+  "system": {
+    "frequency_hz": 60.0
+  },
+  "requested_studies": [
+    "STARTING_VOLTAGE_DIP",
+    "ACCELERATION_TIME"
+  ],
+  "motors": [
+    {
+      "id": "MTR-01",
+      "bus": "motor_bus",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - induction motor",
+      "motor_type": "INDUCTION_SQUIRREL_CAGE",
+      "phases": 3,
+      "rated_kw": 250.0,
+      "rated_kv_ll": 0.48,
+      "rated_current_a": 330.0,
+      "efficiency_pu": 0.95,
+      "rated_power_factor": 0.88,
+      "starter": {
+        "type": "DOL",
+        "locked_rotor_current_ratio": 6.0,
+        "starting_power_factor": 0.25
+      },
+      "mechanical": {
+        "motor_inertia_kg_m2": 4.0,
+        "load_inertia_kg_m2": 12.0,
+        "load_torque_model": "QUADRATIC_TORQUE"
+      }
+    }
+  ]
+}
