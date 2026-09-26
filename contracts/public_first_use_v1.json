@@ -1,0 +1,78 @@
+{
+  "schema": "MCP_ELECTRICO_PUBLIC_FIRST_USE_CONTRACT_V1",
+  "contract_id": "P11B_FIRST_USE_OPERATIONAL_SURFACE_V1",
+  "scope": "FIRST_USE_OPERATIONAL_SURFACE_ONLY",
+  "compatibility_policy": {
+    "remove_or_rename_tool_requires_contract_version_bump": true,
+    "add_or_remove_required_parameter_requires_contract_version_bump": true,
+    "change_public_default_requires_contract_version_bump": true,
+    "low_level_development_tools_frozen": false
+  },
+  "tools": [
+    {
+      "name": "evaluar_admision_piloto_real",
+      "source_file": "mcp_electrico/real_pilot_intake_tools.py",
+      "role": "FAIL_CLOSED_ADMISSION",
+      "parameters": [
+        {
+          "name": "manifest",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generar_dossier_piloto_real",
+      "source_file": "mcp_electrico/real_project_dossier_tools.py",
+      "role": "CONTROLLED_FULL_DOSSIER",
+      "parameters": [
+        {
+          "name": "manifest",
+          "required": true
+        },
+        {
+          "name": "directorio_salida",
+          "required": false,
+          "default": "mcp_electrico_real_dossier"
+        }
+      ]
+    },
+    {
+      "name": "verificar_integridad_dossier_real",
+      "source_file": "mcp_electrico/real_project_dossier_tools.py",
+      "role": "PORTABLE_SHA256_VERIFICATION",
+      "parameters": [
+        {
+          "name": "ruta_indice",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "recommended_sequence": [
+    "evaluar_admision_piloto_real",
+    "generar_dossier_piloto_real",
+    "verificar_integridad_dossier_real"
+  ],
+  "success_statuses": {
+    "admission": "READY_TO_BUILD_MODEL",
+    "dossier": "DOSSIER_READY_ENGINEERING_PREVIEW",
+    "integrity": "DOSSIER_INTEGRITY_VERIFIED"
+  },
+  "dossier_guarantees": {
+    "hash_algorithm": "sha256",
+    "portable_relative_paths": true,
+    "exact_file_set_required": true,
+    "silent_overwrite": false,
+    "collision_policy": "SUFFIX_INCREMENT",
+    "first_collision_suffix": "_2"
+  },
+  "safety_invariants": {
+    "automatic_repair": false,
+    "automatic_retry": false,
+    "automatic_defaults": false,
+    "automatic_dispatch": false,
+    "automatic_fault_binding": false,
+    "crosscheck": false,
+    "professional_emission": false
+  }
+}
