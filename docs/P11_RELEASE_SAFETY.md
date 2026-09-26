@@ -66,7 +66,7 @@ El repo espejo sigue planificado para P11C. Debe ser un repositorio separado del
 
 ## P11B — Contrato público del core
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #119.
 
 P11B no congela todas las tools internas del repositorio. Congela únicamente la superficie operativa recomendada para el primer uso controlado:
 
@@ -106,3 +106,57 @@ Las tools de desarrollo de bajo nivel, helpers internos y detalles de implementa
 - P8F3 conserva suffix increment y prohíbe overwrite;
 - Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
 - `professional_emission=false`.
+
+
+## P11C — Export portable para mirror independiente
+
+**Estado: IN PROGRESS.**
+
+P11C prepara un paquete verificable de la baseline `MCP_ELECTRICO_0_9_REFERENCE_VALIDATED` sin confundir un artifact de CI con un backup externo definitivo.
+
+La herramienta `scripts/create_release_export.py` exige simultáneamente:
+
+```text
+ref resuelto
+    =
+expected_sha
+    =
+release_manifest.commit_sha
+```
+
+Si los tres valores no coinciden, el export falla antes de producir una entrega.
+
+### Contenido del export
+
+```text
+source ZIP from exact Git commit
+Git bundle
+release_manifest.json
+export_metadata.json
+SHA256SUMS.txt
+```
+
+El ZIP se genera con `git archive`, por lo que no consume el working tree ni archivos locales no trackeados. El bundle permite reconstruir la historia alcanzable hasta el commit estable incluso sin acceso a GitHub.
+
+### Frontera del mirror
+
+```text
+CI artifact = export staging
+independent repository = final external backup
+```
+
+P11C no afirma que el mirror independiente ya exista. La creación del repositorio externo permanece como una acción separada; el procedimiento queda documentado en `docs/RELEASE_MIRROR_RUNBOOK.md`.
+
+### Criterios de cierre P11C
+
+- el export solo acepta el SHA estable exacto;
+- el manifest debe apuntar al mismo SHA;
+- el source ZIP no incorpora el working tree;
+- `git bundle verify` debe pasar;
+- los archivos de entrega quedan cubiertos por SHA-256;
+- el paquete se prueba en Linux/Python 3.11 y Windows/Python 3.12;
+- CI publica un artifact de staging con retención finita, sin llamarlo mirror;
+- secretos y dossiers privados quedan fuera por diseño;
+- `professional_emission=false`.
+
+Al cerrar P11C, P11D reconstruirá una copia limpia únicamente desde el bundle y volverá a ejecutar un smoke operacional sobre esa restauración.
