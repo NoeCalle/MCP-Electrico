@@ -17,7 +17,7 @@ static voltage dip != acceleration-time simulation
 missing motor data != derived default
 ```
 
-La corriente de arranque y su factor de potencia se suministran explícitamente. P13A no los deduce de DOL, estrella-delta, soft starter o VFD.
+La corriente de arranque y su factor de potencia se suministran explícitamente. P13A no los deduce de DOL, estrella-delta, autotransformador, soft starter o VFD. Para evitar ambigüedad entre corriente del motor, corriente de línea y lado de entrada de electrónica de potencia, P13A v1 exige una corriente RMS supply-side a tensión nominal y PF de desplazamiento fundamental. Armónicos y formas de onda quedan fuera de esta foundation.
 
 ## Estrategia
 
@@ -56,8 +56,10 @@ Cada motor declara de forma explícita:
 - conexión;
 - potencia nominal de salida;
 - método de arranque;
-- corriente de arranque;
+- corriente de arranque RMS vista desde la red;
+- base explícita de esa corriente (`SUPPLY_LINE_RMS_AT_RATED_VOLTAGE`);
 - factor de potencia durante arranque;
+- base explícita de PF (`FUNDAMENTAL_DISPLACEMENT`);
 - referencia del dato de arranque;
 - si el modelo base ya contiene su carga de marcha;
 - cuál `Load.*` debe reemplazarse temporalmente si existe.
