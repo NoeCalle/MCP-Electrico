@@ -219,7 +219,7 @@ def _execute_one(
                 "ok": False,
                 "professional_emission": False,
             }
-        engine(f"Disable {running}")
+        engine(f"Edit {running} enabled=no")
 
     engine("Solve")
     pre_converged = bool(engine.Solution.Converged())
