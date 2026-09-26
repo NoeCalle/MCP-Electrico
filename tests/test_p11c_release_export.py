@@ -36,6 +36,19 @@ def _head_sha() -> str:
     return result.stdout.strip().lower()
 
 
+def _require_full_history() -> None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=ROOT,
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.stdout.strip().lower() == "true":
+        pytest.skip("P11C bundle tests require fetch-depth: 0; dedicated P11C CI provides it")
+
+
 def _manifest_for_sha(tmp_path: Path, sha: str) -> Path:
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
     data["release_id"] = "P11C_TEST_HEAD"
@@ -55,6 +68,7 @@ def test_p11c_canonical_manifest_records_exact_stable_release_sha():
 
 
 def test_p11c_export_builder_verifies_exact_available_commit(tmp_path: Path):
+    _require_full_history()
     module = _module()
     head = _head_sha()
     manifest = _manifest_for_sha(tmp_path, head)
@@ -109,6 +123,7 @@ def test_p11c_export_builder_verifies_exact_available_commit(tmp_path: Path):
 
 
 def test_p11c_source_zip_contains_only_selected_git_tree(tmp_path: Path):
+    _require_full_history()
     module = _module()
     head = _head_sha()
     manifest = _manifest_for_sha(tmp_path, head)
