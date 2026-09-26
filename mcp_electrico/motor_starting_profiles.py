@@ -16,6 +16,7 @@ Reglas:
 from __future__ import annotations
 
 from copy import deepcopy
+from math import isfinite
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -53,7 +54,7 @@ def _number(value: Any) -> float | None:
         number = float(value)
     except (TypeError, ValueError):
         return None
-    return number if number == number else None
+    return number if isfinite(number) else None
 
 
 def _positive(value: Any) -> bool:
@@ -207,6 +208,7 @@ def validar_perfiles(
 
         normalized_points: list[dict[str, Any]] = []
         previous_time: float | None = None
+        seen_point_ids: set[str] = set()
         for j, point in enumerate(points):
             ppath = f"{path}.points[{j}]"
             if not isinstance(point, dict):
@@ -220,6 +222,10 @@ def validar_perfiles(
 
             if not point_id:
                 issues.append(_issue("P13C015", f"{ppath}.id", "Cada punto requiere id."))
+            elif point_id.lower() in seen_point_ids:
+                issues.append(_issue("P13C023", f"{ppath}.id", "ID de punto duplicado dentro del perfil."))
+            else:
+                seen_point_ids.add(point_id.lower())
             if elapsed is None or elapsed < 0:
                 issues.append(_issue(
                     "P13C016",
