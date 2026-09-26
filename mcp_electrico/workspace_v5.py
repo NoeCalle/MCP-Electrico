@@ -10,10 +10,12 @@ from pathlib import Path
 from typing import Any
 
 from . import (
+    model_qa,
     protection_curves,
     protection_data,
     workspace_p5_view,
     workspace_p8d2_view,
+    workspace_readiness_view,
     workspace_v4,
 )
 
@@ -34,6 +36,8 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         datasets,
     )
     enhanced = workspace_p8d2_view.enhance_html(enhanced, snapshot)
+    qa = model_qa.auditar_modelo(["power_flow", "voltage_drop"])
+    enhanced = workspace_readiness_view.enhance_html(enhanced, snapshot, qa)
     target.write_text(enhanced, encoding="utf-8")
 
     studies = snapshot.get("status", {}).get("studies", {})
@@ -43,6 +47,8 @@ def enhance_file(path: str | Path, snapshot: dict[str, Any]) -> dict[str, Any]:
         "workspace_version": 5,
         "p5_protection_view": workspace_p5_view.MARKER in enhanced,
         "p8d2_integrated_view": workspace_p8d2_view.MARKER in enhanced,
+        "engineering_readiness_view": workspace_readiness_view.MARKER in enhanced,
+        "readiness_qa": qa.get("summary") or {},
         "protection_device_count": len(protection_snapshot.get("devices") or []),
         "tcc_dataset_count": len(datasets),
         "p5_results_vigentes": {
