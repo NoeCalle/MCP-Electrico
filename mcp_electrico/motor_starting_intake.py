@@ -6,7 +6,7 @@ data centers, oil & gas, minería u otras instalaciones con motores.
 
 P12A NO ejecuta flujo ni arranque. Valida que el modelo base P8 sea admisible
 y que cada motor/estudio tenga datos explícitos suficientes para una futura
-aproximación estática de rotor bloqueado.
+aproximación estática de demanda de arranque equivalente.
 
 Principios:
 - no se deriva la corriente de arranque desde el método de arranque;
@@ -28,7 +28,7 @@ SCHEMA = "MCP_ELECTRICO_P12A_MOTOR_STARTING_INTAKE_V1"
 STATUS_READY = "READY_FOR_STATIC_MOTOR_STARTING_BUILD"
 STATUS_BLOCKED = "BLOCKED_MOTOR_STARTING_INPUTS"
 
-STUDY_TYPE = "STATIC_LOCKED_ROTOR_VOLTAGE_DIP"
+STUDY_TYPE = "STATIC_MOTOR_STARTING_VOLTAGE_DIP"
 ALLOWED_STARTING_METHODS = {
     "DOL",
     "STAR_DELTA",
@@ -111,7 +111,7 @@ def obtener_contrato_p12a() -> dict[str, Any]:
         "crosscheck": False,
         "professional_emission": False,
         "note": (
-            "P12A valida datos para una aproximación estática futura. "
+            "P12A valida datos para una aproximación estática futura de demanda de arranque. "
             "No calcula tiempo de aceleración, torque dinámico ni estabilidad."
         ),
     }
@@ -340,7 +340,7 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
         "professional_emission": False,
         "note": (
             "READY solo significa que los datos explícitos permiten construir después "
-            "una aproximación estática de rotor bloqueado. No implica cálculo dinámico "
+            "una aproximación estática de demanda de arranque equivalente. No implica cálculo dinámico "
             "de aceleración ni conformidad con un criterio normativo universal."
         ),
     }
