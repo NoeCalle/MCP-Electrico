@@ -28,6 +28,8 @@ def obtener_contrato_p12d() -> dict:
         "automatic_contingency_selection": False,
         "automatic_switching": False,
         "automatic_load_shedding": False,
+        "automatic_source_selection": False,
+        "automatic_transfer": False,
         "automatic_retry": False,
         "crosscheck": False,
         "professional_emission": False,
