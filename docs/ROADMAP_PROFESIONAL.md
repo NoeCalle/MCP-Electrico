@@ -24,7 +24,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
-| P11 — Release Safety | **ACTIVA — P11A–P11C DONE / P11D IN PROGRESS** | puntos de recuperación, contratos del core y mirror estable |
+| P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
 
 **Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
 
@@ -43,9 +43,9 @@ P7 = READY_WITH_LIMITATIONS
 P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
-P11 = ACTIVE_P11D
+P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P11D_CLEAN_RESTORE
+next_activity = EXTERNAL_MIRROR_OPERATION_OR_NEXT_ENGINEERING_PHASE
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -504,3 +504,23 @@ P11D  clean restore / stable candidate
 ```
 
 P11A registró el cierre P10G en `stable/0.9-reference-validated`. P11B congeló la superficie pública. P11C cerró el export portable exact-SHA. P11D prueba restauración limpia únicamente desde el bundle y vuelve a ejecutar el smoke integral P10G. Detalle: `docs/P11_RELEASE_SAFETY.md`.
+
+
+## Cierre P11 — Release Safety
+
+P11A–P11D quedan cerradas. La baseline validada puede exportarse por SHA exacto, verificarse por SHA-256, restaurarse desde Git bundle sin GitHub y volver a ejecutar el smoke integral P10G.
+
+El repositorio espejo independiente continúa como una acción operacional externa y no como deuda del core:
+
+```text
+stable/0.9-engineering-preview
+    -> 6720da9183c45df299a584430fddea28f4060d7a
+
+stable/0.9-reference-validated
+    -> 5228e358cf0716dc963f109a15b9e1a2d309f635
+
+P11D clean restore
+    -> VERIFIED
+```
+
+Detalle: `docs/P11_RELEASE_SAFETY.md`, `docs/RELEASE_RECOVERY_POLICY.md` y `docs/RELEASE_MIRROR_RUNBOOK.md`.
