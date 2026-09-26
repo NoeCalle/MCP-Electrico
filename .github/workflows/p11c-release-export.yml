@@ -1,0 +1,56 @@
+name: p11c-release-export
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  release-export:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+            label: linux-py311
+          - os: windows-latest
+            python: "3.12"
+            label: windows-py312
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install validated dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip check
+
+      - name: Build exact stable export
+        run: >
+          python scripts/create_release_export.py
+          --ref 5228e358cf0716dc963f109a15b9e1a2d309f635
+          --expected-sha 5228e358cf0716dc963f109a15b9e1a2d309f635
+          --release-manifest releases/mcp_electrico_0_9_reference_validated.json
+          --output-dir p11c_export
+          --name mcp_electrico_0_9_reference_validated
+
+      - name: Validate P11C export contract
+        run: python -m pytest -q tests/test_p11c_release_export.py
+
+      - name: Upload export staging package
+        if: matrix.label == 'linux-py311'
+        uses: actions/upload-artifact@v4
+        with:
+          name: p11c-release-export-staging
+          retention-days: 90
+          if-no-files-found: error
+          path: p11c_export/**
