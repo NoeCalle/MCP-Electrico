@@ -1,0 +1,141 @@
+{
+  "project": {
+    "id": "MCP-REF-MOTOR-01",
+    "name": "Instalacion industrial generica - estudio de arranque",
+    "source_reference": "CONTROLLED_REFERENCE_DATA - P12A cross-industry motor fixture",
+    "application_context": "CROSS_INDUSTRY_REFERENCE"
+  },
+  "base_model": {
+    "project": {
+      "id": "MCP-REF-MOTOR-BASE-01",
+      "name": "Red base generica para arranque de motor",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - P12 motor base network"
+    },
+    "requested_scope": [
+      "POWER_FLOW"
+    ],
+    "source": {
+      "bus": "utility_13k8",
+      "kv_ll": 13.8,
+      "frequency_hz": 60,
+      "pu": 1,
+      "angle_deg": 0,
+      "scc_max_mva": null,
+      "x_r_max": null,
+      "scc_min_mva": null,
+      "x_r_min": null,
+      "source_reference": "CONTROLLED_REFERENCE_DATA - generic utility source"
+    },
+    "topology": {
+      "buses": [
+        "utility_13k8",
+        "bus_480",
+        "mcc_480"
+      ],
+      "transformers": [
+        {
+          "id": "Transformer.t1",
+          "bus_hv": "utility_13k8",
+          "bus_lv": "bus_480",
+          "kva": 1500,
+          "kv_hv": 13.8,
+          "kv_lv": 0.48,
+          "uk_percent": 5.75,
+          "vector_group": "Dyn11",
+          "x_r": 8,
+          "no_load_loss_kw": 2,
+          "i0_percent": 0.8,
+          "tap_side": "hv",
+          "tap_neutral": 0,
+          "tap_min": -2,
+          "tap_max": 2,
+          "tap_step_percent": 2.5,
+          "tap_pos": 0,
+          "source_reference": "CONTROLLED_REFERENCE_DATA - generic transformer"
+        }
+      ],
+      "lines": [
+        {
+          "id": "Line.mcc_feeder",
+          "bus1": "bus_480",
+          "bus2": "mcc_480",
+          "phases": 3,
+          "length_km": 0.03,
+          "r1_ohm_km": 0.08,
+          "x1_ohm_km": 0.05,
+          "c1_nf_km": 0,
+          "source_reference": "CONTROLLED_REFERENCE_DATA - generic LV feeder"
+        }
+      ],
+      "loads": [
+        {
+          "id": "Load.background",
+          "bus": "mcc_480",
+          "phases": 3,
+          "kv": 0.48,
+          "kw": 250,
+          "kvar": 100,
+          "connection": "wye",
+          "model": 1,
+          "source_reference": "CONTROLLED_REFERENCE_DATA - background facility load"
+        },
+        {
+          "id": "Load.m01_run",
+          "bus": "mcc_480",
+          "phases": 3,
+          "kv": 0.48,
+          "kw": 165,
+          "kvar": 80,
+          "connection": "delta",
+          "model": 1,
+          "source_reference": "CONTROLLED_REFERENCE_DATA - running motor equivalent"
+        }
+      ]
+    },
+    "zero_sequence": {
+      "source": {
+        "r0_max_ohm": null,
+        "x0_max_ohm": null,
+        "r0_min_ohm": null,
+        "x0_min_ohm": null
+      },
+      "lines": [],
+      "transformers": []
+    },
+    "ampacity": [],
+    "protection": {
+      "devices": [],
+      "tcc_datasets": [],
+      "fault_bindings": []
+    },
+    "study_inputs": {
+      "voltage_drop_limit_pct": null,
+      "short_circuit_buses": []
+    }
+  },
+  "motors": [
+    {
+      "id": "Motor.m01",
+      "bus": "mcc_480",
+      "phases": 3,
+      "kv_ll": 0.48,
+      "connection": "delta",
+      "rated_output_kw": 150,
+      "starting_method": "DOL",
+      "starting_current_a": 1250,
+      "starting_power_factor": 0.25,
+      "starting_data_reference": "CONTROLLED_REFERENCE_DATA - explicit locked-rotor current and PF",
+      "base_model_includes_running_motor": true,
+      "running_load_element_id": "Load.m01_run"
+    }
+  ],
+  "studies": [
+    {
+      "id": "START-M01",
+      "motor_id": "Motor.m01",
+      "study_type": "STATIC_LOCKED_ROTOR_VOLTAGE_DIP",
+      "minimum_terminal_voltage_pu": 0.8,
+      "criterion_reference": "CONTROLLED_REFERENCE_DATA - project-specific voltage criterion"
+    }
+  ]
+}
