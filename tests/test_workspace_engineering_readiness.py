@@ -120,8 +120,8 @@ def test_readiness_view_is_idempotent():
 
     assert twice == once
     assert twice.count(workspace_readiness_view.MARKER) == 1
-    assert twice.count('data-tab="preparacion"') == 1
-    assert twice.count('id="panel-preparacion"') == 1
+    assert twice.count('<button type="button" class="tab" data-tab="preparacion">Preparación</button>') == 1
+    assert twice.count('<section class="panel readiness-panel" id="panel-preparacion">') == 1
 
 
 def test_readiness_javascript_only_toggles_navigation():
