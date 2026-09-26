@@ -562,6 +562,6 @@ Principios:
 - un resultado FAIL es una conclusión válida del escenario, no un error del solver;
 - el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
 
-P12C añade ENABLE/DISABLE explícito de Load.* sin shedding automático. Después siguen fuentes alternativas/generadores, comparación batch + Workspace/dossier y motores/arranque como capacidad transversal.
+P12C añade ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expondrá este motor mediante tools MCP públicas; después siguen fuentes alternativas/generadores, comparación batch + Workspace/dossier y motores/arranque como capacidad transversal.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
