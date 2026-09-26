@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from . import conductor_library, validation_status, workspace_state, zero_sequence
+from . import conductor_library, model_placeholders, validation_status, workspace_state, zero_sequence
 
 _ACCEPTABLE_FOR_EMISSION = {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"}
 _SHORT_CIRCUIT_STUDIES = {"short_circuit", "iec60909", "arc_flash_ieee1584", "protection_coordination"}
@@ -30,6 +30,21 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
 
     if not model.get("circuit"):
         findings.append(_finding("QA001", "BLOCKER", "No existe un circuito activo."))
+
+    placeholders = model_placeholders.snapshot()
+    for item in placeholders.get("items", []):
+        missing = ", ".join(item.get("missing_fields") or [])
+        findings.append(
+            _finding(
+                "QA050",
+                "BLOCKER",
+                (
+                    "MODEL_PLACEHOLDER TBC no materializado en el solver; "
+                    f"faltan datos: {missing or 'no declarados'}."
+                ),
+                item.get("id"),
+            )
+        )
 
     lines = model.get("lines", [])
     transformers = model.get("transformers", [])
@@ -144,6 +159,7 @@ def auditar_modelo(estudios_requeridos: list[str] | None = None) -> dict[str, An
         "circuit": model.get("circuit"),
         "estudios_requeridos": required,
         "module_checks": module_checks,
+        "model_placeholders": placeholders,
         "findings": findings,
         "summary": {
             "blockers": blockers,
