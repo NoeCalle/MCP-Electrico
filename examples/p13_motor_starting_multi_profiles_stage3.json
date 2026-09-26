@@ -1,0 +1,68 @@
+{
+  "project_id": "MCP-REF-MOTOR-MULTI-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P13D multi-motor starting profiles",
+  "profiles": [
+    {
+      "id": "PROFILE-M01",
+      "study_id": "START-M01",
+      "profile_reference": "CONTROLLED_REFERENCE_DATA - M01 declared supply-side profile",
+      "points": [
+        {
+          "id": "M01-T0",
+          "elapsed_time_s": 0,
+          "starting_current_a": 1250,
+          "starting_power_factor": 0.25
+        },
+        {
+          "id": "M01-T1",
+          "elapsed_time_s": 0.5,
+          "starting_current_a": 1050,
+          "starting_power_factor": 0.3
+        },
+        {
+          "id": "M01-T2",
+          "elapsed_time_s": 1.5,
+          "starting_current_a": 800,
+          "starting_power_factor": 0.4
+        },
+        {
+          "id": "M01-T3",
+          "elapsed_time_s": 3,
+          "starting_current_a": 500,
+          "starting_power_factor": 0.65
+        }
+      ]
+    },
+    {
+      "id": "PROFILE-M02",
+      "study_id": "START-M02",
+      "profile_reference": "CONTROLLED_REFERENCE_DATA - M02 declared supply-side profile",
+      "points": [
+        {
+          "id": "M02-T0",
+          "elapsed_time_s": 0,
+          "starting_current_a": 650,
+          "starting_power_factor": 0.3
+        },
+        {
+          "id": "M02-T1",
+          "elapsed_time_s": 0.5,
+          "starting_current_a": 550,
+          "starting_power_factor": 0.35
+        },
+        {
+          "id": "M02-T2",
+          "elapsed_time_s": 1.5,
+          "starting_current_a": 400,
+          "starting_power_factor": 0.5
+        },
+        {
+          "id": "M02-T3",
+          "elapsed_time_s": 3,
+          "starting_current_a": 250,
+          "starting_power_factor": 0.7
+        }
+      ]
+    }
+  ]
+}
