@@ -29,7 +29,7 @@ def test_p12a_generic_motor_fixture_is_ready_without_calculation():
     assert motor["running_load_element_id"] == "Load.m01_run"
 
     study = result["studies"][0]
-    assert study["study_type"] == "STATIC_LOCKED_ROTOR_VOLTAGE_DIP"
+    assert study["study_type"] == "STATIC_MOTOR_STARTING_VOLTAGE_DIP"
     assert study["minimum_terminal_voltage_pu"] == 0.80
 
     assert result["electrical_calculation_performed"] is False
@@ -121,7 +121,7 @@ def test_p12a_contract_is_cross_industry_and_static_only():
     contract = motor_starting_intake.obtener_contrato_p12a()
 
     assert contract["industry_scope"] == "CROSS_INDUSTRY"
-    assert contract["supported_study_type"] == "STATIC_LOCKED_ROTOR_VOLTAGE_DIP"
+    assert contract["supported_study_type"] == "STATIC_MOTOR_STARTING_VOLTAGE_DIP"
     assert "DOL" in contract["supported_starting_methods"]
     assert "VFD" in contract["supported_starting_methods"]
     assert contract["automatic_starting_current_derivation"] is False
