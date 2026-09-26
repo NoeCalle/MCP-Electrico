@@ -1,0 +1,37 @@
+{
+  "project_id": "MCP-REF-MOTOR-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P13C explicit static starting profile",
+  "profiles": [
+    {
+      "id": "PROFILE-M01",
+      "study_id": "START-M01",
+      "profile_reference": "CONTROLLED_REFERENCE_DATA - declared supply-side starting points",
+      "points": [
+        {
+          "id": "T0",
+          "elapsed_time_s": 0.0,
+          "starting_current_a": 1250.0,
+          "starting_power_factor": 0.25
+        },
+        {
+          "id": "T1",
+          "elapsed_time_s": 0.5,
+          "starting_current_a": 1050.0,
+          "starting_power_factor": 0.30
+        },
+        {
+          "id": "T2",
+          "elapsed_time_s": 1.5,
+          "starting_current_a": 800.0,
+          "starting_power_factor": 0.40
+        },
+        {
+          "id": "T3",
+          "elapsed_time_s": 3.0,
+          "starting_current_a": 500.0,
+          "starting_power_factor": 0.65
+        }
+      ]
+    }
+  ]
+}
