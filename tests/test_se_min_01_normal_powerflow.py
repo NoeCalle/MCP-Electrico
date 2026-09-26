@@ -81,7 +81,7 @@ def test_se_min_01_normal_is_fail_closed_ready_without_engine_defaults():
     assert intake["issues"] == []
 
     readiness = real_integrated_readiness.evaluar_readiness_integral(manifest)
-    assert readiness["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION"
+    assert readiness["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION", readiness
     assert readiness["all_requested_ready"] is True
     assert readiness["ready_scopes"] == ["POWER_FLOW"]
     assert readiness["blocked_scopes"] == []
@@ -95,7 +95,7 @@ def test_se_min_01_normal_is_fail_closed_ready_without_engine_defaults():
 def test_se_min_01_normal_executes_power_flow_only():
     result = real_controlled_execution.ejecutar_controlado(_manifest())
 
-    assert result["execution_status"] == "CONTROLLED_EXECUTION_COMPLETED"
+    assert result["execution_status"] == "CONTROLLED_EXECUTION_COMPLETED", result
     assert result["executed_scopes"] == ["POWER_FLOW"]
     assert result["pending_scopes"] == []
     assert "VOLTAGE_DROP" not in result["results"]
