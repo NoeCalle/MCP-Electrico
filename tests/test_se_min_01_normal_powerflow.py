@@ -81,6 +81,8 @@ def test_se_min_01_normal_is_fail_closed_ready_without_engine_defaults():
     assert intake["issues"] == []
 
     readiness = real_integrated_readiness.evaluar_readiness_integral(manifest)
+    assert readiness["materialization_ok"] is True, readiness["materialization"]
+    assert readiness["scope_readiness"]["POWER_FLOW"]["status"] == "READY", readiness["scope_readiness"]["POWER_FLOW"]
     assert readiness["readiness_status"] == "READY_FOR_CONTROLLED_EXECUTION", readiness
     assert readiness["all_requested_ready"] is True
     assert readiness["ready_scopes"] == ["POWER_FLOW"]
