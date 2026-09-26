@@ -113,9 +113,18 @@ def regenerar_workspace() -> dict:
 
 
 @mcp.tool()
-def crear_circuito(nombre: str, kv_base: float, frecuencia: int = 60) -> str:
-    """Crea un circuito nuevo y reinicia también el workspace persistente."""
-    resultado = core.crear_circuito(nombre, kv_base, frecuencia)
+def crear_circuito(
+    nombre: str,
+    kv_base: float,
+    frecuencia: int = 60,
+    bus_fuente: str = "sourcebus",
+) -> str:
+    """Crea un circuito nuevo con barra de fuente explícita.
+
+    Para compatibilidad histórica, bus_fuente conserva "sourcebus" como default.
+    Los flujos profesionales deben declararlo explícitamente.
+    """
+    resultado = core.crear_circuito(nombre, kv_base, frecuencia, bus_fuente)
     visual_state.reset()
     workspace.new_circuit("crear_circuito")
     _enhance_workspace_if_present()
@@ -387,6 +396,38 @@ def ejecutar_cortocircuito_iec60909_2ph(
 
 
 @mcp.tool()
+def abrir_elemento_sin_resolver(nombre_elemento: str) -> dict:
+    """Abre un elemento sin Solve ni regeneración de archivo workspace."""
+    resultado = core.cambiar_estado_elemento_sin_resolver(
+        nombre_elemento,
+        abierto=True,
+    )
+    workspace_state.mark_model_changed(
+        f"abrir_elemento_sin_resolver:{nombre_elemento}"
+    )
+    return {
+        **resultado,
+        "workspace_file_written": False,
+    }
+
+
+@mcp.tool()
+def cerrar_elemento_sin_resolver(nombre_elemento: str) -> dict:
+    """Cierra un elemento sin Solve ni regeneración de archivo workspace."""
+    resultado = core.cambiar_estado_elemento_sin_resolver(
+        nombre_elemento,
+        abierto=False,
+    )
+    workspace_state.mark_model_changed(
+        f"cerrar_elemento_sin_resolver:{nombre_elemento}"
+    )
+    return {
+        **resultado,
+        "workspace_file_written": False,
+    }
+
+
+@mcp.tool()
 def abrir_elemento(nombre_elemento: str) -> dict:
     """Abre un elemento, resuelve y sincroniza la revisión persistente."""
     resultado = core.abrir_elemento(nombre_elemento)
@@ -494,5 +535,10 @@ professional_tools.register(
 conductor_tools.register(mcp, _refresh_after_model_change)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entrypoint instalable para `mcp-electrico` y ejecución directa."""
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()
