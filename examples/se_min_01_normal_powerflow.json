@@ -176,7 +176,7 @@
     ],
     "loads": [
       {
-        "id": "Load.100_CR_101",
+        "id": "Load.L_100_CR_101",
         "bus": "bus_4k16_A_load",
         "phases": 3,
         "kv": 4.16,
@@ -185,10 +185,11 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 100-CR-101",
+        "equipment_tag": "100-CR-101"
       },
       {
-        "id": "Load.200_ML_201",
+        "id": "Load.L_200_ML_201",
         "bus": "bus_4k16_A_load",
         "phases": 3,
         "kv": 4.16,
@@ -197,10 +198,11 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 200-ML-201",
+        "equipment_tag": "200-ML-201"
       },
       {
-        "id": "Load.200_P_201A",
+        "id": "Load.L_200_P_201A",
         "bus": "bus_4k16_A_load",
         "phases": 3,
         "kv": 4.16,
@@ -209,10 +211,11 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 200-P-201A",
+        "equipment_tag": "200-P-201A"
       },
       {
-        "id": "Load.300_BL_301A",
+        "id": "Load.L_300_BL_301A",
         "bus": "bus_4k16_B_load",
         "phases": 3,
         "kv": 4.16,
@@ -221,10 +224,11 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 300-BL-301A",
+        "equipment_tag": "300-BL-301A"
       },
       {
-        "id": "Load.500_P_501A",
+        "id": "Load.L_500_P_501A",
         "bus": "bus_4k16_B_load",
         "phases": 3,
         "kv": 4.16,
@@ -233,10 +237,11 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 500-P-501A",
+        "equipment_tag": "500-P-501A"
       },
       {
-        "id": "Load.600_P_601A",
+        "id": "Load.L_600_P_601A",
         "bus": "bus_4k16_B_load",
         "phases": 3,
         "kv": 4.16,
@@ -245,7 +250,8 @@
         "connection": "delta",
         "model": 1,
         "critical": false,
-        "source_reference": "SE-MIN-01 NORMAL load list"
+        "source_reference": "SE-MIN-01 NORMAL load list - equipment tag 600-P-601A",
+        "equipment_tag": "600-P-601A"
       },
       {
         "id": "Load.AUX_480_A_NORMAL",
