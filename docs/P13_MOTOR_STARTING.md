@@ -280,7 +280,7 @@ Después de P13B, P13C añade perfiles explícitos por puntos sin asumir dinámi
 
 ## P13C — Perfiles explícitos por puntos
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #140.
 
 P13C representa una secuencia declarada de estados estáticos del arranque. El eje tiempo ordena los puntos y conserva trazabilidad, pero no se entrega a OpenDSS como tiempo de simulación.
 
@@ -368,4 +368,137 @@ El perfil identifica el punto de peor tensión únicamente entre los puntos decl
 
 Caso controlado: `examples/p13_motor_starting_profile_stage2.json`.
 
-Después de P13C, P13D podrá introducir secuencias explícitas de varios motores y solapes, todavía separadas de la futura dinámica continua.
+Después de P13C, P13D combina esos estados declarados en secuencias multi-motor, todavía sin dinámica continua.
+
+## P13D — Secuencias explícitas de varios motores
+
+**Estado: IN PROGRESS.**
+
+P13D permite estudiar arranques escalonados y solapados sin inferir una estrategia de operación. Cada secuencia declara todos los motores P13 del manifiesto y, para cada paso, exactamente un estado por motor:
+
+```text
+OFF
+RUNNING
+STARTING_PROFILE_POINT
+```
+
+No existe un estado implícito. En P13D v1, omitir un motor está bloqueado para evitar que su carga de marcha quede activa por accidente.
+
+### Semántica de un paso
+
+Cada paso es un estado algebraico independiente:
+
+```text
+step_semantics = INDEPENDENT_STATIC_STATE_REBUILT_FROM_BASE_MODEL
+step_isolation = FRESH_OPENDSS_NEW_CONTEXT_PER_STEP
+elapsed_time_used_by_solver = false
+```
+
+El valor `elapsed_time_s` solo ordena los pasos. No controla OpenDSS, no integra ecuaciones y no hace avanzar una simulación temporal.
+
+Para cada paso P13D:
+
+1. crea un `dss.NewContext()` nuevo;
+2. reconstruye la misma red base explícita P13B;
+3. aplica OFF/RUNNING a la carga de marcha declarada de cada motor;
+4. para cada `STARTING_PROFILE_POINT`, agrega la impedancia equivalente del punto P13C referenciado;
+5. resuelve un único estado;
+6. evalúa el criterio de tensión de cada motor que está arrancando;
+7. descarta el contexto.
+
+Por tanto, un paso no hereda estado eléctrico del anterior. Solo existe lo que el usuario vuelve a declarar.
+
+### Estados
+
+**OFF**
+```text
+running Load.* = disabled
+starting equivalent = absent
+```
+
+**RUNNING**
+```text
+running Load.* = enabled
+starting equivalent = absent
+```
+
+**STARTING_PROFILE_POINT**
+```text
+running Load.* = disabled
+starting equivalent = explicit profile point
+```
+
+P13D v1 requiere `running_load_element_id` explícito para todos los motores de la secuencia, de modo que RUNNING tenga una representación determinista.
+
+### Solapes
+
+Los arranques simultáneos o solapados son posibles únicamente cuando aparecen de forma explícita en el mismo paso. MCP no decide qué motor arranca primero ni cuándo.
+
+Ejemplo conceptual:
+
+```text
+S0: M01 START(T0) + M02 OFF
+S1: M01 START(T2) + M02 START(T0)
+S2: M01 RUNNING   + M02 START(T2)
+S3: M01 RUNNING   + M02 RUNNING
+```
+
+### Criterios y resultados
+
+En cada paso se reportan:
+
+- estados aplicados de todos los motores;
+- tensiones por motor/barra;
+- tensión mínima de participantes;
+- evaluación individual del criterio de cada motor en STARTING;
+- PASS/FAIL cuando existe al menos un motor arrancando;
+- `OBSERVED / NOT_APPLICABLE` cuando no hay motor en STARTING.
+
+La secuencia identifica el peor criterio de arranque entre los pasos declarados. No busca ni optimiza otro orden.
+
+### Fronteras
+
+```text
+elapsed_time_used_by_solver = false
+interpolation = false
+dynamic_integration = false
+automatic_motor_selection = false
+automatic_start_order = false
+automatic_profile_generation = false
+automatic_starting_current_derivation = false
+automatic_defaults = false
+automatic_dispatch = false
+crosscheck = false
+professional_emission = false
+```
+
+P13D no calcula aceleración, torque, inercia, transición electromecánica ni lógica automática de coordinación de arranques.
+
+### Gate P13D
+
+- P13A válido;
+- perfiles P13C válidos para todos los motores;
+- al menos dos motores;
+- todos los motores P13 del manifiesto declarados;
+- carga de marcha explícita para cada motor;
+- exactamente un estado por motor y paso;
+- primer paso en t=0 y tiempos estrictamente crecientes;
+- STARTING referencia profile/point existente del mismo motor;
+- OFF/RUNNING no acepta profile/point;
+- cada paso usa un NewContext fresco;
+- elapsed_time no entra al solver;
+- no se infiere ni reordena la secuencia;
+- solapes solo si son explícitos;
+- contexto DSS/Workspace padre preservado;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_emission=false`.
+
+Casos controlados:
+
+```text
+examples/p13_motor_starting_multi_stage3.json
+examples/p13_motor_starting_multi_profiles_stage3.json
+examples/p13_motor_starting_sequence_stage3.json
+```
+
+Después de P13D, P13E integrará resultados P13 en Workspace y dossier reproducible.
