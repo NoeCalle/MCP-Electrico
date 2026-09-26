@@ -285,6 +285,30 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict[str, Any]:
     }
 
 
+
+def cambiar_estado_elemento_sin_resolver(
+    nombre_elemento: str,
+    *,
+    abierto: bool,
+) -> dict[str, Any]:
+    """Cambia OPEN/CLOSED sin ejecutar Solve.
+
+    Útil durante construcción Rev.0 y preparación explícita de topología.
+    El resultado no afirma convergencia ni vigencia de estudios.
+    """
+    if not _elemento_existe(nombre_elemento):
+        raise ValueError(f"Elemento no encontrado en el circuito: {nombre_elemento}")
+
+    comando = "Open" if abierto else "Close"
+    dss(f"{comando} {nombre_elemento} term=1")
+    return {
+        "elemento": nombre_elemento,
+        "abierto": _estado_elemento_abierto(nombre_elemento),
+        "estado": "OPEN" if abierto else "CLOSED",
+        "solve_performed": False,
+        "electrical_calculation_performed": False,
+    }
+
 def abrir_elemento(nombre_elemento: str) -> dict[str, Any]:
     if not _elemento_existe(nombre_elemento):
         raise ValueError(f"Elemento no encontrado en el circuito: {nombre_elemento}")
