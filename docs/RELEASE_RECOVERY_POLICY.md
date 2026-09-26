@@ -68,3 +68,19 @@ stable release commit
 ```
 
 The next stable promotion must record its exact SHA in a release manifest before any stable pointer or mirror is changed. P11 owns this release-safety process.
+
+
+## P11 clean-restore verification
+
+P11D verified that the P10 reference-validated release can be restored from the portable Git bundle into a new repository with:
+
+```text
+HEAD = 5228e358cf0716dc963f109a15b9e1a2d309f635
+working_tree = clean
+remotes = none
+P10G integral dossier smoke = PASS
+Linux Python 3.11 = PASS
+Windows Python 3.12 = PASS
+```
+
+The internal recovery chain is therefore proven. The independent external mirror remains the final operational redundancy layer and must be created separately from the active development repository.
