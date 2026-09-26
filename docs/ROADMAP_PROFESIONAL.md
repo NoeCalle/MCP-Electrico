@@ -25,7 +25,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
-| P12 — Operating Scenarios | **ACTIVA — P12A/P12B DONE / P12C IN PROGRESS** | contingencias, maniobras y estado explícito de cargas con restauración determinista, multiindustria |
+| P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 inicia una capa nueva y aditiva de escenarios operativos sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -45,7 +45,7 @@ P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
-P12 = ACTIVE_P12C
+P12 = ACTIVE_P12D
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = P12_OPERATING_SCENARIOS
 
@@ -530,7 +530,7 @@ Detalle: `docs/P11_RELEASE_SAFETY.md`, `docs/RELEASE_RECOVERY_POLICY.md` y `docs
 
 ## Fase P12 — Escenarios operativos y contingencias
 
-**Estado: ACTIVA — P12A/P12B DONE / P12C IN PROGRESS.**
+**Estado: ACTIVA — P12A–P12C DONE / P12D IN PROGRESS.**
 
 P12 introduce análisis explícito de estados operativos alternativos sin asociar el motor a una industria concreta.
 
@@ -562,6 +562,6 @@ Principios:
 - un resultado FAIL es una conclusión válida del escenario, no un error del solver;
 - el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
 
-P12C añade ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expondrá este motor mediante tools MCP públicas; después siguen fuentes alternativas/generadores, comparación batch + Workspace/dossier y motores/arranque como capacidad transversal.
+P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor de escenarios mediante tools MCP públicas versionadas; después siguen fuentes alternativas/generadores, comparación batch + Workspace/dossier y motores/arranque como capacidad transversal.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
