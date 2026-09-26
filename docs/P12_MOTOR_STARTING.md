@@ -93,7 +93,7 @@ No se aplica silenciosamente una relación 1/3, √3 ni una regla de catálogo.
 P12A admite únicamente:
 
 ```text
-STATIC_LOCKED_ROTOR_VOLTAGE_DIP
+STATIC_MOTOR_STARTING_VOLTAGE_DIP
 ```
 
 y exige un criterio de tensión mínimo declarado por el proyecto:
@@ -140,7 +140,7 @@ P12B deberá:
 
 1. materializar el modelo base sin defaults retenidos relevantes;
 2. resolver el estado pre-arranque;
-3. crear una representación temporal de rotor bloqueado en un contexto OpenDSS aislado;
+3. crear una representación temporal de impedancia equivalente de arranque en un contexto OpenDSS aislado;
 4. retirar explícitamente la carga de marcha si el contrato dice que ya está incluida;
 5. resolver el estado de arranque;
 6. reportar tensión pre-arranque, tensión durante arranque y dip;
