@@ -24,6 +24,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
+| P11 — Release Safety | **ACTIVA — P11A IN PROGRESS** | puntos de recuperación, contratos del core y mirror estable |
 
 **Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
 
@@ -42,8 +43,9 @@ P7 = READY_WITH_LIMITATIONS
 P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
+P11 = ACTIVE_P11A
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = POST_P10_HARDENING_DECISION
+next_activity = P11A_RELEASE_SAFETY
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -484,3 +486,21 @@ commit = 6720da9183c45df299a584430fddea28f4060d7a
 ```
 
 La estrategia futura añade tag de release y mirror independiente del repositorio activo. Ver `docs/RELEASE_RECOVERY_POLICY.md`.
+
+
+## Fase P11 — Release safety y protección del core
+
+**Estado: ACTIVA — P11A IN PROGRESS.**
+
+P11 no agrega una nueva función eléctrica. Protege la baseline validada frente a cambios no deseados y separa claramente desarrollo, puntos de recuperación y futuras copias independientes.
+
+Subfases:
+
+```text
+P11A  release manifest + recovery anchors
+P11B  core contract regression
+P11C  independent mirror/export
+P11D  clean restore / stable candidate
+```
+
+P11A registra el cierre P10G en `stable/0.9-reference-validated` y en un manifiesto de release con SHA exacto, scopes soportados, schemas contractuales y políticas críticas. Detalle: `docs/P11_RELEASE_SAFETY.md`.
