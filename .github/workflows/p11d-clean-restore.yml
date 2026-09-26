@@ -1,0 +1,68 @@
+name: p11d-clean-restore
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  clean-restore:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+            label: linux-py311
+          - os: windows-latest
+            python: "3.12"
+            label: windows-py312
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install current validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip check
+
+      - name: Build exact P10G release export
+        run: >
+          python scripts/create_release_export.py
+          --ref 5228e358cf0716dc963f109a15b9e1a2d309f635
+          --expected-sha 5228e358cf0716dc963f109a15b9e1a2d309f635
+          --release-manifest releases/mcp_electrico_0_9_reference_validated.json
+          --output-dir p11d_export
+          --name mcp_electrico_0_9_reference_validated
+
+      - name: Restore only from bundle
+        run: >
+          python scripts/restore_release_bundle.py
+          --bundle p11d_export/mcp_electrico_0_9_reference_validated.bundle
+          --metadata p11d_export/export_metadata.json
+          --checksums p11d_export/SHA256SUMS.txt
+          --output-dir p11d_restore
+          --target-branch main
+
+      - name: Validate P11D restore contract
+        run: python -m pytest -q tests/test_p11d_clean_restore.py
+
+      - name: Install dependencies declared by restored release
+        run: >
+          python -m pip install
+          -r p11d_restore/requirements.txt
+          -r p11d_restore/requirements-dev.txt
+
+      - name: Smoke restored P10G dossier path
+        working-directory: p11d_restore
+        run: >
+          python -m pytest -q
+          tests/test_p10g_reference_dossier.py::test_p10g_reference_generates_complete_workspace_and_reproducible_dossier

@@ -110,7 +110,7 @@ Las tools de desarrollo de bajo nivel, helpers internos y detalles de implementa
 
 ## P11C — Export portable para mirror independiente
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #120.
 
 P11C prepara un paquete verificable de la baseline `MCP_ELECTRICO_0_9_REFERENCE_VALIDATED` sin confundir un artifact de CI con un backup externo definitivo.
 
@@ -160,3 +160,56 @@ P11C no afirma que el mirror independiente ya exista. La creación del repositor
 - `professional_emission=false`.
 
 Al cerrar P11C, P11D reconstruirá una copia limpia únicamente desde el bundle y volverá a ejecutar un smoke operacional sobre esa restauración.
+
+
+## P11D — Restauración limpia desde bundle
+
+**Estado: IN PROGRESS.**
+
+P11D prueba la recuperación sin depender de `main`, del working tree original ni de GitHub como fuente del código restaurado.
+
+La secuencia es:
+
+```text
+P11C export
+   ↓
+verificar SHA-256
+   ↓
+git init vacío
+   ↓
+git bundle verify
+   ↓
+fetch desde bundle
+   ↓
+checkout main restaurado
+   ↓
+HEAD == SHA estable P10G
+   ↓
+working tree limpio
+   ↓
+sin remotes
+   ↓
+smoke P10G dossier
+```
+
+La restauración debe volver exactamente a:
+
+```text
+5228e358cf0716dc963f109a15b9e1a2d309f635
+```
+
+### Criterios de cierre P11D
+
+- el checksum del export se verifica antes de restaurar;
+- un export alterado es rechazado antes de crear la copia restaurada;
+- `git bundle verify` pasa;
+- el checkout restaurado coincide exactamente con el SHA estable;
+- la copia restaurada no contiene remotes;
+- el working tree queda limpio;
+- las dependencias declaradas por la release restaurada se pueden instalar;
+- el test integral P10G genera nuevamente Workspace V5 + dossier reproducible;
+- la prueba pasa en Linux/Python 3.11 y Windows/Python 3.12;
+- el mirror externo continúa separado de la copia de recuperación;
+- `professional_emission=false`.
+
+Si P11D cierra, la implementación interna de Release Safety queda lista para crear el mirror independiente cuando se disponga del repositorio externo.
