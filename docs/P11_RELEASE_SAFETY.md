@@ -222,10 +222,25 @@ P11B = DONE
 P11C = DONE
 P11D = DONE
 internal_release_safety = READY
-independent_external_mirror = PENDING_EXTERNAL_REPOSITORY
+independent_external_mirror = DEFERRED_BY_PROJECT_DECISION
 professional_emission = false
 ```
 
 La implementación interna de Release Safety queda cerrada. El único paso pendiente es operacional: crear el repositorio espejo independiente y cargar allí el export verificado siguiendo `docs/RELEASE_MIRROR_RUNBOOK.md`.
 
 Ese mirror no modifica el core, no es una nueva fase de ingeniería y no debe bloquear el desarrollo técnico posterior.
+
+
+## Current repository-only decision
+
+The active recovery strategy remains in this repository:
+
+```text
+main = active development
+stable/0.9-engineering-preview = frozen P9 recovery point
+stable/0.9-reference-validated = validated P10 recovery point
+exact commit SHAs = canonical recovery anchors
+external mirror = deferred
+```
+
+Stable recovery branches are not feature branches and must never move implicitly with `main`.
