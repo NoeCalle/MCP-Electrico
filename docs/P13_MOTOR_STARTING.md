@@ -2,11 +2,11 @@
 
 ## Objetivo
 
-P12 incorpora motores como una capacidad transversal de MCP Eléctrico. No está limitada a minería.
+P13 incorpora motores como una capacidad transversal de MCP Eléctrico. No está limitada a minería.
 
 El mismo contrato debe servir para instalaciones de manufactura, agua y saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias donde el arranque de motores pueda afectar tensión, capacidad de red o continuidad operativa.
 
-P12 comienza deliberadamente por una aproximación estática y fail-closed. El objetivo no es simular dinámica completa antes de contar con los datos que esa simulación exige.
+P13 comienza deliberadamente por una aproximación estática y fail-closed. El objetivo no es simular dinámica completa antes de contar con los datos que esa simulación exige.
 
 ## Principios
 
@@ -27,7 +27,7 @@ La corriente de arranque y su factor de potencia se suministran explícitamente.
 | P13B | arranque estático aislado | caída de tensión por rotor bloqueado con OpenDSS |
 | P13C | perfiles de arranque controlados | corriente/impedancia por etapas o perfil explícito |
 | P13D | secuencias de arranque | varios motores, arranque escalonado y escenarios |
-| P13E | Workspace + dossier | resultados P12 trazables y reproducibles |
+| P13E | Workspace + dossier | resultados P13 trazables y reproducibles |
 | P13F | dinámica avanzada | backend dinámico solo si existe contrato y benchmark suficientes |
 
 P13F no implica por ahora que OpenModelica u otro backend esté implementado. La selección de motor dinámico se decidirá después de cerrar P13B–P13E.
