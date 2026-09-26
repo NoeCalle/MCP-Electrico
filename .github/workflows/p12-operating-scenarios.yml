@@ -1,0 +1,36 @@
+name: p12-operating-scenarios
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  operating-scenarios:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+            label: linux-py311
+          - os: windows-latest
+            python: "3.12"
+            label: windows-py312
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install validated dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip check
+
+      - name: Validate P12 operating scenarios
+        run: python -m pytest -q tests/test_p12_operating_scenarios.py

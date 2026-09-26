@@ -25,8 +25,9 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
+| P12 — Operating Scenarios | **ACTIVA — P12A/P12B IN PROGRESS** | contingencias y estados operativos explícitos con restauración determinista, multiindustria |
 
-**Regla de avance:** P0–P9 quedan congeladas como baseline de `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`. P6 IEEE 1584 continúa diferida. P10 incorpora MCP-REF-SUB-01 de forma incremental y solo amplía el scope del manifiesto cuando la ingeniería correspondiente tenga datos explícitos y trazables.
+**Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 inicia una capa nueva y aditiva de escenarios operativos sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Estado actual:**
 
@@ -44,8 +45,9 @@ P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
+P12 = ACTIVE_P12A_P12B
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = EXTERNAL_MIRROR_OPERATION_OR_NEXT_ENGINEERING_PHASE
+next_activity = P12_OPERATING_SCENARIOS
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -67,7 +69,7 @@ Usable internamente no equivale a `professional_emission=true`. La Engineering P
 
 ## Principio rector
 
-OpenDSS se mantiene como motor principal y por defecto para flujo/distribución dentro del alcance actualmente validado. pandapower 3.5.4 actúa como backend determinista para IEC 60909. Las reglas MCP cubren ampacidad, protecciones y futuras capas de ingeniería.
+OpenDSS se mantiene como motor principal y por defecto para flujo/distribución dentro del alcance actualmente validado. pandapower 3.5.4 actúa como backend determinista para IEC 60909. Las reglas MCP cubren ampacidad, protecciones y futuras capas de ingeniería. La arquitectura es multiindustria: hospitales, data centers, manufactura, procesos, minería, oil & gas, agua, infraestructura y otras instalaciones usan el mismo core; las diferencias se expresan mediante datos, topología y criterios explícitos del proyecto.
 
 La profesionalización se apoya en:
 
@@ -524,3 +526,42 @@ P11D clean restore
 ```
 
 Detalle: `docs/P11_RELEASE_SAFETY.md`, `docs/RELEASE_RECOVERY_POLICY.md` y `docs/RELEASE_MIRROR_RUNBOOK.md`.
+
+
+## Fase P12 — Escenarios operativos y contingencias
+
+**Estado: ACTIVA — P12A/P12B IN PROGRESS.**
+
+P12 introduce análisis explícito de estados operativos alternativos sin asociar el motor a una industria concreta.
+
+Foundation inicial:
+
+```text
+base model
+   ↓
+explicit scenario
+   ↓
+OPEN/CLOSE Line.* or Transformer.*
+   ↓
+OpenDSS power flow
+   ↓
+explicit service requirements
+   ↓
+PASS / FAIL
+   ↓
+verified base-state restoration
+```
+
+Principios:
+
+- no selección automática de contingencias;
+- no maniobras inferidas;
+- no load shedding automático;
+- criterios de continuidad y tensión declarados por el proyecto;
+- cada escenario parte de una reconstrucción limpia;
+- un resultado FAIL es una conclusión válida del escenario, no un error del solver;
+- el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
+
+Siguientes subfases previstas: cambios explícitos de estado de cargas, fuentes alternativas/generadores, comparación batch + Workspace/dossier y, después, motores/arranque como capacidad transversal.
+
+Detalle: `docs/P12_OPERATING_SCENARIOS.md`.

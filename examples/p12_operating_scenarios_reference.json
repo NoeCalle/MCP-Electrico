@@ -1,0 +1,54 @@
+{
+  "project_id": "MCP-REF-SUB-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P12 multiindustry operating scenarios",
+  "scenarios": [
+    {
+      "id": "SCN_BRANCH_OUTAGE_SERVICE_PRESERVED",
+      "name": "Branch outage with essential LV service preserved",
+      "purpose": "CONTINGENCY",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - explicit branch contingency",
+      "actions": [
+        {
+          "action": "OPEN_ELEMENT",
+          "element_id": "Line.mv_feeder",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - explicit MV feeder outage"
+        }
+      ],
+      "service_requirements": {
+        "require_powerflow_convergence": true,
+        "critical_loads": [
+          {
+            "load_id": "Load.lv_services",
+            "minimum_voltage_pu": 0.9,
+            "maximum_voltage_pu": 1.1,
+            "source_reference": "CONTROLLED_REFERENCE_DATA - essential service voltage criterion"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN_ESSENTIAL_TRANSFORMER_OUTAGE",
+      "name": "Essential transformer outage",
+      "purpose": "MAINTENANCE",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - explicit transformer outage",
+      "actions": [
+        {
+          "action": "OPEN_ELEMENT",
+          "element_id": "Transformer.t2_aux",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - explicit T2 outage"
+        }
+      ],
+      "service_requirements": {
+        "require_powerflow_convergence": true,
+        "critical_loads": [
+          {
+            "load_id": "Load.lv_services",
+            "minimum_voltage_pu": 0.9,
+            "maximum_voltage_pu": 1.1,
+            "source_reference": "CONTROLLED_REFERENCE_DATA - essential service voltage criterion"
+          }
+        ]
+      }
+    }
+  ]
+}
