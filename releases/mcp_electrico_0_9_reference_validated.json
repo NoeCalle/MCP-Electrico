@@ -40,5 +40,20 @@
     "professional_emission": false,
     "independent_mirror_repository": "PLANNED_NOT_YET_CREATED"
   },
-  "recovery_note": "Restore only from the recorded commit SHA or recovery branch. Do not move this recovery branch during normal development."
+  "recovery_note": "Restore only from the recorded commit SHA or recovery branch. Do not move this recovery branch during normal development.",
+  "contract_schemas": {
+    "p8b_intake": "MCP_ELECTRICO_P8B_REAL_PILOT_INTAKE_V1",
+    "p8c3_materializer": "MCP_ELECTRICO_P8C3_REAL_MODEL_MATERIALIZER_V1",
+    "p8c5_readiness": "MCP_ELECTRICO_P8C5_INTEGRATED_READINESS_V1",
+    "p8d1_execution": "MCP_ELECTRICO_P8D1_CONTROLLED_EXECUTION_V1",
+    "p8d2_protection": "MCP_ELECTRICO_P8D2_PROTECTION_EXECUTION_V1"
+  },
+  "allowed_scope": [
+    "AMPACITY",
+    "IEC60909_1PH_GROUND_MAX_MIN",
+    "IEC60909_3PH_MAX_MIN",
+    "POWER_FLOW",
+    "PROTECTION_TCC",
+    "VOLTAGE_DROP"
+  ]
 }
