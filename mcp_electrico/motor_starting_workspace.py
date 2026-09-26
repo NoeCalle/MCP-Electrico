@@ -163,6 +163,8 @@ def construir_html(
         "professional_emission": False,
     }
 
+    embedded_json = _json(embedded).replace("<", "\\u003c")
+
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -216,7 +218,7 @@ main {{ max-width:1180px; margin:0 auto; padding:28px 18px 64px; }}
 Este Workspace es read-only. El navegador no recalcula flujo, arranque, perfiles ni secuencias.
 professional_emission=false.
 </div>
-<script id="p13e-data" type="application/json">{escape(_json(embedded))}</script>
+<script id="p13e-data" type="application/json">{embedded_json}</script>
 </main>
 </body>
 </html>"""
