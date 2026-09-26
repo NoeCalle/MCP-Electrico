@@ -67,7 +67,7 @@ def test_p13a_requires_explicit_running_load_replacement_semantics():
     result = motor_starting_intake.evaluar_admision_motor(manifest)
 
     assert result["intake_status"] == "BLOCKED_MOTOR_STARTING_INPUTS"
-    assert any(issue["code"] == "P13A036" for issue in result["issues"])
+    assert any(issue["code"] == "P13A034" for issue in result["issues"])
 
 
 def test_p13a_rejects_running_load_on_different_bus():
@@ -77,7 +77,7 @@ def test_p13a_rejects_running_load_on_different_bus():
     result = motor_starting_intake.evaluar_admision_motor(manifest)
 
     assert result["intake_status"] == "BLOCKED_MOTOR_STARTING_INPUTS"
-    assert any(issue["code"] == "P13A034" for issue in result["issues"])
+    assert any(issue["code"] == "P13A036" for issue in result["issues"])
 
 
 def test_p13a_rejects_unsupported_phase_count_and_invalid_pf():
