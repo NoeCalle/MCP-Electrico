@@ -9,7 +9,7 @@ P11A = DONE
 P11B = DONE
 P11C = DONE
 P11D = DONE
-external_mirror = PENDING_OPERATIONAL_ACTION
+external_mirror = DEFERRED_BY_PROJECT_DECISION
 professional_emission = false
 ```
 
@@ -42,10 +42,25 @@ stable/0.9-reference-validated
 
 ## What remains external
 
-The independent mirror repository has not yet been created by the repository automation available to this project. This does not weaken the verified internal restore chain, but it remains the recommended final redundancy layer.
+The independent mirror repository is deferred by project decision. The verified same-repository stable branches and exact-SHA restore chain remain the active recovery strategy.
 
-When the mirror repository exists, follow `docs/RELEASE_MIRROR_RUNBOOK.md` and push only a verified stable export. Do not use the mirror for feature development.
+If an external mirror is reconsidered later, follow `docs/RELEASE_MIRROR_RUNBOOK.md`. It is not part of the current engineering roadmap.
 
 ## Engineering boundary
 
 P11 adds no new electrical calculation and does not change the numerical engines. P6 IEEE 1584 remains deferred, and professional emission remains disabled.
+
+
+## Current repository-only decision
+
+The active recovery strategy remains in this repository:
+
+```text
+main = active development
+stable/0.9-engineering-preview = frozen P9 recovery point
+stable/0.9-reference-validated = validated P10 recovery point
+exact commit SHAs = canonical recovery anchors
+external mirror = deferred
+```
+
+Stable recovery branches are not feature branches and must never move implicitly with `main`.
