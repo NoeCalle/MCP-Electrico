@@ -322,7 +322,7 @@ Después de P13C, P13D podrá introducir secuencias de varios motores y solapes 
 
 ## P13D — Secuencias explícitas de varios motores
 
-**Estado: IN PROGRESS.**
+**Estado: DONE PENDING MERGE.** PR #135.
 
 P13D combina motores y perfiles P13C mediante pasos estáticos completamente declarados. Está pensado para cualquier instalación con múltiples accionamientos: bombas, ventiladores, compresores, chillers, transportadores, procesos, servicios auxiliares u otras cargas motrices.
 
@@ -413,3 +413,76 @@ Fixtures controlados:
 - `examples/p13_motor_starting_sequence_stage3.json`.
 
 Después de P13D, P13E puede integrar Workspace y dossier reproducible para motores/arranque antes de decidir si una futura P13F dinámica aporta valor suficiente.
+
+
+## P13E — Workspace y dossier reproducible
+
+**Estado: IMPLEMENTED ON STACKED BRANCH — PR PENDING.**
+
+P13E congela la foundation estática de motores antes de evaluar una futura dinámica avanzada. El navegador sigue siendo una capa de presentación y no ejecuta ingeniería.
+
+### Workspace
+
+`mcp_electrico/motor_starting_workspace.py` presenta:
+
+- secuencias;
+- pasos;
+- estado de cada motor;
+- perfil/punto aplicado;
+- tensión terminal mínima;
+- criterios de arranque;
+- peor margen de criterio.
+
+El payload P13 se incorpora como JSON de trazabilidad, pero:
+
+```text
+browser_engineering_calculation = false
+```
+
+### Dossier
+
+`mcp_electrico/motor_starting_dossier.py` genera:
+
+```text
+motor_manifest.json
+motor_profile_package.json
+motor_sequence_package.json
+motor_sequence_execution.json
+motor_workspace.html
+motor_report.html
+base_snapshot_p7a.json
+base_reconstruction_p7b.json
+p7a_netlist/
+p7b_reconstructed/
+motor_dossier_integrity.json
+```
+
+El dossier acepta tanto PASS como FAIL de ingeniería si la secuencia fue ejecutada correctamente. Un FAIL del criterio de tensión es evidencia válida, no un error de software.
+
+El gate exige:
+
+- ejecución P13D completa;
+- contexto padre preservado;
+- P7A `HASH_MATCH`;
+- P7B reconstruido en contexto OpenDSS aislado;
+- file-set exacto;
+- SHA-256 de cada artefacto;
+- detección de alteraciones;
+- directorios collision-safe sin overwrite;
+- Workspace sin cálculo en navegador;
+- `professional_report=false`;
+- `professional_emission=false`.
+
+P13E queda preparado en `feature/p13e-motor-workspace-dossier` sin abrir todavía otro PR, para no aumentar la cola de CI mientras P12 y P13A–P13D terminan sus gates.
+
+## Después de P13E
+
+P13F no debe asumirse automáticamente como “implementar dinámica”. Primero deberá existir una decisión técnica explícita sobre qué preguntas de ingeniería faltan resolver, qué datos dinámicos son exigibles y qué backend puede validarse con benchmarks independientes.
+
+Hasta entonces:
+
+```text
+dynamic_motor_backend = NOT_IMPLEMENTED
+OpenModelica = NOT_CLAIMED_AS_ACTIVE_BACKEND
+static_foundation = P13A–P13E
+```
