@@ -20,11 +20,11 @@
       "frequency_hz": 60,
       "pu": 1,
       "angle_deg": 0,
-      "scc_max_mva": null,
-      "x_r_max": null,
+      "scc_max_mva": 200,
+      "x_r_max": 10,
       "scc_min_mva": null,
       "x_r_min": null,
-      "source_reference": "CONTROLLED_REFERENCE_DATA - generic utility source"
+      "source_reference": "CONTROLLED_REFERENCE_DATA - generic utility source with explicit positive-sequence strength"
     },
     "topology": {
       "buses": [
