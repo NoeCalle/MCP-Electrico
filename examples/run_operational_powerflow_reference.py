@@ -1,7 +1,8 @@
-"""Ejercicio operativo de flujo de carga sobre el caso controlado MCP-REF-SUB-01.
+"""Ejercicio operativo reutilizable de flujo de carga P8/P10.
 
-No introduce una fase nueva. Reutiliza el intake, readiness y ejecución controlada
-P8/P10 para mostrar una salida de ingeniería compacta y auditable.
+Por defecto usa MCP-REF-SUB-01, pero acepta cualquier manifiesto compatible.
+POWER_FLOW es obligatorio para este resumen; VOLTAGE_DROP es opcional y solo se
+presenta cuando fue solicitado explícitamente por el manifiesto.
 """
 
 from __future__ import annotations
@@ -66,10 +67,12 @@ def ejecutar(path: Path) -> dict[str, Any]:
         )
 
     power = execution["results"]["POWER_FLOW"]
-    voltage = execution["results"]["VOLTAGE_DROP"]
+    voltage = execution["results"].get("VOLTAGE_DROP")
 
-    if power.get("convergio") is not True or voltage.get("convergio") is not True:
-        raise RuntimeError("OpenDSS no convergió en flujo/caída de tensión.")
+    if power.get("convergio") is not True:
+        raise RuntimeError("OpenDSS no convergió en flujo de carga.")
+    if voltage is not None and voltage.get("convergio") is not True:
+        raise RuntimeError("OpenDSS no convergió en caída de tensión.")
 
     buses = [
         {
@@ -85,7 +88,7 @@ def ejecutar(path: Path) -> dict[str, Any]:
         str(item.get("id")): item for item in power.get("alimentadores") or []
     }
     drops_by_id = {
-        str(item.get("id")): item for item in voltage.get("alimentadores") or []
+        str(item.get("id")): item for item in (voltage or {}).get("alimentadores") or []
     }
     feeder_ids = sorted(set(feeders_by_id) | set(drops_by_id))
     feeders = []
@@ -131,24 +134,32 @@ def ejecutar(path: Path) -> dict[str, Any]:
             "buses": buses,
             "feeders": feeders,
         },
-        "voltage_drop": {
-            "criterion_limit_pct": voltage.get("criterio", {}).get("limite_pct"),
-            "criterion_origin": voltage.get("criterio", {}).get("origen"),
-            "universal_normative_claim": voltage.get("criterio", {}).get(
-                "normativo_universal"
-            ),
-            "system_min_vpu": voltage.get("resumen", {}).get("vpu_min_sistema"),
-            "feeders_evaluated": voltage.get("resumen", {}).get(
-                "alimentadores_evaluados"
-            ),
-            "feeders_exceeding": voltage.get("resumen", {}).get(
-                "alimentadores_que_exceden"
-            ),
-            "worst_feeder_id": voltage.get("resumen", {}).get(
-                "peor_alimentador_id"
-            ),
-            "worst_drop_pct": voltage.get("resumen", {}).get("peor_caida_pct"),
-        },
+        "voltage_drop": (
+            {
+                "performed": True,
+                "criterion_limit_pct": voltage.get("criterio", {}).get("limite_pct"),
+                "criterion_origin": voltage.get("criterio", {}).get("origen"),
+                "universal_normative_claim": voltage.get("criterio", {}).get(
+                    "normativo_universal"
+                ),
+                "system_min_vpu": voltage.get("resumen", {}).get("vpu_min_sistema"),
+                "feeders_evaluated": voltage.get("resumen", {}).get(
+                    "alimentadores_evaluados"
+                ),
+                "feeders_exceeding": voltage.get("resumen", {}).get(
+                    "alimentadores_que_exceden"
+                ),
+                "worst_feeder_id": voltage.get("resumen", {}).get(
+                    "peor_alimentador_id"
+                ),
+                "worst_drop_pct": voltage.get("resumen", {}).get("peor_caida_pct"),
+            }
+            if voltage is not None
+            else {
+                "performed": False,
+                "reason": "VOLTAGE_DROP was not requested; cable voltage-drop claims are out of scope.",
+            }
+        ),
         "boundaries": {
             "automatic_defaults": False,
             "automatic_dispatch": False,

@@ -1,0 +1,44 @@
+name: se-min-01-normal-powerflow
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  se-min-01-normal-powerflow:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: windows-latest
+            python: "3.12"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install validated dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip check
+
+      - name: Validate SE-MIN-01 normal manifest and controlled execution
+        run: python -m pytest -q tests/test_se_min_01_normal_powerflow.py
+
+      - name: Execute SE-MIN-01 NORMAL operational power flow
+        run: python examples/run_operational_powerflow_reference.py --manifest examples/se_min_01_normal_powerflow.json --output artifacts/se_min_01_normal_powerflow_result.json
+
+      - name: Upload SE-MIN-01 power-flow result
+        uses: actions/upload-artifact@v4
+        with:
+          name: se-min-01-normal-powerflow-${{ runner.os }}-py${{ matrix.python }}
+          path: artifacts/se_min_01_normal_powerflow_result.json
+          if-no-files-found: error
