@@ -135,3 +135,21 @@ El HTML es una vista. No debe:
 - inferir cumplimiento normativo por sí mismo.
 
 Esas acciones pertenecen al MCP y al motor OpenDSS.
+
+
+### Preparación de ingeniería
+
+El mismo Workspace V5 incorpora una pestaña **Preparación** para distinguir el
+estado de construcción de la aptitud para cálculo.
+
+Muestra:
+
+- revisión del modelo y revisión resuelta;
+- vigencia de resultados;
+- placeholders `MODEL_PLACEHOLDER_TBC`;
+- campos faltantes de cada TBC;
+- findings de `auditar_modelo`;
+- blockers, errores y warnings.
+
+La pestaña es read-only. Un estado QA limpio para el alcance base no equivale a
+`professional_emission=true` ni a readiness universal para todos los estudios.

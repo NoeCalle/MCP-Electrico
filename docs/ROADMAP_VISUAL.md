@@ -205,6 +205,36 @@ professional_emission           = false
 
 No se representa una curva de daño del conductor hasta disponer de un dataset backend explícito y trazable que la justifique.
 
+## V5.1 — Preparación de ingeniería y TBC
+
+**Estado: IMPLEMENTADA EN DESARROLLO.**
+
+Extensión transversal del mismo Workspace V5, alineada con P14A. Añade una
+pestaña **Preparación** que muestra información preparada en Python/MCP:
+
+- estado `EMPTY / MODIFIED / SOLVED / ERROR`;
+- revisión actual y revisión resuelta;
+- vigencia de resultados;
+- `MODEL_PLACEHOLDER_TBC` no materializados en el solver;
+- campos faltantes y datos conocidos de cada placeholder;
+- procedencia declarada;
+- resumen QA;
+- findings `BLOCKER / ERROR / WARNING / INFO`;
+- módulos auditados y su madurez.
+
+La vista conserva explícitamente:
+
+```text
+construido ≠ resuelto ≠ apto para cualquier estudio ≠ emisión profesional
+```
+
+Un placeholder no se dibuja como un equipo eléctrico calculable si el backend
+no puede materializarlo honestamente. Se presenta como deuda/TBC de ingeniería y
+mantiene su blocker QA.
+
+No se ejecuta OpenDSS, pandapower ni ninguna regla de ingeniería desde
+JavaScript. El JavaScript solo controla navegación de pestañas.
+
 ## V6 — Acompañamiento visual de P6: Arc Flash
 
 **Estado: DEFERRED CON P6.**
