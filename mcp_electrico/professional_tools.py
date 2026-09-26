@@ -7,6 +7,7 @@ from . import (
     engine_selection,
     iec60909_tools,
     model_qa,
+    operating_scenario_tools,
     p2_completion,
     p5_completion_tools,
     professional_data,
@@ -279,3 +280,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     project_reconstruction_tools.register(mcp)
     project_report_tools.register(mcp)
     real_pilot_intake_tools.register(mcp)
+    operating_scenario_tools.register(mcp)
