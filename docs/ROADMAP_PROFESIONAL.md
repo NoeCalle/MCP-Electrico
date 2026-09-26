@@ -26,7 +26,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
-| P13 — Motores y arranque | **ACTIVA — P13A–P13C DONE / P13D IN PROGRESS** | secuencias multi-motor explícitas sobre estados estáticos aislados, multiindustria |
+| P13 — Motores y arranque | **ACTIVA — P13A–P13D DONE / P13E IN PROGRESS** | Workspace read-only y dossier replay-verificado para motores/arranque |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -47,7 +47,7 @@ P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = ACTIVE_P12D
-P13 = ACTIVE_P13D
+P13 = ACTIVE_P13E
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = P12_OPERATING_SCENARIOS_AND_P13_MOTOR_STARTING
 
@@ -570,7 +570,7 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: ACTIVA — P13A–P13C DONE / P13D IN PROGRESS.**
+**Estado: ACTIVA — P13A–P13D DONE / P13E IN PROGRESS.**
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 
@@ -590,7 +590,7 @@ pre-start / starting voltage / dip
 criterio de tensión declarado por el proyecto
 ```
 
-P13A cerró el contrato fail-closed, P13B el arranque estático aislado y P13C los perfiles explícitos por puntos. P13D combina varios motores mediante pasos completos OFF/RUNNING/STARTING_PROFILE_POINT; cada paso usa un NewContext fresco, elapsed_time_s solo ordena y no existe selección automática del orden de arranque.
+P13A cerró el contrato fail-closed, P13B el arranque estático aislado, P13C los perfiles explícitos y P13D las secuencias multi-motor. P13E añade Workspace read-only, replay determinista desde inputs P13 canónicos e integridad SHA-256, sin snapshotear el circuito DSS global.
 
 ```text
 automatic_starting_current_derivation = false
