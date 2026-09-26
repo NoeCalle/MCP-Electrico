@@ -38,6 +38,8 @@ ALLOWED_STARTING_METHODS = {
     "OTHER_EXPLICIT",
 }
 ALLOWED_CONNECTIONS = {"wye", "delta"}
+ALLOWED_CURRENT_BASES = {"SUPPLY_LINE_RMS_AT_RATED_VOLTAGE"}
+ALLOWED_PF_BASES = {"FUNDAMENTAL_DISPLACEMENT"}
 
 
 def _present(value: Any) -> bool:
@@ -103,6 +105,8 @@ def obtener_contrato_p13a() -> dict[str, Any]:
         "industry_scope": "CROSS_INDUSTRY",
         "supported_study_type": STUDY_TYPE,
         "supported_starting_methods": sorted(ALLOWED_STARTING_METHODS),
+        "supported_starting_current_bases": sorted(ALLOWED_CURRENT_BASES),
+        "supported_power_factor_bases": sorted(ALLOWED_PF_BASES),
         "electrical_calculation_performed": False,
         "model_mutation_performed": False,
         "automatic_starting_current_derivation": False,
@@ -112,7 +116,8 @@ def obtener_contrato_p13a() -> dict[str, Any]:
         "professional_emission": False,
         "note": (
             "P13A valida datos para una aproximación estática futura de demanda de arranque. "
-            "No calcula tiempo de aceleración, torque dinámico ni estabilidad."
+            "La corriente es supply-side RMS a tensión nominal y el PF es de desplazamiento fundamental; "
+            "no modela armónicos, tiempo de aceleración, torque dinámico ni estabilidad."
         ),
     }
 
@@ -188,7 +193,9 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
             "rated_output_kw",
             "starting_method",
             "starting_current_a",
+            "starting_current_basis",
             "starting_power_factor",
+            "starting_power_factor_basis",
             "starting_data_reference",
         ):
             if not _present(raw.get(key)):
@@ -222,12 +229,28 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
                 "Método de arranque no soportado por el contrato P13A.",
             ))
 
+        current_basis = str(raw.get("starting_current_basis") or "").strip().upper()
+        if current_basis and current_basis not in ALLOWED_CURRENT_BASES:
+            issues.append(_issue(
+                "P13A036",
+                f"{path}.starting_current_basis",
+                "P13A v1 requiere corriente RMS de línea vista desde la red a tensión nominal.",
+            ))
+
         pf = _number(raw.get("starting_power_factor"))
         if pf is not None and not (0 < pf <= 1):
             issues.append(_issue(
                 "P13A030",
                 f"{path}.starting_power_factor",
                 "starting_power_factor debe cumplir 0 < PF <= 1.",
+            ))
+
+        pf_basis = str(raw.get("starting_power_factor_basis") or "").strip().upper()
+        if pf_basis and pf_basis not in ALLOWED_PF_BASES:
+            issues.append(_issue(
+                "P13A037",
+                f"{path}.starting_power_factor_basis",
+                "P13A v1 usa factor de potencia de desplazamiento fundamental; no modela armónicos.",
             ))
 
         included = raw.get("base_model_includes_running_motor")
@@ -276,7 +299,9 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
             "rated_output_kw": _number(raw.get("rated_output_kw")),
             "starting_method": method,
             "starting_current_a": _number(raw.get("starting_current_a")),
+            "starting_current_basis": current_basis,
             "starting_power_factor": pf,
+            "starting_power_factor_basis": pf_basis,
             "starting_data_reference": str(raw.get("starting_data_reference") or "").strip(),
             "base_model_includes_running_motor": included,
             "running_load_element_id": running or None,
