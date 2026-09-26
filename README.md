@@ -105,7 +105,12 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `configurar_workspace` | Configura ruta, título y regeneración automática del visor HTML |
 | `obtener_estado_workspace` | Devuelve revisiones, validez de resultados y estudios registrados |
 | `regenerar_workspace` | Fuerza la regeneración del HTML, SVG y vistas de estudios |
-| `crear_circuito` | Inicia un circuito y limpia el estado auxiliar previo |
+| `crear_circuito` | Inicia un circuito; expone `bus_fuente` explícito |
+| `obtener_contrato_construccion_rev0` | Explica la ruta segura de construcción sin Solve |
+| `validar_construccion_rev0` | Valida intake + preflight sin mutar el modelo |
+| `construir_modelo_rev0` | Materializa Rev.0 sin Solve ni escritura del workspace |
+| `registrar_placeholder_modelo` | Registra un equipo TBC sin inventar un elemento OpenDSS |
+| `obtener_placeholders_modelo` | Lista TBC que bloquean readiness de estudio |
 | `agregar_linea` | Agrega línea/cable con R1/X1 |
 | `agregar_transformador` | Agrega transformador trifásico de dos devanados |
 | `agregar_carga` | Agrega carga, criticidad y tipo visual opcional |
@@ -119,6 +124,8 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `analizar_flujo_operacion` | Devuelve corriente, kW/kvar y cargabilidad disponible por alimentador |
 | `analizar_caida_tension` | Calcula ΔV por `Line` contra un límite configurable por el usuario |
 | `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
+| `abrir_elemento_sin_resolver` | Prepara topología OPEN sin ejecutar Solve |
+| `cerrar_elemento_sin_resolver` | Prepara topología CLOSED sin ejecutar Solve |
 | `abrir_elemento` | Abre un elemento y deja el modelo resuelto en ese estado |
 | `cerrar_elemento` | Cierra un elemento y vuelve a resolver |
 | `simular_perdida_alimentador` | Ejecuta una contingencia N-1 con restauración opcional |
@@ -403,3 +410,18 @@ conductores**: material, sección, aislamiento, tensión nominal, instalación,
 R/X, ampacidad y procedencia del dato. Eso permitirá relacionar el objeto físico
 seleccionado por el usuario con el modelo OpenDSS y con verificaciones de diseño
 más sólidas.
+
+
+## Construcción Rev.0 para agentes
+
+La ruta recomendada para un agente que necesita construir primero y estudiar
+después está documentada en `docs/MCP_RUNTIME_REV0.md`.
+
+Principio principal:
+
+```text
+construcción ≠ solución ≠ readiness ≠ emisión profesional
+```
+
+Los datos TBC pueden conservarse como `MODEL_PLACEHOLDER_TBC`, pero no se
+proyectan al solver y bloquean explícitamente la preparación de estudio.
