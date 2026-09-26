@@ -9,8 +9,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from pathlib import Path
+import sys
 from typing import Any
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from mcp_electrico import (
     real_controlled_execution,
