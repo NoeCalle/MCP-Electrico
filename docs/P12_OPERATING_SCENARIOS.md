@@ -119,7 +119,7 @@ Esto no modifica el contrato congelado de primer uso P8/P11; agrega una capacida
 
 ## P12E — Fuentes alternativas y transferencia declarada
 
-**Estado: IN PROGRESS.**
+**Estado: IMPLEMENTED — PR #136 PENDING MERGE.**
 
 P12E incorpora fuentes alternativas sin asociarlas a una industria concreta. La misma representación puede usarse para una fuente de respaldo en un hospital, data center, planta de manufactura, estación de bombeo, instalación de oil & gas, mina u otra red privada.
 
@@ -161,6 +161,69 @@ Invertir ese orden bloquea el paquete antes de ejecutar cálculo.
 
 La capa no modela sincronismo, gobernador, AVR, control de inversor, reparto de carga entre fuentes ni dinámica de black-start. Es una representación estática explícita para flujo de potencia.
 
+## P12F — Comparación, Workspace y dossier reproducible
+
+**Estado: IN PROGRESS.**
+
+P12F congela el conjunto de escenarios ya ejecutado sin introducir nuevas decisiones automáticas.
+
+La ruta de entrega es:
+
+```text
+manifest eléctrico
+      +
+paquete P12 explícito
+      ↓
+ejecución de escenarios
+      ↓
+PASS / FAIL por escenario
+      ↓
+Workspace estático de comparación
+      ↓
+snapshot P7A del modelo restaurado
+      ↓
+reconstrucción P7B en contexto aislado
+      ↓
+índice SHA-256 del dossier P12
+```
+
+Un escenario `FAIL` puede formar parte de un dossier válido: significa que el estado declarado no satisface los requisitos de servicio. P12F solo bloquea el dossier si un escenario no pudo ejecutarse o si la restauración del modelo no quedó verificada.
+
+El dossier P12 contiene:
+
+```text
+electrical_manifest.json
+scenario_package.json
+scenario_execution.json
+scenario_workspace.html
+scenario_report.html
+base_snapshot_p7a.json
+base_reconstruction_p7b.json
+p7a_netlist/
+p7b_reconstructed/
+scenario_dossier_integrity.json
+```
+
+El Workspace y el reporte consumen resultados congelados. El navegador no ejecuta flujo, no selecciona contingencias y no modifica resultados.
+
+La salida es collision-safe: una segunda entrega usa sufijo incremental y no sobrescribe la primera.
+
+### Criterios de cierre P12F
+
+- todos los escenarios del paquete terminan como resultados válidos PASS/FAIL;
+- restauración verificable después de cada escenario;
+- Workspace de comparación generado sin cálculo en navegador;
+- snapshot P7A = `HASH_MATCH`;
+- reconstrucción P7B aislada y verificada;
+- SHA-256 cubre exactamente el file-set del dossier;
+- alteración de cualquier archivo rompe la verificación;
+- repetición no sobrescribe el primer dossier;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_report=false`;
+- `professional_emission=false`.
+
+Cuando P12F cierre, P12 Operating Scenarios puede cerrarse como capability foundation. Motores y arranque pasan a una fase separada P13 para evitar mezclar dos dominios distintos.
+
 ## Fronteras v1
 
 ```text
@@ -193,5 +256,4 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12F — comparación batch, Workspace y dossier de escenarios;
-- fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
+- P13 — motores y arranque como capacidad transversal independiente, sin acoplarla a una industria concreta.

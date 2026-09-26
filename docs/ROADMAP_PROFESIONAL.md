@@ -25,7 +25,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
-| P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D DONE / P12E IN PROGRESS** | escenarios multiindustria, transferencia explícita y restauración determinista |
+| P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D DONE / P12E PR #136 PENDING MERGE / P12F IN PROGRESS** | escenarios multiindustria con comparación, Workspace y dossier reproducible |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 inicia una capa nueva y aditiva de escenarios operativos sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -45,7 +45,7 @@ P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
-P12 = ACTIVE_P12E
+P12 = ACTIVE_P12F
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = P12_OPERATING_SCENARIOS
 
@@ -530,7 +530,7 @@ Detalle: `docs/P11_RELEASE_SAFETY.md`, `docs/RELEASE_RECOVERY_POLICY.md` y `docs
 
 ## Fase P12 — Escenarios operativos y contingencias
 
-**Estado: ACTIVA — P12A–P12C DONE / P12D DONE / P12E IN PROGRESS.**
+**Estado: ACTIVA — P12A–P12C DONE / P12D DONE / P12E PR #136 PENDING MERGE / P12F IN PROGRESS.**
 
 P12 introduce análisis explícito de estados operativos alternativos sin asociar el motor a una industria concreta.
 
@@ -562,6 +562,24 @@ Principios:
 - un resultado FAIL es una conclusión válida del escenario, no un error del solver;
 - el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
 
-P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor de escenarios mediante tools MCP públicas versionadas y quedó cerrado en PR #129. P12E añade fuentes alternativas Thevenin y transferencia break-before-make explícita, sin selección automática de fuente ni transición cerrada. Después sigue comparación batch + Workspace/dossier; motores/arranque se desarrollarán como una fase transversal separada.
+P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone tools MCP versionadas. P12E añade fuente alternativa Thevenin y transferencia break-before-make explícita. P12F congela comparación, Workspace y dossier con integridad SHA-256. Motores/arranque se desarrollarán después como P13, una capability transversal separada.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
+
+
+## Próxima fase transversal — P13 Motores y arranque
+
+P13 queda reservada para motores y estudios de arranque después de cerrar P12. No será específica de minería: el contrato deberá servir para manufactura, agua, HVAC, hospitales, data centers, oil & gas, minería y otras instalaciones.
+
+El primer alcance previsto es fail-closed y estático antes de cualquier dinámica avanzada:
+
+```text
+P13A = contrato canónico de motor/arranque
+P13B = impacto estático de arranque y voltage dip
+P13C = perfiles de arranque explícitos
+P13D = secuencias de varios motores
+P13E = Workspace + dossier
+P13F = dinámica avanzada solo con backend y benchmarks explícitos
+```
+
+No se considera implementado ningún backend dinámico hasta que exista código, contrato de datos y validación propios.
