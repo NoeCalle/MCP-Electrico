@@ -27,7 +27,7 @@ stable/0.9-reference-validated
 
 ## P11A — Release manifest
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #118.
 
 P11A incorpora `releases/mcp_electrico_0_9_reference_validated.json` como registro canónico del punto conocido-bueno después de P10.
 
@@ -62,3 +62,47 @@ Git conserva historia, pero P11 define qué commits están aprobados como puntos
 ## Mirror independiente
 
 El repo espejo sigue planificado para P11C. Debe ser un repositorio separado del desarrollo normal y recibir únicamente snapshots estables. No debe contener secretos, credenciales ni dossiers privados.
+
+
+## P11B — Contrato público del core
+
+**Estado: IN PROGRESS.**
+
+P11B no congela todas las tools internas del repositorio. Congela únicamente la superficie operativa recomendada para el primer uso controlado:
+
+```text
+evaluar_admision_piloto_real(manifest)
+        ↓
+generar_dossier_piloto_real(manifest, directorio_salida=...)
+        ↓
+verificar_integridad_dossier_real(ruta_indice)
+```
+
+El contrato versionado vive en `contracts/public_first_use_v1.json`.
+
+### Qué protege
+
+- nombre de las tres tools públicas;
+- parámetros requeridos;
+- default público de `directorio_salida`;
+- orden operativo recomendado;
+- estados de éxito;
+- SHA-256 y conjunto exacto de archivos del dossier;
+- política de no sobrescritura;
+- invariantes fail-closed.
+
+Un cambio incompatible exige una nueva versión contractual en vez de modificar silenciosamente V1.
+
+### Qué no congela
+
+Las tools de desarrollo de bajo nivel, helpers internos y detalles de implementación pueden evolucionar mientras preserven el contrato público o declaren una versión nueva.
+
+### Criterios de cierre P11B
+
+- el contrato JSON V1 coincide con las firmas MCP reales;
+- las tres funciones continúan expuestas mediante `mcp.tool`;
+- P8F4 conserva la misma secuencia pública;
+- P8F2 conserva SHA-256, rutas relativas y file-set exacto;
+- P8F3 conserva suffix increment y prohíbe overwrite;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_emission=false`.
