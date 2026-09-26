@@ -44,6 +44,30 @@ _ALLOWED_ACTIONS = {"OPEN_ELEMENT", "CLOSE_ELEMENT", "DISABLE_LOAD", "ENABLE_LOA
 _ALLOWED_SWITCHABLE_PREFIXES = ("line.", "transformer.")
 
 
+def obtener_contrato() -> dict[str, Any]:
+    """Devuelve el contrato público P12 sin ejecutar ni mutar el modelo."""
+    return {
+        "schema": SCHEMA,
+        "purpose": "EXPLICIT_MULTIINDUSTRY_OPERATING_SCENARIOS",
+        "allowed_purposes": sorted(_ALLOWED_PURPOSES),
+        "allowed_actions": sorted(_ALLOWED_ACTIONS),
+        "topology_switching_scope": ["Line.*", "Transformer.*"],
+        "load_state_scope": ["Load.*"],
+        "scenario_isolation": "REBUILD_BASE_BEFORE_EACH_SCENARIO",
+        "service_rule": "LOAD_ENABLED_AND_DECLARED_VOLTAGE_LIMITS",
+        "automatic_contingency_selection": False,
+        "automatic_switching": False,
+        "automatic_load_shedding": False,
+        "automatic_restoration_optimization": False,
+        "crosscheck": False,
+        "professional_emission": False,
+        "industry_policy": (
+            "INDUSTRY_AGNOSTIC_CORE: sector-specific behavior enters as explicit "
+            "project topology, data, actions and service criteria."
+        ),
+    }
+
+
 def _present(value: Any) -> bool:
     if value is None:
         return False

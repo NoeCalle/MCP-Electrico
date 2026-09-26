@@ -76,7 +76,7 @@ Cada escenario se ejecuta desde una reconstrucción limpia del modelo base. Desp
 
 ## P12C — Estado explícito de cargas
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #125.
 
 P12C añade únicamente acciones declaradas por el usuario:
 
@@ -100,6 +100,22 @@ Por tanto, una barra energizada no se confunde con una carga realmente en servic
 Cada cambio Enabled se restaura exactamente después del escenario y participa del mismo gate fail-closed de restauración.
 
 Caso de prueba: `examples/p12c_explicit_load_state_reference.json`.
+
+## P12D — Tools MCP para escenarios
+
+**Estado: IN PROGRESS.**
+
+P12D expone la capa de escenarios mediante tres tools aditivas:
+
+```text
+obtener_contrato_p12_escenarios_operativos
+validar_escenarios_operativos
+ejecutar_escenarios_operativos
+```
+
+La interfaz MCP no contiene un segundo motor eléctrico ni replica la lógica de P12. Delega al mismo módulo Python validado y conserva las fronteras fail-closed.
+
+Esto no modifica el contrato congelado de primer uso P8/P11; agrega una capacidad nueva y versionada.
 
 ## Fronteras v1
 
@@ -130,7 +146,6 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12D — contrato y tools MCP públicos para validar/ejecutar escenarios;
 - P12E — fuentes alternativas/generadores y transferencia declarada;
 - P12F — comparación batch, Workspace y dossier de escenarios;
 - fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
