@@ -1,0 +1,40 @@
+name: mcp-runtime-rev0
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  runtime-rev0:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: windows-latest
+            python: "3.12"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install MCP Electrico as a package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+          python -m pip check
+
+      - name: Dependency-free runtime doctor
+        run: python scripts/runtime_doctor.py --strict
+
+      - name: Import installed server
+        run: python -c "import server; import importlib.metadata as m; print(m.version('mcp-electrico')); print(server.mcp)"
+
+      - name: Validate Rev0 construction ergonomics
+        run: python -m pytest -q tests/test_mcp_runtime_rev0.py tests/test_p8c3b_real_model_materializer.py tests/test_runtime_safety_p2.py
