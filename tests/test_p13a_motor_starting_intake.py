@@ -25,7 +25,9 @@ def test_p13a_generic_motor_fixture_is_ready_without_calculation():
     assert motor["id"] == "Motor.m01"
     assert motor["starting_method"] == "DOL"
     assert motor["starting_current_a"] == 1250.0
+    assert motor["starting_current_basis"] == "SUPPLY_LINE_RMS_AT_RATED_VOLTAGE"
     assert motor["starting_power_factor"] == 0.25
+    assert motor["starting_power_factor_basis"] == "FUNDAMENTAL_DISPLACEMENT"
     assert motor["running_load_element_id"] == "Load.m01_run"
 
     study = result["studies"][0]
@@ -124,6 +126,8 @@ def test_p13a_contract_is_cross_industry_and_static_only():
     assert contract["supported_study_type"] == "STATIC_MOTOR_STARTING_VOLTAGE_DIP"
     assert "DOL" in contract["supported_starting_methods"]
     assert "VFD" in contract["supported_starting_methods"]
+    assert contract["supported_starting_current_bases"] == ["SUPPLY_LINE_RMS_AT_RATED_VOLTAGE"]
+    assert contract["supported_power_factor_bases"] == ["FUNDAMENTAL_DISPLACEMENT"]
     assert contract["automatic_starting_current_derivation"] is False
     assert contract["professional_emission"] is False
 
@@ -140,3 +144,29 @@ def test_p13a_requires_explicit_source_strength_for_starting_study():
     assert "base_model.source.scc_max_mva" in paths
     assert "base_model.source.x_r_max" in paths
     assert result["automatic_defaults"] is False
+
+
+def test_p13a_requires_explicit_network_side_current_and_pf_basis():
+    manifest = _manifest()
+    manifest["motors"][0]["starting_current_basis"] = None
+    manifest["motors"][0]["starting_power_factor_basis"] = None
+
+    result = motor_starting_intake.evaluar_admision_motor(manifest)
+
+    assert result["intake_status"] == "BLOCKED_MOTOR_STARTING_INPUTS"
+    paths = {issue["path"] for issue in result["issues"]}
+    assert "motors[0].starting_current_basis" in paths
+    assert "motors[0].starting_power_factor_basis" in paths
+
+
+def test_p13a_rejects_harmonic_or_motor_side_basis_in_static_foundation():
+    manifest = _manifest()
+    manifest["motors"][0]["starting_current_basis"] = "MOTOR_PHASE_CURRENT"
+    manifest["motors"][0]["starting_power_factor_basis"] = "TRUE_PF_WITH_HARMONICS"
+
+    result = motor_starting_intake.evaluar_admision_motor(manifest)
+
+    assert result["intake_status"] == "BLOCKED_MOTOR_STARTING_INPUTS"
+    codes = {issue["code"] for issue in result["issues"]}
+    assert "P13A030" in codes
+    assert "P13A032" in codes
