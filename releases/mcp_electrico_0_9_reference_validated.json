@@ -1,0 +1,59 @@
+{
+  "schema": "MCP_ELECTRICO_RELEASE_MANIFEST_V1",
+  "release_id": "MCP_ELECTRICO_0_9_REFERENCE_VALIDATED",
+  "product_release": "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW",
+  "classification": "KNOWN_GOOD_RECOVERY_POINT",
+  "commit_sha": "5228e358cf0716dc963f109a15b9e1a2d309f635",
+  "recovery_branch": "stable/0.9-reference-validated",
+  "previous_recovery_point": {
+    "release_id": "MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW",
+    "commit_sha": "6720da9183c45df299a584430fddea28f4060d7a",
+    "recovery_branch": "stable/0.9-engineering-preview"
+  },
+  "validation": {
+    "p10": "CLOSED",
+    "reference_project": "MCP-REF-SUB-01",
+    "p10_prs": [
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116
+    ],
+    "reference_validation": "PASSED",
+    "workspace_v5": true,
+    "reproducible_dossier": true
+  },
+  "safety_invariants": {
+    "automatic_defaults": false,
+    "automatic_dispatch": false,
+    "automatic_fault_binding": false,
+    "crosscheck": false,
+    "automatic_normative_lookup": false,
+    "professional_report": false,
+    "professional_emission": false
+  },
+  "deferred_or_excluded": {
+    "p6_ieee1584": "DEFERRED",
+    "professional_emission": false,
+    "independent_mirror_repository": "PLANNED_NOT_YET_CREATED"
+  },
+  "recovery_note": "Restore only from the recorded commit SHA or recovery branch. Do not move this recovery branch during normal development.",
+  "contract_schemas": {
+    "p8b_intake": "MCP_ELECTRICO_P8B_REAL_PILOT_INTAKE_V1",
+    "p8c3_materializer": "MCP_ELECTRICO_P8C3_REAL_MODEL_MATERIALIZER_V1",
+    "p8c5_readiness": "MCP_ELECTRICO_P8C5_INTEGRATED_READINESS_V1",
+    "p8d1_execution": "MCP_ELECTRICO_P8D1_CONTROLLED_EXECUTION_V1",
+    "p8d2_protection": "MCP_ELECTRICO_P8D2_PROTECTION_EXECUTION_V1"
+  },
+  "allowed_scope": [
+    "AMPACITY",
+    "IEC60909_1PH_GROUND_MAX_MIN",
+    "IEC60909_3PH_MAX_MIN",
+    "POWER_FLOW",
+    "PROTECTION_TCC",
+    "VOLTAGE_DROP"
+  ]
+}
