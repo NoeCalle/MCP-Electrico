@@ -154,7 +154,7 @@ P13B deberá:
 
 ## P13B — Arranque estático aislado
 
-**Estado: IN PROGRESS.**
+**Estado: DONE PENDING MERGE.** PR #133.
 
 P13B implementa la primera capacidad de cálculo de motores sin modificar los contratos públicos congelados de P8/P11.
 
@@ -248,3 +248,73 @@ Esos fenómenos requieren perfiles explícitos o un backend dinámico posterior.
 - `professional_emission=false`.
 
 Después de P13B, P13C añadirá perfiles de arranque explícitos por etapas sin asumir todavía dinámica continua.
+
+
+## P13C — Perfiles explícitos por puntos
+
+**Estado: IN PROGRESS.**
+
+P13C extiende el arranque estático con una secuencia ordenada de puntos declarados por el proyecto. El eje tiempo sirve únicamente para ordenar observaciones/estados; P13C no integra ecuaciones dinámicas entre puntos.
+
+Ejemplo conceptual:
+
+```text
+t = 0.0 s   I = 1250 A   PF = 0.25
+t = 0.5 s   I = 1050 A   PF = 0.30
+t = 1.5 s   I =  800 A   PF = 0.40
+t = 3.0 s   I =  500 A   PF = 0.65
+```
+
+Cada punto conserva las mismas bases contractuales:
+
+```text
+current_basis = SUPPLY_LINE_RMS_AT_RATED_VOLTAGE
+PF_basis      = FUNDAMENTAL_DISPLACEMENT
+```
+
+El primer punto debe coincidir exactamente con los datos iniciales P13A. Esto evita que el manifiesto de motor y el perfil aporten dos corrientes de arranque contradictorias.
+
+### Qué hace
+
+Por cada punto explícito:
+
+1. reutiliza el modelo base materializado;
+2. ejecuta el perfil en un `dss.NewContext()` aislado;
+3. mantiene fuera la carga de marcha declarada;
+4. aplica el equivalente de impedancia constante correspondiente a I/PF del punto;
+5. resuelve OpenDSS;
+6. registra tensión por fase, tensión mínima y cumplimiento del criterio del proyecto;
+7. identifica el punto de peor tensión.
+
+### Qué no hace
+
+```text
+interpolation = false
+dynamic_integration = false
+automatic_profile_generation = false
+torque_calculation = false
+harmonic_model = false
+```
+
+Por tanto, una secuencia de cuatro puntos no significa que el MCP haya simulado la trayectoria continua entre ellos. Es una colección reproducible de estados algebraicos declarados.
+
+### Gate P13C
+
+- P13A válido;
+- P13B readiness válido;
+- package ligado al mismo project_id;
+- al menos dos puntos por perfil;
+- t=0 explícito;
+- tiempos estrictamente crecientes;
+- corriente > 0 y PF en (0,1];
+- primer punto igual al arranque inicial P13A;
+- IDs de punto no duplicados;
+- todos los estados se resuelven en contexto aislado;
+- se identifica el peor punto sin interpolación;
+- contexto DSS/Workspace padre preservado;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_emission=false`.
+
+Caso controlado: `examples/p13_motor_starting_profile_stage2.json`.
+
+Después de P13C, P13D podrá introducir secuencias de varios motores y solapes explícitos, manteniendo separada la futura dinámica continua.
