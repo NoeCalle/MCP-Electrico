@@ -14,7 +14,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import conductor_library, professional_data, visual_state
+from . import conductor_library, model_placeholders, professional_data, visual_state
 from .core import listar_cargas_criticas
 
 STATE_EMPTY = "EMPTY"
@@ -285,4 +285,5 @@ def snapshot() -> dict[str, Any]:
         "status": status(),
         "model": collect_model_snapshot(),
         "professional": professional_data.snapshot(),
+        "model_placeholders": model_placeholders.snapshot(),
     }
