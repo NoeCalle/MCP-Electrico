@@ -130,6 +130,7 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12D — fuentes alternativas/generadores y transferencia declarada;
-- P12E — comparación batch, Workspace y dossier de escenarios;
+- P12D — contrato y tools MCP públicos para validar/ejecutar escenarios;
+- P12E — fuentes alternativas/generadores y transferencia declarada;
+- P12F — comparación batch, Workspace y dossier de escenarios;
 - fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
