@@ -26,7 +26,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
-| P13 — Motores y arranque | **ACTIVA — P13A DONE / P13B IN PROGRESS** | contrato fail-closed y arranque estático aislado, multiindustria |
+| P13 — Motores y arranque | **ACTIVA — P13A/P13B DONE / P13C IN PROGRESS** | perfiles explícitos de arranque sobre estados estáticos aislados, multiindustria |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -47,7 +47,7 @@ P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = ACTIVE_P12D
-P13 = ACTIVE_P13B
+P13 = ACTIVE_P13C
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = P12_OPERATING_SCENARIOS_AND_P13_MOTOR_STARTING
 
@@ -570,7 +570,7 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: ACTIVA — P13A DONE / P13B IN PROGRESS.**
+**Estado: ACTIVA — P13A/P13B DONE / P13C IN PROGRESS.**
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 
@@ -590,7 +590,7 @@ pre-start / starting voltage / dip
 criterio de tensión declarado por el proyecto
 ```
 
-P13A cerró el contrato fail-closed sin derivar corriente desde DOL/estrella-delta/soft starter/VFD. P13B añade únicamente el cálculo estático en contextos OpenDSS aislados: la carga de marcha se retira explícitamente, se resuelve pre-arranque y luego una impedancia equivalente construida desde corriente/PF supply-side declarados.
+P13A cerró el contrato fail-closed y P13B cerró el arranque estático completamente aislado. P13C añade perfiles de I/PF explícitos por puntos; elapsed_time_s solo ordena los puntos, cada punto usa un NewContext fresco y no existe interpolación ni integración dinámica.
 
 ```text
 automatic_starting_current_derivation = false

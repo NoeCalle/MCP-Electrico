@@ -145,7 +145,7 @@ La red base incluye una carga de marcha explícita `Load.m01_run`. P13 exige dec
 
 ## P13B — Arranque estático aislado
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #139.
 
 P13B implementa la primera capacidad de cálculo de motores sin modificar los contratos públicos congelados de P8/P11.
 
@@ -276,4 +276,96 @@ Esos fenómenos requieren P13C–P13F y datos adicionales explícitos.
 - Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
 - `professional_emission=false`.
 
-Después de P13B, P13C añadirá perfiles explícitos de arranque por etapas sin asumir todavía dinámica continua.
+Después de P13B, P13C añade perfiles explícitos por puntos sin asumir dinámica continua.
+
+## P13C — Perfiles explícitos por puntos
+
+**Estado: IN PROGRESS.**
+
+P13C representa una secuencia declarada de estados estáticos del arranque. El eje tiempo ordena los puntos y conserva trazabilidad, pero no se entrega a OpenDSS como tiempo de simulación.
+
+Ejemplo controlado:
+
+```text
+t = 0.0 s   I = 1250 A   PF = 0.25
+t = 0.5 s   I = 1050 A   PF = 0.30
+t = 1.5 s   I =  800 A   PF = 0.40
+t = 3.0 s   I =  500 A   PF = 0.65
+```
+
+Cada perfil declara explícitamente:
+
+```text
+current_basis = SUPPLY_LINE_RMS_AT_RATED_VOLTAGE
+power_factor_basis = FUNDAMENTAL_DISPLACEMENT
+```
+
+y el primer punto debe coincidir exactamente con la corriente y PF iniciales del motor P13A.
+
+### Semántica de tiempo
+
+```text
+profile_semantics = DECLARED_STATIC_OPERATING_POINTS_ORDERED_BY_TIME
+elapsed_time_used_by_solver = false
+interpolation = false
+dynamic_integration = false
+```
+
+Cambiar únicamente los valores de `elapsed_time_s`, conservando orden e I/PF, no debe cambiar las tensiones calculadas.
+
+### Aislamiento por punto
+
+P13C no edita secuencialmente un circuito que retenga estado entre puntos. Para cada punto:
+
+1. crea un `dss.NewContext()` nuevo;
+2. reconstruye la red base explícita mediante P13B;
+3. retira la carga de marcha declarada;
+4. agrega la impedancia equivalente correspondiente a I/PF del punto;
+5. resuelve un único estado algebraico;
+6. descarta ese contexto.
+
+Por tanto:
+
+```text
+point_isolation = FRESH_OPENDSS_NEW_CONTEXT_PER_POINT
+parent DSS mutation = false
+parent Workspace mutation = false
+```
+
+### Resultado P13C
+
+Cada punto reporta:
+
+- tiempo declarado como metadata;
+- corriente y PF explícitos;
+- tensión por fase;
+- tensión mínima;
+- dip respecto del mismo estado pre-arranque;
+- S/P/Q nominales del equivalente;
+- PASS/FAIL contra el criterio del proyecto.
+
+El perfil identifica el punto de peor tensión únicamente entre los puntos declarados. No interpola un mínimo oculto entre ellos.
+
+### Gate P13C
+
+- P13A válido;
+- P13B readiness válido;
+- paquete ligado al mismo project_id;
+- base de corriente/PF explícita y coincidente con P13A;
+- al menos dos puntos;
+- primer punto en t=0;
+- primer I/PF igual al arranque inicial P13A;
+- tiempos estrictamente crecientes;
+- corriente > 0 y PF en (0,1];
+- IDs de punto únicos;
+- cada punto en un NewContext fresco;
+- tiempo no usado por el solver;
+- sin interpolación ni integración dinámica;
+- peor punto identificado entre estados declarados;
+- contexto DSS/Workspace padre preservado;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_emission=false`.
+
+Caso controlado: `examples/p13_motor_starting_profile_stage2.json`.
+
+Después de P13C, P13D podrá introducir secuencias explícitas de varios motores y solapes, todavía separadas de la futura dinámica continua.
