@@ -279,6 +279,42 @@ def _evidence() -> dict[str, Any]:
     }
 
 
+
+def evaluar_preflight_materializacion(manifest: dict[str, Any]) -> dict[str, Any]:
+    """Valida P8B + serialización P8C3B sin mutar OpenDSS ni workspace."""
+    if not isinstance(manifest, dict):
+        raise TypeError("manifest debe ser dict.")
+
+    manifest_copy = deepcopy(manifest)
+    admission = real_pilot_intake.evaluar_admision(manifest_copy)
+    base = {
+        "schema": "MCP_ELECTRICO_P8C3B_PREFLIGHT_V1",
+        "p8b_intake_status": admission["intake_status"],
+        "model_mutation_performed": False,
+        "electrical_calculation_performed": False,
+        "solve_performed": False,
+        "workspace_file_written": False,
+        "automatic_defaults": False,
+        "professional_emission": False,
+    }
+    if not admission.get("ready_to_build_model"):
+        return {
+            **base,
+            "status": STATUS_BLOCKED_INTAKE,
+            "ready_to_materialize": False,
+            "issues": deepcopy(admission.get("issues") or []),
+            "p8b": admission,
+        }
+
+    issues = _preflight(manifest_copy)
+    return {
+        **base,
+        "status": "READY_TO_MATERIALIZE" if not issues else STATUS_BLOCKED_PREFLIGHT,
+        "ready_to_materialize": not issues,
+        "issues": issues,
+        "p8b": admission,
+    }
+
 def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
     """Construye OpenDSS/P2/Z0 a partir de un manifiesto admitido, sin Solve."""
     if not isinstance(manifest, dict):
