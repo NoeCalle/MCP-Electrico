@@ -1,0 +1,52 @@
+{
+  "project_id": "MCP-REF-SUB-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P12E alternative-source transfer",
+  "alternative_sources": [
+    {
+      "id": "Vsource.backup_480",
+      "source_type": "THEVENIN_VSOURCE_EQUIVALENT",
+      "bus": "bus_480",
+      "phases": 3,
+      "kv_ll": 0.48,
+      "pu": 1,
+      "angle_deg": 0,
+      "scc_mva": 25,
+      "x_r": 6,
+      "required_isolation_elements": [
+        "Transformer.t2_aux"
+      ],
+      "source_reference": "CONTROLLED_REFERENCE_DATA - backup source positive-sequence equivalent"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "SCN_TRANSFER_LV_TO_BACKUP",
+      "name": "Explicit break-before-make transfer of LV essential service",
+      "purpose": "EMERGENCY",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - alternative-source transfer scenario",
+      "actions": [
+        {
+          "action": "OPEN_ELEMENT",
+          "element_id": "Transformer.t2_aux",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - isolate normal source"
+        },
+        {
+          "action": "ENABLE_ALT_SOURCE",
+          "element_id": "Vsource.backup_480",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - explicitly enable backup source"
+        }
+      ],
+      "service_requirements": {
+        "require_powerflow_convergence": true,
+        "critical_loads": [
+          {
+            "load_id": "Load.lv_services",
+            "minimum_voltage_pu": 0.9,
+            "maximum_voltage_pu": 1.1,
+            "source_reference": "CONTROLLED_REFERENCE_DATA - essential service voltage criterion"
+          }
+        ]
+      }
+    }
+  ]
+}
