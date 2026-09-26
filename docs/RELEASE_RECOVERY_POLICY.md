@@ -49,7 +49,6 @@ An external mirror may be reconsidered later, but it is not required for the cur
 - every future stable release records its exact commit SHA;
 - a recovery operation restores from a recorded SHA, never from memory;
 - release backup does not replace CI, PR review, or branch protection;
-- the external mirror should contain source, tests, workflows, examples, and release documentation;
 - secrets, local credentials, generated private dossiers, and environment files must never be copied into the backup repository.
 
 ## Future release workflow
@@ -62,12 +61,12 @@ main
 all release gates green
     ↓
 stable release commit
-    ├── release tag
-    ├── stable recovery branch
+    ├── release manifest with exact SHA
+    ├── release tag when tooling is available
     └── stable recovery branch in this repository
 ```
 
-The next stable promotion must record its exact SHA in a release manifest before any stable pointer or mirror is changed. P11 owns this release-safety process.
+The next stable promotion must record its exact SHA in a release manifest before any stable pointer is changed. P11 owns this release-safety process.
 
 
 ## P11 clean-restore verification
