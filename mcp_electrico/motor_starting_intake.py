@@ -144,6 +144,20 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
                 "El modelo base P8 debe estar READY_TO_BUILD_MODEL antes de admitir un estudio de motor.",
             ))
         buses, loads = _base_topology(base_model)
+        source = base_model.get("source") or {}
+        for key in ("scc_max_mva", "x_r_max"):
+            if not _present(source.get(key)):
+                issues.append(_issue(
+                    "P12A012",
+                    f"base_model.source.{key}",
+                    "El estudio de arranque requiere una impedancia positiva-secuencia explícita de la fuente; no se usa el default del Vsource.",
+                ))
+            elif not _positive(source.get(key)):
+                issues.append(_issue(
+                    "P12A013",
+                    f"base_model.source.{key}",
+                    f"{key} debe ser finito y mayor que cero.",
+                ))
 
     motors = payload.get("motors")
     if not isinstance(motors, list) or not motors:
