@@ -369,6 +369,7 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
     restored = all(_element_open_state(element) == open_state for element, open_state in initial.items())
     revision_after = workspace_state.status().get("model_revision")
     restored_converged = bool(dss.Solution.Converged())
+    revision_unchanged = revision_before == revision_after
 
     if runtime_error is not None:
         return {
@@ -378,7 +379,29 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
             "action_results": action_results,
             "model_restored": restored,
             "restored_powerflow_converged": restored_converged,
-            "model_revision_unchanged": revision_before == revision_after,
+            "model_revision_unchanged": revision_unchanged,
+            "automatic_contingency_selection": False,
+            "automatic_switching": False,
+            "automatic_load_shedding": False,
+            "professional_emission": False,
+        }
+
+    if not restored or not revision_unchanged or not restored_converged:
+        return {
+            "scenario_id": scenario.get("id"),
+            "execution_status": "SCENARIO_RESTORE_ERROR",
+            "issues": [{
+                "code": "P12B901",
+                "path": "restoration",
+                "message": (
+                    "El estado base no quedó restaurado de forma verificable; "
+                    "el resultado del escenario no se promueve a PASS/FAIL."
+                ),
+            }],
+            "action_results": action_results,
+            "model_restored": restored,
+            "restored_powerflow_converged": restored_converged,
+            "model_revision_unchanged": revision_unchanged,
             "automatic_contingency_selection": False,
             "automatic_switching": False,
             "automatic_load_shedding": False,
@@ -398,7 +421,7 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
         "service": service,
         "model_restored": restored,
         "restored_powerflow_converged": restored_converged,
-        "model_revision_unchanged": revision_before == revision_after,
+        "model_revision_unchanged": revision_unchanged,
         "explicit_actions_only": True,
         "automatic_contingency_selection": False,
         "automatic_switching": False,
