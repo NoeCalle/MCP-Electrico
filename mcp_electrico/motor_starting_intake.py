@@ -1,6 +1,6 @@
 """P13A — contrato fail-closed para motores y estudios de arranque.
 
-P12 es una extensión transversal del producto y no depende de una industria
+P13 es una extensión transversal del producto y no depende de una industria
 específica. Puede usarse en manufactura, agua/saneamiento, HVAC, hospitales,
 data centers, oil & gas, minería u otras instalaciones con motores.
 
