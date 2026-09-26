@@ -133,7 +133,7 @@
     {
       "id": "START-M01",
       "motor_id": "Motor.m01",
-      "study_type": "STATIC_LOCKED_ROTOR_VOLTAGE_DIP",
+      "study_type": "STATIC_MOTOR_STARTING_VOLTAGE_DIP",
       "minimum_terminal_voltage_pu": 0.8,
       "criterion_reference": "CONTROLLED_REFERENCE_DATA - project-specific voltage criterion"
     }
