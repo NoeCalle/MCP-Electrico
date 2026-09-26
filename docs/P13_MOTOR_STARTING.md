@@ -372,7 +372,7 @@ Después de P13C, P13D combina esos estados declarados en secuencias multi-motor
 
 ## P13D — Secuencias explícitas de varios motores
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #141.
 
 P13D permite estudiar arranques escalonados y solapados sin inferir una estrategia de operación. Cada secuencia declara todos los motores P13 del manifiesto y, para cada paso, exactamente un estado por motor:
 
@@ -501,4 +501,160 @@ examples/p13_motor_starting_multi_profiles_stage3.json
 examples/p13_motor_starting_sequence_stage3.json
 ```
 
-Después de P13D, P13E integrará resultados P13 en Workspace y dossier reproducible.
+Después de P13D, P13E integra esos resultados en un Workspace read-only y un dossier reproducible.
+
+## P13E — Workspace + dossier reproducible
+
+**Estado: IN PROGRESS.**
+
+P13E no añade un nuevo cálculo eléctrico. Consume resultados P13D ya resueltos y crea una capa de presentación, replay e integridad.
+
+### Workspace
+
+El Workspace P13E es HTML estático generado por Python.
+
+```text
+browser_engineering_calculation = false
+browser_interpolation = false
+browser_dynamic_integration = false
+```
+
+Presenta:
+
+- proyecto y estado de ejecución;
+- secuencias;
+- pasos y elapsed_time_s como metadata;
+- estado OFF/RUNNING/STARTING_PROFILE_POINT de cada motor;
+- tensiones mínimas;
+- criterios PASS/FAIL;
+- peor punto de arranque declarado;
+- payload JSON P13 completo para trazabilidad.
+
+JavaScript no recalcula flujo, corriente, impedancia, perfil, secuencia ni criterio.
+
+### Unidad reproducible P13
+
+P13B–P13D nunca materializan el estudio en el DSS global. Por ello P13E **no** toma un snapshot P7A del circuito global: hacerlo podría capturar otro proyecto activo y romper la trazabilidad.
+
+La unidad reproducible de P13E es:
+
+```text
+motor_manifest
++ profile_package
++ sequence_package
++ P13D execution
++ replay verification
++ Workspace/report
++ integrity index
+```
+
+Los tres inputs se guardan completos y se cubren por SHA-256.
+
+### Replay verificable
+
+Antes de crear artefactos, P13E ejecuta P13D dos veces desde copias profundas de los mismos inputs.
+
+Cada ejecución conserva:
+
+```text
+fresh NewContext per step
+parent DSS mutation = false
+parent Workspace mutation = false
+```
+
+Para evitar que metadata irrelevante del contexto padre rompa la comparación, P13E construye una proyección canónica de los resultados de ingeniería P13D y exige:
+
+```text
+SHA256(execution_projection)
+==
+SHA256(replay_projection)
+```
+
+Si no coinciden:
+
+```text
+MOTOR_STARTING_DOSSIER_REPLAY_MISMATCH
+artifact_generation_performed = false
+```
+
+### Integridad del dossier
+
+El dossier incluye:
+
+```text
+motor_manifest.json
+motor_profile_package.json
+motor_sequence_package.json
+motor_sequence_execution.json
+motor_replay_verification.json
+motor_workspace.html
+motor_report.html
+motor_dossier_manifest.json
+motor_dossier_integrity.json
+```
+
+`motor_dossier_integrity.json` registra file-set exacto, tamaño y SHA-256 de cada artefacto. No admite symlinks, rutas inseguras ni archivos extra no indexados.
+
+La verificación puede detectar:
+
+- archivo faltante;
+- tamaño alterado;
+- SHA alterado;
+- payload del índice alterado;
+- archivo no indexado;
+- symlink;
+- file-set distinto.
+
+### Semántica de FAIL
+
+Un `FAIL` de criterio de tensión es un resultado de ingeniería válido y puede formar parte de un dossier READY si la ejecución y el replay son completos.
+
+```text
+engineering FAIL != dossier failure
+solver/replay/integrity failure = dossier blocked/failed
+```
+
+### Colisiones
+
+P13E nunca sobrescribe silenciosamente una entrega existente:
+
+```text
+motor_dossier
+motor_dossier_2
+motor_dossier_3
+...
+```
+
+La primera entrega debe continuar verificando después de crear las siguientes.
+
+### Fronteras
+
+```text
+browser_engineering_calculation = false
+dynamic_integration_performed = false
+automatic_motor_selection = false
+automatic_start_order = false
+professional_report = false
+professional_emission = false
+```
+
+El reporte es reproducible/print-ready, pero no se promociona a informe profesional.
+
+### Gate P13E
+
+- P13D execution completa;
+- parent DSS/Workspace preservado;
+- replay P13D completo;
+- SHA de proyección execution/replay idéntico;
+- Workspace read-only;
+- inputs y ejecución guardados;
+- dossier collision-safe;
+- file-set exacto cubierto por SHA-256;
+- tampering detectable;
+- archivos extra no indexados rechazados;
+- engineering FAIL aceptado como resultado válido;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_report=false`;
+- `professional_emission=false`.
+
+Después de P13E, P13F permanece reservado para dinámica avanzada y no se activa automáticamente.
