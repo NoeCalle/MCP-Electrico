@@ -8,7 +8,8 @@ Reglas v1:
 - no se seleccionan contingencias automáticamente;
 - no se infieren maniobras;
 - no hay load shedding automático;
-- solo se abren/cierran Line.* y Transformer.* ya existentes;
+- se abren/cierran Line.* y Transformer.* ya existentes;
+- P12C permite habilitar/deshabilitar Load.* de forma explícita;
 - cada escenario reconstruye el modelo base y restaura exactamente su estado;
 - la continuidad de servicio usa umbrales de tensión declarados por el usuario;
 - no hay emisión profesional.
@@ -39,7 +40,7 @@ _ALLOWED_PURPOSES = {
     "OPERATING_MODE",
     "EMERGENCY",
 }
-_ALLOWED_ACTIONS = {"OPEN_ELEMENT", "CLOSE_ELEMENT"}
+_ALLOWED_ACTIONS = {"OPEN_ELEMENT", "CLOSE_ELEMENT", "DISABLE_LOAD", "ENABLE_LOAD"}
 _ALLOWED_SWITCHABLE_PREFIXES = ("line.", "transformer.")
 
 
@@ -149,17 +150,35 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
             kind = str(action.get("action") or "").strip().upper()
             element = str(action.get("element_id") or "").strip()
             if kind not in _ALLOWED_ACTIONS:
-                issues.append(_issue("P12A012", f"{apath}.action", "action debe ser OPEN_ELEMENT o CLOSE_ELEMENT."))
+                issues.append(_issue(
+                    "P12A012",
+                    f"{apath}.action",
+                    "action debe ser OPEN_ELEMENT, CLOSE_ELEMENT, DISABLE_LOAD o ENABLE_LOAD.",
+                ))
             if not element:
                 issues.append(_issue("P12A013", f"{apath}.element_id", "La maniobra requiere element_id."))
-            elif not element.lower().startswith(_ALLOWED_SWITCHABLE_PREFIXES):
-                issues.append(_issue(
-                    "P12A014",
-                    f"{apath}.element_id",
-                    "P12 v1 limita maniobras a Line.* y Transformer.*.",
-                ))
-            elif element not in switchable:
-                issues.append(_issue("P12A015", f"{apath}.element_id", "El elemento no existe en la topología declarada."))
+            elif kind in {"OPEN_ELEMENT", "CLOSE_ELEMENT"}:
+                if not element.lower().startswith(_ALLOWED_SWITCHABLE_PREFIXES):
+                    issues.append(_issue(
+                        "P12A014",
+                        f"{apath}.element_id",
+                        "OPEN/CLOSE se limita a Line.* y Transformer.*.",
+                    ))
+                elif element not in switchable:
+                    issues.append(_issue("P12A015", f"{apath}.element_id", "El elemento no existe en la topología declarada."))
+            elif kind in {"DISABLE_LOAD", "ENABLE_LOAD"}:
+                if not element.lower().startswith("load."):
+                    issues.append(_issue(
+                        "P12C001",
+                        f"{apath}.element_id",
+                        "DISABLE_LOAD/ENABLE_LOAD requiere Load.* explícito.",
+                    ))
+                elif element not in loads:
+                    issues.append(_issue(
+                        "P12C002",
+                        f"{apath}.element_id",
+                        "La carga no existe en topology.loads.",
+                    ))
 
             if element:
                 key = element.lower()
@@ -265,6 +284,70 @@ def _set_element_state(element: str, *, open_state: bool) -> None:
     dss(f"{command} {element} term=1")
 
 
+def _load_enabled_state(element: str) -> bool:
+    if not str(element).lower().startswith("load."):
+        raise ValueError(f"Se esperaba Load.*: {element}")
+    dss(f"? {element}.enabled")
+    raw = str(dss.Text.Result() or "").strip().lower()
+    if raw in {"yes", "true", "1"}:
+        return True
+    if raw in {"no", "false", "0"}:
+        return False
+    raise ValueError(f"No se pudo leer Enabled para {element}: {raw!r}")
+
+
+def _set_load_enabled_state(element: str, *, enabled: bool) -> None:
+    value = "Yes" if enabled else "No"
+    dss(f"Edit {element} Enabled={value}")
+
+
+def _capture_action_state(action: dict[str, Any]) -> dict[str, Any]:
+    kind = str(action["action"]).upper()
+    element = str(action["element_id"])
+    if kind in {"OPEN_ELEMENT", "CLOSE_ELEMENT"}:
+        return {"state_type": "OPEN_STATE", "value": _element_open_state(element)}
+    if kind in {"DISABLE_LOAD", "ENABLE_LOAD"}:
+        return {"state_type": "LOAD_ENABLED", "value": _load_enabled_state(element)}
+    raise ValueError(f"Acción P12 no soportada: {kind}")
+
+
+def _apply_explicit_action(action: dict[str, Any]) -> dict[str, Any]:
+    kind = str(action["action"]).upper()
+    element = str(action["element_id"])
+    base = {
+        "element_id": element,
+        "action": kind,
+        "source_reference": action["source_reference"],
+    }
+    if kind in {"OPEN_ELEMENT", "CLOSE_ELEMENT"}:
+        requested_open = kind == "OPEN_ELEMENT"
+        _set_element_state(element, open_state=requested_open)
+        return {**base, "effective_open_state": _element_open_state(element)}
+    if kind in {"DISABLE_LOAD", "ENABLE_LOAD"}:
+        requested_enabled = kind == "ENABLE_LOAD"
+        _set_load_enabled_state(element, enabled=requested_enabled)
+        return {**base, "effective_enabled_state": _load_enabled_state(element)}
+    raise ValueError(f"Acción P12 no soportada: {kind}")
+
+
+def _restore_action_state(element: str, state: dict[str, Any]) -> None:
+    if state["state_type"] == "OPEN_STATE":
+        _set_element_state(element, open_state=bool(state["value"]))
+        return
+    if state["state_type"] == "LOAD_ENABLED":
+        _set_load_enabled_state(element, enabled=bool(state["value"]))
+        return
+    raise ValueError(f"Tipo de estado P12 no soportado: {state.get('state_type')}")
+
+
+def _action_state_matches(element: str, state: dict[str, Any]) -> bool:
+    if state["state_type"] == "OPEN_STATE":
+        return _element_open_state(element) == bool(state["value"])
+    if state["state_type"] == "LOAD_ENABLED":
+        return _load_enabled_state(element) == bool(state["value"])
+    return False
+
+
 def _load_bus_map(manifest: dict[str, Any]) -> dict[str, str]:
     result: dict[str, str] = {}
     for item in (manifest.get("topology") or {}).get("loads") or []:
@@ -294,15 +377,17 @@ def _evaluate_service(
         maximum = float(item["maximum_voltage_pu"]) if item.get("maximum_voltage_pu") is not None else None
         min_ok = vmin_actual is not None and vmin_actual >= minimum
         max_ok = maximum is None or (vmax_actual is not None and vmax_actual <= maximum)
+        load_enabled = _load_enabled_state(load_id)
         checks.append({
             "load_id": load_id,
             "bus": bus,
+            "load_enabled": load_enabled,
             "voltage_pu": values,
             "minimum_voltage_pu": minimum,
             "maximum_voltage_pu": maximum,
             "minimum_ok": min_ok,
             "maximum_ok": max_ok,
-            "service_ok": bool(min_ok and max_ok),
+            "service_ok": bool(load_enabled and min_ok and max_ok),
             "source_reference": item["source_reference"],
         })
 
@@ -338,7 +423,10 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
         }
 
     actions = scenario.get("actions") or []
-    initial = {str(item["element_id"]): _element_open_state(str(item["element_id"])) for item in actions}
+    initial = {
+        str(item["element_id"]): _capture_action_state(item)
+        for item in actions
+    }
     revision_before = workspace_state.status().get("model_revision")
     action_results: list[dict[str, Any]] = []
     flow: dict[str, Any] | None = None
@@ -347,26 +435,18 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
 
     try:
         for item in actions:
-            element = str(item["element_id"])
-            requested_open = str(item["action"]).upper() == "OPEN_ELEMENT"
-            _set_element_state(element, open_state=requested_open)
-            action_results.append({
-                "element_id": element,
-                "action": str(item["action"]).upper(),
-                "effective_open_state": _element_open_state(element),
-                "source_reference": item["source_reference"],
-            })
+            action_results.append(_apply_explicit_action(item))
 
         flow = core.ejecutar_flujo_potencia()
         service = _evaluate_service(manifest, scenario, flow)
     except Exception as exc:
         runtime_error = f"{type(exc).__name__}: {exc}"
     finally:
-        for element, open_state in initial.items():
-            _set_element_state(element, open_state=open_state)
+        for element, state in initial.items():
+            _restore_action_state(element, state)
         dss("Solve")
 
-    restored = all(_element_open_state(element) == open_state for element, open_state in initial.items())
+    restored = all(_action_state_matches(element, state) for element, state in initial.items())
     revision_after = workspace_state.status().get("model_revision")
     restored_converged = bool(dss.Solution.Converged())
     revision_unchanged = revision_before == revision_after

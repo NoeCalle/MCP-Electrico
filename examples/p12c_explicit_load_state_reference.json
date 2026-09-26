@@ -1,0 +1,54 @@
+{
+  "project_id": "MCP-REF-SUB-01",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P12C explicit load-state scenarios",
+  "scenarios": [
+    {
+      "id": "SCN_MANUAL_SHED_NONCRITICAL_LOAD",
+      "name": "Explicit noncritical load shed",
+      "purpose": "EMERGENCY",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - manual load-state test",
+      "actions": [
+        {
+          "action": "DISABLE_LOAD",
+          "element_id": "Load.mv_process",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - explicit noncritical load shed"
+        }
+      ],
+      "service_requirements": {
+        "require_powerflow_convergence": true,
+        "critical_loads": [
+          {
+            "load_id": "Load.lv_services",
+            "minimum_voltage_pu": 0.9,
+            "maximum_voltage_pu": 1.1,
+            "source_reference": "CONTROLLED_REFERENCE_DATA - essential service voltage criterion"
+          }
+        ]
+      }
+    },
+    {
+      "id": "SCN_EXPLICIT_CRITICAL_LOAD_OFF",
+      "name": "Explicit critical load disabled",
+      "purpose": "MAINTENANCE",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - critical load state test",
+      "actions": [
+        {
+          "action": "DISABLE_LOAD",
+          "element_id": "Load.lv_services",
+          "source_reference": "CONTROLLED_REFERENCE_DATA - explicit critical load off"
+        }
+      ],
+      "service_requirements": {
+        "require_powerflow_convergence": true,
+        "critical_loads": [
+          {
+            "load_id": "Load.lv_services",
+            "minimum_voltage_pu": 0.9,
+            "maximum_voltage_pu": 1.1,
+            "source_reference": "CONTROLLED_REFERENCE_DATA - essential service voltage criterion"
+          }
+        ]
+      }
+    }
+  ]
+}
