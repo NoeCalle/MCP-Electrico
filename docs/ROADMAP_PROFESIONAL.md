@@ -24,7 +24,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
-| P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
+| P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |\n| P12 — Motores y arranque | **ACTIVA — P12A IN PROGRESS** | soporte transversal de motores y estudios de arranque, sin limitarse a una industria |
 | P12 — Operating Scenarios | **ACTIVA — P12A/P12B IN PROGRESS** | contingencias y estados operativos explícitos con restauración determinista, multiindustria |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 inicia una capa nueva y aditiva de escenarios operativos sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
@@ -44,7 +44,7 @@ P7 = READY_WITH_LIMITATIONS
 P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
-P11 = CLOSED_INTERNAL_RELEASE_SAFETY
+P11 = CLOSED_INTERNAL_RELEASE_SAFETY\nP12 = ACTIVE_P12A
 P12 = ACTIVE_P12A_P12B
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = P12_OPERATING_SCENARIOS
@@ -565,3 +565,24 @@ Principios:
 Siguientes subfases previstas: cambios explícitos de estado de cargas, fuentes alternativas/generadores, comparación batch + Workspace/dossier y, después, motores/arranque como capacidad transversal.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
+
+
+## Fase P12 — Motores y arranque
+
+**Estado: ACTIVA — P12A IN PROGRESS.**
+
+P12 es transversal y no pertenece a una industria concreta. El contrato debe ser reutilizable en manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras instalaciones con motores.
+
+P12A añade un intake separado del contrato P8/P11 congelado. De este modo la superficie pública 0.9 permanece protegida mientras la nueva capacidad evoluciona de forma versionada.
+
+Principios iniciales:
+
+```text
+starting_method != starting_current
+no silent current multipliers
+no universal voltage criterion
+static starting != dynamic acceleration
+professional_emission = false
+```
+
+Detalle: `docs/P12_MOTOR_STARTING.md`.
