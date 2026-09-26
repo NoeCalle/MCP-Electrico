@@ -72,7 +72,7 @@ Line.*
 Transformer.*
 ```
 
-Cada escenario se ejecuta desde una reconstrucción limpia del modelo base. Después de resolver el flujo y evaluar los criterios declarados, el estado inicial de cada elemento se restaura y verifica.
+Cada escenario se ejecuta desde una reconstrucción limpia del modelo base. Después de resolver el flujo y evaluar los criterios declarados, el estado inicial de cada elemento se restaura y verifica. Si la restauración, la revisión del modelo o la convergencia del estado restaurado no pueden comprobarse, P12 no promueve el resultado a PASS/FAIL.
 
 ## Fronteras v1
 
