@@ -34,7 +34,7 @@ P12F no implica por ahora que OpenModelica u otro backend esté implementado. La
 
 ## P12A — Contrato de datos
 
-**Estado: IN PROGRESS.**
+**Estado: DONE PENDING MERGE.** PR #127.
 
 El contrato vive en `mcp_electrico/motor_starting_intake.py`.
 
@@ -148,3 +148,92 @@ P12B deberá:
 8. no modificar el contexto DSS padre;
 9. no calcular tiempo de aceleración ni torque dinámico;
 10. conservar `professional_emission=false`.
+
+
+## P12B — Arranque estático aislado
+
+**Estado: IN PROGRESS.** PR #128.
+
+P12B implementa la primera capacidad de cálculo de motores sin modificar el contrato público 0.9.
+
+La secuencia es:
+
+```text
+P12A intake
+    ↓
+P8 base model materialization
+    ↓
+engine_defaults_retained = 0
+    ↓
+Save Circuit
+    ↓
+OpenDSS NewContext
+    ↓
+running motor load OFF
+    ↓
+pre-start Solve
+    ↓
+equivalent starting impedance ON
+    ↓
+starting Solve
+    ↓
+terminal voltage + voltage dip + project criterion
+```
+
+### Modelo equivalente
+
+A partir de datos explícitos:
+
+```text
+S_start = sqrt(3) * V_LL * I_start
+P_start = S_start * PF_start
+Q_start = S_start * sqrt(1 - PF_start^2)
+```
+
+P12B crea una carga temporal OpenDSS `Model=2` de impedancia constante. Los límites internos usados por esa representación se publican en el resultado (`Vminpu=0.01`, `Vmaxpu=2.0`) y no se presentan como criterios de diseño.
+
+La etiqueta del método de arranque no altera esas ecuaciones. DOL, estrella-delta, autotransformador, soft starter o VFD solo cambian el resultado si cambian los datos explícitos de corriente/PF suministrados.
+
+### Estado pre-arranque
+
+Si el modelo base contiene la carga equivalente de marcha del motor, P12B la deshabilita explícitamente antes de resolver el estado pre-arranque. Por tanto:
+
+```text
+pre-start = motor OFF + resto de cargas
+starting  = motor equivalent starting impedance + resto de cargas
+```
+
+Esto evita sumar simultáneamente la carga de marcha y la demanda de arranque.
+
+### Aislamiento
+
+Cada estudio se ejecuta en un `dss.NewContext()` independiente. P12B verifica que la ejecución temporal no cambie el circuito ni el Workspace padre después de materializar el modelo base.
+
+### Frontera de ingeniería
+
+P12B NO calcula:
+
+- tiempo de aceleración;
+- curva torque-velocidad;
+- deslizamiento;
+- inercia del conjunto;
+- torque de carga;
+- transición estrella-delta;
+- rampas/control interno de soft starter;
+- control electromecánico de VFD.
+
+Esos fenómenos requieren otra capa y datos adicionales.
+
+### Gate P12B
+
+- P12A READY;
+- base model materializado;
+- fuente positiva-secuencia explícita;
+- cero defaults OpenDSS retenidos relevantes;
+- pre-start converge;
+- starting state converge;
+- resultado reporta tensión por fase, mínimo y dip;
+- criterio usado es exclusivamente el declarado por el proyecto;
+- el contexto padre permanece intacto;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_emission=false`.
