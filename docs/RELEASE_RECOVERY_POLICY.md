@@ -83,4 +83,19 @@ Linux Python 3.11 = PASS
 Windows Python 3.12 = PASS
 ```
 
-The internal recovery chain is therefore proven. The independent external mirror remains the final operational redundancy layer and must be created separately from the active development repository.
+The internal recovery chain is therefore proven. The current recovery strategy remains inside this repository; an external mirror may be reconsidered later.
+
+
+## Current repository-only decision
+
+The active recovery strategy remains in this repository:
+
+```text
+main = active development
+stable/0.9-engineering-preview = frozen P9 recovery point
+stable/0.9-reference-validated = validated P10 recovery point
+exact commit SHAs = canonical recovery anchors
+external mirror = deferred
+```
+
+Stable recovery branches are not feature branches and must never move implicitly with `main`.
