@@ -240,7 +240,7 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
         pf = _number(raw.get("starting_power_factor"))
         if pf is not None and not (0 < pf <= 1):
             issues.append(_issue(
-                "P13A037",
+                "P13A031",
                 f"{path}.starting_power_factor",
                 "starting_power_factor debe cumplir 0 < PF <= 1.",
             ))
@@ -248,7 +248,7 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
         pf_basis = str(raw.get("starting_power_factor_basis") or "").strip().upper()
         if pf_basis and pf_basis not in ALLOWED_PF_BASES:
             issues.append(_issue(
-                "P13A036",
+                "P13A032",
                 f"{path}.starting_power_factor_basis",
                 "P13A v1 usa factor de potencia de desplazamiento fundamental para la representación P/Q estática; no modela armónicos.",
             ))
@@ -256,7 +256,7 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
         included = raw.get("base_model_includes_running_motor")
         if not isinstance(included, bool):
             issues.append(_issue(
-                "P13A037",
+                "P13A033",
                 f"{path}.base_model_includes_running_motor",
                 "Debe declararse explícitamente si el modelo base ya contiene la carga de marcha del motor.",
             ))
@@ -264,13 +264,13 @@ def evaluar_admision_motor(manifest: dict[str, Any]) -> dict[str, Any]:
         if included is True:
             if not running:
                 issues.append(_issue(
-                    "P13A036",
+                    "P13A034",
                     f"{path}.running_load_element_id",
                     "Si el modelo incluye la carga de marcha, debe identificarse exactamente el Load.* a reemplazar durante el arranque.",
                 ))
             elif loads and running.lower() not in loads:
                 issues.append(_issue(
-                    "P13A037",
+                    "P13A035",
                     f"{path}.running_load_element_id",
                     "running_load_element_id no existe en base_model.topology.loads.",
                 ))
