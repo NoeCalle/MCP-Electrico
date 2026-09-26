@@ -20,11 +20,11 @@
     "frequency_hz": 60,
     "pu": 1,
     "angle_deg": 0,
-    "scc_max_mva": null,
-    "x_r_max": null,
+    "scc_max_mva": 1000000,
+    "x_r_max": 10,
     "scc_min_mva": null,
     "x_r_min": null,
-    "source_reference": "DESIGN_BASIS - 22.9 kV, 60 Hz; utility short-circuit strength remains TBC"
+    "source_reference": "MODEL_PLACEHOLDER_STIFF_SOURCE - 22.9 kV, 60 Hz design voltage; Scc=1,000,000 MVA is a numerical stiff-source model only, NOT utility fault data; utility Scc/XR remain TBC"
   },
   "topology": {
     "buses": [
@@ -135,8 +135,8 @@
         "bus2": "bus_4k16_A_load",
         "phases": 3,
         "length_km": 1,
-        "r1_ohm_km": 0,
-        "x1_ohm_km": 0,
+        "r1_ohm_km": 0.000001,
+        "x1_ohm_km": 0.000001,
         "c1_nf_km": 0,
         "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; cable route/R/X remain TBC and voltage-drop study is intentionally out of scope"
       },
@@ -146,8 +146,8 @@
         "bus2": "bus_4k16_B_load",
         "phases": 3,
         "length_km": 1,
-        "r1_ohm_km": 0,
-        "x1_ohm_km": 0,
+        "r1_ohm_km": 0.000001,
+        "x1_ohm_km": 0.000001,
         "c1_nf_km": 0,
         "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; cable route/R/X remain TBC and voltage-drop study is intentionally out of scope"
       },
@@ -157,8 +157,8 @@
         "bus2": "bus_480_A_load",
         "phases": 3,
         "length_km": 1,
-        "r1_ohm_km": 0,
-        "x1_ohm_km": 0,
+        "r1_ohm_km": 0.000001,
+        "x1_ohm_km": 0.000001,
         "c1_nf_km": 0,
         "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; LV feeder data remain TBC and voltage-drop study is intentionally out of scope"
       },
@@ -168,8 +168,8 @@
         "bus2": "bus_480_B_load",
         "phases": 3,
         "length_km": 1,
-        "r1_ohm_km": 0,
-        "x1_ohm_km": 0,
+        "r1_ohm_km": 0.000001,
+        "x1_ohm_km": 0.000001,
         "c1_nf_km": 0,
         "source_reference": "MODEL_PLACEHOLDER_IDEAL_LINK - unit length has no physical meaning; LV feeder data remain TBC and voltage-drop study is intentionally out of scope"
       }
@@ -305,7 +305,7 @@
     },
     "excluded_claims": [
       "No cable voltage-drop claim: route/length/R/X are pending.",
-      "No utility short-circuit claim: Scc and X/R are pending.",
+      "No utility short-circuit claim: Scc and X/R are pending; the source is intentionally modeled as a numerical stiff-source placeholder.",
       "No finalized TR-AUX vector group, impedance, grounding or tap claim.",
       "No N-1 contingency solved in this NORMAL base case.",
       "No professional emission."
