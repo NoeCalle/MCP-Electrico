@@ -30,6 +30,7 @@ from . import (
     ampacity,
     conductor_library,
     core,
+    model_placeholders,
     professional_data,
     protection_curves,
     protection_data,
@@ -216,6 +217,7 @@ def _reset_runtime_state() -> list[str]:
     professional_data.reset()
     zero_sequence.reset()
     conductor_library.reset()
+    model_placeholders.reset()
     ampacity.reset()
     protection_data.reset()
     protection_curves.reset()
@@ -225,6 +227,7 @@ def _reset_runtime_state() -> list[str]:
         "professional_data",
         "zero_sequence",
         "conductor_library",
+        "model_placeholders",
         "ampacity",
         "protection_data",
         "protection_curves",
@@ -328,6 +331,8 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
         "p8b_intake_status": admission["intake_status"],
         "requested_scope": deepcopy(admission.get("requested_scope") or []),
         "electrical_calculation_performed": False,
+        "solve_performed": False,
+        "workspace_file_written": False,
         "studies_executed": [],
         "automatic_defaults": False,
         "automatic_dispatch": False,
@@ -531,6 +536,9 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
             "engine_defaults_retained": dependencies,
             "engine_defaults_retained_count": len(dependencies),
             "workspace": workspace_state.status(),
+            "model_placeholders": model_placeholders.snapshot(),
+            "study_readiness_evaluated": False,
+            "model_ready_for_study": False,
             "note": (
                 "Modelo construido y no resuelto. engine_defaults_retained identifica parámetros opcionales "
                 "que el MCP no inventó y que deben cerrarse antes del gate de ejecución que los requiera."
