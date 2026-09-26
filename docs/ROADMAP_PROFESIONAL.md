@@ -24,10 +24,11 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P8 — Engineering Preview 0.9 | **CERRADA — P8A–P8F DONE** | uso operativo controlado en proyectos reales |
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
-| P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo pendiente |
+| P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
+| P13 — Motores y arranque | **ACTIVA — P13A IN PROGRESS** | contrato fail-closed y estudios de arranque estático, multiindustria |
 
-**Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 inicia una capa nueva y aditiva de escenarios operativos sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
+**Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Estado actual:**
 
@@ -46,8 +47,9 @@ P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = ACTIVE_P12D
+P13 = ACTIVE_P13A
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P12_OPERATING_SCENARIOS
+next_activity = P12_OPERATING_SCENARIOS_AND_P13_MOTOR_STARTING
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -512,7 +514,7 @@ P11A registró el cierre P10G en `stable/0.9-reference-validated`. P11B congeló
 
 P11A–P11D quedan cerradas. La baseline validada puede exportarse por SHA exacto, verificarse por SHA-256, restaurarse desde Git bundle sin GitHub y volver a ejecutar el smoke integral P10G.
 
-El repositorio espejo independiente continúa como una acción operacional externa y no como deuda del core:
+El repositorio espejo independiente queda diferido por decisión del proyecto y no bloquea el desarrollo del core:
 
 ```text
 stable/0.9-engineering-preview
@@ -562,6 +564,38 @@ Principios:
 - un resultado FAIL es una conclusión válida del escenario, no un error del solver;
 - el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
 
-P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor de escenarios mediante tools MCP públicas versionadas; después siguen fuentes alternativas/generadores, comparación batch + Workspace/dossier y motores/arranque como capacidad transversal.
+P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor de escenarios mediante tools MCP públicas versionadas; después siguen fuentes alternativas/generadores y comparación batch + Workspace/dossier. Motores y arranque se desarrollan por separado en P13.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
+
+## Fase P13 — Motores y arranque
+
+**Estado: ACTIVA — P13A IN PROGRESS.**
+
+P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
+
+La primera frontera es deliberadamente estática y fail-closed:
+
+```text
+base_model P8 admisible
+    ↓
+motor con corriente y PF de arranque explícitos
+    ↓
+estudio STATIC_MOTOR_STARTING_VOLTAGE_DIP
+    ↓
+criterio de tensión declarado por el proyecto
+    ↓
+P13B construirá el cálculo estático aislado
+```
+
+P13A no calcula flujo ni dinámica, no deriva corriente desde DOL/estrella-delta/soft starter/VFD y no inventa defaults. La carga de marcha existente debe declararse explícitamente para evitar doble contabilización.
+
+```text
+automatic_starting_current_derivation = false
+automatic_defaults = false
+automatic_dispatch = false
+crosscheck = false
+professional_emission = false
+```
+
+Detalle: `docs/P13_MOTOR_STARTING.md`.
