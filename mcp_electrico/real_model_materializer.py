@@ -30,6 +30,7 @@ from . import (
     ampacity,
     conductor_library,
     core,
+    model_placeholders,
     professional_data,
     protection_curves,
     protection_data,
@@ -216,6 +217,7 @@ def _reset_runtime_state() -> list[str]:
     professional_data.reset()
     zero_sequence.reset()
     conductor_library.reset()
+    model_placeholders.reset()
     ampacity.reset()
     protection_data.reset()
     protection_curves.reset()
@@ -225,6 +227,7 @@ def _reset_runtime_state() -> list[str]:
         "professional_data",
         "zero_sequence",
         "conductor_library",
+        "model_placeholders",
         "ampacity",
         "protection_data",
         "protection_curves",
@@ -279,6 +282,42 @@ def _evidence() -> dict[str, Any]:
     }
 
 
+
+def evaluar_preflight_materializacion(manifest: dict[str, Any]) -> dict[str, Any]:
+    """Valida P8B + serialización P8C3B sin mutar OpenDSS ni workspace."""
+    if not isinstance(manifest, dict):
+        raise TypeError("manifest debe ser dict.")
+
+    manifest_copy = deepcopy(manifest)
+    admission = real_pilot_intake.evaluar_admision(manifest_copy)
+    base = {
+        "schema": "MCP_ELECTRICO_P8C3B_PREFLIGHT_V1",
+        "p8b_intake_status": admission["intake_status"],
+        "model_mutation_performed": False,
+        "electrical_calculation_performed": False,
+        "solve_performed": False,
+        "workspace_file_written": False,
+        "automatic_defaults": False,
+        "professional_emission": False,
+    }
+    if not admission.get("ready_to_build_model"):
+        return {
+            **base,
+            "status": STATUS_BLOCKED_INTAKE,
+            "ready_to_materialize": False,
+            "issues": deepcopy(admission.get("issues") or []),
+            "p8b": admission,
+        }
+
+    issues = _preflight(manifest_copy)
+    return {
+        **base,
+        "status": "READY_TO_MATERIALIZE" if not issues else STATUS_BLOCKED_PREFLIGHT,
+        "ready_to_materialize": not issues,
+        "issues": issues,
+        "p8b": admission,
+    }
+
 def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
     """Construye OpenDSS/P2/Z0 a partir de un manifiesto admitido, sin Solve."""
     if not isinstance(manifest, dict):
@@ -292,6 +331,8 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
         "p8b_intake_status": admission["intake_status"],
         "requested_scope": deepcopy(admission.get("requested_scope") or []),
         "electrical_calculation_performed": False,
+        "solve_performed": False,
+        "workspace_file_written": False,
         "studies_executed": [],
         "automatic_defaults": False,
         "automatic_dispatch": False,
@@ -495,6 +536,9 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
             "engine_defaults_retained": dependencies,
             "engine_defaults_retained_count": len(dependencies),
             "workspace": workspace_state.status(),
+            "model_placeholders": model_placeholders.snapshot(),
+            "study_readiness_evaluated": False,
+            "model_ready_for_study": False,
             "note": (
                 "Modelo construido y no resuelto. engine_defaults_retained identifica parámetros opcionales "
                 "que el MCP no inventó y que deben cerrarse antes del gate de ejecución que los requiera."

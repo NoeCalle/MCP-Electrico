@@ -22,6 +22,7 @@ from . import (
     ampacity,
     conductor_library,
     core,
+    model_placeholders,
     professional_data,
     protection_data,
     visual_state,
@@ -117,6 +118,7 @@ def _reset_auxiliary_state() -> None:
     """Limpia estados ligados al modelo después de crear un Circuit nuevo."""
     visual_state.reset()
     conductor_library.reset()
+    model_placeholders.reset()
     professional_data.reset()
     zero_sequence.reset()
     ampacity.reset()
