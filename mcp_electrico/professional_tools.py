@@ -7,7 +7,9 @@ from . import (
     engine_selection,
     iec60909_tools,
     model_qa,
+    operating_scenario_dossier_tools,
     operating_scenario_tools,
+    motor_starting_tools,
     p2_completion,
     p5_completion_tools,
     professional_data,
@@ -283,3 +285,5 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     real_pilot_intake_tools.register(mcp)
     real_model_tools.register(mcp)
     operating_scenario_tools.register(mcp)
+    operating_scenario_dossier_tools.register(mcp)
+    motor_starting_tools.register(mcp)

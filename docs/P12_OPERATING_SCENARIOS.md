@@ -103,7 +103,7 @@ Caso de prueba: `examples/p12c_explicit_load_state_reference.json`.
 
 ## P12D — Tools MCP para escenarios
 
-**Estado: IN PROGRESS.**
+**Estado: DONE.** PR #129.
 
 P12D expone la capa de escenarios mediante tres tools aditivas:
 
@@ -117,12 +117,127 @@ La interfaz MCP no contiene un segundo motor eléctrico ni replica la lógica de
 
 Esto no modifica el contrato congelado de primer uso P8/P11; agrega una capacidad nueva y versionada.
 
+## P12E — Fuentes alternativas y transferencia declarada
+
+**Estado: DONE — integrada con P12F en el cierre operativo local.**
+
+P12E incorpora fuentes alternativas sin asociarlas a una industria concreta. La misma representación puede usarse para una fuente de respaldo en un hospital, data center, planta de manufactura, estación de bombeo, instalación de oil & gas, mina u otra red privada.
+
+Foundation v1 representa cada fuente alternativa como:
+
+```text
+source_type = THEVENIN_VSOURCE_EQUIVALENT
+engine      = OpenDSS Vsource
+sequence    = POSITIVE_SEQUENCE_FOR_POWER_FLOW
+initial     = DISABLED
+```
+
+Cada fuente declara explícitamente barra, tensión, pu, ángulo, Scc trifásica, X/R, elementos de aislamiento requeridos y procedencia. P12E no deriva fortaleza de red ni datos dinámicos.
+
+Las nuevas acciones son:
+
+```text
+ENABLE_ALT_SOURCE
+DISABLE_ALT_SOURCE
+```
+
+### Break-before-make obligatorio
+
+P12E v1 no admite transición cerrada ni paralelismo implícito de fuentes. Antes de `ENABLE_ALT_SOURCE`, todos los elementos listados en `required_isolation_elements` deben haber recibido una acción `OPEN_ELEMENT` previa dentro del mismo escenario.
+
+Por ejemplo:
+
+```text
+OPEN_ELEMENT Transformer.t2_aux
+        ↓
+ENABLE_ALT_SOURCE Vsource.backup_480
+        ↓
+Solve
+        ↓
+critical-service checks
+```
+
+Invertir ese orden bloquea el paquete antes de ejecutar cálculo.
+
+También se bloquea cerrar un aislamiento con su fuente alternativa activa y
+habilitar simultáneamente fuentes alternativas que compartan barra o elementos
+de aislamiento. Un escenario estático no admite repetir maniobras sobre un
+elemento para representar una transferencia temporal de ida y retorno.
+
+La capa no modela sincronismo, gobernador, AVR, control de inversor, reparto de carga entre fuentes ni dinámica de black-start. Es una representación estática explícita para flujo de potencia.
+
+## P12F — Comparación, Workspace y dossier reproducible
+
+**Estado: DONE — expediente verificado desde los clientes MCP stdio y HTTP.**
+
+P12F congela el conjunto de escenarios ya ejecutado sin introducir nuevas decisiones automáticas.
+
+La ruta de entrega es:
+
+```text
+manifest eléctrico
+      +
+paquete P12 explícito
+      ↓
+ejecución de escenarios
+      ↓
+PASS / FAIL por escenario
+      ↓
+Workspace estático de comparación
+      ↓
+snapshot P7A del modelo restaurado
+      ↓
+reconstrucción P7B en contexto aislado
+      ↓
+índice SHA-256 del dossier P12
+```
+
+Un escenario `FAIL` puede formar parte de un dossier válido: significa que el estado declarado no satisface los requisitos de servicio. P12F solo bloquea el dossier si un escenario no pudo ejecutarse o si la restauración del modelo no quedó verificada.
+
+El dossier P12 contiene:
+
+```text
+electrical_manifest.json
+scenario_package.json
+scenario_execution.json
+scenario_workspace.html
+scenario_report.html
+base_snapshot_p7a.json
+base_reconstruction_p7b.json
+p7a_netlist/
+p7b_reconstructed/
+scenario_dossier_integrity.json
+```
+
+El Workspace y el reporte consumen resultados congelados. El navegador no ejecuta flujo, no selecciona contingencias y no modifica resultados.
+
+La salida es collision-safe: una segunda entrega usa sufijo incremental y no sobrescribe la primera.
+
+### Criterios de cierre P12F
+
+- todos los escenarios del paquete terminan como resultados válidos PASS/FAIL;
+- restauración verificable después de cada escenario;
+- Workspace de comparación generado sin cálculo en navegador;
+- snapshot P7A = `HASH_MATCH`;
+- reconstrucción P7B aislada y verificada;
+- SHA-256 cubre exactamente el file-set del dossier;
+- alteración de cualquier archivo rompe la verificación;
+- repetición no sobrescribe el primer dossier;
+- Linux/Python 3.11 y Windows/Python 3.12 pasan CI;
+- `professional_report=false`;
+- `professional_emission=false`.
+
+P12 Operating Scenarios queda cerrada como capability foundation. Motores y arranque se desarrollan en P13.
+
 ## Fronteras v1
 
 ```text
 automatic_contingency_selection = false
 automatic_switching = false
 automatic_load_shedding = false
+automatic_source_selection = false
+automatic_transfer = false
+closed_transition_transfer = false
 crosscheck = false
 professional_emission = false
 ```
@@ -146,6 +261,4 @@ Uno abre un feeder no esencial para la carga crítica BT y debe conservar el ser
 
 ## Próximas subfases
 
-- P12E — fuentes alternativas/generadores y transferencia declarada;
-- P12F — comparación batch, Workspace y dossier de escenarios;
-- fase posterior — motores y arranque dinámico, sin acoplarlo a una industria concreta.
+- P13 — motores y arranque como capacidad transversal independiente, sin acoplarla a una industria concreta.

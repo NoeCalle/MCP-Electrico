@@ -24,7 +24,8 @@ def main() -> None:
         json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
     )
-    print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
+    # ASCII JSON also works with redirected Windows consoles using cp1252.
+    print(json.dumps(report, ensure_ascii=True, indent=2, sort_keys=True))
     if not report.get("pass"):
         raise SystemExit(1)
 

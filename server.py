@@ -9,6 +9,7 @@ selección automática en esta fase.
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 from mcp_electrico import (
@@ -32,7 +33,7 @@ except ImportError:
     from mcp.server.mcpserver import MCPServer as _MCPServerClass
 
 
-mcp = _MCPServerClass("opendss-mcp")
+mcp = _MCPServerClass("opendss-mcp", max_sessions=1, session_idle_timeout=None)
 
 
 def _enhance_workspace_if_present() -> dict:
@@ -535,9 +536,19 @@ professional_tools.register(
 conductor_tools.register(mcp, _refresh_after_model_change)
 
 
-def main() -> None:
-    """Entrypoint instalable para `mcp-electrico` y ejecución directa."""
-    mcp.run()
+def main(argv: list[str] | None = None) -> None:
+    """Start one local engineering workspace over stdio or Streamable HTTP."""
+    parser = argparse.ArgumentParser(description="MCP Eléctrico — servidor local")
+    parser.add_argument("--transport", choices=["stdio", "streamable-http"], default="stdio")
+    parser.add_argument("--host", choices=["127.0.0.1", "::1"], default="127.0.0.1")
+    parser.add_argument("--port", type=int, default=8765)
+    args = parser.parse_args(argv)
+    if not 1 <= args.port <= 65535:
+        parser.error("El puerto debe estar entre 1 y 65535.")
+    mcp.settings.host = args.host
+    mcp.settings.port = args.port
+    mcp.settings.json_response = True
+    mcp.run(transport=args.transport)
 
 
 if __name__ == "__main__":

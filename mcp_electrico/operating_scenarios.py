@@ -23,7 +23,7 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import core, real_model_materializer, workspace_state
+from . import core, operating_alternative_sources, real_model_materializer, workspace_state
 
 SCHEMA = "MCP_ELECTRICO_P12_OPERATING_SCENARIOS_V1"
 STATUS_READY = "READY_FOR_SCENARIO_EXECUTION"
@@ -40,7 +40,7 @@ _ALLOWED_PURPOSES = {
     "OPERATING_MODE",
     "EMERGENCY",
 }
-_ALLOWED_ACTIONS = {"OPEN_ELEMENT", "CLOSE_ELEMENT", "DISABLE_LOAD", "ENABLE_LOAD"}
+_ALLOWED_ACTIONS = {"OPEN_ELEMENT", "CLOSE_ELEMENT", "DISABLE_LOAD", "ENABLE_LOAD", "ENABLE_ALT_SOURCE", "DISABLE_ALT_SOURCE"}
 _ALLOWED_SWITCHABLE_PREFIXES = ("line.", "transformer.")
 
 
@@ -53,11 +53,16 @@ def obtener_contrato() -> dict[str, Any]:
         "allowed_actions": sorted(_ALLOWED_ACTIONS),
         "topology_switching_scope": ["Line.*", "Transformer.*"],
         "load_state_scope": ["Load.*"],
+        "alternative_source_scope": ["Vsource.* / THEVENIN_VSOURCE_EQUIVALENT"],
+        "transfer_policy": "EXPLICIT_BREAK_BEFORE_MAKE_ONLY",
         "scenario_isolation": "REBUILD_BASE_BEFORE_EACH_SCENARIO",
         "service_rule": "LOAD_ENABLED_AND_DECLARED_VOLTAGE_LIMITS",
         "automatic_contingency_selection": False,
         "automatic_switching": False,
         "automatic_load_shedding": False,
+        "automatic_source_selection": False,
+        "automatic_transfer": False,
+        "closed_transition_transfer": False,
         "automatic_restoration_optimization": False,
         "crosscheck": False,
         "professional_emission": False,
@@ -116,6 +121,8 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
 
     issues: list[dict[str, str]] = []
     switchable, loads = _topology_index(manifest)
+    issues.extend(operating_alternative_sources.validate_sources(manifest, package, switchable))
+    alternative_sources = operating_alternative_sources.source_map(package)
 
     project_id = str((manifest.get("project") or {}).get("id") or "").strip()
     declared_project = str(package.get("project_id") or "").strip()
@@ -177,7 +184,7 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
                 issues.append(_issue(
                     "P12A012",
                     f"{apath}.action",
-                    "action debe ser OPEN_ELEMENT, CLOSE_ELEMENT, DISABLE_LOAD o ENABLE_LOAD.",
+                    "action debe ser OPEN_ELEMENT, CLOSE_ELEMENT, DISABLE_LOAD, ENABLE_LOAD, ENABLE_ALT_SOURCE o DISABLE_ALT_SOURCE.",
                 ))
             if not element:
                 issues.append(_issue("P12A013", f"{apath}.element_id", "La maniobra requiere element_id."))
@@ -203,6 +210,14 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
                         f"{apath}.element_id",
                         "La carga no existe en topology.loads.",
                     ))
+            elif kind in operating_alternative_sources.ALLOWED_SOURCE_ACTIONS:
+                normalized_source = operating_alternative_sources.normalize_source_id(element)
+                if normalized_source.lower() not in alternative_sources:
+                    issues.append(_issue(
+                        "P12E022",
+                        f"{apath}.element_id",
+                        "ENABLE/DISABLE_ALT_SOURCE requiere una fuente alternativa declarada.",
+                    ))
 
             if element:
                 key = element.lower()
@@ -216,6 +231,14 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
 
             if not _present(action.get("source_reference")):
                 issues.append(_issue("P12A017", f"{apath}.source_reference", "Cada maniobra requiere procedencia explícita."))
+
+        issues.extend(
+            operating_alternative_sources.validate_source_action_sequence(
+                scenario,
+                package,
+                scenario_index=i,
+            )
+        )
 
         requirements = scenario.get("service_requirements")
         if not isinstance(requirements, dict):
@@ -293,6 +316,8 @@ def validar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[s
         "automatic_contingency_selection": False,
         "automatic_switching": False,
         "automatic_load_shedding": False,
+        "automatic_source_selection": False,
+        "automatic_transfer": False,
         "professional_emission": False,
     }
 
@@ -332,6 +357,8 @@ def _capture_action_state(action: dict[str, Any]) -> dict[str, Any]:
         return {"state_type": "OPEN_STATE", "value": _element_open_state(element)}
     if kind in {"DISABLE_LOAD", "ENABLE_LOAD"}:
         return {"state_type": "LOAD_ENABLED", "value": _load_enabled_state(element)}
+    if kind in operating_alternative_sources.ALLOWED_SOURCE_ACTIONS:
+        return operating_alternative_sources.capture_action_state(action)
     raise ValueError(f"Acción P12 no soportada: {kind}")
 
 
@@ -351,6 +378,8 @@ def _apply_explicit_action(action: dict[str, Any]) -> dict[str, Any]:
         requested_enabled = kind == "ENABLE_LOAD"
         _set_load_enabled_state(element, enabled=requested_enabled)
         return {**base, "effective_enabled_state": _load_enabled_state(element)}
+    if kind in operating_alternative_sources.ALLOWED_SOURCE_ACTIONS:
+        return operating_alternative_sources.apply_source_action(action)
     raise ValueError(f"Acción P12 no soportada: {kind}")
 
 
@@ -361,6 +390,9 @@ def _restore_action_state(element: str, state: dict[str, Any]) -> None:
     if state["state_type"] == "LOAD_ENABLED":
         _set_load_enabled_state(element, enabled=bool(state["value"]))
         return
+    if state["state_type"] == "ALT_SOURCE_ENABLED":
+        operating_alternative_sources.restore_source_state(element, state)
+        return
     raise ValueError(f"Tipo de estado P12 no soportado: {state.get('state_type')}")
 
 
@@ -369,6 +401,8 @@ def _action_state_matches(element: str, state: dict[str, Any]) -> bool:
         return _element_open_state(element) == bool(state["value"])
     if state["state_type"] == "LOAD_ENABLED":
         return _load_enabled_state(element) == bool(state["value"])
+    if state["state_type"] == "ALT_SOURCE_ENABLED":
+        return operating_alternative_sources.source_state_matches(element, state)
     return False
 
 
@@ -427,7 +461,7 @@ def _evaluate_service(
     }
 
 
-def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str, Any]:
+def _execute_one(manifest: dict[str, Any], package: dict[str, Any], scenario: dict[str, Any]) -> dict[str, Any]:
     build = real_model_materializer.materializar_modelo(deepcopy(manifest))
     if build.get("materializer_status") != real_model_materializer.STATUS_BUILT:
         return {
@@ -445,6 +479,8 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
             "model_restored": False,
             "professional_emission": False,
         }
+
+    alternative_sources_materialized = operating_alternative_sources.materialize_sources(manifest, package)
 
     actions = scenario.get("actions") or []
     initial = {
@@ -487,6 +523,8 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
             "automatic_contingency_selection": False,
             "automatic_switching": False,
             "automatic_load_shedding": False,
+            "automatic_source_selection": False,
+            "automatic_transfer": False,
             "professional_emission": False,
         }
 
@@ -509,6 +547,8 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
             "automatic_contingency_selection": False,
             "automatic_switching": False,
             "automatic_load_shedding": False,
+            "automatic_source_selection": False,
+            "automatic_transfer": False,
             "professional_emission": False,
         }
 
@@ -527,9 +567,12 @@ def _execute_one(manifest: dict[str, Any], scenario: dict[str, Any]) -> dict[str
         "restored_powerflow_converged": restored_converged,
         "model_revision_unchanged": revision_unchanged,
         "explicit_actions_only": True,
+        "alternative_sources_materialized": alternative_sources_materialized,
         "automatic_contingency_selection": False,
         "automatic_switching": False,
         "automatic_load_shedding": False,
+        "automatic_source_selection": False,
+        "automatic_transfer": False,
         "crosscheck": False,
         "professional_emission": False,
     }
@@ -548,10 +591,12 @@ def ejecutar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[
             "automatic_contingency_selection": False,
             "automatic_switching": False,
             "automatic_load_shedding": False,
+            "automatic_source_selection": False,
+            "automatic_transfer": False,
             "professional_emission": False,
         }
 
-    results = [_execute_one(manifest, scenario) for scenario in package["scenarios"]]
+    results = [_execute_one(manifest, package, scenario) for scenario in package["scenarios"]]
     executed = [item for item in results if item.get("execution_status") == "SCENARIO_EXECUTED"]
     return {
         "schema": SCHEMA,
@@ -571,6 +616,8 @@ def ejecutar_paquete(manifest: dict[str, Any], package: dict[str, Any]) -> dict[
         "automatic_contingency_selection": False,
         "automatic_switching": False,
         "automatic_load_shedding": False,
+        "automatic_source_selection": False,
+        "automatic_transfer": False,
         "crosscheck": False,
         "professional_emission": False,
     }
