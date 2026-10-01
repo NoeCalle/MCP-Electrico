@@ -63,7 +63,9 @@ def test_public_engineering_flow(transport, tmp_path, request):
     assert completed.returncode == 0, completed.stdout + completed.stderr
     summary = json.loads((tmp_path / "dossiers" / "verification.json").read_text(encoding="utf-8"))
     assert summary["status"] == "LOCAL_MCP_VERIFIED"
-    assert summary["public_tool_count"] >= 124
+    assert summary["public_tool_count"] >= 127
+    assert summary["dynamic_input_preparation_verified"] is True
+    assert summary["dynamic_backend_qualified"] is False
     assert summary["parent_workspace_preserved"] is True
     assert summary["all_dossier_hashes_verified"] is True
 

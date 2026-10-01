@@ -26,7 +26,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
-| P13 — Motores y arranque | **CERRADA ESTÁTICA — P13A–P13E DONE** | intake, arranque estático, perfiles, secuencias, Workspace y dossier replay-verificado |
+| P13 — Motores y arranque | **P13A–P13E DONE; P13F1 PREPARACIÓN DONE** | estudios estáticos y dossier; entradas físicas/plan dinámico preparados, backend pendiente |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
@@ -49,9 +49,11 @@ P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
+P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
+P13F2 = NEXT_DYNAMIC_BACKEND_QUALIFICATION
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = CONTROLLED_LOCAL_PROJECT_USE
+next_activity = P13F2_DYNAMIC_BACKEND_QUALIFICATION
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -572,7 +574,7 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: CERRADA ESTÁTICA — P13A–P13E DONE; acceso MCP público verificado.**
+**Estado: P13A–P13E DONE; P13F1 PREPARACIÓN FÍSICA DONE; acceso MCP público verificado.**
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 
@@ -604,13 +606,20 @@ professional_emission = false
 
 Detalle: `docs/P13_MOTOR_STARTING.md`.
 
+P13F se reactivó el 2026-09-30 para preparar dinámica avanzada. P13F1 añade
+datos físicos SI, vínculo SHA al manifiesto, controles de admisión,
+dos referencias mecánicas analíticas y plan de calificación independiente.
+P13F2 calificará el backend; P13F3 acoplará la red; P13F4 implementará estudios
+y P13F5 entregará Workspace/dossier. La ejecución dinámica permanece bloqueada.
+Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
+
 ## Fase P14 — Runtime e integración local
 
 **Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
 
 P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B
 incorpora Streamable HTTP limitado a loopback, stdio compatible, arranque oculto
-y detención Windows. El cliente real descubre 124 tools y verifica flujo,
+y detención Windows. El cliente real descubre 127 tools y verifica flujo,
 expedientes P8/P12/P13, replay e integridad. Los tests de protocolo se ejecutan
 en CI Windows/Linux. Detalle: `docs/P14_LOCAL_RUNTIME.md`.
 

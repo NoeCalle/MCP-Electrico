@@ -1,0 +1,76 @@
+{
+  "schema": "MCP_ELECTRICO_P13F_DYNAMIC_PACKAGE_V1",
+  "project_id": "MCP-REF-MOTOR-MULTI-01",
+  "manifest_sha256": "037ca79899cfe53f7941997dc865bc00cc8c1a40fda0619104709d27f625b86c",
+  "scope": "BALANCED_THREE_PHASE_SQUIRREL_CAGE_DOL",
+  "source_reference": "CONTROLLED_REFERENCE_DATA - P13F1 physical input preparation, not manufacturer data",
+  "simulation": {
+    "time_grid": "FIXED_STEP",
+    "duration_s": 10,
+    "time_step_s": 0.001,
+    "maximum_steps": 10000,
+    "source_reference": "CONTROLLED_REFERENCE_DATA - qualification time window"
+  },
+  "motors": [
+    {
+      "motor_id": "Motor.m01",
+      "machine_type": "SQUIRREL_CAGE_INDUCTION",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - explicit synthetic machine parameters; not fitted from starting current",
+      "electrical": {
+        "parameter_basis": "PER_PHASE_STATOR_REFERRED_SI",
+        "pole_pairs": 2,
+        "frequency_hz": 60,
+        "stator_resistance_ohm": 0.07,
+        "rotor_resistance_ohm": 0.1,
+        "stator_leakage_inductance_h": 0.0008,
+        "rotor_leakage_inductance_h": 0.0008,
+        "magnetizing_inductance_h": 0.008,
+        "stator_temperature_k": 348.15,
+        "rotor_temperature_k": 348.15,
+        "temperature_model": "FIXED_AT_DECLARED_OPERATING_TEMPERATURE",
+        "saturation_model": "LINEAR_EXPLICIT",
+        "core_loss_model": "EXCLUDED_EXPLICIT",
+        "stray_loss_model": "EXCLUDED_EXPLICIT",
+        "source_reference": "CONTROLLED_REFERENCE_DATA - resistances at declared operating temperatures and stator-referred per-phase inductances"
+      },
+      "mechanical": {
+        "inertia_basis": "MOTOR_SHAFT_SI",
+        "motor_inertia_kg_m2": 2.5,
+        "load_inertia_kg_m2": 7.5,
+        "viscous_damping_nm_s_per_rad": 0,
+        "curve_interpolation": "LINEAR_EXPLICIT",
+        "curve_extrapolation": "BLOCK",
+        "load_curve": [
+          {
+            "speed_rad_s": 0,
+            "torque_nm": 100
+          },
+          {
+            "speed_rad_s": 100,
+            "torque_nm": 300
+          },
+          {
+            "speed_rad_s": 200,
+            "torque_nm": 600
+          }
+        ],
+        "source_reference": "CONTROLLED_REFERENCE_DATA - load inertia and positive resisting torque referred to motor shaft"
+      },
+      "initial_state": {
+        "mode": "DEENERGIZED_AT_REST",
+        "speed_rad_s": 0,
+        "source_reference": "CONTROLLED_REFERENCE_DATA - zero-speed deenergized initialization"
+      }
+    }
+  ],
+  "studies": [
+    {
+      "id": "DYNAMIC-M01",
+      "motor_id": "Motor.m01",
+      "target_speed_fraction": 0.95,
+      "maximum_acceleration_time_s": 8,
+      "minimum_terminal_voltage_pu": 0.8,
+      "criterion_reference": "CONTROLLED_REFERENCE_DATA - explicit qualification target; not an achieved dynamic result"
+    }
+  ]
+}

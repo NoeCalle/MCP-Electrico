@@ -58,9 +58,14 @@ SHA-256 y preservación del Workspace padre. Conserva `verification.json` y los
 expedientes HTML/JSON/SVG. Se prueban ambos transportes, exclusión de otra sesión,
 liberación de la sesión y rechazo de Host/Origin externos.
 
+La ampliación P13F1 verifica también las tres herramientas de preparación
+dinámica, la admisión del fixture físico y un plan de backend todavía sin
+calificar. Guarda `dynamic_preparation.json` conservando el Workspace padre.
+
 ## Alcance de cierre
 
 Engineering Preview operativa local; `professional_emission=false`. P12 queda
 cerrada como foundation de escenarios estáticos explícitos. P13A–P13E quedan
-cerradas con acceso MCP público. IEEE 1584 y dinámica electromecánica avanzada
-continúan diferidas. El cierre no añade datos normativos ni defaults implícitos.
+cerradas con acceso MCP público. P13F1 prepara entradas y validación para
+dinámica electromecánica; su backend y ejecución siguen pendientes. IEEE 1584
+continúa diferido. El cierre no añade datos normativos ni defaults implícitos.
