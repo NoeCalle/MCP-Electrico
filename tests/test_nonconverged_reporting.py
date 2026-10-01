@@ -83,3 +83,18 @@ def test_public_server_marks_failed_studies_invalid(limited_solver, tmp_path):
         assert "ERROR ELÉCTRICO" in target.read_text(encoding="utf-8")
     finally:
         workspace._config.update(path=tmp_path / "unused.html", auto_regenerate=False)
+
+
+def test_failed_diagram_does_not_read_or_color_invalid_voltages(limited_solver, tmp_path, monkeypatch):
+    from mcp_electrico import visualization, visual_symbols
+    assert core.ejecutar_flujo_potencia()["convergio"] is False
+    def reject_read(*args, **kwargs):
+        pytest.fail("The diagram must not read invalid last-iterate voltages")
+    monkeypatch.setattr(type(dss.Bus), "puVmagAngle", reject_read)
+    assert visualization._bus_info("sourcebus")["vpu"] is None
+    assert visualization._voltage_color(True, None) == visual_symbols.DIM
+    result = visualization.generar_diagrama_unifilar(
+        str(tmp_path / "failed.svg"), modo="diagnostico"
+    )
+    assert result["resultados_electricos_disponibles"] is False
+    assert "NO EVALUABLE" in (tmp_path / "failed.svg").read_text(encoding="utf-8")

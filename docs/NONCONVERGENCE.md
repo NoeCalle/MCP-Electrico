@@ -10,6 +10,8 @@ solver devuelve `voltajes_por_bus={}` y pérdidas `null`, junto con
 `evaluacion_sobrecarga=NO_EVALUABLE`. No publica el último intento como resultado.
 Los estudios de flujo y caída no leen sus corrientes ni clasifican límites.
 El workspace marca esos estudios como inválidos incluso en la revisión actual.
+El unifilar no lee tensiones del intento fallido ni las colorea como aceptadas
+o fuera de rango; el modo diagnóstico indica `NO EVALUABLE`.
 Los clientes deben admitir pérdidas nulas. La respuesta convergida añade
 `resultados_validos=true` y `estado_resultado=CONVERGIO`; esa validez numérica
 no certifica los datos de entrada ni acredita cumplimiento normativo.
