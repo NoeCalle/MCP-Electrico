@@ -25,9 +25,9 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P9 — Hardening/freeze 0.9 | **CERRADA — P9A–P9D DONE** | baseline 0.9 congelada y repetible |
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
-| P12 — Operating Scenarios | **ACTIVA — P12A–P12C DONE / P12D IN PROGRESS** | escenarios multiindustria con maniobras, cargas y acceso MCP explícito |
+| P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **CERRADA ESTÁTICA — P13A–P13E DONE** | intake, arranque estático, perfiles, secuencias, Workspace y dossier replay-verificado |
-| P14 — Runtime & Agent Integration | **ACTIVA — P14A IN PROGRESS** | arranque reproducible, construcción Rev.0 explícita y ergonomía segura para agentes |
+| P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
@@ -47,11 +47,11 @@ P8 = CLOSED
 P9 = FROZEN
 P10 = CLOSED
 P11 = CLOSED_INTERNAL_RELEASE_SAFETY
-P12 = ACTIVE_P12D
+P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
-P14 = ACTIVE_P14A
+P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P12_OPERATING_SCENARIOS_AND_P14_RUNTIME_AGENT_INTEGRATION
+next_activity = CONTROLLED_LOCAL_PROJECT_USE
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -474,9 +474,9 @@ Detalle: `docs/P9_ENGINEERING_PREVIEW_FREEZE.md`.
 
 ## Fase P10 — Reference Validation
 
-**Estado: NEXT.**
+**Estado: CERRADA — P10A–P10G DONE.**
 
-Proyecto de referencia controlado e independiente: subestación industrial sintética 22.9/4.16/0.48 kV. Se incorporará progresivamente desde bases de diseño y arquitectura hasta flujo, cortocircuito, secuencia cero, cables, motores y protecciones, sin mezclar el desarrollo del caso con el hardening de P9.
+Proyecto de referencia controlado e independiente: subestación industrial sintética 22.9/4.16/0.48 kV. Los fixtures por etapas y la validación integral P10G cubren las capacidades declaradas de la baseline. Ver `docs/P10_REFERENCE_VALIDATION.md` y los fixtures `examples/p10_reference_substation_stage*.json`.
 
 ## Regla de emisión
 
@@ -496,7 +496,7 @@ La estrategia futura añade tag de release y mirror independiente del repositori
 
 ## Fase P11 — Release safety y protección del core
 
-**Estado: ACTIVA — P11A–P11C DONE / P11D IN PROGRESS.**
+**Estado: CERRADA INTERNAMENTE — P11A–P11D DONE; mirror externo diferido.**
 
 P11 no agrega una nueva función eléctrica. Protege la baseline validada frente a cambios no deseados y separa claramente desarrollo, puntos de recuperación y futuras copias independientes.
 
@@ -534,7 +534,7 @@ Detalle: `docs/P11_RELEASE_SAFETY.md`, `docs/RELEASE_RECOVERY_POLICY.md` y `docs
 
 ## Fase P12 — Escenarios operativos y contingencias
 
-**Estado: ACTIVA — P12A–P12C DONE / P12D IN PROGRESS.**
+**Estado: CERRADA FOUNDATION — P12A–P12F DONE.**
 
 P12 introduce análisis explícito de estados operativos alternativos sin asociar el motor a una industria concreta.
 
@@ -566,13 +566,13 @@ Principios:
 - un resultado FAIL es una conclusión válida del escenario, no un error del solver;
 - el core permanece agnóstico a minería, hospital, data center, manufactura u otra industria.
 
-P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor de escenarios mediante tools MCP públicas versionadas; después siguen fuentes alternativas/generadores y comparación batch + Workspace/dossier. Motores y arranque se desarrollan por separado en P13.
+P12C cerró ENABLE/DISABLE explícito de Load.* sin shedding automático. P12D expone el motor mediante tools MCP. P12E incorpora fuentes Thevenin y transferencia break-before-make declarada; P12F incorpora comparación, Workspace y dossier SHA-256. Los criterios estáticos de servicio y la restauración del modelo permanecen explícitos y verificables. Motores y arranque se desarrollan en P13.
 
 Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: ACTIVA — P13A–P13D DONE / P13E IN PROGRESS.**
+**Estado: CERRADA ESTÁTICA — P13A–P13E DONE; acceso MCP público verificado.**
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 
@@ -603,3 +603,16 @@ professional_emission = false
 ```
 
 Detalle: `docs/P13_MOTOR_STARTING.md`.
+
+## Fase P14 — Runtime e integración local
+
+**Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
+
+P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B
+incorpora Streamable HTTP limitado a loopback, stdio compatible, arranque oculto
+y detención Windows. El cliente real descubre 124 tools y verifica flujo,
+expedientes P8/P12/P13, replay e integridad. Los tests de protocolo se ejecutan
+en CI Windows/Linux. Detalle: `docs/P14_LOCAL_RUNTIME.md`.
+
+El 2026-09-30 se eligió instalar en esta PC. Alojamiento remoto, IEEE 1584 y
+dinámica avanzada de motores permanecen fuera del cierre operativo local.

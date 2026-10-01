@@ -256,7 +256,12 @@ No bloquea la Engineering Preview previa.
 
 ## V7 — Acompañamiento visual de P7: expediente y reporte
 
-**Estado: NEXT DESPUÉS DE P5G.**
+**Estado: MÍNIMO OPERACIONAL COMPLETO CON LIMITACIONES.**
+
+P7/P8 incorporan expediente, reporte e integridad; P12F y P13E añaden sus
+Workspaces y dossiers especializados. La instalación local verifica generación
+y hashes desde el protocolo MCP. La ampliación de planos para redes grandes y
+la comparación automatizada por screenshots siguen como mejoras futuras.
 
 Objetivos del bloque operacional mínimo:
 

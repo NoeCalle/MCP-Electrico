@@ -127,7 +127,12 @@ def test_p8f2_rejects_symlinks_in_frozen_package(pristine_dossier, tmp_path):
     outside = tmp_path / "outside.txt"
     outside.write_text("external bytes", encoding="utf-8")
     link = copied / "p7a_netlist" / "external-link.txt"
-    link.symlink_to(outside)
+    try:
+        link.symlink_to(outside)
+    except OSError as exc:
+        if getattr(exc, "winerror", None) == 1314:
+            pytest.skip("Windows account lacks permission to create symlinks")
+        raise
 
     verification = dossier_integrity.verificar_indice(copied / "dossier_integrity.json")
 

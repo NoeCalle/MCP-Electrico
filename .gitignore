@@ -3,6 +3,8 @@ __pycache__/
 venv/
 .venv/
 *.egg-info/
+.pytest_cache/
+local_data/
 
 # Archivos temporales que OpenDSS puede generar al correr simulaciones
 temp_export/

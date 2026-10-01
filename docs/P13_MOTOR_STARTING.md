@@ -505,7 +505,7 @@ Después de P13D, P13E integra esos resultados en un Workspace read-only y un do
 
 ## P13E — Workspace + dossier reproducible
 
-**Estado: IN PROGRESS.**
+**Estado: DONE — replay, integridad y acceso MCP público verificados.**
 
 P13E no añade un nuevo cálculo eléctrico. Consume resultados P13D ya resueltos y crea una capa de presentación, replay e integridad.
 
@@ -658,3 +658,12 @@ El reporte es reproducible/print-ready, pero no se promociona a informe profesio
 - `professional_emission=false`.
 
 Después de P13E, P13F permanece reservado para dinámica avanzada y no se activa automáticamente.
+
+## Acceso MCP público
+
+`motor_starting_tools.py` registra nueve herramientas aditivas para contrato,
+readiness y ejecución estática, validación/ejecución de perfiles y secuencias,
+generación del dossier y verificación de integridad. Las firmas conservan los
+inputs canónicos P13: `manifest`, `paquete_perfiles` y `paquete_secuencias`.
+La prueba `tests/test_local_mcp_transport.py` ejecuta el dossier desde un cliente
+real, comprueba replay e integridad y compara el Workspace padre antes/después.

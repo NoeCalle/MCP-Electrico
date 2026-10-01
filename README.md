@@ -15,11 +15,13 @@ El HTML no contiene un segundo chatbot ni usa una API de modelos: ChatGPT sigue
 siendo la interfaz conversacional, OpenDSS sigue siendo el motor eléctrico y el
 workspace es una vista estructurada del estado, propiedades y estudios.
 
-> **Estado:** plataforma en desarrollo con módulos en distintos niveles de madurez.
-> Flujo de potencia, caída de tensión, biblioteca de conductores y ampacidad P3-v1
-> están `VALIDATED_WITH_LIMITATIONS` dentro de alcances publicados. IEC 60909,
-> coordinación/TCC, IEEE 1584 y expediente profesional completo continúan pendientes.
-> La herramienta no sustituye la revisión ni responsabilidad del ingeniero.
+> **Estado:** Engineering Preview 0.9 operativa local. P0–P11 conservan sus
+> cierres con limitaciones; P12A–P12F están completas como escenarios estáticos
+> explícitos; P13A–P13E incluyen motores estáticos, perfiles, secuencias y dossier.
+> P14A/P14B incluyen instalación y clientes MCP stdio/HTTP. IEC 60909,
+> ampacidad y coordinación/TCC existen dentro de sus alcances publicados.
+> IEEE 1584 y dinámica avanzada permanecen diferidos. `professional_emission=false`.
+> Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
 ## 1. Instalación
 
@@ -28,21 +30,20 @@ Requisitos: Python 3.10 o superior.
 ```bash
 git clone https://github.com/NoeCalle/MCP-Electrico.git
 cd MCP-Electrico
-python -m venv venv
+python -m venv .venv
 ```
 
 Windows:
 
 ```powershell
-venv\Scripts\activate
-pip install -r requirements.txt
+.venv\Scripts\python.exe -m pip install -e ".[dev]"
 ```
 
 Linux/macOS:
 
 ```bash
-source venv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
 ```
 
 Verificación rápida:
@@ -82,13 +83,25 @@ referencia con estudios y conserva ambos como artefactos en cada PR.
 
 ## 3. Conectar a un cliente MCP
 
+El servidor admite stdio por defecto y Streamable HTTP local:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start_local.ps1
+.venv\Scripts\python.exe scripts/verify_local_mcp.py --url http://127.0.0.1:8765/mcp
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop_local.ps1
+```
+
+Use `http://127.0.0.1:8765/mcp` en un cliente que ejecute en esta PC. HTTP
+acepta una sesión activa por proceso. Un cliente en la nube no alcanza loopback.
+Ver [instalación y verificación local](docs/P14_LOCAL_RUNTIME.md).
+
 Ejemplo para Claude Desktop en Windows:
 
 ```json
 {
   "mcpServers": {
     "opendss": {
-      "command": "C:\\ruta\\MCP-Electrico\\venv\\Scripts\\python.exe",
+      "command": "C:\\ruta\\MCP-Electrico\\.venv\\Scripts\\python.exe",
       "args": ["C:\\ruta\\MCP-Electrico\\server.py"]
     }
   }
@@ -388,28 +401,26 @@ MCP-Electrico/
 ## 14. Limitaciones actuales
 
 - varios elementos usan parámetros de secuencia positiva R1/X1;
-- todavía no existe biblioteca técnica de cables con procedencia de parámetros;
-- no hay modelado detallado de R0/X0 o matrices de impedancia;
-- no hay curvas TCC ni coordinación de protecciones;
+- la biblioteca de conductores y la ampacidad requieren datos y evidencia
+  explícitos; no hay búsqueda normativa automática;
+- R0/X0 y secuencia cero se admiten únicamente dentro de los contratos publicados;
+- TCC y coordinación temporal requieren curvas y tiempos explícitos;
 - ATS/UPS pueden documentarse visualmente, pero aún no tienen modelo eléctrico
   detallado propio;
 - no hay `LoadShape`, PV, Storage, capacitores, armónicos ni simulación anual;
-- el workspace no persiste el proyecto entre reinicios del proceso;
+- el modelo activo en memoria no se conserva al reiniciar; snapshots y dossiers
+  proporcionan persistencia y reconstrucción explícitas;
 - un HTML local abierto requiere refresco manual para leer una regeneración;
 - la caída de tensión inicial se evalúa por cada `Line`, no todavía como caída
   acumulada independiente hasta cada carga;
-- la corriente nominal usada para cargabilidad es un dato explícito, no una
-  ampacidad calculada según método de instalación;
+- la corriente nominal visual es explícita; la ampacidad P3 se evalúa por una
+  herramienta separada con método de instalación y correcciones declaradas;
 - vistas específicas de C.C. y contingencias aún no tienen pestañas propias;
 - el SVG es un unifilar técnico, no un plano CAD contractual ni una biblioteca
   normativa completa IEC/ANSI;
 - Arc Flash es solo una estimación educativa por Lee.
 
-El siguiente salto recomendado es formalizar la **biblioteca/modelo de
-conductores**: material, sección, aislamiento, tensión nominal, instalación,
-R/X, ampacidad y procedencia del dato. Eso permitirá relacionar el objeto físico
-seleccionado por el usuario con el modelo OpenDSS y con verificaciones de diseño
-más sólidas.
+La capacidad y sus gates vigentes se detallan en `docs/ROADMAP_PROFESIONAL.md`.
 
 
 ## Construcción Rev.0 para agentes
