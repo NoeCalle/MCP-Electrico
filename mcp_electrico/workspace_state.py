@@ -148,7 +148,15 @@ def clear_workspace_error() -> None:
 def status() -> dict[str, Any]:
     studies = {}
     for name, item in _runtime["studies"].items():
-        studies[name] = {**deepcopy(item), "valid": item["model_revision"] == _runtime["model_revision"]}
+        result = item["result"]
+        studies[name] = {
+            **deepcopy(item),
+            "valid": (
+                item["model_revision"] == _runtime["model_revision"]
+                and result.get("convergio") is not False
+                and result.get("resultados_validos") is not False
+            ),
+        }
     return {
         **{k: deepcopy(v) for k, v in _runtime.items() if k != "studies"},
         "results_current": _runtime["state"] == STATE_SOLVED and _runtime["solved_revision"] == _runtime["model_revision"],

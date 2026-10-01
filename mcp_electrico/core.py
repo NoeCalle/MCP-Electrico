@@ -246,6 +246,22 @@ def agregar_generador_respaldo(
 def ejecutar_flujo_potencia() -> dict[str, Any]:
     _recalcular_bases_de_tension()
     dss("Solve")
+    if not dss.Solution.Converged():
+        return {
+            "convergio": False,
+            "resultados_validos": False,
+            "estado_resultado": "NO_CONVERGIO",
+            "evaluacion_sobrecarga": "NO_EVALUABLE",
+            "causa_no_convergencia": "NO_DETERMINADA",
+            "mensaje": (
+                "No se obtuvo una solución convergida. No se publican tensiones, "
+                "pérdidas ni cargabilidades del último intento. La no convergencia "
+                "no demuestra por sí sola sobrecarga ni un fallo del software."
+            ),
+            "voltajes_por_bus": {},
+            "perdidas_totales_kw": None,
+            "perdidas_totales_kvar": None,
+        }
 
     voltajes: dict[str, dict[str, Any]] = {}
     for bus in dss.Circuit.AllBusNames():
@@ -259,7 +275,9 @@ def ejecutar_flujo_potencia() -> dict[str, Any]:
 
     perdidas_kw, perdidas_kvar = dss.Circuit.Losses()
     return {
-        "convergio": bool(dss.Solution.Converged()),
+        "convergio": True,
+        "resultados_validos": True,
+        "estado_resultado": "CONVERGIO",
         "voltajes_por_bus": voltajes,
         "perdidas_totales_kw": round(float(perdidas_kw) / 1000, 3),
         "perdidas_totales_kvar": round(float(perdidas_kvar) / 1000, 3),

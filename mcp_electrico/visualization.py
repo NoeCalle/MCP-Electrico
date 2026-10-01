@@ -40,14 +40,17 @@ def _estado_abierto() -> bool:
 
 def _bus_info(bus: str) -> dict[str, Any]:
     dss.Circuit.SetActiveBus(bus)
-    mags = [float(v) for v in dss.Bus.puVmagAngle()[0::2]]
+    mags = (
+        [float(v) for v in dss.Bus.puVmagAngle()[0::2]]
+        if dss.Solution.Converged() else []
+    )
     kv_ln = float(dss.Bus.kVBase())
     nodes = list(dss.Bus.Nodes())
     kv_nom = kv_ln * sqrt(3) if len(nodes) >= 2 else kv_ln
     return {
         "kv_base_ln": kv_ln,
         "kv_nominal": kv_nom,
-        "vpu": sum(mags) / len(mags) if mags else 0.0,
+        "vpu": sum(mags) / len(mags) if mags else None,
         "nodes": nodes,
     }
 
@@ -290,9 +293,11 @@ def _child_sort_key(parent: str, child: str, connections: dict) -> tuple[str, st
     return (etiqueta or "~", _engineering_name(child))
 
 
-def _voltage_color(energized: bool, vpu: float) -> str:
+def _voltage_color(energized: bool, vpu: float | None) -> str:
     if not energized:
         return sym.DEENERGIZED
+    if vpu is None:
+        return sym.DIM
     if 0.95 <= vpu <= 1.05:
         return sym.BLUE
     if 0.90 <= vpu <= 1.10:
@@ -728,7 +733,7 @@ def generar_diagrama_unifilar(
         if mode == "diagnostico":
             state = (
                 f'{_format_voltage(info_bus[bus]["kv_nominal"])} · '
-                f'{info_bus[bus]["vpu"]:.3f} pu'
+                + (f'{info_bus[bus]["vpu"]:.3f} pu' if info_bus[bus]["vpu"] is not None else "NO EVALUABLE")
                 if energized
                 else "SIN TENSIÓN"
             )
@@ -1054,6 +1059,7 @@ def generar_diagrama_unifilar(
         "modo": mode,
         "orientacion": orientation,
         "estilo": "unifilar_tecnico_svg_v2",
+        "resultados_electricos_disponibles": bool(dss.Solution.Converged()),
         "nota": (
             "ATS/UPS y metadatos de protección/conductor son anotaciones "
             "visuales; no modifican el cálculo OpenDSS."
