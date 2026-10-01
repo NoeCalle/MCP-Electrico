@@ -37,9 +37,9 @@ Armónicos, formas de onda y true power factor con distorsión quedan fuera de e
 | P13C | perfiles de arranque controlados | corriente/impedancia por etapas o perfil explícito |
 | P13D | secuencias de arranque | varios motores, arranque escalonado y escenarios |
 | P13E | Workspace + dossier | resultados P13 trazables y reproducibles |
-| P13F | dinámica avanzada | P13F1 preparación física completa; P13F2 calificación del backend pendiente |
+| P13F | dinámica de motores | P13F1–F5 RMS completas con limitaciones; aceleración, red acoplada y dossier |
 
-P13F1 prepara el contrato físico y el plan de validación tras el cierre P13B–P13E. La selección del backend requiere la calificación P13F2. Detalle: [P13F](P13F_MOTOR_DYNAMICS.md).
+P13F1 prepara el contrato físico; P13F2–F5 añaden ejecución RMS calificada, acoplamiento aislado y dossier. Detalle: [P13F](P13F_MOTOR_DYNAMICS.md).
 
 ## P13A — Contrato de datos
 
@@ -657,7 +657,7 @@ El reporte es reproducible/print-ready, pero no se promociona a informe profesio
 - `professional_report=false`;
 - `professional_emission=false`.
 
-Después de P13E, el usuario reactivó P13F el 2026-09-30. P13F1 prepara datos físicos y referencias independientes; la ejecución dinámica sigue bloqueada hasta calificar e integrar un backend.
+Después de P13E, el usuario reactivó P13F el 2026-09-30. P13F1–F5 cierran el alcance RMS con gates explícitos por proyecto.
 
 ## Acceso MCP público
 
@@ -668,6 +668,6 @@ inputs canónicos P13: `manifest`, `paquete_perfiles` y `paquete_secuencias`.
 La prueba `tests/test_local_mcp_transport.py` ejecuta el dossier desde un cliente
 real, comprueba replay e integridad y compara el Workspace padre antes/después.
 
-P13F1 añade tres herramientas de preparación dinámica; con las nueve estáticas,
-P13 expone doce herramientas. La prueba de protocolo verifica admisión física
-y plan de calificación conservando `ready_for_execution=false`.
+P13F1 añade tres herramientas de preparación y P13F2–F5 cinco herramientas
+de ejecución RMS/dossier: P13 expone diecisiete herramientas. La prueba de
+protocolo verifica admisión, ejecución, replay e integridad sin cambiar el padre.

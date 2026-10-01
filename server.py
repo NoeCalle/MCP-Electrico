@@ -21,6 +21,7 @@ from mcp_electrico import (
     professional_tools,
     studies,
     visual_state,
+    visual_sheets,
     workspace,
     workspace_state,
     workspace_v5,
@@ -534,6 +535,7 @@ professional_tools.register(
     _record_professional_study,
 )
 conductor_tools.register(mcp, _refresh_after_model_change)
+visual_sheets.register(mcp)
 
 
 def main(argv: list[str] | None = None) -> None:

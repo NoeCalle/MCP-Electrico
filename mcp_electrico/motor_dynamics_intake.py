@@ -48,12 +48,13 @@ def obtener_contrato_p13f() -> dict:
         "initialization": "DEENERGIZED_AT_REST",
         "maximum_time_steps": MAXIMUM_STEPS,
         "maximum_pole_pairs": MAXIMUM_POLE_PAIRS,
-        "selected_backend": None, "backend_implemented": False,
+        "selected_backend": "MCP_BALANCED_RMS_RK4_V1", "backend_implemented": True,
+        "execution_contract_tool": "obtener_contrato_ejecucion_dinamica_motores",
         "ready_for_execution": False, "dynamic_integration_performed": False,
         "electrical_calculation_performed": False, "model_mutation_performed": False,
         "automatic_defaults": False, "automatic_dispatch": False,
         "professional_emission": False,
-        "execution_blockers": ["DYNAMIC_BACKEND_NOT_QUALIFIED", "INDEPENDENT_BENCHMARKS_NOT_RUN"],
+        "execution_blockers": ["EXECUTION_OPTIONS_AND_CALIBRATION_REQUIRED", "ACTUAL_GRID_AND_ENERGY_VERIFICATION_REQUIRED"],
     }
 
 

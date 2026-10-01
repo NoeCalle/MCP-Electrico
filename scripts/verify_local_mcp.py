@@ -29,6 +29,9 @@ async def verify(session: ClientSession, output: Path) -> dict:
         "verificar_integridad_dossier_arranque_motores",
         "obtener_contrato_dinamica_motores", "validar_datos_dinamica_motores",
         "obtener_plan_validacion_dinamica_motores",
+        "generar_dossier_dinamica_motores", "ejecutar_dinamica_motores",
+        "validar_ejecucion_dinamica_motores", "verificar_integridad_dossier_dinamica_motores",
+        "exportar_laminas_unifilar",
     }
     if missing := required - names:
         raise RuntimeError(f"Missing public MCP tools: {sorted(missing)}")
@@ -52,6 +55,8 @@ async def verify(session: ClientSession, output: Path) -> dict:
     expect(built, "materializer_status", "MODEL_BUILT_NOT_EXECUTED")
     flow = await call("ejecutar_flujo_potencia")
     expect(flow, "convergio", True)
+    sheets = await call("exportar_laminas_unifilar", ruta_html=str(output / "unifilar_laminas.html"))
+    expect(sheets, "status", "VISUAL_SHEETS_READY")
     real = await call(
         "generar_dossier_piloto_real",
         manifest=fixture("p10_reference_substation_stage5.json"),
@@ -81,8 +86,16 @@ async def verify(session: ClientSession, output: Path) -> dict:
     expect(dynamic_admission, "ready_for_execution", False)
     expect(dynamic_admission, "dynamic_integration_performed", False)
     qualification = await call("obtener_plan_validacion_dinamica_motores")
-    expect(qualification, "selected_backend", None)
-    expect(qualification, "backend_benchmarks_run", False)
+    expect(qualification, "selected_backend", "MCP_BALANCED_RMS_RK4_V1")
+    expect(qualification, "backend_benchmarks_run", True)
+    dynamic_dossier = await call(
+        "generar_dossier_dinamica_motores", manifest=fixture("p13_dynamic_rms_manifest.json"),
+        paquete_dinamico=fixture("p13_dynamic_rms_package.json"), opciones=fixture("p13_dynamic_rms_options.json"),
+        directorio_salida=str(output / "dynamic_dossier"),
+    )
+    expect(dynamic_dossier, "status", "DYNAMIC_DOSSIER_READY")
+    dynamic_check = await call("verificar_integridad_dossier_dinamica_motores", ruta_indice=dynamic_dossier["index_path"])
+    expect(dynamic_check, "ok", True)
     if before != await call("obtener_estado_workspace"):
         raise RuntimeError("P13F1 preparation mutated the parent workspace")
     (output / "dynamic_preparation.json").write_text(
@@ -121,9 +134,11 @@ async def verify(session: ClientSession, output: Path) -> dict:
         "status": "LOCAL_MCP_VERIFIED", "public_tool_count": len(names),
         "powerflow_converged": True, "motor_replay_match": True,
         "parent_workspace_preserved": True, "all_dossier_hashes_verified": True,
-        "dynamic_input_preparation_verified": True, "dynamic_backend_qualified": False,
+        "dynamic_input_preparation_verified": True, "dynamic_backend_qualified": True,
+        "dynamic_backend_scope": "BALANCED_RMS_QUASI_STEADY_ELECTROMECHANICAL",
+        "rms_dynamic_execution_verified": True, "rms_dynamic_replay_verified": True,
         "professional_emission": False,
-        "dossiers": {"reference": real, "scenarios": scenarios, "motors": motors},
+        "dossiers": {"reference": real, "scenarios": scenarios, "motors": motors, "dynamic_motors": dynamic_dossier},
     }
     (output / "verification.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     return summary

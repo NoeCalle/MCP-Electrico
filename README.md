@@ -20,14 +20,15 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > explícitos; P13A–P13E incluyen motores estáticos, perfiles, secuencias y dossier.
 > P14A/P14B incluyen instalación y clientes MCP stdio/HTTP. IEC 60909,
 > ampacidad y coordinación/TCC existen dentro de sus alcances publicados.
-> P13F1 prepara datos físicos y el plan de calificación para dinámica avanzada;
-> el backend dinámico está pendiente. IEEE 1584 permanece diferido.
+> P13F1–F5 ejecutan dinámica mecánica RMS trifásica DOL con calibración,
+> convergencia, energía y dossier reproducible. IEEE 1584 permanece diferido.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
 La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 `validar_datos_dinamica_motores` y `obtener_plan_validacion_dinamica_motores`.
-Ver [contrato, referencias y siguiente fase P13F2](docs/P13F_MOTOR_DYNAMICS.md).
+La ejecución usa un contrato adicional con opciones explícitas y genera
+trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_MOTOR_DYNAMICS.md).
 
 ## 1. Instalación
 

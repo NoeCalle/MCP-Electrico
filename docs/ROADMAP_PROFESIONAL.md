@@ -26,10 +26,16 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
-| P13 — Motores y arranque | **P13A–P13E DONE; P13F1 PREPARACIÓN DONE** | estudios estáticos y dossier; entradas físicas/plan dinámico preparados, backend pendiente |
+| P13 — Motores y arranque | **P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES** | aceleración mecánica RMS acoplada a red aislada, calibración, energía/convergencia, replay y dossier |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
+
+**Cierre para uso local solicitado:** Arc Flash IEEE 1584 es el único bloque
+pospuesto de esta entrega. P13F cierra el alcance RMS trifásico DOL de un motor
+dinámico por estudio; V7.1 añade navegación legible y láminas para redes grandes.
+EMT, VFD y alojamiento remoto quedan fuera del alcance de esta entrega local.
+El siguiente paso operativo es introducir un proyecto real con datos revisados.
 
 **Estado actual:**
 
@@ -50,10 +56,10 @@ P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
-P13F2 = NEXT_DYNAMIC_BACKEND_QUALIFICATION
+P13F2_TO_F5 = BALANCED_RMS_OPERATIONAL_WITH_LIMITATIONS
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = P13F2_DYNAMIC_BACKEND_QUALIFICATION
+next_activity = FIRST_CONTROLLED_LOCAL_PROJECT
 
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
@@ -574,7 +580,7 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: P13A–P13E DONE; P13F1 PREPARACIÓN FÍSICA DONE; acceso MCP público verificado.**
+**Estado: P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES; acceso MCP público verificado.**
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 
@@ -609,8 +615,9 @@ Detalle: `docs/P13_MOTOR_STARTING.md`.
 P13F se reactivó el 2026-09-30 para preparar dinámica avanzada. P13F1 añade
 datos físicos SI, vínculo SHA al manifiesto, controles de admisión,
 dos referencias mecánicas analíticas y plan de calificación independiente.
-P13F2 calificará el backend; P13F3 acoplará la red; P13F4 implementará estudios
-y P13F5 entregará Workspace/dossier. La ejecución dinámica permanece bloqueada.
+P13F2 califica MCP_BALANCED_RMS_RK4_V1; P13F3 acopla la red aislada;
+P13F4 calcula trayectorias y P13F5 entrega Workspace/CSV/dossier. La ejecución
+requiere opciones explícitas y consistencia con datos nominales/arranque.
 Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
 
 ## Fase P14 — Runtime e integración local
@@ -619,7 +626,7 @@ Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
 
 P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B
 incorpora Streamable HTTP limitado a loopback, stdio compatible, arranque oculto
-y detención Windows. El cliente real descubre 127 tools y verifica flujo,
+y detención Windows. El cliente real descubre 133 tools y verifica flujo,
 expedientes P8/P12/P13, replay e integridad. Los tests de protocolo se ejecutan
 en CI Windows/Linux. Detalle: `docs/P14_LOCAL_RUNTIME.md`.
 

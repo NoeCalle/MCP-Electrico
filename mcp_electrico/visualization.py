@@ -343,6 +343,7 @@ class _Mapper:
         lines: list[str],
         anchor: str = "start",
         cls: str = "label",
+        element_id: str | None = None,
     ) -> str:
         px, py = self.p(x, y)
         tspans = []
@@ -351,9 +352,10 @@ class _Mapper:
             tspans.append(
                 f'<tspan x="{px:.1f}" dy="{dy}">{escape(str(line))}</tspan>'
             )
+        identity = f' data-element-id="{escape(element_id, quote=True)}"' if element_id else ''
         return (
             f'<text x="{px:.1f}" y="{py:.1f}" text-anchor="{anchor}" '
-            f'class="{cls}">{"".join(tspans)}</text>'
+            f'class="{cls}"{identity}>{"".join(tspans)}</text>'
         )
 
     def source(self, x: float, y: float, color: str = sym.INK) -> str:
@@ -661,12 +663,10 @@ def generar_diagrama_unifilar(
     feeder_counter = [1]
     circuit_counter = [1]
 
-    def next_tag(annotation: dict) -> str:
+    def next_tag(annotation: dict, name: str) -> str:
         if annotation.get("etiqueta"):
             return str(annotation["etiqueta"])
-        tag = f"F-{feeder_counter[0]:02d}"
-        feeder_counter[0] += 1
-        return tag
+        return _engineering_name(name)
 
     def render_transformer_label(x: float, y: float, dato: dict) -> None:
         lines = [_engineering_name(str(dato["nombre"]))]
@@ -681,7 +681,7 @@ def generar_diagrama_unifilar(
                 dato.get("conexion_primario"), dato.get("conexion_secundario")
             )
         )
-        body.append(mapper.label(x + 38, y - 8, lines, cls="label"))
+        body.append(mapper.label(x + 38, y - 8, lines, cls="label", element_id=dato["full_name"]))
 
     if hidden_root_edge:
         dato = connections[hidden_root_edge]
@@ -741,7 +741,7 @@ def generar_diagrama_unifilar(
         vcolor = _voltage_color(energized, info_bus[bus]["vpu"])
         lx, ly = mapper.p(bar_right + 10, by - 6)
         body.append(
-            f'<text x="{lx:.1f}" y="{ly:.1f}" class="bus-name">{escape(label)}</text>'
+            f'<text x="{lx:.1f}" y="{ly:.1f}" class="bus-name" data-element-id="Bus.{escape(bus,quote=True)}">{escape(label)}</text>'
         )
         sx2, sy2 = mapper.p(bar_right + 10, by + 10)
         body.append(
@@ -768,7 +768,7 @@ def generar_diagrama_unifilar(
                 if opened
                 else (sym.INK if child in energized_buses else sym.DEENERGIZED)
             )
-            tag = next_tag(annotation)
+            tag = next_tag(annotation, str(dato["nombre"]))
             current_y = by
 
             if parent_bar:
@@ -785,7 +785,7 @@ def generar_diagrama_unifilar(
                 )
                 body.append(
                     mapper.label(
-                        cx - 15, breaker_y - 17, [tag], anchor="end", cls="feeder-tag"
+                        cx - 15, breaker_y - 17, [tag], anchor="end", cls="feeder-tag", element_id=dato["full_name"]
                     )
                 )
                 detail = _feeder_detail(annotation, str(dato["nombre"]), mode)
@@ -862,7 +862,7 @@ def generar_diagrama_unifilar(
                             if gen.get("kw") is not None:
                                 glines.append(f'{gen["kw"]:.0f} kW')
                             body.append(
-                                mapper.label(gx + 30, gy - 4, glines, cls="label")
+                                mapper.label(gx + 30, gy - 4, glines, cls="label", element_id=f"Generator.{gen['nombre']}")
                             )
                             used_alt_generators.add(str(gen["nombre"]).lower())
                     current_y = ats_y + 21
@@ -912,7 +912,7 @@ def generar_diagrama_unifilar(
             load = loads[0]
             body.append(mapper.symbol(_load_symbol_name(load["tipo_visual"]), bx, by, color))
             lines = [_load_label(load), f'{load["kw"]:.0f} kW']
-            body.append(mapper.label(bx, by + 48, lines, anchor="middle", cls="label"))
+            body.append(mapper.label(bx, by + 48, lines, anchor="middle", cls="label", element_id=f"Load.{load['nombre']}"))
             if load["critica"]:
                 body.append(
                     mapper.label(
@@ -928,7 +928,7 @@ def generar_diagrama_unifilar(
                 if gen.get("kw") is not None:
                     lines.append(f'{gen["kw"]:.0f} kW')
                 body.append(
-                    mapper.label(bx, by + 56, lines, anchor="middle", cls="label")
+                    mapper.label(bx, by + 56, lines, anchor="middle", cls="label", element_id=f"Generator.{gen['nombre']}")
                 )
 
     for bus, (bx, by) in pos_bus.items():
@@ -959,6 +959,7 @@ def generar_diagrama_unifilar(
                     [_load_label(load), f'{load["kw"]:.0f} kW'],
                     anchor="middle",
                     cls="label",
+                    element_id=f"Load.{load['nombre']}",
                 )
             )
             if load["critica"]:
@@ -995,7 +996,7 @@ def generar_diagrama_unifilar(
                 lines.append(f'{gen["kw"]:.0f} kW')
             body.append(
                 mapper.label(
-                    x, symbol_y + 56, lines, anchor="middle", cls="label"
+                    x, symbol_y + 56, lines, anchor="middle", cls="label", element_id=f"Generator.{gen['nombre']}"
                 )
             )
 

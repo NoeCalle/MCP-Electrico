@@ -252,13 +252,19 @@ button {{ border:1px solid #cbd5e1; border-radius:7px; background:white; color:v
 button.primary {{ background:var(--blue); color:white; border-color:var(--blue); }}
 .workspace-layout {{ display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:14px; align-items:start; }}
 .workspace-content {{ min-width:0; }}
-.tabs {{ display:flex; gap:4px; border-bottom:1px solid var(--line); }}
+.tabs {{ display:flex; gap:4px; border-bottom:1px solid var(--line); overflow-x:auto; }}
+.tab {{ flex-shrink:0; }}
 .tab {{ border:0; border-radius:7px 7px 0 0; background:transparent; padding:9px 14px; }}
 .tab.active {{ background:white; color:var(--blue); font-weight:700; border:1px solid var(--line); border-bottom-color:white; margin-bottom:-1px; }}
 .panel {{ display:none; background:white; border:1px solid var(--line); border-radius:0 8px 8px 8px; min-height:300px; }}
 .panel.active {{ display:block; }}
-.unifilar {{ padding:18px; overflow:auto; text-align:center; }}
-.unifilar svg {{ width:100%; height:auto; max-height:980px; }}
+.diagram-controls {{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid #e5e7eb; }}
+.diagram-controls span {{ color:var(--muted); font-size:12px; }}
+.unifilar {{ padding:12px; overflow:hidden; text-align:center; touch-action:none; }}
+.unifilar svg {{ width:100%; height:620px; max-height:75vh; display:block; }}
+.unifilar svg:focus-visible {{ outline:2px solid var(--blue); }}
+.inspector input {{ width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font:inherit; margin-bottom:8px; }}
+#searchStatus {{ display:block; color:var(--muted); font-size:12px; margin-bottom:10px; }}
 #workspace-unifilar [data-element-id] {{ cursor:pointer; }}
 #workspace-unifilar .workspace-selected {{ filter:drop-shadow(0 0 3px #2563eb); }}
 #workspace-unifilar text[data-element-id] {{ font-weight:700; }}
@@ -289,7 +295,7 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
 .footer {{ margin-top:10px; color:var(--muted); font-size:11px; }}
 @media (max-width:980px) {{ .workspace-layout {{ grid-template-columns:1fr; }} .inspector {{ position:static; }} }}
 @media (max-width:760px) {{ .summary {{ grid-template-columns:repeat(2,minmax(0,1fr)); }} header {{ flex-direction:column; }} .shell {{ padding:10px; }} }}
-@media print {{ body {{ background:white; }} .shell {{ max-width:none; padding:0; }} .toolbar,.tabs,.footer,.notice,.inspector {{ display:none !important; }} .workspace-layout {{ display:block; }} .panel {{ display:none !important; border:0; }} #panel-unifilar {{ display:block !important; }} header {{ margin-bottom:6mm; }} .summary {{ break-inside:avoid; }} .unifilar {{ padding:0; overflow:visible; }} .unifilar svg {{ max-height:none; }} }}
+@media print {{ body {{ background:white; }} .shell {{ max-width:none; padding:0; }} .toolbar,.tabs,.footer,.notice,.inspector,.diagram-controls {{ display:none !important; }} .workspace-layout {{ display:block; }} .panel {{ display:none !important; border:0; }} #panel-unifilar {{ display:block !important; }} header {{ margin-bottom:6mm; }} .summary {{ break-inside:avoid; }} .unifilar {{ padding:0; overflow:visible; }} .unifilar svg {{ max-height:none; height:auto; }} }}
 </style>
 </head>
 <body>
@@ -316,12 +322,15 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
       <button type="button" class="tab active" data-tab="unifilar">Unifilar</button>
       <button type="button" class="tab" data-tab="datos">Datos</button>
     </div>
-    <section class="panel active" id="panel-unifilar"><div class="unifilar" id="workspace-unifilar">{svg}</div></section>
+    <section class="panel active" id="panel-unifilar"><div class="diagram-controls" aria-label="Navegación del diagrama"><button type="button" id="zoomIn" aria-label="Acercar diagrama">+</button><button type="button" id="zoomOut" aria-label="Alejar diagrama">−</button><button type="button" id="fitDiagram">Ver red completa</button><button type="button" id="readableDiagram">Vista legible</button><button type="button" id="focusElement">Centrar selección</button><span>Arrastra para recorrer · + / − y flechas con el diagrama enfocado</span></div><div class="unifilar" id="workspace-unifilar">{svg}</div></section>
     <section class="panel" id="panel-datos">
       <div class="table-wrap"><table><thead><tr><th>Elemento</th><th>Tipo</th><th>Conexión</th><th>Dato 1</th><th>Dato 2</th><th>Estado</th></tr></thead><tbody>{_data_rows(snapshot)}</tbody></table></div>
     </section>
   </div>
   <aside class="inspector" aria-live="polite">
+    <label for="elementSearch">Buscar equipo o barra</label>
+    <input id="elementSearch" type="search" placeholder="Nombre, identificador o tipo" autocomplete="off">
+    <span id="searchStatus" role="status">{len(catalog)} elementos</span>
     <label for="elementSelect">Elemento</label>
     <select id="elementSelect">{_element_options(catalog)}</select>
     <h2 id="inspectorTitle">Inspector técnico</h2>
@@ -476,7 +485,8 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
     catalog.forEach(meta => {{
       const target = meta.label.trim().toUpperCase();
       if (!target) return;
-      const text = labelCandidates.find(node => (node.textContent || '').trim().toUpperCase().startsWith(target));
+      const text = labelCandidates.find(node => node.dataset.elementId === meta.id)
+        || labelCandidates.find(node => !node.dataset.elementId && (node.textContent || '').trim().toUpperCase().startsWith(target));
       if (!text) return;
       text.dataset.elementId = meta.id;
       text.setAttribute('role','button');
@@ -524,7 +534,9 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
   document.getElementById('svgBtn').addEventListener('click', () => {{
     const node = document.querySelector('#workspace-unifilar svg');
     if (!node) return;
-    const blob = new Blob([node.outerHTML], {{type:'image/svg+xml;charset=utf-8'}});
+    const exported = node.cloneNode(true);
+    exported.setAttribute('viewBox', originalView.join(' '));
+    const blob = new Blob([exported.outerHTML], {{type:'image/svg+xml;charset=utf-8'}});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = 'unifilar.svg'; document.body.appendChild(a); a.click(); a.remove();
@@ -532,6 +544,64 @@ th {{ color:var(--muted); font-size:11px; text-transform:uppercase; }}
   }}));
 
   annotateSvg();
+  const diagram = document.querySelector('#workspace-unifilar svg');
+  const originalView = diagram ? diagram.getAttribute('viewBox').split(/\\s+/).map(Number) : [0,0,800,300];
+  let view = [...originalView];
+  const applyView = () => diagram?.setAttribute('viewBox', view.join(' '));
+  const zoom = factor => {{
+    const width = Math.max(100, Math.min(originalView[2]*4, view[2]*factor));
+    const height = width*(diagram.clientHeight/Math.max(diagram.clientWidth,1));
+    view = [view[0]+(view[2]-width)/2, view[1]+(view[3]-height)/2, width, height];
+    applyView();
+  }};
+  document.getElementById('zoomIn').addEventListener('click', () => zoom(0.7));
+  document.getElementById('zoomOut').addEventListener('click', () => zoom(1/0.7));
+  document.getElementById('fitDiagram').addEventListener('click', () => {{ view=[...originalView]; applyView(); }});
+  document.getElementById('readableDiagram').addEventListener('click', () => {{ view=[...originalView]; zoom(Math.min(1,Math.max(300,diagram.clientWidth)/view[2])); }});
+  document.getElementById('focusElement').addEventListener('click', () => {{
+    const selected = diagram?.querySelector('.workspace-selected');
+    if (!selected) return;
+    const box=selected.getBBox();
+    view=[box.x+box.width/2-view[2]/2, box.y+box.height/2-view[3]/2, view[2],view[3]];
+    applyView();
+  }});
+  let drag=null, moved=false;
+  if (diagram) {{
+    diagram.setAttribute('tabindex','0');
+    diagram.setAttribute('aria-label','Unifilar: flechas para recorrer, más y menos para zoom');
+    diagram.addEventListener('pointerdown', event => {{
+      if (event.button!==0) return;
+      const matrix=diagram.getScreenCTM()?.inverse();
+      if (!matrix) return;
+      const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(matrix);
+      drag={{point,view:[...view],matrix,elementId:event.target.closest?.('[data-element-id]')?.dataset.elementId}}; moved=false; diagram.setPointerCapture(event.pointerId);
+    }});
+    diagram.addEventListener('pointermove', event => {{
+      if (!drag) return;
+      const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(drag.matrix);
+      const dx=point.x-drag.point.x,dy=point.y-drag.point.y;
+      moved=moved||Math.abs(dx)+Math.abs(dy)>3;
+      view=[drag.view[0]-dx,drag.view[1]-dy,view[2],view[3]];applyView();
+    }});
+    diagram.addEventListener('pointerup', () => {{if(drag&&!moved&&drag.elementId) selectElement(drag.elementId);drag=null;}});
+    diagram.addEventListener('pointercancel', () => {{drag=null;}});
+    diagram.addEventListener('click', event => {{if(moved){{event.stopImmediatePropagation();moved=false;}}}},true);
+    diagram.addEventListener('keydown', event => {{
+      const offsets={{ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]}};
+      if (offsets[event.key]) {{event.preventDefault();view[0]+=offsets[event.key][0]*view[2];view[1]+=offsets[event.key][1]*view[3];applyView();}}
+      if (event.key==='+'||event.key==='=') {{event.preventDefault();zoom(.7);}}
+      if (event.key==='-') {{event.preventDefault();zoom(1/.7);}}
+    }});
+  }}
+  window.addEventListener('beforeprint',()=>diagram?.setAttribute('viewBox',originalView.join(' ')));
+  window.addEventListener('afterprint',applyView);
+  document.getElementById('elementSearch').addEventListener('input',event=>{{
+    const query=event.target.value.trim().toLocaleLowerCase();
+    const matches=new Set(catalog.filter(item=>`${{item.id}} ${{item.label}} ${{kindName(item.kind)}}`.toLocaleLowerCase().includes(query)).map(item=>item.id));
+    [...select.options].forEach(option=>{{option.hidden=Boolean(option.value)&&!matches.has(option.value);}});
+    document.querySelectorAll('#panel-datos .selectable-row').forEach(row=>{{row.hidden=!matches.has(row.dataset.elementId);}});
+    document.getElementById('searchStatus').textContent=`${{matches.size}} de ${{catalog.length}} elementos`;
+  }});
 }})();
 </script>
 </div>

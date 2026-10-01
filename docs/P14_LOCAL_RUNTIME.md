@@ -59,13 +59,14 @@ expedientes HTML/JSON/SVG. Se prueban ambos transportes, exclusión de otra sesi
 liberación de la sesión y rechazo de Host/Origin externos.
 
 La ampliación P13F1 verifica también las tres herramientas de preparación
-dinámica, la admisión del fixture físico y un plan de backend todavía sin
-calificar. Guarda `dynamic_preparation.json` conservando el Workspace padre.
+dinámica y la admisión física. La ampliación RMS verifica ejecución acoplada,
+replay e integridad del dossier dinámico, conservando el Workspace padre.
 
 ## Alcance de cierre
 
 Engineering Preview operativa local; `professional_emission=false`. P12 queda
 cerrada como foundation de escenarios estáticos explícitos. P13A–P13E quedan
 cerradas con acceso MCP público. P13F1 prepara entradas y validación para
-dinámica electromecánica; su backend y ejecución siguen pendientes. IEEE 1584
+dinámica electromecánica; P13F2–F5 ejecutan el alcance RMS con calibración,
+convergencia, balance de energía y dossier. IEEE 1584
 continúa diferido. El cierre no añade datos normativos ni defaults implícitos.
