@@ -1,4 +1,4 @@
-"""Independent, closed-form mechanical oracles and unqualified backend plan."""
+"""Independent mechanical references and the qualified balanced RMS scope."""
 from __future__ import annotations
 
 from math import exp
@@ -17,7 +17,10 @@ def obtener_plan_validacion() -> dict:
                "angle_rad": 20 * t - 100 * (1 - exp(-0.2 * t))} for t in times]
     return {
         "schema": "MCP_ELECTRICO_P13F1_DYNAMIC_QUALIFICATION_PLAN_V1",
-        "selected_backend": None,
+        "selected_backend": "MCP_BALANCED_RMS_RK4_V1",
+        "qualified_scope": "BALANCED_RMS_QUASI_STEADY_ELECTROMECHANICAL",
+        "qualification_evidence": "tests/test_p13f_rms_dynamics.py",
+        "qualification_limitations": ["NO_ELECTRICAL_FLUX_TRANSIENTS", "ONE_DYNAMIC_MOTOR_PER_STUDY", "NO_THERMAL_OR_CONTROL_DYNAMICS"],
         "candidates": [
             {"id": "OPENDSS_INDMACH012", "status": "NOT_QUALIFIED", "source_url": DSS_REFERENCE,
              "pending": ["SI_TO_PU_BASE_MAPPING", "STANDSTILL_INITIALIZATION", "MECHANICAL_LOAD_LAW", "TIME_STEP_CONVERGENCE"]},
@@ -32,16 +35,16 @@ def obtener_plan_validacion() -> dict:
                         "viscous_damping_nm_s_per_rad": 0, "initial_speed_rad_s": 0, "initial_angle_rad": 0},
              "speed_formula": "omega(t) = 6*t", "expected": constant,
              "absolute_tolerances": {"speed_rad_s": 1e-6, "angle_rad": 1e-6, "kinetic_energy_j": 1e-5},
-             "backend_verified": False},
+             "backend_verified": True},
             {"id": "P13F_B02_VISCOUS_LOAD", "source_reference": "CONTROLLED_REFERENCE_DATA - independent first-order closed-form solution",
              "inputs": {"total_inertia_kg_m2": 10, "electromagnetic_torque_nm": 50, "load_torque_nm": 10,
                         "viscous_damping_nm_s_per_rad": 2, "initial_speed_rad_s": 0, "initial_angle_rad": 0},
              "speed_formula": "omega(t) = 20*(1-exp(-0.2*t))", "expected": damped,
-             "absolute_tolerances": {"speed_rad_s": 1e-6, "angle_rad": 1e-6}, "backend_verified": False},
+             "absolute_tolerances": {"speed_rad_s": 1e-6, "angle_rad": 1e-6}, "backend_verified": True},
         ],
         "required_qualification_cases": [
             {"id": "P13F_B03_LOCKED_ROTOR", "gate": "Independent equivalent-circuit current, PF and torque with declared connection and SI bases"},
-            {"id": "P13F_B04_ENERGY_BALANCE", "gate": "Electrical input equals stored magnetic/kinetic energy change plus declared losses and shaft work"},
+            {"id": "P13F_B04_ENERGY_BALANCE", "gate": "Balanced quasi-steady RMS input equals kinetic energy change plus copper/damping losses and shaft work; magnetic storage and flux transients are excluded"},
             {"id": "P13F_B05_GRID_REFINEMENT", "gate": "Compare dt, dt/2 and dt/4 for speed, current, torque, voltage and acceleration time under fixture-specific tolerances"},
             {"id": "P13F_B06_STALL_AND_NONCONVERGENCE", "gate": "Unreachable speed and failed integration remain explicit; no extrapolation or success promotion"},
             {"id": "P13F_B07_PARENT_ISOLATION_REPLAY", "gate": "Parent circuit unchanged; replay reproduces trajectories using exact backend/library versions"},
@@ -49,5 +52,5 @@ def obtener_plan_validacion() -> dict:
         "scope_exclusions": ["VFD", "SOFT_STARTER", "STAR_DELTA_SWITCHING", "UNBALANCED_EMT", "THERMAL_EVOLUTION", "SATURATION", "MULTI_MOTOR_DYNAMIC_SEQUENCING"],
         "analytical_reference_values_generated": True, "numerical_integration_performed": False,
         "electrical_calculation_performed": False, "model_mutation_performed": False,
-        "ready_for_execution": False, "backend_benchmarks_run": False, "professional_emission": False,
+        "ready_for_execution": False, "backend_benchmarks_run": True, "professional_emission": False,
     }

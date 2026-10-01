@@ -1,0 +1,14 @@
+{
+  "backend": "MCP_BALANCED_RMS_RK4_V1",
+  "electrical_model": "BALANCED_RMS_QUASI_STEADY_ELECTROMECHANICAL",
+  "refinement": "DT_DT2_DT4_REQUIRED",
+  "rated_speed_fraction": 0.95,
+  "starting_current_relative_tolerance": 0.01,
+  "starting_pf_absolute_tolerance": 0.01,
+  "rated_output_relative_tolerance": 0.01,
+  "voltage_unbalance_relative_tolerance": 0.001,
+  "energy_relative_tolerance": 0.001,
+  "refinement_relative_tolerance": 0.01,
+  "acceleration_time_absolute_tolerance_s": 0.02,
+  "source_reference": "CONTROLLED_REFERENCE_DATA - explicit RMS qualification tolerances"
+}

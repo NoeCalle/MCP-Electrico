@@ -261,7 +261,25 @@ No bloquea la Engineering Preview previa.
 P7/P8 incorporan expediente, reporte e integridad; P12F y P13E añaden sus
 Workspaces y dossiers especializados. La instalación local verifica generación
 y hashes desde el protocolo MCP. La ampliación de planos para redes grandes y
-la comparación automatizada por screenshots siguen como mejoras futuras.
+la comparación visual se amplían mediante V7.1.
+
+## V7.1 — Navegación y láminas para uso local
+
+**Estado: COMPLETA CON LIMITACIONES.**
+
+- Búsqueda por etiqueta, ID o tipo, con contador y filtro de lista/tabla.
+- Zoom adaptado al ancho real, desplazamiento por arrastre/flechas y centrado de selección.
+- IDs preparados en Python; etiquetas duplicadas o numeración no reasignan el equipo.
+- Exportación SVG/impresión conserva la red completa después de hacer zoom.
+- `exportar_laminas_unifilar` divide el SVG en láminas A3 numeradas y solapadas;
+  conserva revisión y SVG completo, bloquea sobrescritura y limita a 200 láminas.
+- P13F5 muestra velocidad, corriente, par y tensión desde Python, con CSV/replay/SHA.
+- Verificación real de búsqueda, selección, zoom y disposición estrecha/escritorio,
+  con capturas; tests cubren cobertura de láminas y regresión.
+
+El navegador calcula únicamente geometría de visualización. Las decisiones y
+trayectorias eléctricas se preparan en Python. La comparación continua de píxeles
+no es un gate de esta entrega; las capturas se conservan como evidencia.
 
 Objetivos del bloque operacional mínimo:
 
