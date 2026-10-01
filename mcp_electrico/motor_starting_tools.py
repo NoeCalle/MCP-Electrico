@@ -1,4 +1,4 @@
-"""Public MCP access to the existing, isolated P13 static motor studies."""
+"""Public MCP access to isolated P13 static studies and P13F1 preparation."""
 
 from __future__ import annotations
 
@@ -8,10 +8,27 @@ from . import (
     motor_starting_profiles,
     motor_starting_sequences,
     motor_starting_static,
+    motor_dynamics_intake,
+    motor_dynamics_qualification,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def obtener_contrato_dinamica_motores() -> dict:
+        """Describe datos físicos P13F1 y gates pendientes del backend dinámico."""
+        return motor_dynamics_intake.obtener_contrato_p13f()
+
+    @mcp.tool()
+    def validar_datos_dinamica_motores(manifest: dict, paquete_dinamico: dict) -> dict:
+        """Admite datos físicos explícitos; no materializa ni integra un motor."""
+        return motor_dynamics_intake.evaluar_admision_dinamica(manifest, paquete_dinamico)
+
+    @mcp.tool()
+    def obtener_plan_validacion_dinamica_motores() -> dict:
+        """Devuelve candidatos sin calificar, oráculos analíticos y casos pendientes."""
+        return motor_dynamics_qualification.obtener_plan_validacion()
+
     @mcp.tool()
     def obtener_contrato_arranque_motores() -> dict:
         """Devuelve contratos de arranque estático, perfiles y secuencias P13."""

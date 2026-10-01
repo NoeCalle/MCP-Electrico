@@ -29,6 +29,11 @@ La matriz recomienda/selecciona el backend y evalúa readiness; las tools de eje
 | Lee | MCP | experimental/educativo |
 | Armónicos | OpenDSS | solver disponible; módulo MCP profesional pendiente |
 | Series temporales | OpenDSS | solver disponible; módulo MCP profesional pendiente |
+| Dinámica avanzada de motores P13F | pendiente; candidatos IndMach012 / Modelica | P13F1 datos y plan preparados; ejecución `MODULE_NOT_READY`, candidatos `NOT_QUALIFIED` |
+
+La preparación P13F1 publica candidatos sin alterar la matriz ejecutable
+congelada del core. La elección dinámica requiere la calificación P13F2.
+Detalle: [P13F](P13F_MOTOR_DYNAMICS.md).
 
 ## Dos preguntas distintas: ejecutar vs. estar preparado
 

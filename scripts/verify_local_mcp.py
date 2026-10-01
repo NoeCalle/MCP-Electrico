@@ -27,6 +27,8 @@ async def verify(session: ClientSession, output: Path) -> dict:
         "generar_dossier_piloto_real", "generar_dossier_escenarios_operativos",
         "generar_dossier_arranque_motores", "ejecutar_secuencias_arranque_motores",
         "verificar_integridad_dossier_arranque_motores",
+        "obtener_contrato_dinamica_motores", "validar_datos_dinamica_motores",
+        "obtener_plan_validacion_dinamica_motores",
     }
     if missing := required - names:
         raise RuntimeError(f"Missing public MCP tools: {sorted(missing)}")
@@ -69,6 +71,24 @@ async def verify(session: ClientSession, output: Path) -> dict:
     expect(scenario_check, "ok", True)
     before = await call("obtener_estado_workspace")
     motor_manifest = fixture("p13_motor_starting_multi_stage3.json")
+    dynamic_contract = await call("obtener_contrato_dinamica_motores")
+    expect(dynamic_contract, "ready_for_execution", False)
+    dynamic_admission = await call(
+        "validar_datos_dinamica_motores", manifest=motor_manifest,
+        paquete_dinamico=fixture("p13_motor_dynamics_reference.json"),
+    )
+    expect(dynamic_admission, "data_ready", True)
+    expect(dynamic_admission, "ready_for_execution", False)
+    expect(dynamic_admission, "dynamic_integration_performed", False)
+    qualification = await call("obtener_plan_validacion_dinamica_motores")
+    expect(qualification, "selected_backend", None)
+    expect(qualification, "backend_benchmarks_run", False)
+    if before != await call("obtener_estado_workspace"):
+        raise RuntimeError("P13F1 preparation mutated the parent workspace")
+    (output / "dynamic_preparation.json").write_text(
+        json.dumps({"admission": dynamic_admission, "qualification_plan": qualification}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     profiles = fixture("p13_motor_starting_multi_profiles_stage3.json")
     sequences = fixture("p13_motor_starting_sequence_stage3.json")
     contract = await call("obtener_contrato_arranque_motores")
@@ -101,6 +121,7 @@ async def verify(session: ClientSession, output: Path) -> dict:
         "status": "LOCAL_MCP_VERIFIED", "public_tool_count": len(names),
         "powerflow_converged": True, "motor_replay_match": True,
         "parent_workspace_preserved": True, "all_dossier_hashes_verified": True,
+        "dynamic_input_preparation_verified": True, "dynamic_backend_qualified": False,
         "professional_emission": False,
         "dossiers": {"reference": real, "scenarios": scenarios, "motors": motors},
     }
