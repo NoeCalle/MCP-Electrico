@@ -97,6 +97,22 @@ def analizar_flujo_operacion() -> dict[str, Any]:
     no representa una ampacidad normativa derivada por el MCP.
     """
     powerflow = core.ejecutar_flujo_potencia()
+    if not powerflow["convergio"]:
+        return {
+            "convergio": False,
+            "resultados_validos": False,
+            "evaluacion_sobrecarga": "NO_EVALUABLE",
+            "powerflow": powerflow,
+            "buses": [],
+            "alimentadores": [],
+            "resumen": {
+                "perdidas_totales_kw": None,
+                "perdidas_totales_kvar": None,
+                "corriente_max_alimentador_a": None,
+                "cargabilidad_max_pct": None,
+            },
+            "nota_cargabilidad": powerflow["mensaje"],
+        }
     lines: list[dict[str, Any]] = []
 
     for name in dss.Lines.AllNames():
@@ -167,6 +183,28 @@ def analizar_caida_tension(limite_pct: float = 3.0) -> dict[str, Any]:
 
     flow = analizar_flujo_operacion()
     pf = flow["powerflow"]
+    if not flow["convergio"]:
+        return {
+            "convergio": False,
+            "resultados_validos": False,
+            "criterio": {
+                "limite_pct": float(limite_pct),
+                "origen": "configurable_por_usuario",
+                "normativo_universal": False,
+                "estado": "NO_EVALUABLE",
+            },
+            "alimentadores": [],
+            "buses": [],
+            "resumen": {
+                "alimentadores_evaluados": 0,
+                "alimentadores_que_exceden": None,
+                "peor_alimentador_id": None,
+                "peor_caida_pct": None,
+                "vpu_min_sistema": None,
+            },
+            "flow": flow,
+            "metodologia": pf["mensaje"],
+        }
     bus_map = _raw_bus_voltage_map()
     rows: list[dict[str, Any]] = []
 
