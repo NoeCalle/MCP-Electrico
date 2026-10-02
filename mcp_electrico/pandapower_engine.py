@@ -192,6 +192,7 @@ def _collect_active_model() -> dict[str, Any]:
         "source": source,
         "source_bus": source_bus,
         "active_source_bus": active_source_bus,
+        "frequency_hz": float(dss.Solution.Frequency()),
     }
 
 
@@ -284,7 +285,8 @@ def evaluar_compatibilidad() -> dict[str, Any]:
 
 
 def _build_net(model: dict[str, Any]):
-    net = pp.create_empty_network(sn_mva=100.0, name=model["circuit"])
+    net = pp.create_empty_network(sn_mva=100.0, name=model["circuit"],
+                                  f_hz=float(model["frequency_hz"]))
     bus_map: dict[str, int] = {}
 
     for bus in model["buses"]:

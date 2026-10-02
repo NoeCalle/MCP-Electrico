@@ -30,6 +30,15 @@ La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 La ejecución usa un contrato adicional con opciones explícitas y genera
 trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_MOTOR_DYNAMICS.md).
 
+El cortocircuito trifásico público requiere un **control previo del modelo**:
+primero revisar las entradas, los datos faltantes y los supuestos con
+`evaluar_preparacion_cortocircuito_3ph`. La ejecución se bloquea sin una revisión
+explícita vinculada al modelo y parámetros actuales. El adaptador calcula
+aporte de fuentes equivalentes; los elementos Load no incorporan aporte de
+motores ni una fuente equivalente representa automáticamente un generador
+síncrono IEC. Obtener corrientes MAX/MIN no valida por sí solo protecciones.
+Ver [control previo y alcance P4](docs/P4_IEC60909.md).
+
 ## 1. Instalación
 
 Requisitos: Python 3.10 o superior.
@@ -144,6 +153,8 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `analizar_flujo_operacion` | Devuelve corriente, kW/kvar y cargabilidad disponible por alimentador |
 | `analizar_caida_tension` | Calcula ΔV por `Line` contra un límite configurable por el usuario |
 | `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
+| `evaluar_preparacion_cortocircuito_3ph` | Expone entradas, faltantes y alcance parcial antes de calcular; no ejecuta el motor |
+| `ejecutar_cortocircuito_iec60909_3ph` | Calcula aporte de fuentes 3F MAX/MIN con revisión previa explícita; no valida protecciones |
 | `abrir_elemento_sin_resolver` | Prepara topología OPEN sin ejecutar Solve |
 | `cerrar_elemento_sin_resolver` | Prepara topología CLOSED sin ejecutar Solve |
 | `abrir_elemento` | Abre un elemento y deja el modelo resuelto en ese estado |

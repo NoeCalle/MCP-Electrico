@@ -19,6 +19,7 @@ from mcp_electrico import (
     iec60909_two_phase_suite,
     pandapower_engine,
     professional_tools,
+    short_circuit_precheck,
     studies,
     visual_state,
     visual_sheets,
@@ -335,7 +336,7 @@ def ejecutar_cortocircuito(bus_falla: str) -> dict:
 
 
 @mcp.tool()
-def ejecutar_cortocircuito_iec60909_3ph(
+def evaluar_preparacion_cortocircuito_3ph(
     bus_falla: str,
     line_endtemp_degree_c: dict[str, float] | None = None,
     calcular_ip_ith: bool = False,
@@ -343,20 +344,45 @@ def ejecutar_cortocircuito_iec60909_3ph(
     tk_s: float | None = None,
     kappa_method: str = "C",
 ) -> dict:
-    """Ejecuta IEC 60909 3F MAX/MIN explícitamente con pandapower experimental.
+    """Control previo read-only: expone entradas, faltantes y alcance parcial.
 
-    No hay despacho automático ni cross-check. El escenario MIN conserva la
-    exigencia de ``endtemp_degree`` explícita por línea y ``ip/Ith`` solo se
-    calculan con topología, tiempo de despeje y método κ declarados. El estudio
-    se registra en V5/V4, pero ``professional_emission`` permanece en false.
+    No resuelve fallas. Presentar el inventario y las exclusiones al usuario;
+    obtener datos o aprobación explícita de los supuestos antes de ejecutar.
+    No se puede inferir el aporte de motores a partir de cargas MW/fp.
     """
-    result = iec60909_suite.ejecutar_3ph_max_min(
-        bus=bus_falla,
+    return short_circuit_precheck.evaluar(
+        bus_falla, line_endtemp_degree_c, calcular_ip_ith,
+        topology, tk_s, kappa_method,
+    )
+
+
+@mcp.tool()
+def ejecutar_cortocircuito_iec60909_3ph(
+    bus_falla: str,
+    line_endtemp_degree_c: dict[str, float] | None = None,
+    calcular_ip_ith: bool = False,
+    topology: str | None = None,
+    tk_s: float | None = None,
+    kappa_method: str = "C",
+    revision_modelo: dict | None = None,
+) -> dict:
+    """Ejecuta 3F MAX/MIN del aporte de fuentes tras revisión previa explícita.
+
+    Primero llamar evaluar_preparacion_cortocircuito_3ph y presentar datos,
+    faltantes y exclusiones. Sin revision_modelo válida no se ejecuta el motor.
+    La revisión declara uso previsto, calidad y supuestos aprobados, referencia
+    de revisión, exclusiones y huella actual del modelo. El resultado es parcial:
+    no modela el aporte de motores/generador síncrono ni valida protecciones.
+    MIN exige temperatura explícita; ip/Ith requieren topología y tiempo reales.
+    """
+    result = short_circuit_precheck.ejecutar_revisado(
+        bus_falla=bus_falla,
         line_endtemp_degree_c=line_endtemp_degree_c,
         calcular_ip_ith=calcular_ip_ith,
         topology=topology,
         tk_s=tk_s,
         kappa_method=kappa_method,
+        revision_modelo=revision_modelo,
     )
     workspace_state.record_study(
         "iec60909_3ph", result, action="ejecutar_cortocircuito_iec60909_3ph"
