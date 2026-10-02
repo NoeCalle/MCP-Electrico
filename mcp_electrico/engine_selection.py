@@ -46,6 +46,8 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
             "Esta madurez es específica de IEC 60909 y no promociona OpenDSS FaultStudy."
         ),
         "requirements": [
+            "3F Ik'' admite inducción directa y generador síncrono con fichas SC explícitas; MIN excluye inducción",
+            "con máquinas SC declaradas: clasificar todas las cargas; variadores e ip/Ith de máquinas fuera de alcance",
             "P2 suficiente para fuente/líneas/transformadores del tipo de falla solicitado",
             "tipo de falla 3F, 2F o 1F-T explícito para ejecución P4-v1",
             "para 2F y 1F-T: política Z2=Z1 explícita limitada a red simétrica pasiva",

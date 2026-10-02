@@ -24,6 +24,7 @@ from . import (
     core,
     model_placeholders,
     professional_data,
+    sc_machines,
     protection_data,
     visual_state,
     zero_sequence,
@@ -120,6 +121,7 @@ def _reset_auxiliary_state() -> None:
     conductor_library.reset()
     model_placeholders.reset()
     professional_data.reset()
+    sc_machines.reset()
     zero_sequence.reset()
     ampacity.reset()
     protection_data.reset()

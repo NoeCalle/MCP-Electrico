@@ -366,14 +366,16 @@ def ejecutar_cortocircuito_iec60909_3ph(
     kappa_method: str = "C",
     revision_modelo: dict | None = None,
 ) -> dict:
-    """Ejecuta 3F MAX/MIN del aporte de fuentes tras revisión previa explícita.
+    """Ejecuta 3F MAX/MIN y corrientes por rama tras revisión previa explícita.
 
     Primero llamar evaluar_preparacion_cortocircuito_3ph y presentar datos,
     faltantes y exclusiones. Sin revision_modelo válida no se ejecuta el motor.
     La revisión declara uso previsto, calidad y supuestos aprobados, referencia
-    de revisión, exclusiones y huella actual del modelo. El resultado es parcial:
-    no modela el aporte de motores/generador síncrono ni valida protecciones.
-    MIN exige temperatura explícita; ip/Ith requieren topología y tiempo reales.
+    de revisión, exclusiones y huella actual del modelo. Motores de inducción
+    directa y generador síncrono requieren fichas SC explícitas; MW/fp no bastan.
+    MAX incluye inducción conectada y MIN excluye su aporte. Con máquinas se
+    calcula Ik'' inicial: ip/Ith/variadores se bloquean en este alcance.
+    MIN exige temperatura explícita. El resultado no valida protecciones.
     """
     result = short_circuit_precheck.ejecutar_revisado(
         bus_falla=bus_falla,

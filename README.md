@@ -33,11 +33,13 @@ trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_
 El cortocircuito trifásico público requiere un **control previo del modelo**:
 primero revisar las entradas, los datos faltantes y los supuestos con
 `evaluar_preparacion_cortocircuito_3ph`. La ejecución se bloquea sin una revisión
-explícita vinculada al modelo y parámetros actuales. El adaptador calcula
-aporte de fuentes equivalentes; los elementos Load no incorporan aporte de
-motores ni una fuente equivalente representa automáticamente un generador
-síncrono IEC. Obtener corrientes MAX/MIN no valida por sí solo protecciones.
+explícita vinculada al modelo y parámetros actuales. La extensión 3F incorpora
+motores de inducción directa y generadores síncronos con **fichas explícitas**,
+y corrientes por rama. Un Load sin clasificar no se convierte automáticamente
+en motor, ni una fuente equivalente en generador síncrono. Obtener corrientes
+MAX/MIN no valida por sí solo protecciones.
 Ver [control previo y alcance P4](docs/P4_IEC60909.md).
+Ver [máquinas, datos requeridos y límites de 3F](docs/SC3_MACHINES.md).
 
 ## 1. Instalación
 
@@ -154,7 +156,12 @@ En macOS/Linux, usa el ejecutable Python del `venv` y la ruta absoluta a
 | `analizar_caida_tension` | Calcula ΔV por `Line` contra un límite configurable por el usuario |
 | `ejecutar_cortocircuito` | Ejecuta `FaultStudy` y devuelve magnitudes de Isc |
 | `evaluar_preparacion_cortocircuito_3ph` | Expone entradas, faltantes y alcance parcial antes de calcular; no ejecuta el motor |
-| `ejecutar_cortocircuito_iec60909_3ph` | Calcula aporte de fuentes 3F MAX/MIN con revisión previa explícita; no valida protecciones |
+| `ejecutar_cortocircuito_iec60909_3ph` | Calcula 3F MAX/MIN y corrientes por rama, con fuentes/máquinas declaradas y revisión previa; no valida protecciones |
+| `definir_motor_cortocircuito_3ph` | Registra ficha nominal explícita de inducción directa |
+| `definir_generador_cortocircuito_3ph` | Registra Xd'', R, K_G y unidad K_S/K_SO; evita duplicar la fuente equivalente |
+| `clasificar_carga_cortocircuito_3ph` | Declara carga estática o variador pendiente; sin inferencia desde MW/fp |
+| `obtener_fichas_maquinas_cortocircuito_3ph` | Muestra fichas, estado actual y cargas sin identificar |
+| `eliminar_ficha_maquina_cortocircuito_3ph` | Retira ficha e invalida revisión/estudios |
 | `abrir_elemento_sin_resolver` | Prepara topología OPEN sin ejecutar Solve |
 | `cerrar_elemento_sin_resolver` | Prepara topología CLOSED sin ejecutar Solve |
 | `abrir_elemento` | Abre un elemento y deja el modelo resuelto en ese estado |

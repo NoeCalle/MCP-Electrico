@@ -14,9 +14,10 @@ from typing import Any
 
 from opendssdirect import dss
 
-from . import iec60909, pandapower_engine
+from . import iec60909, pandapower_engine, sc_machines
 
 SCOPE = "APORTE_FUENTES_EQUIVALENTES"
+MACHINE_SCOPE = "APORTE_FUENTES_Y_MAQUINAS_DECLARADAS"
 REVIEW_ITEMS = {
     "ORIGEN_DATOS": "Confirmar qué entradas son verificadas y cuáles son supuestas, con sus referencias.",
     "CABLES_REALES": "Revisar longitudes, R/X, conexiones y temperaturas; las entradas no acreditan por sí solas cables reales.",
@@ -42,14 +43,20 @@ def evaluar(
     readiness = {case: iec60909.evaluar_preparacion_3ph(case, bus_falla, **kwargs)
                  for case in ("max", "min")}
     model = pandapower_engine._collect_active_model()
+    machines = sc_machines.inventory(model)
+    model["sc3_machine_sheets_and_states"] = machines
+    scope = MACHINE_SCOPE if machines["extension_enabled"] else SCOPE
+    known = {r["element"].lower() for r in machines["generators"]}
     unsupported = []
     for full in dss.Circuit.AllElementNames() if model["circuit"] else []:
         element_class = full.split(".")[0].lower()
         if (element_class in {"generator", "indmach012", "pvsystem", "storage"}
                 or element_class == "vsource" and full.lower() != "vsource.source"):
             dss.Circuit.SetActiveElement(full)
-            if dss.CktElement.Enabled():
+            if dss.CktElement.Enabled() and full.lower() not in known:
                 unsupported.append(full)
+    dss.Circuit.SetActiveElement("Vsource.source") if model["circuit"] else None
+    model["primary_source_state"] = {"enabled": bool(dss.CktElement.Enabled()), "open": pandapower_engine._active_element_is_open("Vsource.source")} if model["circuit"] else None
     model["untranslated_fault_sources"] = unsupported
     request = {"bus_falla": bus_falla, **kwargs}
     encoded = json.dumps({"model": model, "request": request},
@@ -65,7 +72,7 @@ def evaluar(
         "numerical_ready": not unsupported and all(item["ready"] for item in readiness.values()),
         "numeric_readiness": readiness,
         "model_sha256": fingerprint,
-        "supported_scope": SCOPE,
+        "supported_scope": scope,
         "protection_validation_supported": False,
         "physical_completeness_verified": False,
         "missing_from_diagram_detection": False,
@@ -74,13 +81,19 @@ def evaluar(
             "Revisar estas entradas y comunicar faltantes/supuestos ANTES de ejecutar. "
             "El MCP no puede descubrir equipos omitidos de un plano que no fue incorporado al modelo."
         ),
-        "items_to_review": [{"id": key, "message": value} for key, value in REVIEW_ITEMS.items()],
+        "items_to_review": [{"id": key, "message": (
+            "Fichas de inducción directa explícitas; MAX incluye impedancia de rotor bloqueado, MIN excluye su aporte. No se infiere motor desde MW/fp; variadores no modelados bloquean."
+            if machines["extension_enabled"] and key == "APORTE_MOTORES" else
+            "Fichas síncronas con Xd'', R y corrección K_G/K_S declarada. La fuente síncrona sustituye al equivalente; decaimiento e Ib/Ik no implementados."
+            if machines["extension_enabled"] and key == "GENERADOR_SINCRONO" else value
+        )} for key, value in REVIEW_ITEMS.items()],
         "input_inventory": {
             "source": deepcopy(model["source"]),
             "lines": deepcopy(model["lines"]),
             "transformers": deepcopy(model["transformers"]),
-            "loads_without_motor_fault_model": deepcopy(model["loads"]),
-            "generators_unsupported_by_adapter": deepcopy(model["generators"]),
+            "loads_without_motor_fault_model": deepcopy(machines["unclassified_loads"]),
+            "machines": machines,
+            "generators_unsupported_by_adapter": [g for g in model["generators"] if f"generator.{g}".lower() not in known],
             "untranslated_fault_sources": unsupported,
             "near_ideal_links_to_confirm": near_ideal,
             "system_frequency_hz": model.get("frequency_hz"),
@@ -88,7 +101,7 @@ def evaluar(
         "request": request,
         "required_review": {
             "model_sha256": fingerprint,
-            "uso_previsto": SCOPE,
+            "uso_previsto": scope,
             "calidad_datos": "REALES_DECLARADOS | SUPUESTOS_APROBADOS | MIXTOS",
             "referencia_revision": "Referencia explícita a la revisión y aceptación del alcance/supuestos.",
             "supuestos_aprobados": ["Detalle de cada supuesto aprobado; obligatorio para datos supuestos o mixtos."],
@@ -110,8 +123,8 @@ def validar_revision(precheck: dict[str, Any], revision_modelo: dict | None) -> 
         return issues
     if revision_modelo.get("model_sha256") != precheck["model_sha256"]:
         add("SCREV003", "La revisión no corresponde al modelo y solicitud actuales. Obtener un nuevo control previo después de cambiar entradas, maniobras, barra de falla o parámetros del estudio.")
-    if revision_modelo.get("uso_previsto") != SCOPE:
-        add("SCREV004", "Este adaptador solo calcula APORTE_FUENTES_EQUIVALENTES; no comprueba protecciones ni incorpora aportes de máquinas omitidas.")
+    if revision_modelo.get("uso_previsto") != precheck["supported_scope"]:
+        add("SCREV004", f"Declarar el alcance del control previo: {precheck['supported_scope']}; no comprueba protecciones ni máquinas omitidas.")
     quality = revision_modelo.get("calidad_datos")
     if not isinstance(quality, str) or quality not in QUALITY:
         add("SCREV005", "Declarar calidad_datos: REALES_DECLARADOS, SUPUESTOS_APROBADOS o MIXTOS.")
@@ -166,7 +179,7 @@ def ejecutar_revisado(
         "execution_status": "CALCULADO_APORTE_PARCIAL" if result["ok"] else "ERROR_NUMERICO",
         "electrical_calculation_executed": True,
         "engineering_status": "PARCIAL_NO_VALIDA_PROTECCIONES",
-        "result_scope": SCOPE,
+        "result_scope": precheck["supported_scope"],
         "physical_completeness_verified": False,
         "protection_validation_supported": False,
         "model_precheck": precheck,

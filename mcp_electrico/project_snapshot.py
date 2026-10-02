@@ -26,6 +26,7 @@ from . import (
     engine_selection,
     p5_completion,
     professional_data,
+    sc_machines,
     protection_curves,
     protection_data,
     validation_status,
@@ -179,6 +180,7 @@ def construir_snapshot(
         "workspace": workspace,
         "engineering_data": {
             "professional_p2": professional_data.snapshot(),
+            "sc3_machine_sheets": sc_machines.snapshot(),
             "zero_sequence_p2": zero_sequence.snapshot(),
             "ampacity_p3": ampacity.snapshot(),
             "protection_p5": protection_data.snapshot(),

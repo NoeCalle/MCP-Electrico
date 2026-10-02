@@ -13,6 +13,7 @@ from . import (
     p2_completion,
     p5_completion_tools,
     professional_data,
+    sc_machines,
     project_reconstruction_tools,
     project_report_tools,
     project_snapshot_tools,
@@ -33,6 +34,7 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     # Endurece las rutas públicas existentes: reinicio completo de estado en
     # Circuit nuevo y preflight Z0 para FaultStudy.
     runtime_safety.install()
+    sc_machines.register(mcp, on_model_change=on_model_change)
 
     def changed(action: str) -> None:
         if on_model_change is not None:

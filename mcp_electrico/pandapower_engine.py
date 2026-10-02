@@ -48,10 +48,11 @@ def _active_source_bus() -> str:
 
 
 def _active_element_is_open(full_name: str) -> bool:
-    if not dss.Circuit.SetActiveElement(full_name):
-        return False
     try:
-        return bool(dss.CktElement.IsOpen(1, 0))
+        # Index zero is a valid source element in DSS, not a failed lookup.
+        if dss.Circuit.SetActiveElement(full_name) < 0:
+            return False
+        return any(dss.CktElement.IsOpen(t, 0) for t in range(1, dss.CktElement.NumTerminals() + 1))
     except Exception:
         return False
 
@@ -123,6 +124,7 @@ def _collect_active_model() -> dict[str, Any]:
                 "x1_ohm_km": float(dss.Lines.X1()),
                 "c1_nf_km": c1_nf_km,
                 "open": _active_element_is_open(full),
+                "enabled": bool(dss.CktElement.Enabled()),
                 "rating_a": visual.get("corriente_nominal_a"),
             }
         )
@@ -137,6 +139,7 @@ def _collect_active_model() -> dict[str, Any]:
                 "name": name,
                 "professional": record,
                 "open": _active_element_is_open(full),
+                "enabled": bool(dss.CktElement.Enabled()),
             }
         )
         if record:
@@ -179,6 +182,8 @@ def _collect_active_model() -> dict[str, Any]:
                 "phases": int(dss.Loads.Phases()),
                 "kw": float(dss.Loads.kW()),
                 "kvar": float(dss.Loads.kvar()),
+                "enabled": bool(dss.CktElement.Enabled()),
+                "open": _active_element_is_open(f"Load.{name}"),
             }
         )
 
@@ -208,7 +213,7 @@ def _transformer_ready(record: dict[str, Any] | None) -> tuple[bool, str | None]
     return True, None
 
 
-def evaluar_compatibilidad() -> dict[str, Any]:
+def evaluar_compatibilidad(allow_sc_machines: bool = False) -> dict[str, Any]:
     """Comprueba si el modelo entra exactamente en el alcance pandapower P2 v1."""
     model = _collect_active_model()
     issues: list[dict[str, str]] = []
@@ -230,8 +235,13 @@ def evaluar_compatibilidad() -> dict[str, Any]:
             "message": f"La barra P2 declarada {declared!r} no coincide con Vsource.source={active_source_bus!r}.",
         })
 
-    if model["generators"]:
+    from . import sc_machines
+    sheets = sc_machines.snapshot()
+    known = {r["element"].lower() for r in sheets["generators"]}
+    if model["generators"] and (not allow_sc_machines or any(f"generator.{g}".lower() not in known for g in model["generators"])):
         issues.append({"code": "PP011", "message": "Esta versión todavía no traduce generadores ni motores."})
+    if not allow_sc_machines and (sheets["generators"] or any(r["kind"] != "ESTATICA" for r in sheets["loads"])):
+        issues.append({"code": "PP013", "message": "Fichas de máquinas SC presentes: solo el estudio 3F valida esta proyección; flujo/otras fallas requieren modelos propios."})
 
     for transformer in model["transformers"]:
         record = transformer.get("professional")
@@ -312,7 +322,7 @@ def _build_net(model: dict[str, Any]):
             c_nf_per_km=float(line["c1_nf_km"]),
             max_i_ka=max_i_ka,
             name=str(line["name"]),
-            in_service=not bool(line["open"]),
+            in_service=not bool(line["open"]) and line.get("enabled", True),
         )
         line_meta[int(idx)] = {"id": line["id"], "rating_a": float(rating_a) if rating_valid else None}
 
@@ -348,7 +358,7 @@ def _build_net(model: dict[str, Any]):
             shift_degree=float(vg["shift_degree"]),
             vector_group=str(vg["vector_group_pandapower"]),
             name=str(transformer["name"]),
-            in_service=not bool(transformer["open"]),
+            in_service=not bool(transformer["open"]) and transformer.get("enabled", True),
             **kwargs,
         )
         trafo_meta[int(idx)] = {"id": transformer["id"]}
@@ -361,6 +371,7 @@ def _build_net(model: dict[str, Any]):
             q_mvar=float(load["kvar"]) / 1000.0,
             name=str(load["name"]),
             type="wye",
+            in_service=load.get("enabled", True) and not load.get("open", False),
         )
 
     return net, line_meta, trafo_meta

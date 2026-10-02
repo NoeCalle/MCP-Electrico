@@ -7,6 +7,7 @@ Alcance de este módulo:
 - escenarios: max/min;
 - Ik'', Sk'' y, opcionalmente, ip/Ith;
 - datos P2 de secuencia positiva;
+- fichas explícitas de inducción directa / síncrono para Ik'' inicial 3F;
 - sin emisión profesional;
 - sin afirmar todavía conformidad de edición 2026.
 
@@ -28,7 +29,7 @@ from typing import Any
 import pandapower as pp
 from pandapower.shortcircuit import calc_sc
 
-from . import iec60909_contract, pandapower_engine, professional_data
+from . import iec60909_contract, pandapower_engine, professional_data, sc_machines
 
 CAPABILITIES = {
     "positive_sequence_adapter": True,
@@ -188,7 +189,7 @@ def evaluar_preparacion_3ph(
     except ValueError as exc:
         return {"ready": False, "issues": [_issue("P4SC001", str(exc))]}
 
-    compatibility = pandapower_engine.evaluar_compatibilidad()
+    compatibility = pandapower_engine.evaluar_compatibilidad(allow_sc_machines=True)
     issues: list[dict[str, Any]] = []
     if not compatibility.get("compatible"):
         issues.extend(compatibility.get("issues") or [])
@@ -198,8 +199,23 @@ def evaluar_preparacion_3ph(
     if str(bus or "").strip().lower() not in names:
         issues.append(_issue("P4SC002", f"Bus de falla no encontrado: {bus}"))
 
-    source_projection, source_issues = _source_projection(normalized_case)
+    machine_inventory, machine_issues = sc_machines.readiness(model, calcular_ip_ith)
+    issues.extend(machine_issues)
+    synchronous_source = sc_machines.source_generator()
+    if synchronous_source:
+        source_projection, source_issues = {"case": normalized_case, "type": "SINCRONO", "sheet": synchronous_source}, []
+    else:
+        source_projection, source_issues = _source_projection(normalized_case)
     issues.extend(source_issues)
+    known = {r["element"].lower() for r in machine_inventory["generators"]}
+    for full in dss_element_names():
+        cls = full.split(".")[0].lower()
+        if cls in {"generator", "indmach012", "pvsystem", "storage", "vsource"} and full.lower() != "vsource.source" and full.lower() not in known:
+            from opendssdirect import dss
+            dss.Circuit.SetActiveElement(full)
+            if dss.CktElement.Enabled():
+                issues.append(_issue("SCM108", "Fuente o máquina activa sin traducción SC3 validada.", full))
+    issues.extend(sc_machines.fault_connectivity(model, machine_inventory, bus))
     temperatures, temperature_issues = _line_temperature_map(
         model, normalized_case, line_endtemp_degree_c
     )
@@ -219,7 +235,13 @@ def evaluar_preparacion_3ph(
         "line_endtemp_degree_c": temperatures,
         "duty": duty,
         "pandapower_compatibility": compatibility,
+        "machine_projection": machine_inventory,
     }
+
+
+def dss_element_names():
+    from opendssdirect import dss
+    return dss.Circuit.AllElementNames() if dss.Circuit.Name() else []
 
 
 def _set_source_short_circuit(net, projection: dict[str, Any]) -> None:
@@ -274,8 +296,13 @@ def ejecutar_3ph(
         }
 
     model = pandapower_engine._collect_active_model()
-    net, line_meta, _trafo_meta = pandapower_engine._build_net(model)
-    _set_source_short_circuit(net, prep["source_projection"])
+    net, line_meta, trafo_meta = pandapower_engine._build_net(model)
+    machine_projection = sc_machines.project(net, model, trafo_meta)
+    if not sc_machines.source_generator():
+        _set_source_short_circuit(net, prep["source_projection"])
+        from opendssdirect import dss
+        dss.Circuit.SetActiveElement("Vsource.source")
+        net.ext_grid.loc[:, "in_service"] = bool(dss.CktElement.Enabled()) and not pandapower_engine._active_element_is_open("Vsource.source")
     if prep["case"] == "min":
         _set_min_line_temperatures(net, line_meta, prep["line_endtemp_degree_c"])
 
@@ -292,7 +319,7 @@ def ejecutar_3ph(
         "case": prep["case"],
         "ip": bool(duty["requested"]),
         "ith": bool(duty["requested"]),
-        "branch_results": False,
+        "branch_results": True,
         "check_connectivity": True,
         "use_pre_fault_voltage": False,
     }
@@ -322,6 +349,10 @@ def ejecutar_3ph(
 
     row = net.res_bus_sc.loc[bus_idx]
     ikss_ka = float(row["ikss_ka"])
+    if not isfinite(ikss_ka) or ikss_ka <= 0:
+        return {"ok": False, "resultados_validos": False, "fault": "3ph", "case": prep["case"],
+                "bus": str(bus), "issues": [_issue("SCM109", "Barra sin aporte finito positivo; revisar aislamiento y fuentes disponibles.")],
+                "professional_emission": False}
     vn_kv = float(net.bus.at[bus_idx, "vn_kv"])
     skss_mva = sqrt(3.0) * vn_kv * ikss_ka
     backend_skss = float(row["skss_mw"])
@@ -355,13 +386,24 @@ def ejecutar_3ph(
             "source": prep["source_projection"],
             "line_endtemp_degree_c": prep["line_endtemp_degree_c"],
             "duty": duty,
+            "machines": machine_projection,
+        },
+        "branch_results": _branch_results(net, line_meta, trafo_meta),
+        "machine_extension": {
+            "enabled": machine_projection["extension_enabled"],
+            "maturity": "VALIDATED_WITH_LIMITATIONS_INITIAL_3PH",
+            "motor_contribution_included": prep["case"] == "max",
+            "minimum_motor_policy": "MIN_EXCLUYE_MOTORES_INDUCCION",
+            "source_equivalent_replaced_by_synchronous_generator": bool(sc_machines.source_generator()),
+            "generator_correction": "K_G; K_S/K_SO si unidad declarada",
+            "decay_and_breaking_current_supported": False,
         },
         "engine": {
             **contract["backend"],
             "engine_version_runtime": pp.__version__,
         },
         "target_standard": contract["target_standard"],
-        "maturity": "EXPERIMENTAL_P4",
+        "maturity": "VALIDATED_WITH_LIMITATIONS_INITIAL_3PH" if machine_projection["extension_enabled"] else "EXPERIMENTAL_P4",
         "professional_emission": False,
         "limitations": [
             "Este payload corresponde únicamente a falla trifásica 3F.",
@@ -369,6 +411,24 @@ def ejecutar_3ph(
             "La falla 1F-T se expone separadamente en P4C07 con Z0 explícita y gates fail-closed.",
             "La conformidad específica con IEC 60909-0:2026 permanece sin verificar.",
             "Ib e Ik todavía no se calculan.",
+            "Con máquinas SC: solo Ik'' inicial 3F; ip/Ith y variadores requieren validación adicional y se bloquean.",
             "ip/Ith P4C05 se limitan a kappa_method C y requieren topology/tk_s explícitos.",
         ],
     }
+
+
+def _branch_results(net, line_meta, trafo_meta) -> dict:
+    """Single fault: terminal RMS currents, not device pass/fail decisions."""
+    result = {"lines": [], "transformers": [], "semantics": "TERMINAL_RMS_INITIAL_3PH_KA"}
+    for kind, table, meta, fields in (
+        ("lines", net.res_line_sc, line_meta, ("ikss_from_ka", "ikss_to_ka")),
+        ("transformers", net.res_trafo_sc, trafo_meta, ("ikss_hv_ka", "ikss_lv_ka")),
+    ):
+        for i, m in meta.items():
+            row = table.loc[i] if i in table.index else {}
+            item = {"id": m["id"]}
+            for key in fields:
+                value = float(row.get(key, float("nan")))
+                item[key] = value if isfinite(value) else None
+            result[kind].append(item)
+    return result

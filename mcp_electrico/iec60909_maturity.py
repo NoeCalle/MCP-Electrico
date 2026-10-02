@@ -18,9 +18,9 @@ MATURE_STATUS = "VALIDATED_WITH_LIMITATIONS"
 LIMITATIONS = [
     "Alcance P4-v1 limitado a fallas 3F, 2F fase-fase y 1F-T; 2F-T permanece OUT_OF_SCOPE_P4_V1.",
     "La política Z2=Z1 se limita a redes simétricas pasivas según los contratos P4C06/P4C07; no es una suposición universal.",
-    "Generadores, motores, convertidores, unidades de generación, FACTS/HVDC y alcance near-generator dedicado permanecen fuera de P4-v1.",
+    "Generadores síncronos, motores de inducción directa y unidades declaradas tienen extensión SC3 solo para Ik'' inicial 3F; variadores/FACTS/HVDC y decaimiento near-generator permanecen fuera del alcance.",
     "Sk'' contractual se normaliza en 3F; 2F y 1F-T no la promocionan actualmente.",
-    "ip/Ith se promocionan únicamente para 3F/2F con topology, tk_s y kappa_method explícitos; 1F-T no los promociona.",
+    "ip/Ith se promocionan únicamente para 3F/2F sin máquinas SC, con topology, tk_s y kappa_method explícitos; 1F-T no los promociona.",
     "Ib simétrico de corte e Ik permanente no están implementados/promocionados en P4-v1.",
     "El cálculo MIN con líneas exige endtemp_degree explícita; no se inventan temperaturas finales.",
     "La revisión IEC 60909-0:2026 está completada como REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, no como verificación integral ecuación-por-ecuación.",

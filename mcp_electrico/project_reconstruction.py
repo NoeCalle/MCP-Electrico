@@ -26,6 +26,7 @@ from . import (
     conductor_library,
     core,
     professional_data,
+    sc_machines,
     project_snapshot,
     protection_curves,
     protection_data,
@@ -41,6 +42,7 @@ ISOLATION_MODE_CONTEXT = "OPENDSS_NEW_CONTEXT"
 
 _REBIND_STATUS = {
     "professional_p2": "NOT_RESTORED_REQUIRES_REBIND",
+    "sc3_machine_sheets": "NOT_RESTORED_REQUIRES_REBIND",
     "zero_sequence_p2": "NOT_RESTORED_REQUIRES_REBIND",
     "ampacity_p3": "NOT_RESTORED_REQUIRES_REBIND",
     "protection_p5": "NOT_RESTORED_REQUIRES_REBIND",
@@ -343,6 +345,7 @@ def _reset_structured_state(action: str) -> None:
     visual_state.reset()
     conductor_library.reset()
     professional_data.reset()
+    sc_machines.reset()
     zero_sequence.reset()
     ampacity.reset()
     protection_data.reset()
