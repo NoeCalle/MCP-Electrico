@@ -66,6 +66,7 @@ def test_p7a_contains_governance_and_engineering_layers(tmp_path):
     payload = snapshot["payload"]
 
     assert set(payload["engineering_data"]) == {
+        "sc3_machine_sheets",
         "professional_p2",
         "zero_sequence_p2",
         "ampacity_p3",

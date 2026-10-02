@@ -25,6 +25,7 @@ from . import (
     iec60909_contract,
     pandapower_engine,
     professional_data,
+    sc_machines,
     runtime_safety,
     validation_status,
     workspace_state,
@@ -75,7 +76,7 @@ def _fault_type(study: str, value: str | None) -> tuple[str | None, list[dict[st
     return normalized, []
 
 
-def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
+def _positive_sequence_requirements(study: str, fault_type: str | None = None) -> list[dict[str, Any]]:
     try:
         model = workspace_state.collect_model_snapshot()
     except Exception:
@@ -118,6 +119,8 @@ def _positive_sequence_requirements(study: str) -> list[dict[str, Any]]:
             ))
 
     if study in {"short_circuit_exploratory", "iec60909", "protection_coordination", "arc_flash_ieee1584"}:
+        if study == "iec60909" and fault_type == "three_phase" and sc_machines.source_generator():
+            return missing
         source = professional_data.obtener_red_equivalente()
         if not source:
             missing.append(_item("P2READY301", "Falta red equivalente P2 aguas arriba."))
@@ -291,7 +294,8 @@ def _engine_readiness(study: str, capability: dict[str, Any], fault_type: str | 
         return {"status": READY_ENGINE, "engine": "opendss", "reasons": []}
 
     if preferred == "pandapower":
-        compatibility = pandapower_engine.evaluar_compatibilidad()
+        machine_3ph = study == "iec60909" and fault_type == "three_phase"
+        compatibility = pandapower_engine.evaluar_compatibilidad(allow_sc_machines=machine_3ph)
         if not compatibility.get("compatible"):
             return {"status": ENGINE_NOT_READY, "engine": "pandapower", "reasons": deepcopy(compatibility.get("issues", []))}
         if str(compatibility.get("maturity")) == "EXPERIMENTAL" and not allow_experimental:
@@ -314,7 +318,10 @@ def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = Non
     if study == "ampacity":
         data_missing.extend(_ampacity_requirements())
     elif capability.get("requires_active_model", False) or study in _POSITIVE_SEQUENCE_PROFESSIONAL:
-        data_missing.extend(_positive_sequence_requirements(study))
+        data_missing.extend(_positive_sequence_requirements(study, normalized_fault))
+        if study == "iec60909" and normalized_fault == "three_phase":
+            _, machine_issues = sc_machines.readiness(pandapower_engine._collect_active_model())
+            data_missing.extend(machine_issues)
 
     if study in _FAULT_STUDIES and normalized_fault in {"single_phase_ground", "two_phase_ground"}:
         if not any(item.get("code") == "P2READY001" for item in data_missing):

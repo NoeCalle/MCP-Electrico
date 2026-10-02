@@ -18,6 +18,13 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run tests
         run: python -m pytest -q
+      - name: Validate SC3 machines through public MCP tools
+        run: python examples/validate_sc_machines_mcp.py --output-dir sc3_machine_mcp_evidence
+      - name: Upload SC3 machine MCP evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-electrico-sc3-machine-mcp
+          path: sc3_machine_mcp_evidence
       - name: Generate P1 benchmark report
         run: |
           python examples/run_benchmarks_p1.py

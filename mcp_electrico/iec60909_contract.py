@@ -185,6 +185,26 @@ SOURCE_MAPPING = {
     "note": "P2 almacena X/R; pandapower recibe R/X. La inversión debe ser explícita y probada.",
 }
 
+SC3_MACHINE_EXTENSION = {
+    "schema": "MCP_ELECTRICO_SC3_MACHINE_CAPABILITY_V1",
+    "supported_fault": "three_phase",
+    "supported_current": "initial_symmetrical_rms_ikss",
+    "models": ["direct_induction_motor", "synchronous_generator", "declared_generator_transformer_unit"],
+    "motor_minimum_policy": "excluded_in_minimum",
+    "motor_operating_kw_to_rated_shaft_power_inference": False,
+    "source_generator_replaces_ext_grid": True,
+    "branch_terminal_currents": True,
+    "machine_peak_thermal": False,
+    "converter_vfd": False,
+    "breaking_and_steady_state_current": False,
+    "pre_execution_model_review_required": True,
+    "independent_benchmark": "tests/test_sc_machines.py",
+    "public_mcp_benchmark": "examples/validate_sc_machines_mcp.py",
+    "protection_validation_supported": False,
+    "full_conformance_claim": False,
+    "professional_emission": False,
+}
+
 
 def obtener_contrato_p4() -> dict[str, Any]:
     review = iec60909_conformance.evaluar_revision()
@@ -198,6 +218,7 @@ def obtener_contrato_p4() -> dict[str, Any]:
         "fault_scope": deepcopy(FAULT_SCOPE),
         "result_contract": deepcopy(RESULT_CONTRACT),
         "source_mapping": deepcopy(SOURCE_MAPPING),
+        "sc3_machine_extension": deepcopy(SC3_MACHINE_EXTENSION),
         "professional_emission": False,
         "note": (
             "P4C10 completó una revisión específica de IEC 60909-0:2026 con limitaciones explícitas. "

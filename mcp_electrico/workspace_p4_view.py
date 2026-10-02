@@ -193,6 +193,7 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
         or "—"
     )
     partial = study.get("engineering_status") == "PARCIAL_NO_VALIDA_PROTECCIONES"
+    machines = study.get("result_scope") == "APORTE_FUENTES_Y_MAQUINAS_DECLARADAS"
     overall = ("APORTE PARCIAL" if partial and study.get("ok")
                else "MAX/MIN CALCULADOS" if study.get("ok") else "PARCIAL / BLOQUEADO")
     overall_css = "p4-ok" if study.get("ok") else "p4-fail"
@@ -200,11 +201,14 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
     current_label_min = "I fase MIN" if fault == "2F-T" else "Ik'' MIN"
     review_note = (
         '<div class="p4-note"><strong>MODELO PARCIAL: NO VALIDA PROTECCIONES.</strong> '
-        'Aporte de fuentes equivalentes; cargas Load sin aporte de motor. '
+        + ('Aporte de fuentes y máquinas declaradas: Ik\'\' inicial 3F; MIN excluye motores de inducción. '
+           if machines else 'Aporte de fuentes equivalentes; cargas Load sin aporte de motor. ')
+        +
         'Datos, supuestos y exclusiones revisados para este alcance; '
         'la completitud física del sistema no está acreditada.</div>'
         if partial else ""
     )
+    branches = _branch_table(maximum, minimum) if fault == "3PH" else ""
 
     return f'''<article class="p4-study-block" data-p4-study="{escape(key, quote=True)}" data-p4-fault="{escape(fault, quote=True)}" data-p4-study-bus="{escape(bus, quote=True)}">
 <div class="p4-header">
@@ -221,7 +225,28 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
 {_negative_sequence_note(study, fault)}
 {_zero_sequence_note(study, fault)}
 <div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik'' / I fase</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Rk0</th><th>Xk0</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
+{branches}
 </article>'''
+
+
+def _branch_table(maximum: dict, minimum: dict) -> str:
+    rows = []
+    for label, payload in (("MAX", maximum), ("MIN", minimum)):
+        if not payload.get("ok"):
+            continue
+        results = payload.get("branch_results") or {}
+        for kind, endpoints in (("lines", ("ikss_from_ka", "ikss_to_ka")),
+                                ("transformers", ("ikss_hv_ka", "ikss_lv_ka"))):
+            for b in results.get(kind) or []:
+                sides = "Origen / destino" if kind == "lines" else "HV / LV"
+                rows.append(f'<tr><td>{label}</td><td>{escape(str(b["id"]))}</td><td>{sides}</td>'
+                            f'<td>{_fmt(b.get(endpoints[0]), 3, " kA")}</td><td>{_fmt(b.get(endpoints[1]), 3, " kA")}</td></tr>')
+    if not rows:
+        return ""
+    return ('<h4>Corrientes por rama para esta barra de falla</h4>'
+            '<p>Corriente RMS inicial en cada extremo; no equivale a aprobar interruptores o relés.</p>'
+            '<div class="table-wrap"><table class="study-table"><thead><tr><th>Caso</th><th>Elemento</th><th>Extremos</th>'
+            '<th>Extremo 1</th><th>Extremo 2</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></div>')
 
 
 def _panel(snapshot: dict[str, Any]) -> str:

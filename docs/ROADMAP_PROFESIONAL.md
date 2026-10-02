@@ -622,6 +622,21 @@ Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
 
 ## Fase P14 — Runtime e integración local
 
+### Ampliación del módulo 3F para uso local (2026-10-01)
+
+Implementadas fichas explícitas de inducción directa y generador síncrono,
+correcciones K_G/K_S/K_SO y corrientes iniciales por rama. El control previo
+exige clasificar las cargas al usar máquinas; identifica faltantes y bloquea
+variadores sin modelo. El alcance validado es Ik'' inicial trifásica MAX/MIN
+con benchmarks independientes y pruebas mediante herramientas MCP.
+MIN excluye inducción. ip/Ith con máquinas, decaimiento y modelos de variador
+requieren validación adicional; calcular Ik'' no aprueba protecciones.
+Ver [contrato de máquinas SC3](SC3_MACHINES.md).
+
+Antes de repetir el unifilar real: revisar fichas de generador, motores y
+cables; comunicar cada supuesto propuesto y obtener su aceptación. No
+heredar una aprobación de supuestos de otro estudio.
+
 **Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
 
 P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B
