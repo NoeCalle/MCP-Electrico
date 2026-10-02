@@ -29,7 +29,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P13 — Motores y arranque | **P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES** | aceleración mecánica RMS acoplada a red aislada, calibración, energía/convergencia, replay y dossier |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
-**Regla de avance:** P0–P11 conservan sus contratos cerrados. P6 IEEE 1584 continúa diferida. P12 evoluciona escenarios operativos y P13 abre motores/arranque como capacidad aditiva independiente, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
+**Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Cierre para uso local solicitado:** Arc Flash IEEE 1584 es el único bloque
 pospuesto de esta entrega. P13F cierra el alcance RMS trifásico DOL de un motor
@@ -61,6 +61,19 @@ P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = FIRST_CONTROLLED_LOCAL_PROJECT
 
+professional_report = false
+professional_emission = false
+automatic_dispatch = false
+crosscheck=false
+automatic_normative_lookup = false
+```
+
+**Contratos de gates por fase (referencia histórica):** Los siguientes valores
+se conservan en P5/P7. Sus campos `next_phase` y `next_activity` describen
+la transición de cada gate, no trabajo pendiente del roadmap actual.
+P5 por sí solo no habilita la Engineering Preview; P7 y P8 ya cerraron esa ruta.
+
+```text
 P5 operational_path_ready    = true
 P5 engineering_preview_ready = false
 P5 next_phase                = P7_REPRODUCIBLE_DOSSIER_MINIMUM
@@ -69,15 +82,9 @@ P7 engineering_preview_ready = true
 P7 internal_use_ready        = true
 P7 allowed_use               = CONTROLLED_INTERNAL_ENGINEERING_PREVIEW
 P7 next_activity             = REAL_SUBSTATION_PILOT
-
-professional_report = false
-professional_emission = false
-automatic_dispatch = false
-crosscheck=false
-automatic_normative_lookup = false
 ```
 
-Usable internamente no equivale a `professional_emission=true`. La Engineering Preview 0.9 debe utilizar proyectos reales para descubrir fricción antes del endurecimiento final del producto.
+Usable internamente no equivale a `professional_emission=true`. P9 ya cerró el endurecimiento de la baseline 0.9. El siguiente paso operativo es usar un proyecto local controlado para documentar fricción y priorizar mejoras posteriores.
 
 ## Principio rector
 
@@ -268,11 +275,26 @@ IN_SCOPE: 3F, 2F, 1F-T
 OUT_OF_SCOPE_P4_V1: 2F-T contractual
 ```
 
-Incluye MAX/MIN, magnitudes soportadas por tipo de falla, secuencia cero explícita para 1F-T, benchmarks independientes y Workspace V4. `ip/Ith` solo se calculan cuando sus requisitos de topología/tiempo/método están declarados.
+Incluye MAX/MIN, magnitudes soportadas por tipo de falla, secuencia cero explícita para 1F-T, benchmarks independientes y Workspace V4. `ip/Ith` sin máquinas solo se calculan cuando sus requisitos de topología/tiempo/método están declarados; con fichas de máquinas permanecen bloqueados hasta validar su alcance.
 
 P4C10 permanece `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION`; una verificación integral requiere revisión licenciada futura.
 
 Detalle: `docs/P4_IEC60909.md` y documentos P4 específicos.
+
+### Ampliación del módulo 3F para uso local (integrada el 2026-10-02, PR #152)
+
+Implementadas fichas explícitas de inducción directa y generador síncrono,
+correcciones K_G/K_S/K_SO y corrientes iniciales por rama. El control previo
+exige clasificar las cargas al usar máquinas; identifica faltantes y bloquea
+variadores sin modelo. El alcance validado es Ik'' inicial trifásica MAX/MIN
+con benchmarks independientes y pruebas mediante herramientas MCP.
+MIN excluye inducción. ip/Ith con máquinas, decaimiento y modelos de variador
+requieren validación adicional; calcular Ik'' no aprueba protecciones.
+Ver [contrato de máquinas SC3](SC3_MACHINES.md).
+
+Antes de repetir el unifilar real: revisar fichas de generador, motores y
+cables; comunicar cada supuesto propuesto y obtener su aceptación. No
+heredar una aprobación de supuestos de otro estudio.
 
 ## Fase P5 — Protección del conductor y coordinación
 
@@ -469,14 +491,14 @@ Las lanes históricas P4/P7/P8 y la suite general permanecen verdes junto con la
 
 **DONE.** PR #109.
 
-El freeze debe dejar explícitos:
+El freeze dejó explícitos, como registro del cierre P9:
 
 - release: `MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW`;
 - allowed_use: `CONTROLLED_REAL_PROJECT_ENGINEERING_PREVIEW`;
 - professional_emission: `false`;
 - P6 IEEE 1584: `DEFERRED`;
 - ninguna ampliación funcional durante el freeze;
-- siguiente fase: P10 / MCP-REF-SUB-01.
+- siguiente fase en ese cierre: P10 / MCP-REF-SUB-01, ya completada.
 
 Detalle: `docs/P9_ENGINEERING_PREVIEW_FREEZE.md`.
 
@@ -612,38 +634,50 @@ professional_emission = false
 
 Detalle: `docs/P13_MOTOR_STARTING.md`.
 
-P13F se reactivó el 2026-09-30 para preparar dinámica avanzada. P13F1 añade
+P13F se reactivó el 2026-09-30 y cerró el alcance de dinámica mecánica RMS equilibrada. P13F1 añade
 datos físicos SI, vínculo SHA al manifiesto, controles de admisión,
 dos referencias mecánicas analíticas y plan de calificación independiente.
 P13F2 califica MCP_BALANCED_RMS_RK4_V1; P13F3 acopla la red aislada;
 P13F4 calcula trayectorias y P13F5 entrega Workspace/CSV/dossier. La ejecución
 requiere opciones explícitas y consistencia con datos nominales/arranque.
+El alcance es un motor de jaula trifásico equilibrado con arranque directo
+desde reposo por estudio; los demás motores permanecen como cargas de marcha.
+VFD, soft starter, conmutaciones, EMT y secuencias dinámicas simultáneas
+quedan fuera de esta entrega.
 Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
 
 ## Fase P14 — Runtime e integración local
-
-### Ampliación del módulo 3F para uso local (2026-10-01)
-
-Implementadas fichas explícitas de inducción directa y generador síncrono,
-correcciones K_G/K_S/K_SO y corrientes iniciales por rama. El control previo
-exige clasificar las cargas al usar máquinas; identifica faltantes y bloquea
-variadores sin modelo. El alcance validado es Ik'' inicial trifásica MAX/MIN
-con benchmarks independientes y pruebas mediante herramientas MCP.
-MIN excluye inducción. ip/Ith con máquinas, decaimiento y modelos de variador
-requieren validación adicional; calcular Ik'' no aprueba protecciones.
-Ver [contrato de máquinas SC3](SC3_MACHINES.md).
-
-Antes de repetir el unifilar real: revisar fichas de generador, motores y
-cables; comunicar cada supuesto propuesto y obtener su aceptación. No
-heredar una aprobación de supuestos de otro estudio.
 
 **Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
 
 P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B
 incorpora Streamable HTTP limitado a loopback, stdio compatible, arranque oculto
-y detención Windows. El cliente real descubre 133 tools y verifica flujo,
+y detención Windows. La verificación de cierre P14B registró 133 tools y comprobó flujo,
 expedientes P8/P12/P13, replay e integridad. Los tests de protocolo se ejecutan
 en CI Windows/Linux. Detalle: `docs/P14_LOCAL_RUNTIME.md`.
 
-El 2026-09-30 se eligió instalar en esta PC. Alojamiento remoto, IEEE 1584 y
-dinámica avanzada de motores permanecen fuera del cierre operativo local.
+El 2026-09-30 se eligió la instalación local. P13F1–F5 ya incluye dinámica
+mecánica RMS equilibrada dentro del alcance declarado. Alojamiento remoto,
+IEEE 1584 y las extensiones dinámicas enumeradas en P13 permanecen fuera
+de esta entrega.
+
+## Siguiente actividad y pendientes vigentes
+
+La prioridad operativa es `FIRST_CONTROLLED_LOCAL_PROJECT`: revisar datos,
+procedencia y supuestos del proyecto, ejecutar los estudios admisibles y
+verificar el dossier reproducible. Los casos de referencia y ejercicios
+existentes no sustituyen la revisión de los datos de ese proyecto.
+
+Los cierres anteriores conservan estos pendientes explícitos:
+
+- P6/V6: Arc Flash IEEE 1584 diferido.
+- P4/P5: revisión normativa completa, datasets y referencias externas pendientes
+  según [Validaciones pendientes](VALIDACIONES_PENDIENTES.md).
+- SC3 con máquinas: decaimiento, corriente de corte/permanente, `ip/Ith`
+  y variadores fuera del alcance validado; ver [SC3](SC3_MACHINES.md).
+- P13: ampliaciones más allá de un motor dinámico RMS DOL por estudio.
+- P11: espejo externo independiente diferido; export y restore internos cerrados.
+- P14: alojamiento remoto fuera de la entrega local.
+
+Estos pendientes no cambian `professional_emission=false` ni amplían la
+madurez de los módulos cerrados con limitaciones.
