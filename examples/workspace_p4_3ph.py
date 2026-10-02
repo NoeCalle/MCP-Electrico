@@ -53,6 +53,19 @@ def main() -> None:
     workspace_state.mark_model_changed("workspace_p4_fixture:definir_red_equivalente")
 
     server.ejecutar_flujo_potencia()
+    precheck = server.evaluar_preparacion_cortocircuito_3ph(
+        "bus1", line_endtemp_degree_c={"Line.f1": 20.0},
+        calcular_ip_ith=True, topology="radial", tk_s=0.2,
+    )
+    # Reviewed mathematical fixture; this is not acceptance of a real design.
+    review = {
+        "model_sha256": precheck["model_sha256"],
+        "uso_previsto": "APORTE_FUENTES_EQUIVALENTES",
+        "calidad_datos": "SUPUESTOS_APROBADOS",
+        "referencia_revision": "Fixture matemático P4C11A versionado; sin uso para aprobar equipos reales.",
+        "supuestos_aprobados": ["Fuente Scc500/250MVA XR10/5, línea0,25km R0,18 X0,09, temperatura20°C, despeje0,2s: datos sintéticos del fixture."],
+        "exclusiones_revisadas": [item["id"] for item in precheck["items_to_review"]],
+    }
     result = server.ejecutar_cortocircuito_iec60909_3ph(
         "bus1",
         line_endtemp_degree_c={"Line.f1": 20.0},
@@ -60,6 +73,7 @@ def main() -> None:
         topology="radial",
         tk_s=0.2,
         kappa_method="C",
+        revision_modelo=review,
     )
     print({
         "ok": result["ok"],

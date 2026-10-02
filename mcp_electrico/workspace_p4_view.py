@@ -192,10 +192,19 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
         or minimum.get("pandapower_version")
         or "—"
     )
-    overall = "COMPLETO" if study.get("ok") else "PARCIAL / BLOQUEADO"
+    partial = study.get("engineering_status") == "PARCIAL_NO_VALIDA_PROTECCIONES"
+    overall = ("APORTE PARCIAL" if partial and study.get("ok")
+               else "MAX/MIN CALCULADOS" if study.get("ok") else "PARCIAL / BLOQUEADO")
     overall_css = "p4-ok" if study.get("ok") else "p4-fail"
     current_label = "I fase MAX" if fault == "2F-T" else "Ik'' MAX"
     current_label_min = "I fase MIN" if fault == "2F-T" else "Ik'' MIN"
+    review_note = (
+        '<div class="p4-note"><strong>MODELO PARCIAL: NO VALIDA PROTECCIONES.</strong> '
+        'Aporte de fuentes equivalentes; cargas Load sin aporte de motor. '
+        'Datos, supuestos y exclusiones revisados para este alcance; '
+        'la completitud física del sistema no está acreditada.</div>'
+        if partial else ""
+    )
 
     return f'''<article class="p4-study-block" data-p4-study="{escape(key, quote=True)}" data-p4-fault="{escape(fault, quote=True)}" data-p4-study-bus="{escape(bus, quote=True)}">
 <div class="p4-header">
@@ -208,6 +217,7 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
 </div>
 <div class="p4-note"><strong>{escape(maturity)} · SIN EMISIÓN PROFESIONAL.</strong> Motor {escape(str(engine.get('engine') or 'pandapower'))} {escape(str(runtime_version))}; objetivo {escape(str(target.get('designation') or target.get('id') or 'IEC 60909'))}. Conformidad de edición: <strong>{escape(conformance)}</strong>. Esta vista no recalcula magnitudes ni sustituye la revisión P4C10.</div>
 {_operational_note(study, fault)}
+{review_note}
 {_negative_sequence_note(study, fault)}
 {_zero_sequence_note(study, fault)}
 <div class="table-wrap"><table class="study-table"><thead><tr><th>Escenario</th><th>Estado</th><th>Ik'' / I fase</th><th>Sk''</th><th>ip</th><th>Ith</th><th>Rk</th><th>Xk</th><th>Rk0</th><th>Xk0</th><th>Topología</th><th>tk</th><th>κ</th><th>Issues</th></tr></thead><tbody>{_scenario_row('max', maximum)}{_scenario_row('min', minimum)}</tbody></table></div>
