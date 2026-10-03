@@ -11,10 +11,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Any
+import unicodedata
 
 from opendssdirect import dss
 
 from . import model_qa, pandapower_engine, study_readiness, validation_status
+from .external_engine_catalogue import EXTERNAL_ENGINES, PLANNED_STUDIES, RESEARCH_DATE
 
 
 CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
@@ -112,6 +114,8 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
     },
 }
 
+CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+
 ALIASES = {
     "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",
     "caida_tension": "voltage_drop", "voltage_drop": "voltage_drop",
@@ -123,11 +127,23 @@ ALIASES = {
     "lee": "arc_flash_lee", "arc_flash_lee": "arc_flash_lee",
     "armonicos": "harmonics", "harmonics": "harmonics",
     "series_temporales": "time_series", "time_series": "time_series",
+    "dinamica_arranque_directo": "motor_dynamics_dol",
+    "arranque_directo_dinamico": "motor_dynamics_dol",
+    "dinamica_arranque_suave": "motor_dynamics_soft_starter_scr",
+    "dinamica_scr": "motor_dynamics_soft_starter_scr",
+    "dinamica_simultanea": "motor_dynamics_simultaneous",
+    "dinamica_multimotor": "motor_dynamics_simultaneous",
+    "dinamica_variador": "motor_dynamics_vfd",
+    "estabilidad_transitoria": "transient_stability",
+    "estabilidad_pequena_senal": "small_signal_stability",
+    "estabilidad_tension_cpf": "voltage_stability_cpf", "flujo_continuado": "voltage_stability_cpf",
+    "transitorios_electromagneticos": "electromagnetic_transients", "emt": "electromagnetic_transients",
 }
 
 
 def _normalize_study(study: str, standard: str | None = None) -> str:
-    key = str(study or "").strip().lower().replace("-", "_").replace(" ", "_")
+    plain = "".join(c for c in unicodedata.normalize("NFKD", str(study or "")) if not unicodedata.combining(c))
+    key = plain.strip().lower().replace("-", "_").replace(" ", "_")
     standard_key = str(standard or "").strip().lower().replace(" ", "")
     if "60909" in standard_key:
         return "iec60909"
@@ -151,6 +167,10 @@ def obtener_capacidades_motores() -> dict[str, Any]:
         "crosscheck": False,
         "default_engine": "opendss",
         "studies": deepcopy(CAPABILITY_MATRIX),
+        "matrix_revision": "E_OPEN_SOURCE_ROUTING_2026_10_02",
+        "research_date": RESEARCH_DATE,
+        "external_engine_catalogue": deepcopy(EXTERNAL_ENGINES),
+        "integration_policy": "USE_EXISTING_OPEN_SOURCE_MODELS_FIRST",
         "readiness_states": {
             "data": ["READY_DATA", "MISSING_DATA"],
             "engine": ["READY_ENGINE", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
@@ -245,7 +265,14 @@ def seleccionar_motor_estudio(
     alternatives: list[dict[str, Any]] = []
     for engine in capability.get("alternatives", []):
         item: dict[str, Any] = {"engine": engine, "eligible": False, "reason": None}
-        if engine == "pandapower":
+        if capability.get("planning_only"):
+            item.update(
+                integration_status="ADAPTER_NOT_IMPLEMENTED",
+                maturity="UNQUALIFIED_FOR_THIS_MCP_STUDY",
+                reason="Candidato investigado; falta adaptador y prueba del alcance. El permiso experimental no habilita ejecución.",
+                limitations=deepcopy(EXTERNAL_ENGINES[engine]["limits"]),
+            )
+        elif engine == "pandapower":
             if not active_model:
                 item.update(
                     compatible_model=False,
@@ -293,6 +320,8 @@ def seleccionar_motor_estudio(
         "professional_execution_ready": professional_execution_ready,
         "professional_emission": professional,
         "selected_engine": capability["preferred"],
+        "planning_only": bool(capability.get("planning_only", False)),
+        "integration_status": capability.get("integration_status", "EXISTING_ROUTE"),
         "reason": reason,
         "requirements": deepcopy(capability["requirements"]),
         "readiness": readiness,

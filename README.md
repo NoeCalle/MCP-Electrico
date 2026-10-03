@@ -4,6 +4,13 @@ Servidor MCP para modelar, simular e inspeccionar redes eléctricas MT/BT con
 [OpenDSS](https://www.epri.com/pages/sa/opendss) mediante
 `OpenDSSDirect.py`.
 
+**Criterio de arquitectura:** el cliente conversacional interpreta pedidos en
+lenguaje natural y el MCP llama al software especializado gratuito y de código
+abierto que cubra cada estudio. El desarrollo propio se centra en adaptadores,
+datos, ejecución y presentación; un cálculo físico propio solo se propone tras
+documentar que no hay una solución existente adecuada. Ver
+[arquitectura y corrección de la ruta de motores](docs/ARQUITECTURA_INTEGRACION.md).
+
 El objetivo del proyecto es ofrecer a un cliente MCP herramientas eléctricas
 de alto nivel —crear circuitos, agregar elementos, resolver flujo de potencia,
 analizar caída de tensión, cortocircuito, contingencias y generar diagramas

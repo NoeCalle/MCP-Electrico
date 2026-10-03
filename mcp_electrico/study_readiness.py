@@ -294,6 +294,12 @@ def _engine_readiness(study: str, capability: dict[str, Any], fault_type: str | 
         return {"status": READY_ENGINE, "engine": "opendss", "reasons": []}
 
     if preferred == "pandapower":
+        try:
+            active_model = bool(dss.Circuit.Name())
+        except Exception:
+            active_model = False
+        if not active_model:
+            return {"status": ENGINE_NOT_READY, "engine": "pandapower", "reasons": [_item("P2READY001", "No existe un circuito activo.")]}
         machine_3ph = study == "iec60909" and fault_type == "three_phase"
         compatibility = pandapower_engine.evaluar_compatibilidad(allow_sc_machines=machine_3ph)
         if not compatibility.get("compatible"):
@@ -310,6 +316,19 @@ def _engine_readiness(study: str, capability: dict[str, Any], fault_type: str | 
 
 def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = None, allow_experimental: bool = False) -> dict[str, Any]:
     """Evalúa preparación profesional sin ejecutar el estudio."""
+    if capability.get("planning_only"):
+        return {
+            "schema_version": 1, "study": study, "fault_type": None,
+            "selected_engine": capability.get("preferred"),
+            "data_status": MISSING_DATA, "data_evaluated": False,
+            "engine_status": MODULE_NOT_READY, "overall_status": MODULE_NOT_READY,
+            "request_issues": [],
+            "missing_data": [_item("EPLAN001", "La validación de entradas del motor externo no está implementada; no se declara suficiencia de datos.")],
+            "engine_reasons": [_item("EPLAN002", "Ruta propuesta: falta adaptador MCP de ejecución y benchmark del estudio.")],
+            "engine_note": "Permitir experimental no implementa un adaptador ni activa un cálculo propio alternativo.",
+            "module_status": None, "professional_context": True,
+            "note": "Selección para planificación de integración; no es un estudio habilitado.",
+        }
     request_missing: list[dict[str, Any]] = []
     normalized_fault, fault_issues = _fault_type(study, fault_type)
     request_missing.extend(fault_issues)
@@ -319,7 +338,7 @@ def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = Non
         data_missing.extend(_ampacity_requirements())
     elif capability.get("requires_active_model", False) or study in _POSITIVE_SEQUENCE_PROFESSIONAL:
         data_missing.extend(_positive_sequence_requirements(study, normalized_fault))
-        if study == "iec60909" and normalized_fault == "three_phase":
+        if study == "iec60909" and normalized_fault == "three_phase" and not any(item.get("code") == "P2READY001" for item in data_missing):
             _, machine_issues = sc_machines.readiness(pandapower_engine._collect_active_model())
             data_missing.extend(machine_issues)
 

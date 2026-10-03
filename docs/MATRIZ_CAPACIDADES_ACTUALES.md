@@ -6,6 +6,16 @@ Inventario obtenido de un cliente MCP real por stdio: **146 herramientas registr
 
 ## Cómo leer la matriz
 
+**Dirección de desarrollo:** integrar herramientas gratuitas y abiertas
+existentes antes de implementar física propia. La matriz describe lo que hoy
+está implementado; el siguiente hito de motores es exponer la ejecución de
+OpenModelica/MSL mediante MCP. Su herramienta actual solo compara trazas.
+Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
+
+El selector determinista añade ocho rutas de integración pendientes y un catálogo
+de modelos abiertos: [investigación y reglas](MOTORES_ABIERTOS_INVESTIGACION.md).
+Estas preferencias no suman estudios ejecutables a las capacidades de esta matriz.
+
 - **OpenDSS**: solver principal de red. **pandapower**: segundo solver, especialmente cortocircuito IEC 60909. **Módulo propio MCP**: lógica de datos, cálculo específico, control, criterios y documentación.
 - Una fila con aportes de dos columnas significa que trabajan juntos en ese estudio; no significa que dos solvers estén contrastando el mismo resultado.
 - **Disponible** significa que existe ejecución dentro del alcance descrito. **Validado con limitaciones** identifica verificación dentro de un alcance concreto. **Experimental/en validación** requiere conservar esa condición al interpretar resultados. **Pendiente** significa que no está cubierto por el módulo vigente.
@@ -20,7 +30,7 @@ Falta comprobar cuánto representa un arrancador trifásico real: la aproximaci�
 
 Por eso P13G conserva `ANALYTICAL_SURROGATE_NOT_DEVICE_VALIDATED`. La prueba sintética publicada no valida los motores M1/M2 del plano. Sus datos físicos y criterios aplicables también deben revisarse para calcular su caso concreto.
 
-El primer contraste estructural está implementado mediante `contrastar_arranque_suave`: a 0.4 pu, la corriente RMS del equivalente supera la referencia resistiva trifásica sin neutro en 9.724 %. El contraste externo con motor ya se ejecutó con MSL 4.0.0/OpenModelica 1.27.1 y se verifica mediante `contrastar_dinamica_con_modelica`. Para el motor sintético, SCR llega al 90 % en 3.47 s frente a 3.752 s bajo la misma secuencia de entradas y bypass impuesto. Se registra discrepancia; queda mejorar la representación trifásica y comprobar red/control en lazo cerrado. Ninguno de estos resultados valida M1/M2.
+El primer contraste estructural está implementado mediante `contrastar_arranque_suave`: a 0.4 pu, la corriente RMS del equivalente supera la referencia resistiva trifásica sin neutro en 9.724 %. El contraste externo con motor ya se ejecutó con MSL 4.0.0/OpenModelica 1.27.1 y se verifica mediante `contrastar_dinamica_con_modelica`. Para el motor sintético, SCR llega al 90 % en 3.47 s frente a 3.752 s bajo la misma secuencia de entradas y bypass impuesto. Se registra discrepancia. La ruta corregida es integrar la ejecución del modelo externo existente y comprobar red/control en lazo cerrado. Ninguno de estos resultados valida M1/M2.
 
 ## Qué significa dinámica simultánea
 

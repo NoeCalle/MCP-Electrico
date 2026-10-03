@@ -18,6 +18,12 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run tests
         run: python -m pytest -q
+      - name: Verify pending external routes through MCP
+        run: python scripts/verify_external_engine_selection_mcp.py --output external_engine_selection_evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: external-engine-selection-mcp
+          path: external_engine_selection_evidence
       - name: Validate SC3 machines through public MCP tools
         run: python examples/validate_sc_machines_mcp.py --output-dir sc3_machine_mcp_evidence
       - name: Upload SC3 machine MCP evidence

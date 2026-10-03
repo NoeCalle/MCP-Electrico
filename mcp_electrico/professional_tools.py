@@ -56,7 +56,7 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
 
     @mcp.tool()
     def obtener_capacidades_motores() -> dict:
-        """Devuelve la matriz determinista OpenDSS/pandapower/MCP sin ejecutar estudios."""
+        """Devuelve rutas ejecutables, rutas pendientes y catálogo de modelos abiertos; no ejecuta estudios."""
         return engine_selection.obtener_capacidades_motores()
 
     @mcp.tool()
@@ -86,7 +86,13 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
         permitir_experimental: bool = False,
         tipo_falla: str | None = None,
     ) -> dict:
-        """Indica backend, requisitos y aptitud actual; no despacha el cálculo automáticamente."""
+        """Indica motor/modelo, requisitos y aptitud sin ejecutar.
+
+        Dinámica DOL/SCR/simultánea/VFD, estabilidad transitoria/pequeña señal,
+        flujo continuado y EMT tienen rutas propuestas con adaptador pendiente.
+        Consulta obtener_capacidades_motores para identificadores y límites.
+        Una preferencia pendiente no habilita ejecución ni fallback propio.
+        """
         return engine_selection.seleccionar_motor_estudio(
             estudio=estudio,
             norma=norma,

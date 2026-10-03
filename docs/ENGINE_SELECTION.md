@@ -2,7 +2,9 @@
 
 ## Propósito
 
-MCP Eléctrico no escoge un backend por intuición del LLM. La selección de OpenDSS, pandapower o una capa propia MCP se realiza mediante una matriz explícita y versionada.
+La conversación interpreta el estudio solicitado y consulta una matriz explícita
+y versionada para seleccionar el motor y modelo. La integración prioriza software
+abierto existente; las capas propias actuales conservan su alcance publicado.
 
 La arquitectura vigente mantiene:
 
@@ -24,16 +26,37 @@ La matriz recomienda/selecciona el backend y evalúa readiness; las tools de eje
 | Cortocircuito exploratorio | OpenDSS FaultStudy | `UNDER_VALIDATION`; no equivale a IEC 60909 formal |
 | IEC 60909 P4-v1 | pandapower 3.5.4 | 3F/2F/1F-T; `VALIDATED_WITH_LIMITATIONS`; revisión 2026 completada con limitaciones |
 | Ampacidad normativa | MCP | P3-v1 `VALIDATED_WITH_LIMITATIONS` |
-| Protección / TCC | MCP + pandapower cuando aplique | P5 desbloqueada para implementación |
+| Protección / TCC | MCP + pandapower cuando aplique | P5 implementada con alcance temporal puntual; OCRelay aún no integrado |
 | IEEE 1584 | MCP | P6 pendiente |
 | Lee | MCP | experimental/educativo |
 | Armónicos | OpenDSS | solver disponible; módulo MCP profesional pendiente |
 | Series temporales | OpenDSS | solver disponible; módulo MCP profesional pendiente |
 | Dinámica de motores P13F RMS | MCP_BALANCED_RMS_RK4_V1 + OpenDSS aislado | `VALIDATED_WITH_LIMITATIONS`; mecánica RK4 con circuito eléctrico algebraico, un motor DOL equilibrado |
 
-La selección dinámica es explícita y aditiva. IndMach012 y Modelica se conservan
-como alternativas sin calificar; la ejecución RMS no utiliza esos modelos.
-Detalle: [P13F](P13F_MOTOR_DYNAMICS.md).
+La fila P13F describe el código propio histórico, que permanece ejecutable en sus
+tools explícitas. La ruta de desarrollo vigente es integrar componentes existentes;
+no ampliar esas ecuaciones físicas. La comparación de trazas Modelica actual
+no es un adaptador de ejecución. Detalle: [arquitectura](ARQUITECTURA_INTEGRACION.md).
+
+## Ampliación E — candidatos abiertos y rutas pendientes
+
+La misma matriz incorpora ocho estudios concretos: dinámica DOL, SCR, simultánea,
+VFD y EMT → `openmodelica+msl`; estabilidad transitoria y pequeña señal → `andes`;
+flujo continuado → `veragrid`. Son preferencias propuestas para integración,
+basadas en el fenómeno y la evidencia disponible; no solvers nuevos ya habilitados.
+
+El catálogo incluye OpenIPSL, DPsim y la biblioteca de protecciones pandapower,
+con fuentes, licencias, límites y situación local. `schema_version=2` conserva su
+contrato; `matrix_revision=E_OPEN_SOURCE_ROUTING_2026_10_02` identifica la ampliación.
+
+En estas ocho rutas `planning_only=true`, `implemented=false`,
+`integration_status=ADAPTER_NOT_IMPLEMENTED`; la preparación global es
+`MODULE_NOT_READY`, incluso con modelo activo y permiso experimental.
+`data_evaluated=false` y `data_status=MISSING_DATA` indican que aún no existe
+validación de entradas para declarar suficiencia. No se cambia el significado
+de los estados ni las preferencias de los estudios existentes.
+
+Ver la [investigación y tabla completa](MOTORES_ABIERTOS_INVESTIGACION.md).
 
 ## Dos preguntas distintas: ejecutar vs. estar preparado
 
@@ -167,7 +190,7 @@ No todos los estudios pertenecen a un solver:
 - OpenDSS resuelve flujo;
 - MCP deriva/valida reglas de caída y ampacidad;
 - pandapower produce el núcleo IEC 60909 del alcance P4-v1;
-- P5 deberá producir tiempos de despeje y coordinación;
+- P5 produce comprobaciones de tiempos de despeje y coordinación puntual;
 - P6 IEEE 1584 consumirá corrientes y tiempos trazables.
 
 La matriz distingue entre **motor numérico**, **capa de estudio**, **preparación de datos** y **madurez para emisión**.
