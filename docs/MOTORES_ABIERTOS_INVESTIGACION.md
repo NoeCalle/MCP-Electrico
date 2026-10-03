@@ -3,6 +3,12 @@
 Investigación: **2 de octubre de 2026**. Preferencias propuestas por fenómeno y
 facilidad de integración; no se ha comparado el rendimiento de todos los candidatos.
 
+**Regla posterior del usuario:** reutilizar un motor suficientemente adecuado ya
+integrado. Esta investigación es un catálogo de candidatos, no un plan para
+instalarlos todos. Las preferencias pendientes requieren demostrar una carencia
+de las rutas existentes antes de incorporar otro motor; ver la
+[regla de reutilización](ARQUITECTURA_INTEGRACION.md).
+
 ## Recomendación para la estación de bombeo
 
 Integrar **OpenModelica + Modelica Standard Library (MSL)** primero. Ya se ejecutaron

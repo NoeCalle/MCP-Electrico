@@ -11,6 +11,29 @@ Antes de implementar física propia se debe buscar una solución existente y
 comprobar su alcance, licencia, instalación y funcionamiento con el caso. Solo
 una carencia documentada justifica proponer una implementación propia.
 
+## Regla de reutilización de motores
+
+Si un motor ya integrado cubre suficientemente el estudio solicitado, se reutiliza.
+La existencia de otro motor abierto con la misma función no justifica instalarlo
+ni mantener una segunda integración para ese estudio.
+
+Antes de admitir otro motor se documentará la carencia concreta: fenómeno o
+equipo no representado, método requerido, límite de escala o rendimiento, o
+integración incompatible. Se comprobará primero si otra función o biblioteca
+del motor existente cubre esa carencia. La suficiencia requiere datos admitidos,
+representación física adecuada y evidencia de validación dentro del alcance.
+
+La matriz asigna una ruta operativa principal por estudio. Las alternativas
+investigadas son reservas; no implican instalaciones comprometidas ni ejecución
+doble. Los contrastes puntuales de validación pueden utilizar una referencia
+independiente sin crear una segunda ruta operativa permanente.
+
+Las preferencias de rutas pendientes son propuestas revisables. En particular,
+no se incorporará VeraGrid solamente para CPF si un motor ya integrado lo cubre
+suficientemente; tampoco DPsim para un transitorio ya cubierto por Modelica/MSL.
+ANDES se evaluará cuando exista una necesidad de estabilidad de red que no esté
+suficientemente cubierta por la integración existente.
+
 ## Responsabilidades del MCP
 
 - Exponer herramientas con entradas y resultados comprensibles.
