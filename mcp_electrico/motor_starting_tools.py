@@ -14,10 +14,20 @@ from . import (
     motor_dynamics_dossier,
     motor_soft_starting,
     motor_soft_starting_dossier,
+    soft_starter_reference,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def contrastar_arranque_suave(paquete_comparacion: dict) -> dict:
+        """Contrasta el equivalente SCR con referencia trifásica resistiva sin neutro.
+
+        Compara igual ángulo e igual tensión fundamental; exige tolerancias
+        ilustrativas explícitas. No calcula un motor ni valida un fabricante.
+        """
+        return soft_starter_reference.compare(paquete_comparacion)
+
     @mcp.tool()
     def obtener_contrato_arranque_suave() -> dict:
         """Describe dinámica SCR/RL aproximada, datos, criterios y límites explícitos."""

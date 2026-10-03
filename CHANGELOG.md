@@ -6,6 +6,12 @@ corrección relevante.
 
 ## [Unreleased] — 2026-10-02
 
+- `contrastar_arranque_suave`: benchmark trifásico resistivo sin neutro de
+  referencia primaria, con cuadratura/RMS independientes, comparación a igual
+  ángulo y a igual fundamental, discrepancias y tolerancias ilustrativas.
+- Contraste MCP reproducible: conserva la condición de SCR aproximado y no
+  convierte el benchmark en validación de motor, fabricante o diseño.
+
 - P13G: cinco herramientas MCP para arranque suave SCR/RL aproximado con
   rampa fundamental, límite de corriente RMS equivalente, aceleración y bypass.
 - Evidencia de criterios por estudio: documento, edición, cláusula, aplicabilidad

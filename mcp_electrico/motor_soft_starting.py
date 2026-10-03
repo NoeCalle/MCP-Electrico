@@ -31,6 +31,8 @@ def contract():
         "schema": "MCP_ELECTRICO_P13G_SOFT_STARTER_CONTRACT_V1", "starter_schema": SCHEMA,
         "backend": BACKEND, "electrical_model": MODEL,
         "maturity": "ANALYTICAL_SURROGATE_NOT_DEVICE_VALIDATED",
+        "structural_reference_tool": "contrastar_arranque_suave",
+        "structural_reference_scope": "THREE_WIRE_FLOATING_STAR_RESISTIVE_LOAD_ONLY",
         "scope_acknowledgement": ACKNOWLEDGEMENT, "required_fields": sorted(CONTROL_FIELDS),
         "criterion_evidence_fields": sorted(EVIDENCE_FIELDS),
         "scope": "ONE_BALANCED_MOTOR_WITH_POSITIVE_SEQUENCE_RL_EQUIVALENT",

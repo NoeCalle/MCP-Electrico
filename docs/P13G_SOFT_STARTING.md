@@ -104,6 +104,13 @@ válido y criterios incumplidos. No se transforma ese resultado en error del MCP
 
 ## Pruebas y siguiente ampliación
 
+El [contraste estructural trifásico](P13G_REFERENCE_COMPARISON.md) añade la
+herramienta `contrastar_arranque_suave`. Su referencia resistiva en estrella
+sin neutro revela diferencias del equivalente por fase incluso a igual
+tensión fundamental. Este diagnóstico no valida un motor, fabricante o
+aceleración SCR; conserva la madurez aproximada y la aceptación de diseño
+pendiente.
+
 `tests/test_p13g_soft_starting.py` comprueba RL numérico independiente, referencia
 resistiva, inversión del control, recuperación exacta de DOL, rampa, límite,
 bypass, bloqueo, no convergencia, mallas insuficientes, procedencia, aislamiento,
