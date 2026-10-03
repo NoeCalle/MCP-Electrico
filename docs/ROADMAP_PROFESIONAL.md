@@ -12,10 +12,11 @@ y presenta los resultados. Antes de crear cálculos físicos propios se debe
 documentar una carencia de las soluciones disponibles. Ver
 [decisión de arquitectura](ARQUITECTURA_INTEGRACION.md).
 
-**Siguiente hito de motores:** integrar la ejecución de OpenModelica y los
-componentes existentes de Modelica Standard Library como herramientas MCP.
-Se detiene la ampliación del equivalente físico propio SCR como ruta principal.
-El contraste externo ya realizado sirve como evidencia; aún no es esa integración.
+**Migración del 2026-10-02:** física propia DOL/RK4 y SCR/RL retirada.
+Se integra ejecución DOL experimental OpenModelica/MSL para equivalente RL de
+barra común, incluido caso de dos motores. SCR de red/control cerrados está
+bloqueado por gate numérico. El trabajo histórico P13F/G no constituye una ruta
+vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Mapa maestro — orden de ejecución
 
@@ -37,17 +38,17 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
-| P13 — Motores y arranque | **P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES** | aceleración mecánica RMS acoplada a red aislada, calibración, energía/convergencia, replay y dossier |
-| P13G — Arranque suave | **AMPLIACIÓN LOCAL SCR/RL APROXIMADA; VALIDACIÓN DE DISPOSITIVO PENDIENTE** | rampa, límite RMS, aceleración, bypass y criterios trazables; sin conmutación trifásica ni validación de fabricante |
+| P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL EXPERIMENTAL** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
+| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR BLOQUEADO** | resolver gate numérico de red/control cerrados; luego validar alcance y controlador/dispositivo |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
-**Cierre para uso local solicitado:** Arc Flash IEEE 1584 es el único bloque
-pospuesto de esta entrega. P13F cierra el alcance RMS trifásico DOL de un motor
-dinámico por estudio; V7.1 añade navegación legible y láminas para redes grandes.
-EMT, VFD y alojamiento remoto quedan fuera del alcance de esta entrega local.
-El siguiente paso operativo es introducir un proyecto real con datos revisados.
+**Alcance local vigente tras el retiro:** la baseline estática conserva su
+disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
+experimental de equivalente RL, con calificación integral pendiente. SCR cerrado,
+bancos, armónicos y perfiles siguen pendientes de los gates publicados; Arc Flash
+continúa diferido. No se declara cierre de todas las necesidades habituales.
 
 **Estado actual:**
 
@@ -68,8 +69,8 @@ P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
-P13F2_TO_F5 = BALANCED_RMS_OPERATIONAL_WITH_LIMITATIONS
-P13G = APPROXIMATE_SCR_RL_SURROGATE_DEVICE_VALIDATION_PENDING
+P13F2_TO_F5 = RETIRED_CUSTOM_BACKEND_MSL_DOL_EXPERIMENTAL
+P13G = RETIRED_CUSTOM_BACKEND_MSL_CLOSED_LOOP_NUMERICAL_GATE_PENDING
 P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_RECORDED
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
@@ -632,7 +633,11 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado: P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES; acceso MCP público verificado.**
+**Estado vigente: P13A–P13E DONE; F2–F5 físicos propios retirados; reemplazo MSL DOL experimental.**
+
+Los párrafos F2–F5 siguientes documentan el hito histórico anterior; no habilitan
+la ejecución del solucionador retirado. El estado actual y sus herramientas están
+en [la migración](MIGRACION_MODELOS_ABIERTOS.md).
 
 P13 incorpora motores como capacidad transversal para manufactura, agua/saneamiento, HVAC, hospitales, data centers, oil & gas, minería y otras industrias.
 

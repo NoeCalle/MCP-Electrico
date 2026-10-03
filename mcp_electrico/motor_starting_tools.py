@@ -16,10 +16,34 @@ from . import (
     motor_soft_starting_dossier,
     soft_starter_reference,
     motor_external_reference,
+    modelica_motor_adapter,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def obtener_contrato_dinamica_modelica() -> dict:
+        """Alcance experimental MSL DOL/SCR; equivalente RL y datos explícitos."""
+        return {**modelica_motor_adapter.contract(), "runtime": modelica_motor_adapter.runtime()}
+
+    @mcp.tool()
+    def configurar_dinamica_modelica(ruta_omc: str, directorio_msl: str) -> dict:
+        """Registra OpenModelica 1.27.1/MSL 4.0.0 ya instalados; no instala software."""
+        return modelica_motor_adapter.configure(ruta_omc, directorio_msl)
+
+    @mcp.tool()
+    def validar_dinamica_modelica(paquete_estudio: dict) -> dict:
+        """Comprueba red equivalente, máquinas, carga, control y criterios explícitos."""
+        return modelica_motor_adapter.validate(paquete_estudio)
+
+    @mcp.tool()
+    def ejecutar_dinamica_modelica(paquete_estudio: dict, directorio_salida: str) -> dict:
+        """Ejecuta componentes MSL con red común y refinamiento numérico.
+
+        Adaptador experimental; no traduce automáticamente el unifilar OpenDSS.
+        Control SCR de referencia, sin validación de un fabricante.
+        """
+        return modelica_motor_adapter.execute(paquete_estudio, directorio_salida)
     @mcp.tool()
     def contrastar_dinamica_con_modelica(directorio_evidencia: str) -> dict:
         """Verifica expediente y compara RMS/par/velocidad con trazas externas Modelica.
@@ -52,7 +76,7 @@ def register(mcp) -> None:
     @mcp.tool()
     def ejecutar_dinamica_arranque_suave(manifest_referencia_dol: dict, paquete_dinamico: dict,
                                         opciones: dict, arrancador: dict) -> dict:
-        """Integra rampa, límite de corriente, aceleración y bypass en modelo SCR/RL aproximado."""
+        """Entrada retirada: devuelve la herramienta y contrato MSL de reemplazo."""
         return motor_soft_starting.execute(manifest_referencia_dol, paquete_dinamico, opciones, arrancador)
 
     @mcp.tool()
@@ -79,7 +103,7 @@ def register(mcp) -> None:
 
     @mcp.tool()
     def ejecutar_dinamica_motores(manifest: dict, paquete_dinamico: dict, opciones: dict) -> dict:
-        """Integra aceleración RMS acoplada a red aislada y verifica energía/refinamiento."""
+        """Entrada retirada: devuelve la herramienta y contrato MSL de reemplazo."""
         return motor_dynamics.execute(manifest, paquete_dinamico, opciones)
 
     @mcp.tool()

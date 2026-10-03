@@ -100,3 +100,10 @@ Se corrigió además la consulta IEC sin circuito activo para devolver datos
 faltantes y motor no preparado, en lugar de una excepción.
 Regresión completa local: **950 aprobadas, 1 omitida**. Las advertencias de
 dependencias se conservan en el registro; no califican los motores investigados.
+
+## Actualización de ejecución y retiro — 2026-10-02
+
+Física propia DOL/RK4 y SCR/RL retirada. Existe un adaptador MCP experimental
+MSL DOL para equivalente RL de barra común; SCR cerrado está bloqueado por
+gate numérico pendiente. La recomendación de integración del catálogo no
+promueve los estudios completos. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md).

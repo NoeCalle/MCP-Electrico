@@ -81,3 +81,10 @@ reclasifican como una integración externa ya completada. El próximo hito es
 no corregir o ampliar el equivalente físico propio.
 
 Arc Flash permanece diferido por instrucción del usuario.
+
+## Actualización de ejecución y retiro — 2026-10-02
+
+Física propia DOL/RK4 y SCR/RL retirada. Existe un adaptador MCP experimental
+MSL DOL para equivalente RL de barra común; SCR cerrado está bloqueado por
+gate numérico pendiente. La recomendación de integración del catálogo no
+promueve los estudios completos. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md).
