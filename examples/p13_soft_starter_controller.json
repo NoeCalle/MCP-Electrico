@@ -1,0 +1,25 @@
+{
+  "schema": "MCP_ELECTRICO_P13G_SOFT_STARTER_V1",
+  "motor_id": "Motor.m01",
+  "electrical_model": "BALANCED_PER_PHASE_PERIODIC_SCR_RL_SURROGATE",
+  "scope_acknowledgement": "RL_SURROGATE_NOT_DEVICE_VALIDATED",
+  "connection": "INLINE_POSITIVE_SEQUENCE_EQUIVALENT",
+  "control_mode": "FUNDAMENTAL_VOLTAGE_RAMP_CURRENT_LIMIT",
+  "initial_voltage_fraction": 0.4,
+  "ramp_time_s": 1.0,
+  "current_limit_a": 1000,
+  "bypass_speed_fraction": 0.85,
+  "bypass_hold_s": 0.04,
+  "source_reference": "CONTROLLED_REFERENCE_DATA - synthetic SCR/RL controller, not pumping station M1 or manufacturer data",
+  "criterion_evidence": {
+    "DYNAMIC-M01": {
+      "kind": "ILLUSTRATIVE",
+      "document": "P13F synthetic qualification fixture",
+      "edition": "V1",
+      "clause": "Synthetic test targets; no normative clause",
+      "applicability": "Test of numerical behavior only; the initial ramp is expected to fall below the DOL fixture voltage threshold",
+      "source_reference": "CONTROLLED_REFERENCE_DATA - explicit qualification target; not an achieved dynamic result",
+      "voltage_quantity": "MOTOR_FUNDAMENTAL_RMS"
+    }
+  }
+}

@@ -45,7 +45,7 @@ Incluye unifilar técnico, workspace persistente, inspector, selección sincroni
 Pendientes transversales:
 
 - seguir endureciendo regresiones visuales;
-- mejorar manejo de redes grandes;
+- ampliar el manejo de redes grandes a partir de la navegación y láminas ya entregadas en V7.1;
 - incorporar screenshots/diffs automatizados cuando el entorno lo permita.
 
 ## V2 — Acompañamiento visual de P2: datos profesionales
@@ -207,7 +207,7 @@ No se representa una curva de daño del conductor hasta disponer de un dataset b
 
 ## V5.1 — Preparación de ingeniería y TBC
 
-**Estado: IMPLEMENTADA EN DESARROLLO.**
+**Estado: IMPLEMENTADA E INTEGRADA EN MAIN (PR #146).**
 
 Extensión transversal del mismo Workspace V5, alineada con P14A. Añade una
 pestaña **Preparación** que muestra información preparada en Python/MCP:
@@ -260,8 +260,9 @@ No bloquea la Engineering Preview previa.
 
 P7/P8 incorporan expediente, reporte e integridad; P12F y P13E añaden sus
 Workspaces y dossiers especializados. La instalación local verifica generación
-y hashes desde el protocolo MCP. La ampliación de planos para redes grandes y
-la comparación visual se amplían mediante V7.1.
+y hashes desde el protocolo MCP. V7.1 añade navegación y láminas para redes
+grandes, con capturas de verificación. La comparación continua automatizada
+de píxeles permanece pendiente.
 
 ## V7.1 — Navegación y láminas para uso local
 
@@ -274,6 +275,9 @@ la comparación visual se amplían mediante V7.1.
 - `exportar_laminas_unifilar` divide el SVG en láminas A3 numeradas y solapadas;
   conserva revisión y SVG completo, bloquea sobrescritura y limita a 200 láminas.
 - P13F5 muestra velocidad, corriente, par y tensión desde Python, con CSV/replay/SHA.
+- La ampliación P13G presenta control, bypass, tensión de entrada, tensión fundamental
+  y RMS equivalente del motor, con procedencia de criterios. Identifica el modelo
+  SCR/RL como aproximado y sin validación contra un arrancador real.
 - Verificación real de búsqueda, selección, zoom y disposición estrecha/escritorio,
   con capturas; tests cubren cobertura de láminas y regresión.
 

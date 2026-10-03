@@ -25,10 +25,34 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
+Consultar la [matriz completa de capacidades actuales](docs/MATRIZ_CAPACIDADES_ACTUALES.md)
+para distinguir la participación de OpenDSS, pandapower y los módulos propios,
+el alcance disponible, la madurez y las funciones pendientes. Incluye las
+ampliaciones de 2F-T y SCR sin modificar los contratos históricos del core.
+
 La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 `validar_datos_dinamica_motores` y `obtener_plan_validacion_dinamica_motores`.
 La ejecución usa un contrato adicional con opciones explícitas y genera
 trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_MOTOR_DYNAMICS.md).
+
+P13G añade [arranque suave aproximado SCR/RL](docs/P13G_SOFT_STARTING.md): rampa,
+límite de corriente, aceleración y bypass de un motor, con criterios trazables
+y dossier. Es un equivalente por fase probado con referencias analíticas y
+numéricas; no está validado contra un arrancador real ni representa conmutación
+trifásica, armónicos de la red o calentamiento. No acredita aceptación del diseño.
+
+`contrastar_arranque_suave` incorpora un [benchmark trifásico independiente
+de carga resistiva sin neutro](docs/P13G_REFERENCE_COMPARISON.md). Compara el
+equivalente por fase con tramos de onda publicados, a igual ángulo y a igual
+tensión fundamental. Registra las diferencias sin promocionar validación de
+dispositivo ni atribuir ese error al motor del proyecto.
+
+`contrastar_dinamica_con_modelica` añade el [contraste externo con motor](docs/P13G_MODELICA_REFERENCE.md).
+La biblioteca Modelica Standard Library 4.0.0 se ejecutó con OpenModelica 1.27.1:
+motor de inducción y tiristores trifásicos con parámetros sintéticos equivalentes.
+El SCR mostró discrepancias de corriente, par y aceleración bajo la misma
+secuencia de entradas; permanece sin cualificación de dispositivo. El MCP
+verifica el expediente y compara trazas; no ejecuta el simulador externo.
 
 El cortocircuito trifásico público requiere un **control previo del modelo**:
 primero revisar las entradas, los datos faltantes y los supuestos con

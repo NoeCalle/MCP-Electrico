@@ -1,0 +1,37 @@
+name: p13g-soft-starting
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  soft-starting:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: windows-latest
+            python: "3.12"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Verify independent RL references, controller and DOL regression
+        run: python -m pytest -q -p no:faulthandler tests/test_p13g_soft_starting.py tests/test_p13g_reference.py tests/test_motor_external_reference.py tests/test_p13f_rms_dynamics.py tests/test_p13f_dynamic_dossier.py tests/test_p13f_dynamic_preparation.py tests/test_roadmap_contract.py
+      - name: Call all P13G tools through a real MCP client
+        run: python scripts/verify_soft_starter_mcp.py --output p13g_mcp_evidence
+      - name: Compare SCR surrogate against published three-wire reference through MCP
+        run: python scripts/verify_soft_starter_reference_mcp.py --output p13g_reference_evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p13g-mcp-evidence-${{ matrix.os }}
+          path: |
+            p13g_mcp_evidence
+            p13g_reference_evidence

@@ -4,6 +4,29 @@ Registro de la evolución del servidor MCP para OpenDSS. Cada entrada indica
 qué herramientas se agregaron, qué caso de estudio las motivó, y cualquier
 corrección relevante.
 
+## [Unreleased] — 2026-10-02
+
+- `contrastar_dinamica_con_modelica`: verificación SHA-256 del expediente externo,
+  RMS de líneas sobre ciclos completos, par medio, velocidad y refinamiento.
+- Referencia ejecutada: MSL 4.0.0/OpenModelica 1.27.1; mismo motor sintético,
+  amplitud de fuente y ángulo reproducidos. SCR: 3.47 s frente a 3.75229 s al
+  90 % de velocidad. Red/control/bypass externos en lazo cerrado no contrastados.
+- Se registra discrepancia; no se promueve madurez de SCR ni aceptación del diseño.
+
+- `contrastar_arranque_suave`: benchmark trifásico resistivo sin neutro de
+  referencia primaria, con cuadratura/RMS independientes, comparación a igual
+  ángulo y a igual fundamental, discrepancias y tolerancias ilustrativas.
+- Contraste MCP reproducible: conserva la condición de SCR aproximado y no
+  convierte el benchmark en validación de motor, fabricante o diseño.
+
+- P13G: cinco herramientas MCP para arranque suave SCR/RL aproximado con
+  rampa fundamental, límite de corriente RMS equivalente, aceleración y bypass.
+- Evidencia de criterios por estudio: documento, edición, cláusula, aplicabilidad
+  y magnitud de tensión; ningún umbral normativo universal predeterminado.
+- Dossier portable con entrada del arrancador, gráficas, CSV, replay y SHA-256.
+- Equivalente analítico por fase; validación contra un dispositivo real,
+  conmutación trifásica, armónicos de red y calentamiento quedan pendientes.
+
 ## [0.1.0] - Versión inicial
 
 ### Herramientas incluidas

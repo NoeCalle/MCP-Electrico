@@ -1,0 +1,9 @@
+{
+  "schema": "MCP_ELECTRICO_P13G_REFERENCE_COMPARISON_V1",
+  "firing_angles_deg": [0, 30, 60, 75, 90, 120, 135, 150, 165, 180],
+  "fundamental_voltage_targets_pu": [0.2, 0.4, 0.6, 0.8, 1.0],
+  "numeric_absolute_tolerance_pu": 1e-9,
+  "comparison_absolute_tolerance_pu": 0.02,
+  "tolerance_kind": "ILLUSTRATIVE_BENCHMARK_ONLY",
+  "tolerance_reference": "Controlled structural benchmark: 0.02 pu diagnostic tolerance; not a normative minimum or device specification"
+}
