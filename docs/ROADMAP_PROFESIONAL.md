@@ -60,6 +60,7 @@ P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
 P13F2_TO_F5 = BALANCED_RMS_OPERATIONAL_WITH_LIMITATIONS
 P13G = APPROXIMATE_SCR_RL_SURROGATE_DEVICE_VALIDATION_PENDING
 P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_RECORDED
+P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = FIRST_CONTROLLED_LOCAL_PROJECT
@@ -77,6 +78,12 @@ no se declara cerrado el modelo de un arrancador industrial. Ver
 [P13G](P13G_SOFT_STARTING.md). La dinámica DOL P13F ya existe; para M1 faltan
 datos físicos revisados. Siguen pendientes la validación trifásica del dispositivo,
 dinámica simultánea de varios motores y otras exclusiones publicadas.
+
+**Contraste externo con motor:** MSL 4.0.0 ejecutada con OpenModelica 1.27.1,
+parámetros sintéticos equivalentes y secuencia de amplitud/ángulo reproducida.
+El SCR discrepa en corriente/par/aceleración. Ver [evidencia y límites](P13G_MODELICA_REFERENCE.md).
+Para superar la condición aproximada falta corregir la representación trifásica
+y contrastar red/control/bypass en lazo cerrado, además de los datos del dispositivo.
 
 **Contratos de gates por fase (referencia histórica):** Los siguientes valores
 se conservan en P5/P7. Sus campos `next_phase` y `next_activity` describen

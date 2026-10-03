@@ -111,6 +111,12 @@ tensión fundamental. Este diagnóstico no valida un motor, fabricante o
 aceleración SCR; conserva la madurez aproximada y la aceptación de diseño
 pendiente.
 
+El [contraste externo con motor Modelica](P13G_MODELICA_REFERENCE.md) ya está
+ejecutado en un caso sintético con entradas reproducidas, y añade la herramienta
+`contrastar_dinamica_con_modelica`. Las discrepancias de corriente, par y tiempo
+mantienen el equivalente sin cualificación. Este benchmark no sustituye la
+validación del controlador real, la red conjunta ni los motores M1/M2.
+
 `tests/test_p13g_soft_starting.py` comprueba RL numérico independiente, referencia
 resistiva, inversión del control, recuperación exacta de DOL, rampa, límite,
 bypass, bloqueo, no convergencia, mallas insuficientes, procedencia, aislamiento,

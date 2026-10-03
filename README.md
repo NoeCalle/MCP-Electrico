@@ -47,6 +47,13 @@ equivalente por fase con tramos de onda publicados, a igual ángulo y a igual
 tensión fundamental. Registra las diferencias sin promocionar validación de
 dispositivo ni atribuir ese error al motor del proyecto.
 
+`contrastar_dinamica_con_modelica` añade el [contraste externo con motor](docs/P13G_MODELICA_REFERENCE.md).
+La biblioteca Modelica Standard Library 4.0.0 se ejecutó con OpenModelica 1.27.1:
+motor de inducción y tiristores trifásicos con parámetros sintéticos equivalentes.
+El SCR mostró discrepancias de corriente, par y aceleración bajo la misma
+secuencia de entradas; permanece sin cualificación de dispositivo. El MCP
+verifica el expediente y compara trazas; no ejecuta el simulador externo.
+
 El cortocircuito trifásico público requiere un **control previo del modelo**:
 primero revisar las entradas, los datos faltantes y los supuestos con
 `evaluar_preparacion_cortocircuito_3ph`. La ejecución se bloquea sin una revisión

@@ -1,0 +1,121 @@
+{
+  "schema": "MCP_ELECTRICO_EXTERNAL_MOTOR_BENCHMARK_V1",
+  "fixture_id": "MCP-REF-DYNAMIC-RMS-01",
+  "scope": "SYNTHETIC_DELTA_MOTOR_60HZ_AMPLITUDE_AND_FIRING_ANGLE_REPLAY",
+  "external_solver": "OpenModelica 1.27.1",
+  "library": "Modelica Standard Library 4.0.0",
+  "interpretation": "TRACE_COMPARISON_NOT_SOLVER_ATTESTATION",
+  "not_evaluated": [
+    "CLOSED_LOOP_NETWORK",
+    "REAL_STARTER_CONTROLLER",
+    "MANUFACTURER",
+    "PROTECTION",
+    "THERMAL_LIMITS",
+    "PROJECT_DESIGN_ACCEPTANCE"
+  ],
+  "device_validation_promoted": false,
+  "professional_emission": false,
+  "design_acceptance_status": "NOT_DEMONSTRATED",
+  "status": "EXTERNAL_TRACE_COMPARISON_COMPLETED",
+  "evidence_sha256": {
+    "Inputs.json": "7b5b079cc5b2b84141611fb5961f0a9ae458faa1da09e10ee5beb77ab512e9c9",
+    "DOL-MCP.json": "3057e4cb2c65e1d8e1d41c1487d423c87921e7ce523aab40ef6af8bfe3bc11ce",
+    "SCR-MCP.json": "9cc755acb2e0f02e83d862217a698ff4c97c1215a0925bfc8865f2aa4bd279e3",
+    "DOL-Modelica.csv": "2289dbfa2ca4a370fb3b8007a6bec1fed870ce253128d1a9dd03f9fb808b6f5d",
+    "SCR-Modelica.csv": "922306094f1064c2db2c982d705038ad44d7fe670cf974beb3510631eb4b60db",
+    "DOL-Modelica-refined.csv": "9b86ee49f6fda57d6f5c60e579947631b4ce6d09122c503de45334497d7ac726",
+    "SCR-Modelica-refined.csv": "3b25a751c500ff04fae48872239cda7cc05c40ee32949d1076dd5436898dc8aa",
+    "DOL.mo": "1e7f1b7120b13dfe3396d2f43c1dc4a61738a66a225a485ac70c721297fd6ca1",
+    "SCR.mo": "3d2f0a11cbe8bda585922b69adcdb714e75183cc2beee327716c82ee4e22cd00",
+    "Library-sources.json": "a47052567b314a9e79e4c3cccfce6e2765e06934801168eca56585ab8df6ec66",
+    "Execution.json": "53a22f95c2f3cbc4d0cc30e553a23d70696c221bfe13efc6858cf8ec65957a02"
+  },
+  "numerical_reference": {
+    "coarse_tolerance": 1e-07,
+    "refined_tolerance": 1e-09,
+    "coarse_output_step_s": 5e-05,
+    "refined_output_step_s": 2.5e-05,
+    "refined_maximum_internal_step_s": 5e-05
+  },
+  "comparison_acceptance": "NO_NORMATIVE_OR_DEVICE_PASS_ASSIGNED",
+  "controller_feedback": "MCP_FIRING_ANGLE_REPLAY_OPEN_LOOP_FOR_REFERENCE",
+  "includes_initial_flux_transient": true,
+  "external_fixed_source_phase_angles": true,
+  "parent_context_mutated": false,
+  "cases": [
+    {
+      "case": "DOL",
+      "metrics": {
+        "current_a": {
+          "maximum_absolute_difference": 133.53230404103488,
+          "rms_difference": 24.450365854848236,
+          "reference_rms": 855.2433612863633,
+          "relative_l2_difference": 0.028588781815356828,
+          "reference_refinement_maximum_absolute_difference": 0.02550504830378486
+        },
+        "torque_nm": {
+          "maximum_absolute_difference": 607.3019364360076,
+          "rms_difference": 65.25603380412876,
+          "reference_rms": 978.5381707324866,
+          "relative_l2_difference": 0.0666872644889072,
+          "reference_refinement_maximum_absolute_difference": 0.00672533740248582
+        },
+        "speed_rad_s": {
+          "maximum_absolute_difference": 4.003336390759415,
+          "rms_difference": 1.307388915012165,
+          "reference_rms": 147.6367566423311,
+          "relative_l2_difference": 0.008855443215807574,
+          "reference_refinement_maximum_absolute_difference": 1.630886729442338e-05
+        }
+      },
+      "mcp_reported_time_90_s": 1.79,
+      "mcp_interpolated_time_90_s": 1.7815755513124052,
+      "reference_time_90_s": 1.8075909651507633,
+      "reference_refinement_time_90_difference_s": 8.098153592150936e-08,
+      "time_90_difference_s": -0.026015413838358148,
+      "reference_maximum_cycle_line_rms_a": 1613.3131476582764,
+      "reference_maximum_pre_replayed_bypass_line_rms_a": 1613.3131476582764,
+      "bypass_time_replayed_s": null,
+      "reference_maximum_actual_output_gap_s": 0.00015522246821708663,
+      "coarse_reference_maximum_actual_output_gap_s": 0.0001370363630277538
+    },
+    {
+      "case": "SCR",
+      "metrics": {
+        "current_a": {
+          "maximum_absolute_difference": 708.1849495357296,
+          "rms_difference": 218.674984924047,
+          "reference_rms": 908.3040455445627,
+          "relative_l2_difference": 0.24075086530407677,
+          "reference_refinement_maximum_absolute_difference": 0.02585876730830705
+        },
+        "torque_nm": {
+          "maximum_absolute_difference": 1483.8628470833623,
+          "rms_difference": 387.389515745385,
+          "reference_rms": 860.6355125507699,
+          "relative_l2_difference": 0.4501203007498861,
+          "reference_refinement_maximum_absolute_difference": 0.005063577462692592
+        },
+        "speed_rad_s": {
+          "maximum_absolute_difference": 45.30584884127016,
+          "rms_difference": 23.093150130575165,
+          "reference_rms": 75.76867382771978,
+          "relative_l2_difference": 0.3047849323994185,
+          "reference_refinement_maximum_absolute_difference": 5.4046317110589825e-05
+        }
+      },
+      "mcp_reported_time_90_s": 3.47,
+      "mcp_interpolated_time_90_s": 3.469275710389761,
+      "reference_time_90_s": 3.752289819083636,
+      "reference_refinement_time_90_difference_s": 1.354737868553002e-07,
+      "time_90_difference_s": -0.2830141086938749,
+      "reference_maximum_cycle_line_rms_a": 1232.2480729732215,
+      "reference_maximum_pre_replayed_bypass_line_rms_a": 1232.2480729732215,
+      "bypass_time_replayed_s": 3.45,
+      "reference_maximum_actual_output_gap_s": 5.993173373797234e-05,
+      "coarse_reference_maximum_actual_output_gap_s": 9.404970337500984e-05
+    }
+  ],
+  "evidence_index_sha256": "ea1257023c14a611e555a69783e70bdded4c3548382e90fad0b48a7b3b7d1d2c",
+  "observed_comparison_sha256": "59a44baba6a2c3fcefd95975d2d53a6ce6d144cc09d1126d6aecd76e32ef6f3e"
+}

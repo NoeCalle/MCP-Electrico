@@ -15,10 +15,20 @@ from . import (
     motor_soft_starting,
     motor_soft_starting_dossier,
     soft_starter_reference,
+    motor_external_reference,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def contrastar_dinamica_con_modelica(directorio_evidencia: str) -> dict:
+        """Verifica expediente y compara RMS/par/velocidad con trazas externas Modelica.
+
+        Solo el caso sintético declarado; no ejecuta ni certifica un simulador,
+        no valida el controlador real ni concede aceptación de diseño.
+        """
+        return motor_external_reference.compare(directorio_evidencia)
+
     @mcp.tool()
     def contrastar_arranque_suave(paquete_comparacion: dict) -> dict:
         """Contrasta el equivalente SCR con referencia trifásica resistiva sin neutro.

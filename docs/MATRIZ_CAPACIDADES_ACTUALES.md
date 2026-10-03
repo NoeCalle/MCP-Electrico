@@ -1,8 +1,8 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
-**Fecha:** 2 de octubre de 2026. **Código consultado:** checkout local basado en `306957a` con ampliación de contraste SCR; hashes de fuentes en `Evidencia-consulta.json`.
+**Fecha:** 2 de octubre de 2026. **Código consultado:** checkout local basado en `21464ab` con ampliación de contraste SCR; hashes de fuentes en `Evidencia-consulta.json`.
 
-Inventario obtenido de un cliente MCP real por stdio: **145 herramientas registradas y 14 consultas de contratos**, sin ejecutar estudios eléctricos nuevos. Se consultó el servidor local de este repositorio; esto no prueba que todas las herramientas estén cargadas en el contexto del chat.
+Inventario obtenido de un cliente MCP real por stdio: **146 herramientas registradas y 14 consultas de contratos**, sin ejecutar estudios eléctricos nuevos. Se consultó el servidor local de este repositorio; esto no prueba que todas las herramientas estén cargadas en el contexto del chat.
 
 ## Cómo leer la matriz
 
@@ -20,7 +20,7 @@ Falta comprobar cuánto representa un arrancador trifásico real: la aproximaci�
 
 Por eso P13G conserva `ANALYTICAL_SURROGATE_NOT_DEVICE_VALIDATED`. La prueba sintética publicada no valida los motores M1/M2 del plano. Sus datos físicos y criterios aplicables también deben revisarse para calcular su caso concreto.
 
-El primer contraste estructural ya está implementado mediante `contrastar_arranque_suave`: en la carga resistiva trifásica sin neutro aparecen discrepancias incluso a igual fundamental. Por ejemplo, a 0.4 pu, la corriente RMS del equivalente supera la referencia en 9.724 %. Este porcentaje no se atribuye al motor del plano. Sigue pendiente el contraste inductivo con motor y controles del dispositivo.
+El primer contraste estructural está implementado mediante `contrastar_arranque_suave`: a 0.4 pu, la corriente RMS del equivalente supera la referencia resistiva trifásica sin neutro en 9.724 %. El contraste externo con motor ya se ejecutó con MSL 4.0.0/OpenModelica 1.27.1 y se verifica mediante `contrastar_dinamica_con_modelica`. Para el motor sintético, SCR llega al 90 % en 3.47 s frente a 3.752 s bajo la misma secuencia de entradas y bypass impuesto. Se registra discrepancia; queda mejorar la representación trifásica y comprobar red/control en lazo cerrado. Ninguno de estos resultados valida M1/M2.
 
 ## Qué significa dinámica simultánea
 
@@ -88,6 +88,7 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 | Aceleración dinámica con arranque directo DOL | Resuelve red RMS en cada etapa | — | Circuito motor y movimiento RK4; energía y refinamiento | P13F validado con limitaciones | Un motor de jaula equilibrado desde reposo por estudio; otros motores quedan como cargas de marcha. Sin flujos transitorios, saturación o calentamiento. |
 | Aceleración con arranque suave SCR aproximado | Resuelve red fundamental en cada etapa | — | Equivalente SCR/RL, rampa, límite de corriente y bypass | P13G experimental; dispositivo no validado | Un motor equilibrado. Ecuaciones contrastadas en el equivalente RL; conmutación trifásica real, fabricante, armónicos de red y efectos térmicos pendientes. |
 | Contraste estructural del equivalente SCR | — | — | Referencia trifásica resistiva sin neutro y comparación del equivalente | Disponible; discrepancia registrada | Compara a igual ángulo y a igual fundamental. No valida motor inductivo, control de fabricante o aceleración; tolerancia sólo ilustrativa. |
+| Contraste externo de dinámica con motor Modelica | Produce amplitud de fuente del candidato | — | Verifica expediente externo y compara RMS/par/velocidad | Disponible para caso sintético; discrepancia registrada | MSL 4.0.0/OpenModelica 1.27.1 ejecutados aparte. Entradas reproducidas, bypass impuesto; no valida red/control en lazo cerrado ni fabricante. |
 
 ### 6. Visualización, informes y uso local
 
@@ -106,7 +107,7 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 | Función | Estado | Qué falta / distinción importante |
 |---|---|---|
 | Dinámica de varios motores acoplados | Pendiente | Integrar simultáneamente velocidad/par/corriente de cada motor y la misma red; incluye arranques superpuestos, aunque no empiecen al mismo instante. |
-| SCR trifásico contrastado con un dispositivo/modelo independiente | Pendiente para superar la condición aproximada P13G | Comparar corriente, par, tensiones, tiempo de aceleración y bypass; cuantificar errores y delimitar aplicabilidad. |
+| SCR trifásico cualificado para un dispositivo real | Pendiente; contraste sintético externo ya ejecutado con discrepancias | Corregir representación trifásica, contrastar red/control/bypass en lazo cerrado y después parámetros y datos del fabricante. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
 | Transitorios EMT, flujos magnéticos y calentamiento dinámico | Fuera del alcance implementado de arranque | No confundir dinámica mecánica RMS con ondas instantáneas o un modelo térmico motor/semiconductor. |
@@ -176,6 +177,7 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 - **Aceleración dinámica con arranque directo DOL:** `validar_datos_dinamica_motores`, `validar_ejecucion_dinamica_motores`, `ejecutar_dinamica_motores`.
 - **Aceleración con arranque suave SCR aproximado:** `validar_dinamica_arranque_suave`, `ejecutar_dinamica_arranque_suave`.
 - **Contraste estructural del equivalente SCR:** `contrastar_arranque_suave`.
+- **Contraste externo de dinámica con motor Modelica:** `contrastar_dinamica_con_modelica`.
 
 ### 6. Visualización, informes y uso local
 

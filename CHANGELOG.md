@@ -6,6 +6,13 @@ corrección relevante.
 
 ## [Unreleased] — 2026-10-02
 
+- `contrastar_dinamica_con_modelica`: verificación SHA-256 del expediente externo,
+  RMS de líneas sobre ciclos completos, par medio, velocidad y refinamiento.
+- Referencia ejecutada: MSL 4.0.0/OpenModelica 1.27.1; mismo motor sintético,
+  amplitud de fuente y ángulo reproducidos. SCR: 3.47 s frente a 3.75229 s al
+  90 % de velocidad. Red/control/bypass externos en lazo cerrado no contrastados.
+- Se registra discrepancia; no se promueve madurez de SCR ni aceptación del diseño.
+
 - `contrastar_arranque_suave`: benchmark trifásico resistivo sin neutro de
   referencia primaria, con cuadratura/RMS independientes, comparación a igual
   ángulo y a igual fundamental, discrepancias y tolerancias ilustrativas.
