@@ -6,6 +6,17 @@ Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hac
 
 El cierre de una fase no significa cobertura universal: cada módulo declara alcance, madurez, fuentes, limitaciones y gates explícitos.
 
+**Dirección corregida por el usuario:** priorizar la integración de herramientas
+gratuitas y de código abierto existentes. El MCP prepara datos, invoca el motor
+y presenta los resultados. Antes de crear cálculos físicos propios se debe
+documentar una carencia de las soluciones disponibles. Ver
+[decisión de arquitectura](ARQUITECTURA_INTEGRACION.md).
+
+**Siguiente hito de motores:** integrar la ejecución de OpenModelica y los
+componentes existentes de Modelica Standard Library como herramientas MCP.
+Se detiene la ampliación del equivalente físico propio SCR como ruta principal.
+El contraste externo ya realizado sirve como evidencia; aún no es esa integración.
+
 ## Mapa maestro — orden de ejecución
 
 Este documento es la guía maestra del proyecto. Los ejes visual y de selección de motor evolucionan en paralelo.
@@ -63,7 +74,7 @@ P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = FIRST_CONTROLLED_LOCAL_PROJECT
+next_activity = INTEGRATE_EXISTING_OPEN_SOURCE_MOTOR_DYNAMICS_ENGINE
 
 professional_report = false
 professional_emission = false
@@ -82,8 +93,10 @@ dinámica simultánea de varios motores y otras exclusiones publicadas.
 **Contraste externo con motor:** MSL 4.0.0 ejecutada con OpenModelica 1.27.1,
 parámetros sintéticos equivalentes y secuencia de amplitud/ángulo reproducida.
 El SCR discrepa en corriente/par/aceleración. Ver [evidencia y límites](P13G_MODELICA_REFERENCE.md).
-Para superar la condición aproximada falta corregir la representación trifásica
-y contrastar red/control/bypass en lazo cerrado, además de los datos del dispositivo.
+La decisión de arquitectura posterior sustituye la ampliación del equivalente
+propio por un adaptador de ejecución de los modelos externos existentes.
+Debe verificarse red/control/bypass en lazo cerrado y la suficiencia de los
+datos del dispositivo antes de aceptar un estudio real.
 
 **Contratos de gates por fase (referencia histórica):** Los siguientes valores
 se conservan en P5/P7. Sus campos `next_phase` y `next_activity` describen
