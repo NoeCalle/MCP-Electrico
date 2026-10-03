@@ -678,6 +678,12 @@ Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
 
 ## Fase P14 — Runtime e integración local
 
+La investigación de motores abiertos amplía la matriz E con ocho preferencias
+de integración pendientes, sin habilitar ejecución ni modificar física propia.
+Prioridad: adaptador OpenModelica/MSL; después, relés pandapower, y pilotos
+ANDES/VeraGrid cuando el estudio solicitado los requiera.
+Detalle: [motores abiertos](MOTORES_ABIERTOS_INVESTIGACION.md).
+
 **Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
 
 P14A implementa instalación reproducible y construcción Rev.0 sin Solve. P14B

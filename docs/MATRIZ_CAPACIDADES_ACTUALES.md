@@ -12,6 +12,10 @@ está implementado; el siguiente hito de motores es exponer la ejecución de
 OpenModelica/MSL mediante MCP. Su herramienta actual solo compara trazas.
 Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
 
+El selector determinista añade ocho rutas de integración pendientes y un catálogo
+de modelos abiertos: [investigación y reglas](MOTORES_ABIERTOS_INVESTIGACION.md).
+Estas preferencias no suman estudios ejecutables a las capacidades de esta matriz.
+
 - **OpenDSS**: solver principal de red. **pandapower**: segundo solver, especialmente cortocircuito IEC 60909. **Módulo propio MCP**: lógica de datos, cálculo específico, control, criterios y documentación.
 - Una fila con aportes de dos columnas significa que trabajan juntos en ese estudio; no significa que dos solvers estén contrastando el mismo resultado.
 - **Disponible** significa que existe ejecución dentro del alcance descrito. **Validado con limitaciones** identifica verificación dentro de un alcance concreto. **Experimental/en validación** requiere conservar esa condición al interpretar resultados. **Pendiente** significa que no está cubierto por el módulo vigente.

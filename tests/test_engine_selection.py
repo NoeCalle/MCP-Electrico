@@ -1,4 +1,5 @@
 from opendssdirect import dss
+import pytest
 
 from mcp_electrico import core, engine_selection, visual_state
 
@@ -91,3 +92,64 @@ def test_unknown_study_is_not_guessed():
     assert result["decision"] == "UNKNOWN_STUDY"
     assert result["selected_engine"] is None
     assert result["executable"] is False
+
+
+@pytest.mark.parametrize("study,expected", [
+    ("dinámica arranque directo", "openmodelica+msl"),
+    ("dinámica SCR", "openmodelica+msl"),
+    ("dinámica simultánea", "openmodelica+msl"),
+    ("dinámica variador", "openmodelica+msl"),
+    ("estabilidad transitoria", "andes"),
+    ("estabilidad pequeña señal", "andes"),
+    ("flujo continuado", "veragrid"),
+    ("transitorios electromagnéticos", "openmodelica+msl"),
+])
+@pytest.mark.parametrize("allow_experimental", [False, True])
+@pytest.mark.parametrize("active", [False, True])
+def test_external_routes_cannot_be_promoted_by_model_or_opt_in(study, expected, allow_experimental, active):
+    if active:
+        _balanced_case()
+    else:
+        dss("Clear")
+    result = engine_selection.seleccionar_motor_estudio(study, permitir_experimental=allow_experimental)
+    readiness = engine_selection.evaluar_preparacion_estudio(study, permitir_experimental=allow_experimental)
+    assert result["selected_engine"] == expected
+    assert result["planning_only"] is True
+    assert result["integration_status"] == "ADAPTER_NOT_IMPLEMENTED"
+    assert result["decision"] == "NO_APTO_PARA_EJECUCION"
+    assert result["technical_executable"] is False
+    assert result["professional_execution_ready"] is False
+    assert result["professional_emission"] is False
+    assert result["automatic_dispatch"] is False
+    assert result["crosscheck"] is False
+    assert readiness["overall_status"] == "MODULE_NOT_READY"
+    assert readiness["data_evaluated"] is False
+    assert readiness["data_status"] == "MISSING_DATA"
+    assert all(not item["eligible"] and item["reason"] for item in result["alternatives"])
+
+
+def test_scr_does_not_fall_back_to_phasor_or_legacy_custom_model():
+    result = engine_selection.seleccionar_motor_estudio("dinamica_scr", permitir_experimental=True)
+    assert result["selected_engine"] == "openmodelica+msl"
+    assert result["alternatives"] == []
+    assert engine_selection.seleccionar_motor_estudio("dinamica")["decision"] == "UNKNOWN_STUDY"
+
+
+def test_catalogue_is_returned_as_an_independent_copy():
+    matrix = engine_selection.obtener_capacidades_motores()
+    assert matrix["integration_policy"] == "USE_EXISTING_OPEN_SOURCE_MODELS_FIRST"
+    matrix["studies"]["transient_stability"]["implemented"] = True
+    matrix["external_engine_catalogue"]["andes"]["limits"].clear()
+    fresh = engine_selection.obtener_capacidades_motores()
+    assert fresh["studies"]["transient_stability"]["implemented"] is False
+    assert fresh["external_engine_catalogue"]["andes"]["limits"]
+
+
+@pytest.mark.parametrize("fault", [None, "three_phase", "two_phase", "single_phase_ground"])
+def test_iec_without_active_circuit_reports_readiness_instead_of_throwing(fault):
+    dss("Clear")
+    result = engine_selection.seleccionar_motor_estudio("iec60909", tipo_falla=fault)
+    assert result["technical_executable"] is False
+    assert result["readiness"]["overall_status"] == "MISSING_DATA"
+    assert result["readiness"]["engine_status"] == "ENGINE_NOT_READY"
+    assert any(item["code"] == "P2READY001" for item in result["readiness"]["missing_data"])
