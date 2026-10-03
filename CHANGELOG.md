@@ -4,6 +4,16 @@ Registro de la evolución del servidor MCP para OpenDSS. Cada entrada indica
 qué herramientas se agregaron, qué caso de estudio las motivó, y cualquier
 corrección relevante.
 
+## [Unreleased] — 2026-10-02
+
+- P13G: cinco herramientas MCP para arranque suave SCR/RL aproximado con
+  rampa fundamental, límite de corriente RMS equivalente, aceleración y bypass.
+- Evidencia de criterios por estudio: documento, edición, cláusula, aplicabilidad
+  y magnitud de tensión; ningún umbral normativo universal predeterminado.
+- Dossier portable con entrada del arrancador, gráficas, CSV, replay y SHA-256.
+- Equivalente analítico por fase; validación contra un dispositivo real,
+  conmutación trifásica, armónicos de red y calentamiento quedan pendientes.
+
 ## [0.1.0] - Versión inicial
 
 ### Herramientas incluidas

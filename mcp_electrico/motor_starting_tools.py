@@ -12,10 +12,41 @@ from . import (
     motor_dynamics_qualification,
     motor_dynamics,
     motor_dynamics_dossier,
+    motor_soft_starting,
+    motor_soft_starting_dossier,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def obtener_contrato_arranque_suave() -> dict:
+        """Describe dinámica SCR/RL aproximada, datos, criterios y límites explícitos."""
+        return motor_soft_starting.contract()
+
+    @mcp.tool()
+    def validar_dinamica_arranque_suave(manifest_referencia_dol: dict, paquete_dinamico: dict,
+                                       opciones: dict, arrancador: dict) -> dict:
+        """Valida motor a tensión plena, control y procedencia de criterios sin resolver."""
+        return motor_soft_starting.readiness(manifest_referencia_dol, paquete_dinamico, opciones, arrancador)
+
+    @mcp.tool()
+    def ejecutar_dinamica_arranque_suave(manifest_referencia_dol: dict, paquete_dinamico: dict,
+                                        opciones: dict, arrancador: dict) -> dict:
+        """Integra rampa, límite de corriente, aceleración y bypass en modelo SCR/RL aproximado."""
+        return motor_soft_starting.execute(manifest_referencia_dol, paquete_dinamico, opciones, arrancador)
+
+    @mcp.tool()
+    def generar_dossier_arranque_suave(manifest_referencia_dol: dict, paquete_dinamico: dict,
+                                      opciones: dict, arrancador: dict,
+                                      directorio_salida: str = "mcp_electrico_soft_starter_dossier") -> dict:
+        """Publica gráficas, CSV, límites, replay y evidencia íntegra del arranque suave aproximado."""
+        return motor_soft_starting_dossier.generate(manifest_referencia_dol, paquete_dinamico, opciones, arrancador, directorio_salida)
+
+    @mcp.tool()
+    def verificar_integridad_dossier_arranque_suave(ruta_indice: str) -> dict:
+        """Verifica conjunto exacto y SHA-256 del expediente SCR/RL portable."""
+        return motor_soft_starting_dossier.verify(ruta_indice)
+
     @mcp.tool()
     def obtener_contrato_ejecucion_dinamica_motores() -> dict:
         """Publica alcance RMS, versiones, opciones y límites de dinámica mecánica."""

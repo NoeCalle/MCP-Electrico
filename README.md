@@ -30,6 +30,12 @@ La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 La ejecución usa un contrato adicional con opciones explícitas y genera
 trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_MOTOR_DYNAMICS.md).
 
+P13G añade [arranque suave aproximado SCR/RL](docs/P13G_SOFT_STARTING.md): rampa,
+límite de corriente, aceleración y bypass de un motor, con criterios trazables
+y dossier. Es un equivalente por fase probado con referencias analíticas y
+numéricas; no está validado contra un arrancador real ni representa conmutación
+trifásica, armónicos de la red o calentamiento. No acredita aceptación del diseño.
+
 El cortocircuito trifásico público requiere un **control previo del modelo**:
 primero revisar las entradas, los datos faltantes y los supuestos con
 `evaluar_preparacion_cortocircuito_3ph`. La ejecución se bloquea sin una revisión

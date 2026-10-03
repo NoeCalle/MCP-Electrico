@@ -27,6 +27,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **P13A–P13E DONE; P13F1–F5 RMS DONE CON LIMITACIONES** | aceleración mecánica RMS acoplada a red aislada, calibración, energía/convergencia, replay y dossier |
+| P13G — Arranque suave | **AMPLIACIÓN LOCAL SCR/RL APROXIMADA; VALIDACIÓN DE DISPOSITIVO PENDIENTE** | rampa, límite RMS, aceleración, bypass y criterios trazables; sin conmutación trifásica ni validación de fabricante |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
@@ -57,6 +58,7 @@ P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
 P13F2_TO_F5 = BALANCED_RMS_OPERATIONAL_WITH_LIMITATIONS
+P13G = APPROXIMATE_SCR_RL_SURROGATE_DEVICE_VALIDATION_PENDING
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
 next_activity = FIRST_CONTROLLED_LOCAL_PROJECT
@@ -67,6 +69,13 @@ automatic_dispatch = false
 crosscheck=false
 automatic_normative_lookup = false
 ```
+
+**Ampliación solicitada el 2026-10-02:** se incorpora P13G como equivalente
+SCR/RL por fase con dinámica mecánica y red fundamental. Su alcance es aproximado:
+no se declara cerrado el modelo de un arrancador industrial. Ver
+[P13G](P13G_SOFT_STARTING.md). La dinámica DOL P13F ya existe; para M1 faltan
+datos físicos revisados. Siguen pendientes la validación trifásica del dispositivo,
+dinámica simultánea de varios motores y otras exclusiones publicadas.
 
 **Contratos de gates por fase (referencia histórica):** Los siguientes valores
 se conservan en P5/P7. Sus campos `next_phase` y `next_activity` describen

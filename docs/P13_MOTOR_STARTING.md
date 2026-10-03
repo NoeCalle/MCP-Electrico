@@ -38,6 +38,7 @@ Armónicos, formas de onda y true power factor con distorsión quedan fuera de e
 | P13D | secuencias de arranque | varios motores, arranque escalonado y escenarios |
 | P13E | Workspace + dossier | resultados P13 trazables y reproducibles |
 | P13F | dinámica de motores | P13F1–F5 RMS completas con limitaciones; aceleración, red acoplada y dossier |
+| P13G | arranque suave aproximado | SCR/RL por fase, rampa, límite RMS, aceleración y bypass; validación de dispositivo pendiente |
 
 P13F1 prepara el contrato físico; P13F2–F5 añaden ejecución RMS calificada, acoplamiento aislado y dossier. Detalle: [P13F](P13F_MOTOR_DYNAMICS.md).
 
@@ -671,3 +672,9 @@ real, comprueba replay e integridad y compara el Workspace padre antes/después.
 P13F1 añade tres herramientas de preparación y P13F2–F5 cinco herramientas
 de ejecución RMS/dossier: P13 expone diecisiete herramientas. La prueba de
 protocolo verifica admisión, ejecución, replay e integridad sin cambiar el padre.
+
+P13G añade cinco herramientas separadas para arranque suave aproximado: el
+total de motores/arranque pasa a veintidós. Su referencia física conserva el
+manifiesto DOL a tensión plena y exige configuración del arrancador y evidencia
+de criterios. Ver [alcance SCR/RL](P13G_SOFT_STARTING.md). El acceso real se
+comprueba con `scripts/verify_soft_starter_mcp.py`; no valida un dispositivo real.

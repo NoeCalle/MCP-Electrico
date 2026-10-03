@@ -275,6 +275,9 @@ de píxeles permanece pendiente.
 - `exportar_laminas_unifilar` divide el SVG en láminas A3 numeradas y solapadas;
   conserva revisión y SVG completo, bloquea sobrescritura y limita a 200 láminas.
 - P13F5 muestra velocidad, corriente, par y tensión desde Python, con CSV/replay/SHA.
+- La ampliación P13G presenta control, bypass, tensión de entrada, tensión fundamental
+  y RMS equivalente del motor, con procedencia de criterios. Identifica el modelo
+  SCR/RL como aproximado y sin validación contra un arrancador real.
 - Verificación real de búsqueda, selección, zoom y disposición estrecha/escritorio,
   con capturas; tests cubren cobertura de láminas y regresión.
 

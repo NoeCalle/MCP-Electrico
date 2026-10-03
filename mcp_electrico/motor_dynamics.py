@@ -157,7 +157,7 @@ def readiness(manifest: dict, package: dict, options: dict) -> dict:
             "network_solve_performed":False, "model_mutation_performed":False, "professional_emission":False}
 
 
-def _trajectory(manifest, package, options, study, divisor):
+def _trajectory(manifest, package, options, study, divisor, *, starter=None):
     base = motor_starting_intake.evaluar_admision_motor(manifest)
     motors = base["motors"]
     motor = static._motor_map(base)[study["motor_id"].lower()]
@@ -174,9 +174,17 @@ def _trajectory(manifest, package, options, study, divisor):
         raise ValueError("P13F_DYNAMIC_ELEMENT_COLLISION")
     engine(f"New {name} Bus1={motor['bus']} Phases=3 kV={motor['kv_ll']} Conn={motor['connection']} Model=2 Status=Fixed kW=1 kvar=1 Vminpu=0.01 Vmaxpu=2")
     engine("Set ControlMode=Off MaxIterations=100 Tolerance=1e-10")
+    controller = None
+    if starter is not None:
+        from .motor_soft_starting import SoftStarterNetwork
+        controller = SoftStarterNetwork(engine, name, model, motor, options, starter)
     a = cmath.exp(2j*pi/3)
-    def sample(speed):
+    def sample(speed, time=0):
         if speed < 0: raise ValueError("P13F_REVERSE_SPEED_OR_COARSE_GRID")
+        if controller is not None:
+            result = controller.sample(time, speed)
+            result["load_torque_nm"] = load_torque(mechanical, speed)
+            return result
         demand = electrical(model, motor, speed, motor["kv_ll"]*1000)
         engine(f"Edit {name} kW={demand['input_power_w']/1000} kvar={demand['reactive_power_var']/1000}")
         engine("Solve")
@@ -207,34 +215,47 @@ def _trajectory(manifest, package, options, study, divisor):
         result["load_torque_nm"] = load_torque(mechanical,speed)
         return result
     def rhs(time,state):
-        row = sample(state[0])
+        row = sample(state[0], time)
         net = row["torque_nm"]-row["load_torque_nm"]-damping*state[0]
         acceleration = max(net,0)/inertia if state[0] == 0 else net/inertia
-        return [acceleration,state[0],row["input_power_w"],row["stator_loss_w"],row["rotor_loss_w"],row["load_torque_nm"]*state[0],damping*state[0]**2]
+        derivatives = [acceleration,state[0],row["input_power_w"],row["stator_loss_w"],row["rotor_loss_w"],row["load_torque_nm"]*state[0],damping*state[0]**2]
+        if controller is not None:
+            derivatives += [row["rl_surrogate_extra_power_w"], row["current_a"]**2]
+        return derivatives
     step = package["simulation"]["time_step_s"]/divisor
     count = round(package["simulation"]["duration_s"]/step)
-    state = [0.0]*7
+    state = [0.0]*(9 if controller is not None else 7)
     rows = []
     max_energy_error = 0
     reached = None
     target = study["target_speed_fraction"]*2*pi*model["electrical"]["frequency_hz"]/model["electrical"]["pole_pairs"]
     for j in range(count+1):
         time = j*step
-        row = sample(state[0])
+        row = sample(state[0], time)
+        if controller is not None:
+            controller.commit_boundary(time, row)
         kinetic = 0.5*inertia*state[0]**2
-        residual = state[2]-sum(state[3:])-kinetic
+        residual = state[2]-sum(state[3:8])-kinetic
         relative = abs(residual)/max(abs(state[2]),kinetic,1)
         max_energy_error = max(max_energy_error,relative)
         row.update(time_s=time,angle_rad=state[1],kinetic_energy_j=kinetic,
                    electrical_input_energy_j=state[2],stator_loss_energy_j=state[3],rotor_loss_energy_j=state[4],
                    load_work_j=state[5],damping_loss_energy_j=state[6],energy_residual_j=residual)
+        if controller is not None:
+            row.update(rl_surrogate_extra_energy_j=state[7], line_current_i2t_a2_s=state[8])
         rows.append(row)
         if reached is None and state[0] >= target: reached = time
         if j < count: state = rk4(rhs,state,time,step)
-    return {"study_id":study["id"],"motor_id":motor["id"],"trajectory":rows,
+    result = {"study_id":study["id"],"motor_id":motor["id"],"trajectory":rows,
             "time_step_s":step,"acceleration_time_s":reached,"maximum_energy_relative_error":max_energy_error,
             "minimum_voltage_pu":min(r["voltage_pu"] for r in rows),
             "state":"STALLED_AT_REST" if max(r["speed_rad_s"] for r in rows)==0 else "TARGET_REACHED" if reached is not None else "TARGET_NOT_REACHED"}
+    if controller is not None:
+        result.update(bypass_time_s=controller.bypass_time, maximum_line_current_a=max(r["current_a"] for r in rows),
+                      minimum_supply_voltage_pu=min(r["supply_voltage_pu"] for r in rows),
+                      current_limit_verified=all(r["starter_state"] == "BYPASS" or r["current_a"] <= starter["current_limit_a"]*(1+1e-7) for r in rows),
+                      voltage_quantity="MOTOR_FUNDAMENTAL_RMS")
+    return result
 
 
 def execute(manifest: dict, package: dict, options: dict) -> dict:
