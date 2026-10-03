@@ -110,66 +110,8 @@ def response(alpha):
 
 
 def compare(package):
-    """Read-only diagnostic; declared tolerances do not certify a device."""
-    from . import motor_soft_starting as soft
-    issues = []
-    if not isinstance(package, dict): package = {}; issues.append('Package must be an object')
-    if set(package) != FIELDS: issues.append('Explicit fields required; unknown fields rejected')
-    if package.get('schema') != SCHEMA: issues.append('Unknown schema')
-    def number(v, lo, hi):
-        try: return type(v) in (float, int) and isfinite(v) and lo <= v <= hi
-        except OverflowError: return False
-    for name, lo, hi, size in [('firing_angles_deg', 0., 180., 50),
-                               ('fundamental_voltage_targets_pu', .01, 1., 20)]:
-        values = package.get(name)
-        if not isinstance(values, list) or not 1 <= len(values) <= size or not all(number(v, lo, hi) for v in values):
-            issues.append(f'Invalid explicit {name}')
-    if not number(package.get('numeric_absolute_tolerance_pu'), 1e-12, 1e-5):
-        issues.append('Numeric absolute tolerance must be between 1e-12 and 1e-5 pu')
-    if not number(package.get('comparison_absolute_tolerance_pu'), 1e-8, 1.):
-        issues.append('Comparison tolerance must be explicit, positive and <= 1 pu')
-    if package.get('tolerance_kind') != 'ILLUSTRATIVE_BENCHMARK_ONLY':
-        issues.append('This benchmark accepts illustrative diagnostic tolerances only')
-    if not isinstance(package.get('tolerance_reference'), str) or not package['tolerance_reference'].strip():
-        issues.append('Tolerance provenance required')
-    result = {'schema': SCHEMA, 'status': 'BLOCKED_REFERENCE_INPUTS', 'issues': issues,
-              'contract': contract(), 'same_angle': [], 'same_fundamental': [],
-              'motor_study_performed': False, 'network_solve_performed': False,
-              'device_validation_promoted': False, 'design_acceptance_status': 'NOT_DEMONSTRATED',
-              'professional_emission': False}
-    if issues: return result
-    numeric_errors = []
-    def pair(s, ref):
-        rms_error = s['true_current_factor']-ref['total_rms_pu']
-        gain_error = s['gain']-ref['fundamental_pu']
-        quadrature_error = s['quadrature']-ref['fundamental_quadrature_pu']
-        rms_relative = rms_error/ref['total_rms_pu'] if ref['total_rms_pu'] > 1e-10 else None
-        error = abs(ref['total_rms_pu']-ref['closed_form_rms_pu'])
-        numeric_errors.append(error)
-        return {'surrogate_total_rms_pu': s['true_current_factor'],
-                'reference_total_rms_pu': ref['total_rms_pu'],
-                'surrogate_fundamental_pu': s['gain'], 'reference_fundamental_pu': ref['fundamental_pu'],
-                'reference_closed_form_rms_pu': ref['closed_form_rms_pu'],
-                'reference_oracle_absolute_error_pu': error,
-                'rms_signed_error_pu': rms_error, 'rms_relative_error_percent': None if rms_relative is None else rms_relative*100,
-                'fundamental_signed_error_pu': gain_error, 'quadrature_signed_error_pu': quadrature_error,
-                'within_declared_tolerance': max(abs(rms_error), abs(gain_error), abs(quadrature_error)) <= package['comparison_absolute_tolerance_pu']}
-    for angle in package['firing_angles_deg']:
-        alpha = angle*pi/180
-        result['same_angle'].append(dict(firing_angle_deg=angle, **pair(soft.phase_response(alpha, 0.), response(alpha))))
-    for target in package['fundamental_voltage_targets_pu']:
-        alpha_s = soft.alpha_for_gain(target, 0.)
-        alpha_r = 0. if target == 1 else brentq(lambda a: response(a)['fundamental_pu']-target, 0., 5*pi/6, xtol=1e-13)
-        result['same_fundamental'].append(dict(target_fundamental_pu=target,
-            surrogate_firing_angle_deg=alpha_s*180/pi, reference_firing_angle_deg=alpha_r*180/pi,
-            **pair(soft.phase_response(alpha_s, 0.), response(alpha_r))))
-    verified = max(numeric_errors) <= package['numeric_absolute_tolerance_pu']
-    result.update(status='REFERENCE_COMPARISON_COMPLETED' if verified else 'REFERENCE_ORACLE_FAILED',
-        numeric_oracle_verified=verified, maximum_reference_oracle_error_pu=max(numeric_errors),
-        agreement_same_angle=all(r['within_declared_tolerance'] for r in result['same_angle']),
-        agreement_same_fundamental=all(r['within_declared_tolerance'] for r in result['same_fundamental']),
-        declared_comparison_absolute_tolerance_pu=package['comparison_absolute_tolerance_pu'],
-        tolerance_kind=package['tolerance_kind'], tolerance_reference=package['tolerance_reference'],
-        surrogate_maturity=soft.contract()['maturity'],
-        interpretation='STRUCTURAL_TOPOLOGY_COMPARISON_ONLY_NOT_MOTOR_OR_MANUFACTURER_VALIDATION')
-    return result
+    """The comparison against the removed surrogate cannot run again."""
+    return {'status': 'RETIRED_SURROGATE_COMPARISON', 'same_angle': [],
+            'same_fundamental': [], 'network_solve_performed': False,
+            'replacement_contract_tool': 'obtener_contrato_dinamica_modelica',
+            'professional_emission': False}

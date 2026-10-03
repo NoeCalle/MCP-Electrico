@@ -12,24 +12,12 @@ def inputs():
     return tuple(json.loads((ROOT/'examples'/f'p13_dynamic_rms_{s}.json').read_text()) for s in ('manifest','package','options'))
 
 
-def test_dynamic_dossier_is_portable_collision_safe_and_detects_all_tampering(tmp_path):
+def test_retired_backend_cannot_create_a_new_legacy_dossier(tmp_path):
     m,p,o=inputs()
-    first=dossier.generate(m,p,o,tmp_path/'study')
-    assert first['status']=='DYNAMIC_DOSSIER_READY'
-    second=dossier.generate(m,p,o,tmp_path/'study')
-    assert second['collision_suffix_used'] and first['directory']!=second['directory']
-    root=Path(first['directory'])
-    html=(root/'dynamic_workspace.html').read_text(encoding='utf-8')
-    assert '<polyline' in html and '400' in html
-    assert '<script src=' not in html
-    moved=tmp_path/'portable';shutil.copytree(root,moved)
-    assert dossier.verify(moved/dossier.INDEX)['ok']
-    (moved/'extra.txt').write_text('unexpected')
-    assert not dossier.verify(moved/dossier.INDEX)['ok']
-    (moved/'extra.txt').unlink()
-    (moved/'dynamic_trajectory.csv').write_text('tampered')
-    assert not dossier.verify(moved/dossier.INDEX)['ok']
-    assert dossier.verify(first['index_path'])['ok']
+    result=dossier.generate(m,p,o,tmp_path/'study')
+    assert result['status']=='DYNAMIC_DOSSIER_BLOCKED'
+    assert result['execution']['execution_status']=='RETIRED_CUSTOM_BACKEND'
+    assert not (tmp_path/'study').exists()
 
 
 def test_incomplete_physics_and_unsafe_index_cannot_create_ready_dossier(tmp_path):

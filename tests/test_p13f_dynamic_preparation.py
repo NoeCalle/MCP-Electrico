@@ -29,7 +29,7 @@ def test_complete_inputs_prepare_qualification_and_never_enable_execution():
     assert result["data_ready"] is True
     assert result["ready_for_execution"] is False
     assert result["backend_implemented"] is True
-    assert result["selected_backend"] == "MCP_BALANCED_RMS_RK4_V1"
+    assert result["selected_backend"] == "OPENMODELICA_MSL_4_0_0"
     assert result["dynamic_integration_performed"] is False
     assert result["electrical_calculation_performed"] is False
     assert result["model_mutation_performed"] is False
@@ -153,8 +153,8 @@ def test_analytical_oracles_declare_energy_and_unverified_backend():
     assert damped["expected"][0]["speed_rad_s"] == 0
     assert all(0 <= row["speed_rad_s"] < 20 for row in damped["expected"])
     assert plan["numerical_integration_performed"] is False
-    assert plan["backend_benchmarks_run"] is True
-    assert plan["selected_backend"] == "MCP_BALANCED_RMS_RK4_V1"
+    assert plan["backend_benchmarks_run"] is False
+    assert plan["selected_backend"] == "OPENMODELICA_MSL_4_0_0"
     assert len(plan["required_qualification_cases"]) == 5
 
 
@@ -176,5 +176,5 @@ def test_read_only_mcp_preparation_preserves_parent_workspace():
     assert result["data_ready"] is True
     assert registry.tools["obtener_contrato_dinamica_motores"]()["ready_for_execution"] is False
     assert registry.tools["obtener_plan_validacion_dinamica_motores"]()["ready_for_execution"] is False
-    assert registry.tools["obtener_contrato_ejecucion_dinamica_motores"]()["electrical_flux_transients"] is False
+    assert registry.tools["obtener_contrato_ejecucion_dinamica_motores"]()["maturity"] == "RETIRED"
     assert (dss.Circuit.Name(), list(dss.Circuit.AllElementNames()), workspace_state.status()) == before

@@ -115,7 +115,7 @@ def test_external_routes_cannot_be_promoted_by_model_or_opt_in(study, expected, 
     readiness = engine_selection.evaluar_preparacion_estudio(study, permitir_experimental=allow_experimental)
     assert result["selected_engine"] == expected
     assert result["planning_only"] is True
-    assert result["integration_status"] == "ADAPTER_NOT_IMPLEMENTED"
+    assert result["integration_status"] == ("PREPARED_ADAPTER_NUMERICAL_GATE_PENDING" if result["study"] == "motor_dynamics_soft_starter_scr" else "ADAPTER_NOT_IMPLEMENTED")
     assert result["decision"] == "NO_APTO_PARA_EJECUCION"
     assert result["technical_executable"] is False
     assert result["professional_execution_ready"] is False

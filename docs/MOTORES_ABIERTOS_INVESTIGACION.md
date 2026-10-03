@@ -3,6 +3,12 @@
 Investigación: **2 de octubre de 2026**. Preferencias propuestas por fenómeno y
 facilidad de integración; no se ha comparado el rendimiento de todos los candidatos.
 
+**Regla posterior del usuario:** reutilizar un motor suficientemente adecuado ya
+integrado. Esta investigación es un catálogo de candidatos, no un plan para
+instalarlos todos. Las preferencias pendientes requieren demostrar una carencia
+de las rutas existentes antes de incorporar otro motor; ver la
+[regla de reutilización](ARQUITECTURA_INTEGRACION.md).
+
 ## Recomendación para la estación de bombeo
 
 Integrar **OpenModelica + Modelica Standard Library (MSL)** primero. Ya se ejecutaron
@@ -94,3 +100,10 @@ Se corrigió además la consulta IEC sin circuito activo para devolver datos
 faltantes y motor no preparado, en lugar de una excepción.
 Regresión completa local: **950 aprobadas, 1 omitida**. Las advertencias de
 dependencias se conservan en el registro; no califican los motores investigados.
+
+## Actualización de ejecución y retiro — 2026-10-02
+
+Física propia DOL/RK4 y SCR/RL retirada. Existe un adaptador MCP experimental
+MSL DOL para equivalente RL de barra común; SCR cerrado está bloqueado por
+gate numérico pendiente. La recomendación de integración del catálogo no
+promueve los estudios completos. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md).

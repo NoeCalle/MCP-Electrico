@@ -19,8 +19,8 @@ EXTERNAL_ENGINES = {
         "strengths": ["motor electrical/mechanical dynamics", "per-phase SCR switching", "connected machines and converters"],
         "limits": ["requires network, controller and initialization configuration", "no manufacturer validation implied"],
         "license": "MSL 4.0.0: BSD-3-Clause; runtime/dependency licenses separate",
-        "windows": "OpenModelica 1.27.1/MSL 4.0.0 executed locally outside MCP",
-        "integration_status": "EXTERNAL_REFERENCE_ONLY",
+        "windows": "OpenModelica 1.27.1/MSL 4.0.0: experimental MCP common-bus RL DOL adapter; SCR closed-loop gate pending",
+        "integration_status": "SCOPED_EXPERIMENTAL_DOL_MCP_ADAPTER",
         "sources": ["https://github.com/modelica/ModelicaStandardLibrary/tree/v4.0.0", "https://doc.modelica.org/Modelica%204.0.0/Resources/helpWSM/Modelica/Modelica.Electrical.PowerConverters.Examples.ACAC.SoftStarter.html"],
     },
     "andes": {

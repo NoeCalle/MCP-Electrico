@@ -86,16 +86,15 @@ async def verify(session: ClientSession, output: Path) -> dict:
     expect(dynamic_admission, "ready_for_execution", False)
     expect(dynamic_admission, "dynamic_integration_performed", False)
     qualification = await call("obtener_plan_validacion_dinamica_motores")
-    expect(qualification, "selected_backend", "MCP_BALANCED_RMS_RK4_V1")
-    expect(qualification, "backend_benchmarks_run", True)
+    expect(qualification, "selected_backend", "OPENMODELICA_MSL_4_0_0")
+    expect(qualification, "backend_benchmarks_run", False)
     dynamic_dossier = await call(
         "generar_dossier_dinamica_motores", manifest=fixture("p13_dynamic_rms_manifest.json"),
         paquete_dinamico=fixture("p13_dynamic_rms_package.json"), opciones=fixture("p13_dynamic_rms_options.json"),
         directorio_salida=str(output / "dynamic_dossier"),
     )
-    expect(dynamic_dossier, "status", "DYNAMIC_DOSSIER_READY")
-    dynamic_check = await call("verificar_integridad_dossier_dinamica_motores", ruta_indice=dynamic_dossier["index_path"])
-    expect(dynamic_check, "ok", True)
+    expect(dynamic_dossier, "status", "DYNAMIC_DOSSIER_BLOCKED")
+    expect(dynamic_dossier["execution"], "execution_status", "RETIRED_CUSTOM_BACKEND")
     if before != await call("obtener_estado_workspace"):
         raise RuntimeError("P13F1 preparation mutated the parent workspace")
     (output / "dynamic_preparation.json").write_text(
@@ -134,9 +133,9 @@ async def verify(session: ClientSession, output: Path) -> dict:
         "status": "LOCAL_MCP_VERIFIED", "public_tool_count": len(names),
         "powerflow_converged": True, "motor_replay_match": True,
         "parent_workspace_preserved": True, "all_dossier_hashes_verified": True,
-        "dynamic_input_preparation_verified": True, "dynamic_backend_qualified": True,
-        "dynamic_backend_scope": "BALANCED_RMS_QUASI_STEADY_ELECTROMECHANICAL",
-        "rms_dynamic_execution_verified": True, "rms_dynamic_replay_verified": True,
+        "dynamic_input_preparation_verified": True, "dynamic_backend_qualified": False,
+        "dynamic_backend_scope": "EXPERIMENTAL_MSL_DECLARED_COMMON_BUS_RL",
+        "legacy_dynamic_execution_retired": True, "msl_execution_see_separate_verifier": True,
         "professional_emission": False,
         "dossiers": {"reference": real, "scenarios": scenarios, "motors": motors, "dynamic_motors": dynamic_dossier},
     }
