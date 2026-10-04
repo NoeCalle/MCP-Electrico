@@ -21,6 +21,13 @@ VALID_STATES = {
 }
 
 _MODULES = {
+    'reactive_compensation': {
+        'status':'EXPERIMENTAL', 'basis':'OpenDSS Capacitor por etapas; balances y referencias analíticas de circuitos equilibrados',
+        'limitations':['Red pasiva trifásica equilibrada; cargas PQ o impedancia explícitas',
+                       'Banco ideal sin reactores; etapas fijas explícitas a igual demanda',
+                       'No cubre armónicos, resonancia, conmutación, control automático ni selección completa del equipo',
+                       'Criterios referenciados del usuario; no acredita conformidad normativa ni emisión profesional'],
+    },
     "power_flow": {
         "status": "VALIDATED_WITH_LIMITATIONS",
         "basis": "OpenDSS + postproceso MCP + benchmarks P1 independientes",

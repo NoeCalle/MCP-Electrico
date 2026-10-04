@@ -41,13 +41,15 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL EXPERIMENTAL** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
 | P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EXPERIMENTAL** | una máquina delta/red RL/control y bypass MSL; completar fabricante y topologías antes de ampliar alcance |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
+| Bancos y compensación reactiva | **ADAPTADOR OPENDSS EXPERIMENTAL DISPONIBLE** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
 
 **Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Alcance local vigente tras el retiro:** la baseline estática conserva su
 disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
 experimental de equivalente RL, con calificación integral pendiente. SCR está
-disponible en su alcance experimental; bancos, armónicos y perfiles siguen pendientes. Arc Flash
+disponible en su alcance experimental; bancos estáticos tienen adaptador OpenDSS experimental
+([alcance y evidencia](COMPENSACION_REACTIVA_OPENDSS.md)); armónicos y perfiles siguen pendientes. Arc Flash
 continúa diferido. No se declara cierre de todas las necesidades habituales.
 
 **Estado actual:**

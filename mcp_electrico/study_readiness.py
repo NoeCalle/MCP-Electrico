@@ -316,6 +316,16 @@ def _engine_readiness(study: str, capability: dict[str, Any], fault_type: str | 
 
 def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = None, allow_experimental: bool = False) -> dict[str, Any]:
     """Evalúa preparación profesional sin ejecutar el estudio."""
+    if capability.get('requires_study_package'):
+        return {
+            'schema_version':1, 'study':study, 'fault_type':None,
+            'selected_engine':capability['preferred'], 'data_status':MISSING_DATA,
+            'data_evaluated':False, 'overall_status':MISSING_DATA, 'engine_status':ENGINE_NOT_READY,
+            'request_issues':[], 'missing_data':[_item('PACKAGE001','Debe validar el paquete explícito mediante '+capability['readiness_tool'])],
+            'engine_reasons':[], 'engine_note':'El selector no recibe ni valida paquetes de estudio.',
+            'module_status':validation_status.get_module_status(capability['module']),
+            'professional_context':True, 'note':'Adaptador experimental disponible; datos del caso no evaluados.',
+        }
     if capability.get("planning_only"):
         return {
             "schema_version": 1, "study": study, "fault_type": None,

@@ -86,7 +86,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 | Caída estática durante arranque | OpenDSS | Disponible con corriente y fp de arranque explícitos. |
 | Aceleración DOL e interacción de motores | OpenModelica/MSL | Adaptador experimental de equivalente RL común; falta calificación integral y traducción de redes completas. |
 | Arranque suave con SCR y bypass | OpenModelica/MSL | Ejecución experimental de una máquina delta con control MSL, realimentación y bypass automático. Fabricante, estrella y multimotor pendientes. |
-| Compensación de reactiva y bancos | OpenDSS | Prioridad de integración: herramienta de bancos/etapas, comparación de escenarios y datos del equipo. No añadir otro solver. |
+| Compensación de reactiva y bancos | OpenDSS | Adaptador experimental disponible: bancos ideales por etapas, demanda explícita, FP/tensión/pérdidas/cargabilidad y balances. [Alcance](COMPENSACION_REACTIVA_OPENDSS.md); armónicos, reactores y control automático pendientes. |
 | Armónicos, THD y resonancia | OpenDSS | Prioridad de integración: espectros, fuentes armónicas, barrido y benchmarks. No inferir espectros de un fp. |
 | Demanda, perfiles y operación temporal | OpenDSS | Prioridad de integración: perfiles explícitos y simulación temporal. No confundir con transitorios EMT. |
 | Ajustes y actuación de relés de sobrecorriente | pandapower `OCRelay` | Adaptador pendiente; complementar datos de interruptor y clearing time cuando corresponda. |
@@ -98,7 +98,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 
 1. Conservar la calificación experimental DOL/SCR, completar fichas y evidencia
    industrial antes de ampliar fabricante/topologías; no recuperar física propia.
-2. Exponer bancos, armónicos y perfiles con OpenDSS, verificando cada estudio
+2. Bancos estáticos expuestos experimentalmente; continuar con armónicos y perfiles con OpenDSS, verificando cada estudio
    mediante herramientas MCP y referencias independientes dentro de su alcance.
 3. Integrar actuación de relés con pandapower y conservar datos de clearing.
 4. Completar datos/benchmarks de uso industrial, informes y mejoras visuales.

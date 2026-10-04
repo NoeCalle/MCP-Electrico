@@ -463,7 +463,9 @@ MCP-Electrico/
 - TCC y coordinación temporal requieren curvas y tiempos explícitos;
 - ATS/UPS pueden documentarse visualmente, pero aún no tienen modelo eléctrico
   detallado propio;
-- no hay `LoadShape`, PV, Storage, capacitores, armónicos ni simulación anual;
+- los bancos de capacitores estáticos tienen [adaptador OpenDSS experimental](docs/COMPENSACION_REACTIVA_OPENDSS.md)
+  por etapas explícitas en contexto aislado; no hay `LoadShape`, PV, Storage,
+  control automático de bancos, armónicos ni simulación anual;
 - el modelo activo en memoria no se conserva al reiniciar; snapshots y dossiers
   proporcionan persistencia y reconstrucción explícitas;
 - un HTML local abierto requiere refresco manual para leer una regeneración;
