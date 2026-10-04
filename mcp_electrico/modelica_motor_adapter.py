@@ -27,7 +27,9 @@ def contract():
         "schema": SCHEMA, "backend": BACKEND,
         "engine": "OpenModelica", "library": "Modelica Standard Library 4.0.0",
         "network_scope": "DECLARED_BALANCED_COMMON_BUS_RL_EQUIVALENT",
-        "starting_methods": ["DOL"], "prepared_not_enabled_methods": ["SCR"],
+        "starting_methods": ["DOL", "SCR"], "prepared_not_enabled_methods": [],
+        "scr_scope": "ONE_DELTA_MACHINE_REFERENCE_CONTROLLER",
+        "scr_numerical_profile": {"integrator": "dassl", "nonlinear_solver": "newton", "openmodelica_solver_status": "PROTOTYPE_PER_RUNTIME_DOCUMENTATION"},
         "multiple_dynamic_machines": True,
         "physical_solver_owned_by_mcp": False,
         "closed_network_current_voltage_interaction": True,
@@ -37,7 +39,7 @@ def contract():
         "switch_regularization": {"Ron_ohm": 1e-6, "Goff_siemens": 1e-5},
         "triac_regularization": {"Ron_ohm": 1e-5, "Goff_siemens": 1e-5, "Vknee_v": 0},
         "qualification": "EXPERIMENTAL_ADAPTER_SYNTHETIC_CASES_ONLY",
-        "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation"],
+        "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "multiple_machines_with_SCR", "SCR_wye_connection"],
         "professional_emission": False, "automatic_defaults": False,
     }
 
@@ -192,7 +194,10 @@ def validate(package):
             for k in ("initial_voltage_pu", "bypass_speed_fraction"):
                 if type(control.get(k)) in (int,float) and not 0 < control[k] < 1: issue(path + ".controller." + k, "fraction between zero and one")
         else: issue(path + ".starting.method", "DOL/SCR only")
-        criteria = obj(m.get("criteria"), path + ".criteria", {"target_speed_fraction", "maximum_acceleration_time_s", "minimum_terminal_voltage_pu", "refinement_current_relative_tolerance", "refinement_speed_relative_tolerance", "refinement_time_absolute_tolerance_s", "source_reference"})
+        criteria_fields = {"target_speed_fraction", "maximum_acceleration_time_s", "minimum_terminal_voltage_pu", "refinement_current_relative_tolerance", "refinement_speed_relative_tolerance", "refinement_time_absolute_tolerance_s", "source_reference"}
+        if start.get("method") == "SCR":
+            criteria_fields.update({"refinement_voltage_absolute_tolerance_pu", "refinement_torque_relative_tolerance", "refinement_bypass_time_absolute_tolerance_s"})
+        criteria = obj(m.get("criteria"), path + ".criteria", criteria_fields)
         for key in set(criteria) - {"source_reference"}: number(criteria[key], path + ".criteria." + key)
         for key in ("target_speed_fraction", "minimum_terminal_voltage_pu"):
             if type(criteria.get(key)) in (int,float) and criteria[key] > 1: issue(path + ".criteria." + key, "fraction cannot exceed one")
@@ -201,8 +206,11 @@ def validate(package):
         reference(criteria.get("source_reference"), path + ".criteria.source_reference")
     rt = runtime()
     qualification_blockers = []
-    if any(isinstance(m,dict) and isinstance(m.get("starting"),dict) and m["starting"].get("method") == "SCR" for m in motors):
-        qualification_blockers.append("SCR_CLOSED_LOOP_NUMERICAL_VALIDATION_PENDING")
+    scr_motors = [m for m in motors if isinstance(m,dict) and isinstance(m.get("starting"),dict) and m["starting"].get("method") == "SCR"]
+    if scr_motors and len(motors) != 1:
+        qualification_blockers.append("MULTIMOTOR_SCR_NOT_QUALIFIED")
+    if any(m.get("connection") != "delta" for m in scr_motors):
+        qualification_blockers.append("SCR_WYE_CONNECTION_NOT_QUALIFIED")
     return {"schema": SCHEMA, "data_ready": not issues, "issues": issues, "runtime": rt,
             "qualification_blockers": qualification_blockers,
             "ready_for_execution": not issues and rt["ready"] and not qualification_blockers, "physical_solver_owned_by_mcp": False,
@@ -252,7 +260,10 @@ def build_model(package):
             f"output Real {prefix}ic={prefix}lineSensor.i[3];",
             f"output Real {prefix}vab={prefix}terminal.plugSupply.pin[1].v-{prefix}terminal.plugSupply.pin[2].v;",
             f"output Real {prefix}vbc={prefix}terminal.plugSupply.pin[2].v-{prefix}terminal.plugSupply.pin[3].v;",
-            f"output Real {prefix}vca={prefix}terminal.plugSupply.pin[3].v-{prefix}terminal.plugSupply.pin[1].v;"]
+            f"output Real {prefix}vca={prefix}terminal.plugSupply.pin[3].v-{prefix}terminal.plugSupply.pin[1].v;",
+            f"output Real {prefix}busvab=supplyL.plug_n.pin[1].v-supplyL.plug_n.pin[2].v;",
+            f"output Real {prefix}busvbc=supplyL.plug_n.pin[2].v-supplyL.plug_n.pin[3].v;",
+            f"output Real {prefix}busvca=supplyL.plug_n.pin[3].v-supplyL.plug_n.pin[1].v;"]
         equations += [
             f"connect({prefix}lineSensor.plug_n,{prefix}terminal.plugSupply);",
             f"connect({prefix}terminal.plug_sp,{prefix}motor.plug_sp);",
@@ -326,31 +337,56 @@ def _summaries(csv_path, package):
     if not rows or len(rows) > 2_600_000: raise ValueError("MODELICA_TRACE_SIZE")
     times = np.array([float(row["time"]) for row in rows])
     if not np.isfinite(times).all() or np.any(np.diff(times)<0): raise ValueError("MODELICA_TRACE_TIME")
+    if times[0] > 1e-9 or abs(times[-1]-package['simulation']['duration_s']) > 1e-8:
+        raise ValueError("MODELICA_TRACE_INCOMPLETE_OBSERVATION")
     # Event duplicates keep the final state at that instant.
+    event_times = times
     keep = np.r_[times[1:] != times[:-1], True]
     times = times[keep]
     results = []
     f, voltage = package["network"]["frequency_hz"], package["network"]["kv_ll"]*1000
     for index, m in enumerate(package["motors"]):
         prefix = f"m{index}"
-        def values(name):
-            result = np.array([float(row[prefix+name]) for row in rows])[keep]
+        def values(name, with_events=False):
+            result = np.array([float(row[prefix+name]) for row in rows])
             if not np.isfinite(result).all(): raise ValueError("MODELICA_TRACE_NONFINITE")
-            return result
+            return result if with_events else result[keep]
         speed, torque = values("speed"), values("torque")
-        currents = [values(n) for n in ("ia", "ib", "ic")]
-        voltages = [values(n) for n in ("vab", "vbc", "vca")]
+        currents = [values(n, True) for n in ("ia", "ib", "ic")]
+        voltages = [values(n, True) for n in ("vab", "vbc", "vca")]
+        bus_voltages = [values(n, True) for n in ("busvab", "busvbc", "busvca")]
+        vref = values("vRef")
         trajectory = []
         start = m["starting"]["time_s"]
-        for cycle in range(int((times[-1]-start)*f + 1e-8)):
+        cycles = int((times[-1]-start)*f + 1e-8)
+        boundaries = start + np.arange(cycles+1)/f
+        def cycle_integrals(arr, squared=False):
+            # Read both left/right event states. Zero-width discontinuities have
+            # zero area; do not smear SCR switching over an arbitrary RMS grid.
+            delta=np.diff(event_times)
+            area=delta*((arr[:-1]**2+arr[:-1]*arr[1:]+arr[1:]**2)/3 if squared else (arr[:-1]+arr[1:])/2)
+            cumulative=np.r_[0,np.cumsum(area)]
+            k=np.clip(np.searchsorted(event_times,boundaries,side='right')-1,0,len(arr)-2)
+            dx=boundaries-event_times[k]
+            slope=np.divide(arr[k+1]-arr[k],delta[k],out=np.zeros_like(dx),where=delta[k]>0)
+            local=(arr[k]**2*dx+arr[k]*slope*dx**2+slope**2*dx**3/3) if squared else (arr[k]*dx+slope*dx**2/2)
+            primitive=cumulative[k]+local
+            primitive[boundaries>=event_times[-1]]=cumulative[-1]
+            return np.diff(primitive)*f
+        rms_currents=[np.sqrt(np.maximum(cycle_integrals(arr,True),0)) for arr in currents]
+        rms_voltages=[np.sqrt(np.maximum(cycle_integrals(arr,True),0)) for arr in voltages]
+        rms_buses=[np.sqrt(np.maximum(cycle_integrals(arr,True),0)) for arr in bus_voltages]
+        mean_torque=cycle_integrals(values('torque',True))
+        for cycle in range(cycles):
             left, right = start+cycle/f, start+(cycle+1)/f
-            grid = np.linspace(left, right, 1001)
-            rms_i = [sqrt(float(np.trapezoid(np.interp(grid,times,arr)**2,grid))*f) for arr in currents]
-            rms_v = [sqrt(float(np.trapezoid(np.interp(grid,times,arr)**2,grid))*f) for arr in voltages]
+            rms_i = [float(arr[cycle]) for arr in rms_currents]
+            rms_v = [float(arr[cycle]) for arr in rms_voltages]
+            rms_bus = [float(arr[cycle]) for arr in rms_buses]
             trajectory.append({"time_s": right, "speed_rad_s": float(np.interp(right,times,speed)),
                                "current_a": max(rms_i), "phase_currents_rms_a": rms_i,
-                               "torque_nm": float(np.trapezoid(np.interp(grid,times,torque),grid)*f),
-                               "voltage_pu": min(rms_v)/voltage, "line_voltages_rms_v": rms_v})
+                               "torque_nm": float(mean_torque[cycle]),
+                               "voltage_pu": min(rms_v)/voltage, "line_voltages_rms_v": rms_v,
+                               "bus_voltage_pu": min(rms_bus)/voltage, "controller_voltage_reference_pu": float(np.interp(right,times,vref))})
         target = m["criteria"]["target_speed_fraction"]*2*pi*f/m["electrical"]["pole_pairs"]
         crossing = None
         found = np.flatnonzero((times >= start) & (speed >= target))
@@ -364,6 +400,8 @@ def _summaries(csv_path, package):
         results.append({"motor_id": m["id"], "starting_method": m["starting"]["method"],
                         "acceleration_time_s": crossing, "minimum_voltage_pu": minimum,
                         "maximum_cycle_rms_current_a": max((r["current_a"] for r in trajectory), default=None),
+                        "minimum_bus_voltage_pu": min((r["bus_voltage_pu"] for r in trajectory), default=None),
+                        "maximum_current_pu": max((r["current_a"] for r in trajectory), default=0)/m['starting']['controller']['rated_current_a'] if m['starting']['method']=='SCR' else None,
                         "bypass_time_s": float(bypass_times[0]) if len(bypass_times) else None,
                         "criterion": {"passed": crossing is not None and crossing <= criteria["maximum_acceleration_time_s"] and minimum is not None and minimum >= criteria["minimum_terminal_voltage_pu"], "source_reference": criteria["source_reference"]},
                         "trajectory": trajectory})
@@ -386,7 +424,7 @@ def execute(package, directory):
     (output / "Inputs.json").write_text(json.dumps(package, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf8")
     loader = "\n".join(f'loadFile("{_quote(library/f)}");' for f in ("ModelicaServices/package.mo", "Complex.mo", "Modelica/package.mo"))
     mos = output / "run.mos"
-    mos.write_text(loader + f'\nloadFile("{_quote(source)}");\ngetErrorString();\nbuildModel(MCPMSLMotorStudy,stopTime={_n(sim["duration_s"])},numberOfIntervals={int(round(sim["duration_s"]/sim["output_step_s"]))},tolerance={_n(sim["solver_tolerance"])},outputFormat="csv",fileNamePrefix="MotorStudy",variableFilter="time|m[0-9]+(speed|torque|ia|ib|ic|vab|vbc|vca|bypass|vRef)");\ngetErrorString();\n', encoding="utf8")
+    mos.write_text(loader + f'\nloadFile("{_quote(source)}");\ngetErrorString();\nbuildModel(MCPMSLMotorStudy,stopTime={_n(sim["duration_s"])},numberOfIntervals={int(round(sim["duration_s"]/sim["output_step_s"]))},tolerance={_n(sim["solver_tolerance"])},outputFormat="csv",fileNamePrefix="MotorStudy",variableFilter="time|m[0-9]+(speed|torque|ia|ib|ic|vab|vbc|vca|busvab|busvbc|busvca|bypass|vRef)");\ngetErrorString();\n', encoding="utf8")
     env = _environment(compiler)
     # Isolate compiler bookkeeping from the user's application settings.
     env["APPDATA"] = str(output)
@@ -404,6 +442,9 @@ def execute(package, directory):
             step = sim["maximum_internal_step_s"]/(2 if refined else 1)
             command = [str(executable), "-r="+str(file), f"-tolerance={_n(tol)}", f"-maxStepSize={_n(step)}",
                        f"-stepSize={_n(sim['output_step_s']/(2 if refined else 1))}"]
+            if any(m['starting']['method']=='SCR' for m in package['motors']):
+                # Explicit compiler-runtime configuration, not a substitute physics model.
+                command += ['-s=dassl', '-nls=newton']
             record = _run(command, output, env, sim["timeout_s"])
             records.append(record)
             if record["returncode"] or "The simulation finished successfully." not in record["stdout"] or not file.is_file(): raise RuntimeError("Modelica simulation failed")
@@ -411,6 +452,7 @@ def execute(package, directory):
         results = summary_runs[1]
         for nominal, refined, m in zip(summary_runs[0], results, package["motors"]):
             a, b = nominal["trajectory"], refined["trajectory"]
+            if not a or len(a) != len(b): raise ValueError("MODELICA_REFINEMENT_TRACE_MISMATCH")
             current_error = max(abs(x["current_a"]-y["current_a"]) for x,y in zip(a,b))/max(refined["maximum_cycle_rms_current_a"],1e-12)
             speed_error = max(abs(x["speed_rad_s"]-y["speed_rad_s"]) for x,y in zip(a,b))/(2*pi*package["network"]["frequency_hz"]/m["electrical"]["pole_pairs"])
             n_time, r_time = nominal["acceleration_time_s"], refined["acceleration_time_s"]
@@ -418,6 +460,14 @@ def execute(package, directory):
             c = m["criteria"]
             refined["verification"] = {"current_relative_error": current_error, "speed_relative_error": speed_error, "acceleration_time_error_s": time_error,
                                        "passed": current_error <= c["refinement_current_relative_tolerance"] and speed_error <= c["refinement_speed_relative_tolerance"] and time_error is not None and time_error <= c["refinement_time_absolute_tolerance_s"]}
+            if m['starting']['method']=='SCR':
+                voltage_error = max(abs(x['voltage_pu']-y['voltage_pu']) for x,y in zip(a,b))
+                bus_error = max(abs(x['bus_voltage_pu']-y['bus_voltage_pu']) for x,y in zip(a,b))
+                torque_error = max(abs(x['torque_nm']-y['torque_nm']) for x,y in zip(a,b))/max(max(abs(x['torque_nm']) for x in b),1e-12)
+                n_bypass,r_bypass=nominal['bypass_time_s'],refined['bypass_time_s']
+                bypass_error=abs(n_bypass-r_bypass) if n_bypass is not None and r_bypass is not None else (0 if n_bypass is r_bypass else None)
+                extra_passed = (max(voltage_error,bus_error) <= c['refinement_voltage_absolute_tolerance_pu'] and torque_error <= c['refinement_torque_relative_tolerance'] and bypass_error is not None and bypass_error <= c['refinement_bypass_time_absolute_tolerance_s'])
+                refined['verification'].update({'terminal_voltage_absolute_error_pu':voltage_error,'bus_voltage_absolute_error_pu':bus_error,'torque_relative_error':torque_error,'bypass_time_error_s':bypass_error,'passed':refined['verification']['passed'] and extra_passed})
         passed = all(r["verification"]["passed"] for r in results)
         result = {"status": "MODELICA_MOTOR_STUDIES_COMPLETED" if passed else "MODELICA_REFINEMENT_NOT_PASSED",
                   "backend": BACKEND, "contract": contract(), "results": results,

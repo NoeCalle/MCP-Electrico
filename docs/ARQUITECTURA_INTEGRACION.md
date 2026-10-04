@@ -53,13 +53,13 @@ esta decisión de arquitectura.
 |---|---|---|
 | Flujo de carga y operación de red | OpenDSS | Integración existente; mantener como motor principal dentro de su alcance. |
 | Cortocircuito IEC 60909 | pandapower | Integración existente; revisar por separado extensiones propias y documentar cualquier carencia del motor. |
-| Dinámica de motor y arranque SCR | OpenModelica + Modelica Standard Library | Modelos ya ejecutados externamente. Siguiente trabajo: exponer su ejecución como herramienta MCP. |
+| Dinámica de motor y arranque SCR | OpenModelica + Modelica Standard Library | Adaptador MCP experimental disponible para equivalente RL explícito: DOL y SCR de una máquina delta. Calificación de fabricante y traducción de redes completas pendientes. |
 | Otras funciones pendientes | Por evaluar para cada estudio | Buscar y probar herramientas existentes antes de crear cálculos nuevos. |
 
-**OpenModelica aún no es un motor de ejecución integrado en las herramientas
-de estudio del MCP.** `contrastar_dinamica_con_modelica` verifica y compara
-trazas ya producidas por el simulador externo. Los scripts de reproducción no
-equivalen a una herramienta MCP que ejecute el estudio solicitado.
+**OpenModelica está integrado mediante `ejecutar_dinamica_modelica`.**
+El contrato delimita los componentes, topologías y datos admitidos.
+`contrastar_dinamica_con_modelica` conserva su función histórica de comparación
+de trazas; esa comparación no sustituye la nueva ejecución de red/control.
 
 ## Corrección del trabajo de motores
 
@@ -76,15 +76,17 @@ equivalen a una herramienta MCP que ejecute el estudio solicitado.
    la ruta propia anterior como histórica o retirarla con una transición explícita.
 
 Los cierres y capacidades publicados describen el código existente. No se
-reclasifican como una integración externa ya completada. El próximo hito es
-**ejecutar el estudio con software externo mediante MCP**, con datos revisados;
-no corregir o ampliar el equivalente físico propio.
+reclasifican como una integración externa ya completada. El siguiente trabajo es completar calificación industrial y las funciones
+habituales de OpenDSS pendientes, manteniendo las rutas físicas propias retiradas.
 
 Arc Flash permanece diferido por instrucción del usuario.
 
-## Actualización de ejecución y retiro — 2026-10-02
+## Actualización de ejecución y retiro — 2026-10-03
 
-Física propia DOL/RK4 y SCR/RL retirada. Existe un adaptador MCP experimental
-MSL DOL para equivalente RL de barra común; SCR cerrado está bloqueado por
-gate numérico pendiente. La recomendación de integración del catálogo no
-promueve los estudios completos. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md).
+Física propia DOL/RK4 y SCR/RL retirada. El adaptador MCP experimental MSL
+ejecuta DOL y SCR de una máquina delta sobre equivalente RL común. El control
+SCR es el de referencia de MSL, con bypass automático; no es un dispositivo de
+fabricante. SCR multimotor y conexión estrella permanecen bloqueados.
+La recomendación del catálogo no habilita la traducción automática del unifilar
+completo. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md) y
+[verificación SCR](MSL_SCR_VERIFICACION.md).

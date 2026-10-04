@@ -12,10 +12,10 @@ y presenta los resultados. Antes de crear cálculos físicos propios se debe
 documentar una carencia de las soluciones disponibles. Ver
 [decisión de arquitectura](ARQUITECTURA_INTEGRACION.md).
 
-**Migración del 2026-10-02:** física propia DOL/RK4 y SCR/RL retirada.
+**Migración actualizada el 2026-10-03:** física propia DOL/RK4 y SCR/RL retirada.
 Se integra ejecución DOL experimental OpenModelica/MSL para equivalente RL de
-barra común, incluido caso de dos motores. SCR de red/control cerrados está
-bloqueado por gate numérico. El trabajo histórico P13F/G no constituye una ruta
+barra común, incluido caso de dos motores. SCR de una máquina delta/red RL/control
+MSL es experimental; pendientes fabricante, estrella y multimotor. El trabajo histórico P13F/G no constituye una ruta
 vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Mapa maestro — orden de ejecución
@@ -39,15 +39,15 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL EXPERIMENTAL** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
-| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR BLOQUEADO** | resolver gate numérico de red/control cerrados; luego validar alcance y controlador/dispositivo |
+| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EXPERIMENTAL** | una máquina delta/red RL/control y bypass MSL; completar fabricante y topologías antes de ampliar alcance |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 
 **Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Alcance local vigente tras el retiro:** la baseline estática conserva su
 disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
-experimental de equivalente RL, con calificación integral pendiente. SCR cerrado,
-bancos, armónicos y perfiles siguen pendientes de los gates publicados; Arc Flash
+experimental de equivalente RL, con calificación integral pendiente. SCR está
+disponible en su alcance experimental; bancos, armónicos y perfiles siguen pendientes. Arc Flash
 continúa diferido. No se declara cierre de todas las necesidades habituales.
 
 **Estado actual:**
@@ -70,12 +70,12 @@ P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
 P13F2_TO_F5 = RETIRED_CUSTOM_BACKEND_MSL_DOL_EXPERIMENTAL
-P13G = RETIRED_CUSTOM_BACKEND_MSL_CLOSED_LOOP_NUMERICAL_GATE_PENDING
+P13G = RETIRED_CUSTOM_BACKEND_MSL_SCR_SINGLE_DELTA_EXPERIMENTAL
 P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_RECORDED
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = INTEGRATE_EXISTING_OPEN_SOURCE_MOTOR_DYNAMICS_ENGINE
+next_activity = INTEGRATE_OPENDSS_CAPACITOR_HARMONIC_TIME_SERIES_TOOLS
 
 professional_report = false
 professional_emission = false
@@ -84,7 +84,7 @@ crosscheck=false
 automatic_normative_lookup = false
 ```
 
-**Ampliación solicitada el 2026-10-02:** se incorpora P13G como equivalente
+**Referencia histórica de ampliación del 2026-10-02 (física propia retirada):** se incorpora P13G como equivalente
 SCR/RL por fase con dinámica mecánica y red fundamental. Su alcance es aproximado:
 no se declara cerrado el modelo de un arrancador industrial. Ver
 [P13G](P13G_SOFT_STARTING.md). La dinámica DOL P13F ya existe; para M1 faltan

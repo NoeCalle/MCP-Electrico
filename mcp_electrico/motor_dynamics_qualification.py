@@ -20,7 +20,7 @@ def obtener_plan_validacion() -> dict:
         "selected_backend": "OPENMODELICA_MSL_4_0_0",
         "qualified_scope": None, "experimental_scope": "DECLARED_BALANCED_COMMON_BUS_RL_EQUIVALENT",
         "qualification_evidence": "scripts/verify_modelica_motor_adapter_mcp.py",
-        "qualification_limitations": ["EXPERIMENTAL_COMMON_BUS_RL_ONLY", "SCR_NUMERICAL_GATE_PENDING", "NO_FULL_UNIFILAR_TRANSLATION"],
+        "qualification_limitations": ["EXPERIMENTAL_COMMON_BUS_RL_ONLY", "SCR_SINGLE_DELTA_REFERENCE_CONTROLLER_ONLY", "NO_FULL_UNIFILAR_TRANSLATION"],
         "candidates": [
             {"id": "OPENDSS_INDMACH012", "status": "NOT_QUALIFIED", "source_url": DSS_REFERENCE,
              "pending": ["SI_TO_PU_BASE_MAPPING", "STANDSTILL_INITIALIZATION", "MECHANICAL_LOAD_LAW", "TIME_STEP_CONVERGENCE"]},

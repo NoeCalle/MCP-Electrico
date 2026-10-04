@@ -52,31 +52,49 @@ def test_undersampling_and_observation_window_rejected(study):
     assert not result['data_ready']
     assert any('post-start' in issue['message'] or 'two complete' in issue['message'] for issue in result['issues'])
 
-def test_scr_data_can_never_bypass_the_pending_numerical_gate(study,monkeypatch):
+def test_scr_missing_control_and_criteria_block_even_with_installed_runtime(study,monkeypatch):
     monkeypatch.setattr(adapter,'runtime',lambda:{'ready':True})
     study['motors'][0]['starting']['method']='SCR'
     result=adapter.validate(study)
     assert not result['ready_for_execution']
-    assert result['qualification_blockers']==['SCR_CLOSED_LOOP_NUMERICAL_VALIDATION_PENDING']
-    assert adapter.contract()['prepared_not_enabled_methods']==['SCR']
+    assert not result['data_ready']
+    assert 'SCR' in adapter.contract()['starting_methods']
+
+def test_scr_complete_scoped_package_and_unqualified_topologies(monkeypatch):
+    monkeypatch.setattr(adapter,'runtime',lambda:{'ready':True})
+    package=json.loads((ROOT/'examples/msl_motor_scr.json').read_text(encoding='utf8'))
+    assert adapter.validate(package)['ready_for_execution']
+    package['motors'].append(deepcopy(package['motors'][0]))
+    package['motors'][1]['id']='SECOND'
+    assert adapter.validate(package)['qualification_blockers']==['MULTIMOTOR_SCR_NOT_QUALIFIED']
+    package['motors'].pop()
+    package['motors'][0]['connection']='wye'
+    assert adapter.validate(package)['qualification_blockers']==['SCR_WYE_CONNECTION_NOT_QUALIFIED']
+    assert not adapter.validate(package)['ready_for_execution']
 
 def test_cycle_measurements_match_sinusoidal_rms_and_failed_acceleration(tmp_path,study):
     # Test only the reading of external traces, with known waveforms and units.
     file=tmp_path/'trace.csv'
     with file.open('w',newline='') as stream:
-        names=['time']+['m0'+n for n in ('speed','torque','ia','ib','ic','vab','vbc','vca','bypass')]
+        names=['time']+['m0'+n for n in ('speed','torque','ia','ib','ic','vab','vbc','vca','busvab','busvbc','busvca','bypass','vRef')]
         writer=csv.DictWriter(stream,fieldnames=names);writer.writeheader()
         for j in range(4001):
             t=j*.00005
-            row={'time':t,'m0speed':0,'m0torque':50,'m0bypass':0}
+            row={'time':t,'m0speed':0,'m0torque':50,'m0bypass':0,'m0vRef':1}
             for k,(i,v) in enumerate(zip(('ia','ib','ic'),('vab','vbc','vca'))):
                 row['m0'+i]=sqrt(2)*100*sin(2*pi*60*t-2*pi*k/3)
                 row['m0'+v]=sqrt(2)*480*sin(2*pi*60*t-2*pi*k/3)
+                row['m0bus'+v]=row['m0'+v]
             writer.writerow(row)
+    study['simulation']['duration_s']=.2
     result=adapter._summaries(file,study)[0]
     assert result['maximum_cycle_rms_current_a']==pytest.approx(100,rel=1e-4)
     assert result['minimum_voltage_pu']==pytest.approx(1,rel=1e-4)
+    assert result['minimum_bus_voltage_pu']==pytest.approx(1,rel=1e-4)
     assert result['acceleration_time_s'] is None and not result['criterion']['passed']
+    study['simulation']['duration_s']=4
+    with pytest.raises(ValueError,match='INCOMPLETE_OBSERVATION'):adapter._summaries(file,study)
+    study['simulation']['duration_s']=.2
     bad=file.read_text().replace('m0ia','unavailable',1);file.write_text(bad)
     with pytest.raises(KeyError):adapter._summaries(file,study)
 
@@ -92,3 +110,21 @@ def test_config_corruption_and_library_change_disable_runtime(tmp_path,monkeypat
     assert adapter.runtime()['ready']
     (library/'Modelica/package.mo').write_text('changed')
     assert not adapter.runtime()['ready']
+
+def test_scr_rms_keeps_both_states_of_switching_events(tmp_path,study):
+    # Known 50% duty square wave: RMS=A/sqrt(2), regardless of output grid.
+    file=tmp_path/'events.csv';period=1/60
+    keys=['speed','torque','ia','ib','ic','vab','vbc','vca','busvab','busvbc','busvca','bypass','vRef']
+    events=[(0,100),(period/2,100),(period/2,0),(period,0),(period,100),(1.5*period,100),(1.5*period,0),(2*period,0)]
+    with file.open('w',newline='') as stream:
+        writer=csv.DictWriter(stream,fieldnames=['time']+['m0'+key for key in keys]);writer.writeheader()
+        for at,voltage in events:
+            row={'time':at,**{'m0'+key:0 for key in keys}}
+            for key in ('vab','vbc','vca'):row['m0'+key]=voltage
+            for key in ('busvab','busvbc','busvca'):row['m0'+key]=480
+            writer.writerow(row)
+    study['simulation']['duration_s']=2*period
+    result=adapter._summaries(file,study)[0]
+    assert len(result['trajectory'])==2
+    assert result['minimum_voltage_pu']==pytest.approx(100/sqrt(2)/480,abs=1e-12)
+    assert result['minimum_bus_voltage_pu']==pytest.approx(1,abs=1e-12)

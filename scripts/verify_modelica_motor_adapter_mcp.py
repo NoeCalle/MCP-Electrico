@@ -48,7 +48,7 @@ async def run(args):
                 assert blocked['status']=='BLOCKED_MODELICA_READINESS' and not (output/'Invalid').exists()
                 scr=deepcopy(package);scr['motors'][0]['starting']['method']='SCR'
                 pending=await call('validar_dinamica_modelica',{'paquete_estudio':scr},'SCR-pending.json')
-                assert not pending['ready_for_execution'] and pending['qualification_blockers']
+                assert not pending['ready_for_execution'] and pending['issues']
                 if args.omc:
                     assert args.msl
                     await call('configurar_dinamica_modelica',{'ruta_omc':str(args.omc.resolve()),'directorio_msl':str(args.msl.resolve())},'Runtime.json')
@@ -84,7 +84,7 @@ async def run(args):
                     assert two['acceleration_time_s']>one['acceleration_time_s']+.05
                     save('Independent-oracle.json',{'scope':'synthetic nearly locked rotor, fixed SI resistances, delta, balanced RL source','expected_current_a':expected_i,'expected_torque_nm':expected_t,'measured':measured,**errors,'illustrative_tolerance':.005,'production_solver':False})
     save('Calls.json',calls)
-    save('Summary.json',{'real_mcp_transport':'stdio','tool_count':len(names),'calls':len(calls),'retired_physics_blocked':True,'incomplete_data_blocked':True,'scr_execution_blocked':True,'modelica_cases_executed':3 if args.omc else 0,'professional_emission':False})
+    save('Summary.json',{'real_mcp_transport':'stdio','tool_count':len(names),'calls':len(calls),'retired_physics_blocked':True,'incomplete_data_blocked':True,'incomplete_scr_data_blocked':True,'modelica_cases_executed':3 if args.omc else 0,'professional_emission':False})
     print(json.dumps({'ok':True,'calls':len(calls),'output':str(output)}))
 
 if __name__=='__main__':
