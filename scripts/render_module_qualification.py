@@ -15,6 +15,7 @@ LABELS = {
 
 
 def render(data):
+    dol_closed = data['modules']['modelica_dol']['verification_status'] == 'VERIFIED_IN_SCOPE'
     lines = [
         '# Estado de cierre de módulos', '',
         f"Revisión: **{data['revision']}**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.", '',
@@ -23,6 +24,7 @@ def render(data):
         'Se cierra la integración dentro del alcance demostrado por las pruebas citadas. El respaldo del motor abierto no comprueba por sí solo las unidades, conexiones, traducción de datos y lectura de resultados del adaptador MCP.', '',
         'Los seis estados se evalúan por separado: verificación de integración, alcance soportado, preparación de datos del proyecto, criterios de diseño, conformidad normativa y aprobación del informe. Un módulo verificado puede recibir un proyecto incompleto o calcular un diseño que incumple sus criterios.', '',
         'Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los tres componentes P7. Su madurez pública es `VALIDATED_WITH_LIMITATIONS`, con el estado anterior como procedencia. Las ampliaciones excluidas no vuelven a abrir el alcance cerrado.', '',
+        'Q2 añade el cierre DOL01–DOL03 por contraste con el ejemplo original MSL y regresión MCP. SCR conserva su calificación independiente.' if dol_closed else 'DOL conserva sus condiciones de cierre pendientes.', '',
         '`professional_emission=false` se mantiene. El gate actual del producto se consulta con `evaluar_cierre_p7d_engineering_preview`; los flags históricos de componentes P5/P7 no conceden una habilitación global. Un snapshot conserva la calificación de su fecha de captura.', '',
         '## Registro actual', '',
         '| Módulo | Motor | Estado | Alcance comprobado o solicitado |',
@@ -32,7 +34,7 @@ def render(data):
         clean = lambda value: str(value).replace('|', '/').replace('\n', ' ')
         lines.append(f"| `{name}` | {clean(item['engine'])} | {LABELS.get(item['verification_status'], item['verification_status'])} | {clean(item['scope'])} |")
     lines += ['', '## Condiciones finitas pendientes', '',
-              'La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, pero todavía falta cerrar las condiciones siguientes. No se anuncia como módulo plenamente verificado por tener MSL instalada. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.', '']
+              ('DOL está verificado en el alcance documentado; SCR conserva `IN_VERIFICATION` con las condiciones siguientes.' if dol_closed else 'La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, pero todavía falta cerrar las condiciones siguientes.') + ' La instalación de MSL no basta para aprobar un adaptador. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.', '']
     for name, item in data['modules'].items():
         if not item['closure_gates']:
             continue
@@ -40,13 +42,18 @@ def render(data):
         for gate in item['closure_gates']:
             lines.append(f"- **{gate['id']} — {gate['status']}:** {gate['acceptance']}")
         lines.append('')
+    lines += ['## Condiciones cerradas con evidencia', '']
+    for name, item in data['modules'].items():
+        for gate in item.get('completed_closure_gates', []):
+            lines.append(f"- **{name} / {gate['id']} — {gate['status']}:** {gate['acceptance']}")
+    lines.append('')
     lines += ['## Evidencia y exclusiones por módulo', '']
     for name, item in data['modules'].items():
         lines += [f'### {name}', '', 'Evidencia: ' + ', '.join(f'[{Path(path).name}](../{path})' for path in item['evidence']) + '.', '']
         if item['excluded_extensions']:
             lines += ['Fuera del cierre: ' + '; '.join(item['excluded_extensions']) + '.', '']
     lines += ['## Orden del roadmap', '',
-              '1. Cerrar DOL con referencia MSL original, convenciones de máquina y regresión reproducible del alcance admitido.',
+              '1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.' if dol_closed else '1. Cerrar DOL con referencia MSL original, convenciones de máquina y regresión reproducible del alcance admitido.',
               '2. Cerrar SCR para una máquina delta: inicialización y eventos, referencia completa y control admitido. Estrella y multimotor requieren sus pruebas propias antes de ampliarse.',
               '3. Revisar el flujo alternativo pandapower solo si una necesidad concreta justifica su alcance. Mantener OpenDSS como ruta principal ya comprobada.',
               '4. Después de esos cierres, integrar armónicos/perfiles/relés que falten usando motores existentes, sin duplicar solvers suficientes.',

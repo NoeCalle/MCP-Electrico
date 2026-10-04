@@ -1,0 +1,78 @@
+{
+  "schema": "MCP_ELECTRICO_MSL_MOTOR_STUDY_V1",
+  "id": "MSL-ORIGINAL-IMC-DOL-ZERO-LOAD",
+  "source_reference": "MSL 4.0.0 IMC_DOL source, specialized explicitly to TLoad=0; test fixture, not customer data",
+  "network": {
+    "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+    "kv_ll": 0.1,
+    "frequency_hz": 50,
+    "pu": 1.0,
+    "angle_deg": 0.0,
+    "r_ohm": 0.0,
+    "x_ohm": 0.0,
+    "source_reference": "IMC_DOL.sineVoltage V=sqrt(2/3)*VNominal; VNominal=100 is line-to-line from the actual equation"
+  },
+  "simulation": {
+    "duration_s": 1.5,
+    "output_step_s": 5e-05,
+    "solver_tolerance": 1e-07,
+    "maximum_internal_step_s": 5e-05,
+    "time_refinement": "TOLERANCE_AND_MAX_STEP_REFINEMENT",
+    "timeout_s": 240,
+    "source_reference": "Predeclared DOL numerical comparison: refined tolerance 1e-8 and internal/output step 25 us"
+  },
+  "motors": [
+    {
+      "id": "MSL-IMC-DOL",
+      "connection": "delta",
+      "source_reference": "Original IMC_DOL, IM_SquirrelCageData and InductionMachineData records MSL 4.0.0",
+      "electrical": {
+        "pole_pairs": 2,
+        "stator_resistance_ohm": 0.03,
+        "rotor_resistance_ohm": 0.04,
+        "stator_leakage_inductance_h": 0.0003239643625499069,
+        "rotor_leakage_inductance_h": 0.0003239643625499069,
+        "magnetizing_inductance_h": 0.009225332222963813,
+        "zero_sequence_inductance_h": 0.0003239643625499069,
+        "temperature_k": 293.15,
+        "loss_model": "FIXED_RESISTANCES_NO_CORE_STRAY_THERMAL",
+        "source_reference": "MSL 4.0.0 original IM_SquirrelCageData/InductionMachineData per winding SI values; alpha20s=alpha20r=0"
+      },
+      "mechanical": {
+        "motor_inertia_kg_m2": 0.29,
+        "load_inertia_kg_m2": 0.29,
+        "damping_nm_s_rad": 0.0,
+        "load_curve": [
+          {
+            "speed_rad_s": -200.0,
+            "torque_nm": 0.0
+          },
+          {
+            "speed_rad_s": 0.0,
+            "torque_nm": 0.0
+          },
+          {
+            "speed_rad_s": 200.0,
+            "torque_nm": 0.0
+          }
+        ],
+        "anti_reverse": "NONE",
+        "source_reference": "MSL IMC_DOL JLoad=0.29 and native QuadraticSpeedDependentTorque specialized to TLoad=0; fixed stator Js is not added to rotating inertia"
+      },
+      "starting": {
+        "method": "DOL",
+        "time_s": 0.1,
+        "controller": null
+      },
+      "criteria": {
+        "target_speed_fraction": 0.9,
+        "maximum_acceleration_time_s": 1.4,
+        "minimum_terminal_voltage_pu": 0.95,
+        "refinement_current_relative_tolerance": 0.01,
+        "refinement_speed_relative_tolerance": 0.01,
+        "refinement_time_absolute_tolerance_s": 0.01,
+        "source_reference": "Illustrative test acceptance, not normative minima"
+      }
+    }
+  ]
+}

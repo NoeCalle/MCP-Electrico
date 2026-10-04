@@ -22,6 +22,27 @@ VALID_STATES = {
 }
 
 _MODULES = {
+    "modelica_dol": {
+        "status": "EXPERIMENTAL",
+        "basis": "MSL 4.0.0/OpenModelica 1.27.1; cierre DOL01–DOL03 con ejemplo original y regresión MCP",
+        "limitations": [
+            "Red RL trifásica equilibrada declarada; sin traducción automática del unifilar completo",
+            "Casos cuantitativos publicados de una/dos máquinas; no validación de todas las combinaciones admitidas",
+            "Resistencias fijas y parámetros SI explícitos; sin evolución térmica ni calibración de equipo real",
+            "DOL y SCR tienen calificaciones independientes",
+            "professional_emission=false",
+        ],
+    },
+    "modelica_scr": {
+        "status": "EXPERIMENTAL",
+        "basis": "MSL SCR delta; condiciones SCR01–SCR03 pendientes",
+        "limitations": [
+            "Una máquina delta, red RL, control MSL genérico y solver algebraico prototipo",
+            "Estrella y multimotor SCR permanecen bloqueados",
+            "El cierre DOL no califica SCR ni un dispositivo de fabricante",
+            "professional_emission=false",
+        ],
+    },
     'reactive_compensation': {
         'status':'EXPERIMENTAL', 'basis':'OpenDSS Capacitor por etapas; balances y referencias analíticas de circuitos equilibrados',
         'limitations':['Red pasiva trifásica equilibrada; cargas PQ o impedancia explícitas',

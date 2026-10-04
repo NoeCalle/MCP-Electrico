@@ -33,13 +33,23 @@ def contract():
         "scr_numerical_profile": {"integrator": "dassl", "nonlinear_solver": "newton", "openmodelica_solver_status": "PROTOTYPE_PER_RUNTIME_DOCUMENTATION"},
         "multiple_dynamic_machines": True,
         "physical_solver_owned_by_mcp": False,
+        "parameter_conventions": {
+            "network_voltage": "LINE_TO_LINE_RMS_KV",
+            "network_impedance": "PER_PHASE_RL_THEVENIN_AT_COMMON_BUS",
+            "machine_electrical": "SI_PER_STATOR_WINDING_ROTOR_EQUIVALENT_THREE_PHASE_REFERRED_TO_STATOR",
+            "temperature": "DECLARED_FIXED_RESISTANCES_AT_THIS_TEMPERATURE_ALPHA20_ZERO_NO_TEMPERATURE_CORRECTION",
+            "rotating_inertia": "MOTOR_JR_PLUS_EXTERNAL_LOAD_J; FIXED_STATOR_JS_NOT_ADDED",
+            "losses": "EXPLICIT_FIXED_COPPER_RESISTANCES; CORE_STRAY_FRICTION_THERMAL_MODELS_DISABLED",
+            "current_output": "TERMINAL_LINE_CURRENTS; CYCLE_RMS_NOT_MACHINE_QUASI_RMS_SENSOR",
+            "voltage_output": "LINE_TO_LINE_CYCLE_RMS; BUS_AND_TERMINAL_SEPARATE",
+        },
         "closed_network_current_voltage_interaction": True,
         "controller": "MSL SoftStartControl, VoltageToAngle, Signal2mPulse",
         "controller_limit": "Reference ramp-hold controller; not a manufacturer controller or guaranteed hard current cap",
         "gate_phase_reference": "UPSTREAM_SINUSOIDAL_SOURCE",
         "switch_regularization": {"Ron_ohm": 1e-6, "Goff_siemens": 1e-5},
         "triac_regularization": {"Ron_ohm": 1e-5, "Goff_siemens": 1e-5, "Vknee_v": 0},
-        "qualification": "EXPERIMENTAL_ADAPTER_SYNTHETIC_CASES_ONLY",
+        "qualification": "PER_METHOD_SCOPED_QUALIFICATION",
         "scoped_qualification": {method:module_qualification.get('modelica_'+method.lower()) for method in ('DOL','SCR')},
         "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "multiple_machines_with_SCR", "SCR_wye_connection"],
         "professional_emission": False, "automatic_defaults": False,
@@ -213,7 +223,10 @@ def validate(package):
         qualification_blockers.append("MULTIMOTOR_SCR_NOT_QUALIFIED")
     if any(m.get("connection") != "delta" for m in scr_motors):
         qualification_blockers.append("SCR_WYE_CONNECTION_NOT_QUALIFIED")
+    methods={m['starting']['method'] for m in motors if isinstance(m,dict)
+             and isinstance(m.get('starting'),dict) and m['starting'].get('method') in ('DOL','SCR')}
     return {"schema": SCHEMA, "data_ready": not issues, "issues": issues, "runtime": rt,
+            "integration_verification": {method:module_qualification.get('modelica_'+method.lower())['verification_status'] for method in sorted(methods)},
             "qualification_blockers": qualification_blockers,
             "ready_for_execution": not issues and rt["ready"] and not qualification_blockers, "physical_solver_owned_by_mcp": False,
             "professional_emission": False}
@@ -444,9 +457,10 @@ def execute(package, directory):
             step = sim["maximum_internal_step_s"]/(2 if refined else 1)
             command = [str(executable), "-r="+str(file), f"-tolerance={_n(tol)}", f"-maxStepSize={_n(step)}",
                        f"-stepSize={_n(sim['output_step_s']/(2 if refined else 1))}"]
+            command += ['-s=dassl']
             if any(m['starting']['method']=='SCR' for m in package['motors']):
                 # Explicit compiler-runtime configuration, not a substitute physics model.
-                command += ['-s=dassl', '-nls=newton']
+                command += ['-nls=newton']
             record = _run(command, output, env, sim["timeout_s"])
             records.append(record)
             if record["returncode"] or "The simulation finished successfully." not in record["stdout"] or not file.is_file(): raise RuntimeError("Modelica simulation failed")
@@ -473,6 +487,7 @@ def execute(package, directory):
         passed = all(r["verification"]["passed"] for r in results)
         result = {"status": "MODELICA_MOTOR_STUDIES_COMPLETED" if passed else "MODELICA_REFINEMENT_NOT_PASSED",
                   "backend": BACKEND, "contract": contract(), "results": results,
+                  "integration_verification": ready['integration_verification'],
                   "library_modified_by_adapter": False, "physical_solver_owned_by_mcp": False,
                   "runtime": rt, "output_directory": str(output), "professional_emission": False}
     except (RuntimeError, subprocess.TimeoutExpired, OSError, ValueError, KeyError, TypeError) as exc:
