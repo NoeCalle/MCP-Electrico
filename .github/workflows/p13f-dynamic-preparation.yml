@@ -26,4 +26,4 @@ jobs:
       - name: Dependency consistency
         run: python -m pip check
       - name: Validate physical inputs and independent analytical references
-        run: python -m pytest -q -p no:faulthandler tests/test_p13f_dynamic_preparation.py tests/test_p13a_motor_starting_intake.py tests/test_p13f_rms_dynamics.py tests/test_p13f_dynamic_dossier.py tests/test_visual_sheets.py
+        run: python -m pytest -q -p no:faulthandler tests/test_p13f_dynamic_preparation.py tests/test_p13a_motor_starting_intake.py tests/test_p13f_rms_dynamics.py tests/test_p13f_dynamic_dossier.py tests/test_modelica_motor_adapter.py tests/test_visual_sheets.py

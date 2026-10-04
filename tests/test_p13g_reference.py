@@ -42,7 +42,7 @@ def test_three_phase_currents_sum_zero_and_reconstructed_cycle_matches_rms(angle
 
 def test_reference_is_independent_of_surrogate_and_exact_endpoints(monkeypatch):
     def forbidden(*args): raise AssertionError('Reference must not use surrogate')
-    monkeypatch.setattr(soft, 'phase_response', forbidden)
+    monkeypatch.setattr(soft, 'phase_response', forbidden, raising=False)
     assert ref.response(0)['fundamental_pu'] == pytest.approx(1.)
     assert ref.response(5*pi/6)['total_rms_pu'] == 0.
     assert ref.response(pi)['fundamental_pu'] == 0.
@@ -51,38 +51,10 @@ def test_reference_is_independent_of_surrogate_and_exact_endpoints(monkeypatch):
         assert ref.rms_closed_form(x-1e-9) == pytest.approx(ref.rms_closed_form(x+1e-9), abs=1e-8)
 
 
-def test_comparison_detects_difference_even_at_equal_fundamental_without_promotion():
+def test_comparison_against_deleted_physics_is_explicitly_retired():
     result = ref.compare(package())
-    assert result['status'] == 'REFERENCE_COMPARISON_COMPLETED'
-    assert result['numeric_oracle_verified']
-    assert not result['agreement_same_angle'] and not result['agreement_same_fundamental']
-    angle90 = next(r for r in result['same_angle'] if r['firing_angle_deg'] == 90)
-    assert angle90['reference_total_rms_pu'] == pytest.approx(.5415271592605748, abs=1e-12)
-    target40 = next(r for r in result['same_fundamental'] if r['target_fundamental_pu'] == .4)
-    assert target40['rms_relative_error_percent'] == pytest.approx(9.72422427179, abs=1e-7)
-    assert abs(target40['fundamental_signed_error_pu']) < 2e-9
-    off = next(r for r in result['same_angle'] if r['firing_angle_deg'] == 150)
-    assert off['rms_relative_error_percent'] is None
-    assert not result['device_validation_promoted'] and not result['professional_emission']
-    assert result['design_acceptance_status'] == 'NOT_DEMONSTRATED'
-    assert 'INDUCTION_MOTOR_TORQUE' in result['contract']['not_evaluated']
-    json.dumps(result, allow_nan=False)
-
-
-@pytest.mark.parametrize('key,value', [
-    ('firing_angles_deg', [True]), ('firing_angles_deg', [float('nan')]),
-    ('firing_angles_deg', [181]), ('firing_angles_deg', None),
-    ('fundamental_voltage_targets_pu', [0]), ('fundamental_voltage_targets_pu', []),
-    ('numeric_absolute_tolerance_pu', 1), ('comparison_absolute_tolerance_pu', 0),
-    ('tolerance_kind', 'NORMATIVE_REQUIREMENT'), ('tolerance_reference', ''),
-])
-def test_unsupported_or_implicit_tolerances_block_before_comparison(key, value, monkeypatch):
-    p = package(); p[key] = value
-    def forbidden(*args): raise AssertionError('Blocked input must not evaluate')
-    monkeypatch.setattr(soft, 'phase_response', forbidden)
-    result = ref.compare(p)
-    assert result['status'] == 'BLOCKED_REFERENCE_INPUTS' and result['issues']
-    assert result['same_angle'] == [] and not result['network_solve_performed']
+    assert result['status'] == 'RETIRED_SURROGATE_COMPARISON'
+    assert not result['same_angle'] and not result['same_fundamental']
 
 
 def test_read_only_tool_parent_unchanged_and_registered():
@@ -104,4 +76,4 @@ def test_read_only_tool_parent_unchanged_and_registered():
 
 @pytest.mark.parametrize('value', [None, [], {}, {'bad': 'field'}])
 def test_malformed_package_returns_blocked_result(value):
-    assert ref.compare(value)['status'] == 'BLOCKED_REFERENCE_INPUTS'
+    assert ref.compare(value)['status'] == 'RETIRED_SURROGATE_COMPARISON'

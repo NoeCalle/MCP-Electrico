@@ -1,15 +1,19 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
-**Fecha:** 2 de octubre de 2026. **Código consultado:** checkout local basado en `21464ab` con ampliación de contraste SCR; hashes de fuentes en `Evidencia-consulta.json`.
+**Fecha:** 2 de octubre de 2026. Actualización de migración a modelos abiertos.
+El servidor actualizado registra **150 herramientas**. La evidencia stdio de
+migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
+refinamiento y un oráculo independiente. La suite MCP general y la disponibilidad
+de las herramientas en este chat son comprobaciones separadas.
 
-Inventario obtenido de un cliente MCP real por stdio: **146 herramientas registradas y 14 consultas de contratos**, sin ejecutar estudios eléctricos nuevos. Se consultó el servidor local de este repositorio; esto no prueba que todas las herramientas estén cargadas en el contexto del chat.
+Ver [migración y necesidades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Cómo leer la matriz
 
 **Dirección de desarrollo:** integrar herramientas gratuitas y abiertas
 existentes antes de implementar física propia. La matriz describe lo que hoy
-está implementado; el siguiente hito de motores es exponer la ejecución de
-OpenModelica/MSL mediante MCP. Su herramienta actual solo compara trazas.
+está implementado; existe ejecución DOL experimental de OpenModelica/MSL por MCP para un
+equivalente RL de barra común. SCR cerrado permanece bloqueado.
 Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
 
 El selector determinista añade ocho rutas de integración pendientes y un catálogo
@@ -22,21 +26,21 @@ Estas preferencias no suman estudios ejecutables a las capacidades de esta matri
 - La disponibilidad no significa que un proyecto tenga los datos necesarios ni que cumpla sus criterios. Los datos típicos aprobados se identifican como supuestos; no pasan a ser datos reales del fabricante.
 - Un cálculo finalizado, un criterio cumplido, un modelo validado y la emisión de un informe profesional son comprobaciones diferentes.
 
-## Qué falta contrastar en el SCR y por qué
+## Estado del SCR
 
-El modelo actual ya comprueba las ecuaciones del **equivalente SCR/RL simplificado** mediante una integración independiente, controles de corriente, refinamiento temporal y balance de energía. Esto verifica cómo resuelve el programa ese modelo.
-
-Falta comprobar cuánto representa un arrancador trifásico real: la aproximación por fase no reproduce toda su interacción de conmutación y el par usa sólo la tensión fundamental. Hace falta una referencia independiente —modelo trifásico, curvas de fabricante o mediciones adecuadas— para comparar corriente, par, caída de tensión, aceleración y bypass. Deben cuantificarse los errores y documentarse los casos en los que la aproximación es aceptable. No es necesario esperar a una instalación real para empezar ese contraste.
-
-Por eso P13G conserva `ANALYTICAL_SURROGATE_NOT_DEVICE_VALIDATED`. La prueba sintética publicada no valida los motores M1/M2 del plano. Sus datos físicos y criterios aplicables también deben revisarse para calcular su caso concreto.
-
-El primer contraste estructural está implementado mediante `contrastar_arranque_suave`: a 0.4 pu, la corriente RMS del equivalente supera la referencia resistiva trifásica sin neutro en 9.724 %. El contraste externo con motor ya se ejecutó con MSL 4.0.0/OpenModelica 1.27.1 y se verifica mediante `contrastar_dinamica_con_modelica`. Para el motor sintético, SCR llega al 90 % en 3.47 s frente a 3.752 s bajo la misma secuencia de entradas y bypass impuesto. Se registra discrepancia. La ruta corregida es integrar la ejecución del modelo externo existente y comprobar red/control en lazo cerrado. Ninguno de estos resultados valida M1/M2.
+El equivalente físico propio SCR/RL se retiró. El componente abierto MSL y la
+conexión del adaptador están preparados, pero la prueba con red/control cerrados
+falla en la integración numérica. La ejecución está bloqueada, sin fallback.
+Los contrastes antiguos se conservan como evidencia histórica y no validan
+M1/M2 ni un controlador real. Ver [gates de migración](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Qué significa dinámica simultánea
 
 Ejemplo: M1 empieza en t=0 s; M2 empieza en t=2 s mientras M1 aún acelera. Ambos cambian su velocidad, par y corriente; la tensión común afecta la aceleración de ambos, y sus corrientes vuelven a afectar la tensión. La simulación debe integrar los dos motores junto con la red en cada instante.
 
-Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resuelve estados conjuntos de varios motores con sus demandas declaradas, incluso puntos simultáneos de arranque, pero no calcula su evolución mecánica conjunta. Un motor acelerando con otro representado como carga de marcha tampoco equivale a integrar dos motores dinámicos.
+El adaptador MSL DOL experimental conecta varias máquinas a la misma red RL
+declarada; se probaron dos motores con arranques en t=0 y t=2 s.
+Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados conjuntos de varios motores con sus demandas declaradas, incluso puntos simultáneos de arranque, pero no calcula su evolución mecánica conjunta. Un motor acelerando con otro representado como carga de marcha tampoco equivale a integrar dos motores dinámicos.
 
 ## Matriz completa por funcionalidad
 
@@ -95,9 +99,9 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 | Caída estática de tensión durante arranque | Resuelve antes/durante con impedancia equivalente | — | Convierte corriente/fp explícitos y compara criterios | Disponible, aproximación estática | Acepta etiquetas DOL/SCR/estrella-triángulo/autotransformador/VFD, pero no simula sus controles ni obtiene aceleración con esas etiquetas. |
 | Perfil de arranque por puntos declarados | Resuelve cada punto | — | Ordena puntos proporcionados y compara resultados | Disponible, estático | El tiempo etiqueta los puntos. No integra movimiento ni genera automáticamente corriente/velocidad. |
 | Secuencia de varios motores por estados declarados | Resuelve cada estado conjunto | — | Combina apagado/marcha/punto de arranque | Disponible, estático | Puede representar varios motores en un estado de arranque dado; no calcula cómo aceleran juntos ni optimiza el orden. |
-| Aceleración dinámica con arranque directo DOL | Resuelve red RMS en cada etapa | — | Circuito motor y movimiento RK4; energía y refinamiento | P13F validado con limitaciones | Un motor de jaula equilibrado desde reposo por estudio; otros motores quedan como cargas de marcha. Sin flujos transitorios, saturación o calentamiento. |
-| Aceleración con arranque suave SCR aproximado | Resuelve red fundamental en cada etapa | — | Equivalente SCR/RL, rampa, límite de corriente y bypass | P13G experimental; dispositivo no validado | Un motor equilibrado. Ecuaciones contrastadas en el equivalente RL; conmutación trifásica real, fabricante, armónicos de red y efectos térmicos pendientes. |
-| Contraste estructural del equivalente SCR | — | — | Referencia trifásica resistiva sin neutro y comparación del equivalente | Disponible; discrepancia registrada | Compara a igual ángulo y a igual fundamental. No valida motor inductivo, control de fabricante o aceleración; tolerancia sólo ilustrativa. |
+| Aceleración dinámica con arranque directo DOL | — | — | Configura componentes Modelica/MSL y procesa CSV | Adaptador MSL experimental | Equivalente RL común explícito; datos SI y curva de carga. Sin traducción automática de todo el unifilar ni emisión profesional. |
+| Aceleración con arranque suave SCR | — | — | Prepara conexiones MSL; no resuelve física propia | Bloqueado: gate numérico pendiente | Solucionador SCR/RL propio retirado. No presentar el componente abierto como estudio MCP validado. |
+| Contraste estructural del equivalente SCR retirado | — | — | Conserva evidencia histórica | Ejecución de comparación retirada | Ya no vuelve a calcular el surrogate eliminado. El contraste histórico de trazas externas sigue legible. |
 | Contraste externo de dinámica con motor Modelica | Produce amplitud de fuente del candidato | — | Verifica expediente externo y compara RMS/par/velocidad | Disponible para caso sintético; discrepancia registrada | MSL 4.0.0/OpenModelica 1.27.1 ejecutados aparte. Entradas reproducidas, bypass impuesto; no valida red/control en lazo cerrado ni fabricante. |
 
 ### 6. Visualización, informes y uso local
@@ -136,7 +140,7 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 2. **P5:** `evaluar_cierre_p5` declara `READY_WITH_LIMITATIONS`; los cinco componentes de protección conservan `EXPERIMENTAL` en `obtener_matriz_validacion`. El cierre funcional no promociona automáticamente su madurez.
 3. **P7/P8:** P7 mínimo y la Engineering Preview están cerrados como fases, pero sus contratos de componente conservan limitaciones históricas. La reconstrucción P7B no recupera automáticamente todos los datos estructurados ni convierte estudios guardados en vigentes.
 4. **Arc flash:** tanto `estimar_arc_flash_lee` como el alias `calcular_arc_flash` calculan Lee simplificado. No hay cálculo IEEE 1584 implementado detrás del alias.
-5. **Dinámica y perfiles:** las secuencias/perfiles estáticos disponibles no sustituyen la dinámica simultánea pendiente. La dinámica SCR aproximada tampoco promociona las otras etiquetas de método estático a modelos dinámicos.
+5. **Dinámica y perfiles:** las secuencias/perfiles estáticos disponibles no sustituyen la dinámica simultánea pendiente. La etiqueta SCR estática tampoco habilita la dinámica SCR pendiente.
 6. **Conformidad:** P4 tiene revisión IEC con limitaciones; no se afirma conformidad integral ecuación por ecuación. El sistema conserva `professional_emission=false`.
 
 ## Herramientas principales por función
@@ -184,9 +188,9 @@ Actualmente P13F/P13G integran **un motor dinámico por estudio**. P13D sí resu
 - **Caída estática de tensión durante arranque:** `validar_arranque_motores`, `ejecutar_arranque_motores`.
 - **Perfil de arranque por puntos declarados:** `validar_perfiles_arranque_motores`, `ejecutar_perfiles_arranque_motores`.
 - **Secuencia de varios motores por estados declarados:** `validar_secuencias_arranque_motores`, `ejecutar_secuencias_arranque_motores`.
-- **Aceleración dinámica con arranque directo DOL:** `validar_datos_dinamica_motores`, `validar_ejecucion_dinamica_motores`, `ejecutar_dinamica_motores`.
-- **Aceleración con arranque suave SCR aproximado:** `validar_dinamica_arranque_suave`, `ejecutar_dinamica_arranque_suave`.
-- **Contraste estructural del equivalente SCR:** `contrastar_arranque_suave`.
+- **Dinámica MSL DOL experimental:** `obtener_contrato_dinamica_modelica`, `configurar_dinamica_modelica`, `validar_dinamica_modelica`, `ejecutar_dinamica_modelica`.
+- **Dinámica SCR:** bloqueada en el adaptador MSL; entradas antiguas retiradas.
+- **Comparación del surrogate antiguo:** retirada; no genera nuevos resultados.
 - **Contraste externo de dinámica con motor Modelica:** `contrastar_dinamica_con_modelica`.
 
 ### 6. Visualización, informes y uso local

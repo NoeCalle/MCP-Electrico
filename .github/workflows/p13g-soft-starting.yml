@@ -24,7 +24,7 @@ jobs:
       - name: Install
         run: python -m pip install -e ".[dev]"
       - name: Verify independent RL references, controller and DOL regression
-        run: python -m pytest -q -p no:faulthandler tests/test_p13g_soft_starting.py tests/test_p13g_reference.py tests/test_motor_external_reference.py tests/test_p13f_rms_dynamics.py tests/test_p13f_dynamic_dossier.py tests/test_p13f_dynamic_preparation.py tests/test_roadmap_contract.py
+        run: python -m pytest -q -p no:faulthandler tests/test_p13g_soft_starting.py tests/test_p13g_reference.py tests/test_motor_external_reference.py tests/test_p13f_rms_dynamics.py tests/test_p13f_dynamic_dossier.py tests/test_p13f_dynamic_preparation.py tests/test_modelica_motor_adapter.py tests/test_roadmap_contract.py
       - name: Call all P13G tools through a real MCP client
         run: python scripts/verify_soft_starter_mcp.py --output p13g_mcp_evidence
       - name: Compare SCR surrogate against published three-wire reference through MCP

@@ -18,6 +18,12 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Run tests
         run: python -m pytest -q
+      - name: Verify MSL admission and removal of custom motor solvers through MCP
+        run: python scripts/verify_modelica_motor_adapter_mcp.py --output msl_adapter_admission_evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: msl-adapter-admission-mcp
+          path: msl_adapter_admission_evidence
       - name: Verify pending external routes through MCP
         run: python scripts/verify_external_engine_selection_mcp.py --output external_engine_selection_evidence
       - uses: actions/upload-artifact@v4

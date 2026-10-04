@@ -115,6 +115,21 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
 }
 
 CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+# A scoped adapter does not promote the full-unifilar study route. Its own
+# package validator is the execution gate; the generic selector has no package.
+for _study in ("motor_dynamics_dol", "motor_dynamics_simultaneous"):
+    CAPABILITY_MATRIX[_study]["scoped_adapter"] = {
+        "backend": "openmodelica+msl", "status": "EXPERIMENTAL",
+        "scope": "DECLARED_BALANCED_COMMON_BUS_RL_EQUIVALENT_DOL",
+        "contract_tool": "obtener_contrato_dinamica_modelica",
+        "readiness_tool": "validar_dinamica_modelica",
+        "execution_tool": "ejecutar_dinamica_modelica",
+        "automatic_unifilar_translation": False, "professional_emission": False,
+    }
+    CAPABILITY_MATRIX[_study]["reason"] += " Existe un adaptador MCP experimental DOL para equivalente RL de barra común; exige su propio paquete explícito y no habilita traducción automática del unifilar."
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "PREPARED_ADAPTER_NUMERICAL_GATE_PENDING"
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " El surrogate propio se retiró. La ejecución SCR con red y control cerrados está bloqueada por la calificación numérica pendiente."
+
 
 ALIASES = {
     "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",

@@ -1,3 +1,7 @@
+> Documento histórico: el solucionador físico propio descrito aquí fue
+> retirado el 2026-10-02. Sus herramientas no ejecutan nuevos estudios.
+> Estado vigente: [migración a modelos abiertos](MIGRACION_MODELOS_ABIERTOS.md).
+
 # P13F — Dinámica mecánica de motores con red RMS equilibrada
 
 ## Estado al 2026-09-30
