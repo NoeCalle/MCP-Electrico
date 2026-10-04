@@ -80,7 +80,7 @@ comparación por caso y enlaza los datos por elemento. El modelo padre se conser
 
 Armónicos, resonancia, reactores de rechazo, transitorios de conmutación,
 `CapControl` automático, redes desbalanceadas, generación y selección integral
-de capacitores/protecciones permanecen fuera de alcance. La ampliación con OpenDSS y espectros explícitos se aborda después de cerrar las condiciones DOL/SCR vigentes.
+de capacitores/protecciones permanecen fuera de alcance. La ampliación con OpenDSS y espectros explícitos se aborda después de cerrar las condiciones SCR vigentes; DOL01–DOL03 ya están cerrados en Q2.
 
 ## Fuentes primarias del componente
 

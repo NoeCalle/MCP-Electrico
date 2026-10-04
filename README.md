@@ -28,13 +28,14 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > P14A/P14B incluyen instalación y clientes MCP stdio/HTTP. IEC 60909,
 > ampacidad y coordinación/TCC existen dentro de sus alcances publicados.
 > La física propia P13F/P13G está retirada. La dinámica usa componentes
-> OpenModelica/MSL: DOL y SCR están en verificación con condiciones de cierre
-> finitas. Bancos estáticos, P5 y P7 están verificados en su alcance Q1.
+> OpenModelica/MSL: DOL está verificado dentro del alcance RL declarado (Q2);
+> SCR conserva condiciones finitas de cierre. Bancos estáticos, P5 y P7
+> conservan su verificación Q1.
 > IEEE 1584 permanece diferido.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
-Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). La siguiente prioridad es cerrar la dinámica actual antes de ampliar funcionalidades.
+Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). DOL está cerrado en alcance; la siguiente prioridad es cerrar SCR antes de ampliar funcionalidades. Ver [evidencia DOL](docs/MSL_DOL_VERIFICACION.md).
 
 Consultar la [matriz completa de capacidades actuales](docs/MATRIZ_CAPACIDADES_ACTUALES.md)
 para distinguir la participación de OpenDSS, pandapower y los módulos propios,

@@ -115,7 +115,12 @@ def test_external_routes_cannot_be_promoted_by_model_or_opt_in(study, expected, 
     readiness = engine_selection.evaluar_preparacion_estudio(study, permitir_experimental=allow_experimental)
     assert result["selected_engine"] == expected
     assert result["planning_only"] is True
-    assert result["integration_status"] == ("EXPERIMENTAL_SCOPED_ADAPTER_ONLY" if result["study"] == "motor_dynamics_soft_starter_scr" else "ADAPTER_NOT_IMPLEMENTED")
+    scoped_status={
+        'motor_dynamics_soft_starter_scr':'EXPERIMENTAL_SCOPED_ADAPTER_ONLY',
+        'motor_dynamics_dol':'VERIFIED_SCOPED_ADAPTER_ONLY',
+        'motor_dynamics_simultaneous':'VERIFIED_SCOPED_ADAPTER_ONLY',
+    }
+    assert result["integration_status"] == scoped_status.get(result['study'],'ADAPTER_NOT_IMPLEMENTED')
     assert result["decision"] == "NO_APTO_PARA_EJECUCION"
     assert result["technical_executable"] is False
     assert result["professional_execution_ready"] is False

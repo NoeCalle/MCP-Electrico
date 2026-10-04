@@ -1,10 +1,10 @@
 # Roadmap profesional — MCP Eléctrico
 
-## Cierre vigente de módulos — Q1, 3 de octubre de 2026
+## Cierre vigente de módulos — Q2, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
 
-**Prioridad actual:** cerrar las condiciones DOL y SCR del registro antes de ampliar estudios. Bancos estáticos, cinco componentes P5 y tres componentes P7 están verificados en sus alcances declarados. Arc Flash sigue diferido.
+**Actualización Q2 (4 de octubre):** DOL01–DOL03 están cerrados por contraste con el ejemplo original MSL y regresión MCP; ver [evidencia DOL](MSL_DOL_VERIFICACION.md). La prioridad pasa a SCR01–SCR03. Bancos estáticos, P5 y P7 conservan sus cierres por alcance. Arc Flash sigue diferido.
 
 
 ## Objetivo
@@ -19,8 +19,8 @@ y presenta los resultados. Antes de crear cálculos físicos propios se debe
 documentar una carencia de las soluciones disponibles. Ver
 [decisión de arquitectura](ARQUITECTURA_INTEGRACION.md).
 
-**Migración actualizada el 2026-10-03:** física propia DOL/RK4 y SCR/RL retirada.
-Se integra ejecución DOL experimental OpenModelica/MSL para equivalente RL de
+**Migración actualizada el 2026-10-04:** física propia DOL/RK4 y SCR/RL retirada.
+Se integra ejecución DOL verificada en alcance OpenModelica/MSL para equivalente RL de
 barra común, incluido caso de dos motores. SCR de una máquina delta/red RL/control
 MSL permanece en verificación con los gates SCR01 a SCR03. Fabricante corresponde a datos del proyecto; estrella y multimotor son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
 vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
@@ -45,7 +45,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P10 — Reference Validation | **CERRADA — P10A–P10G DONE** | validación integral independiente de la baseline con caso controlado propio |
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
-| P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL EXPERIMENTAL** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
+| P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL VERIFICADO EN ALCANCE** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
 | P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EN VERIFICACIÓN** | una máquina delta/red RL/control y bypass MSL; cerrar gates SCR01 a SCR03 antes de ampliar topologías |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 | Bancos y compensación reactiva | **INTEGRACIÓN VERIFICADA EN ALCANCE ESTÁTICO** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
@@ -54,7 +54,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 
 **Alcance local vigente tras el retiro:** la baseline estática conserva su
 disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
-experimental de equivalente RL, con calificación integral pendiente. SCR está
+verificado en alcance de equivalente RL (DOL01–DOL03 cerrados). SCR está
 disponible en su alcance experimental; bancos estáticos tienen integración OpenDSS verificada en el alcance declarado
 ([alcance y evidencia](COMPENSACION_REACTIVA_OPENDSS.md)); armónicos y perfiles siguen pendientes. Arc Flash
 continúa diferido. No se declara cierre de todas las necesidades habituales.
@@ -78,7 +78,7 @@ P11 = CLOSED_INTERNAL_RELEASE_SAFETY
 P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
-P13F2_TO_F5 = RETIRED_CUSTOM_BACKEND_MSL_DOL_EXPERIMENTAL
+P13F2_TO_F5 = RETIRED_CUSTOM_BACKEND_MSL_DOL_VERIFIED_IN_SCOPE
 P13G = RETIRED_CUSTOM_BACKEND_MSL_SCR_SINGLE_DELTA_EXPERIMENTAL
 P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_RECORDED
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
@@ -642,7 +642,7 @@ Detalle: `docs/P12_OPERATING_SCENARIOS.md`.
 
 ## Fase P13 — Motores y arranque
 
-**Estado vigente: P13A–P13E DONE; F2–F5 físicos propios retirados; reemplazo MSL DOL experimental.**
+**Estado vigente: P13A–P13E DONE; F2–F5 físicos propios retirados; reemplazo MSL DOL verificado en alcance.**
 
 Los párrafos F2–F5 siguientes documentan el hito histórico anterior; no habilitan
 la ejecución del solucionador retirado. El estado actual y sus herramientas están

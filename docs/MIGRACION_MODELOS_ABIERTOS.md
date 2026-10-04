@@ -1,6 +1,6 @@
 # Migración a modelos abiertos y cobertura industrial
 
-Actualizado: 3 de octubre de 2026. Regla del usuario: una ruta principal por
+Actualizado: 4 de octubre de 2026. Regla del usuario: una ruta principal por
 estudio; usar el motor integrado suficiente; retirar física propia duplicada.
 
 ## Cambio ejecutado
@@ -14,7 +14,7 @@ estudio; usar el motor integrado suficiente; retirar física propia duplicada.
   existentes de MSL 4.0.0 y ejecuta OpenModelica 1.27.1. El MCP comprueba datos,
   configura componentes, procesa CSV y compara criterios. No integra ecuaciones
   eléctricas ni mecánicas en Python.
-- El adaptador DOL es **experimental**, con red trifásica equilibrada
+- El adaptador DOL está **verificado en alcance** (DOL01–DOL03 cerrados; [evidencia](MSL_DOL_VERIFICACION.md)), con red trifásica equilibrada
   representada por un equivalente RL explícito en la barra común. No convierte
   automáticamente el circuito OpenDSS ni sus cargas de potencia constante.
 - La ejecución SCR está **habilitada experimentalmente para una máquina delta**.
@@ -63,7 +63,7 @@ diseño porque el solver haya terminado.
 
 | Componente actual | Decisión | Razón |
 |---|---|---|
-| Física DOL propia: circuito T y RK4 | Retirada | MSL dispone de máquina y mecánica; adaptador DOL experimental ejecutable. |
+| Física DOL propia: circuito T y RK4 | Retirada | MSL dispone de máquina y mecánica; adaptador DOL verificado en alcance ejecutable. |
 | Física SCR/RL propia | Retirada | MSL tiene máquina, triacs y control; sustitución SCR experimental en alcance de una máquina delta. |
 | Comparación que volvía a calcular el surrogate SCR | Retirada | Dependía de las funciones físicas eliminadas. Se conserva el contraste histórico de trazas. |
 | Admisión de datos de motores | Conservada | Evita datos faltantes, bases o supuestos silenciosos; no sustituye un solver. |
@@ -84,7 +84,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 | Ampacidad y protección de conductores | Tablas + resultados del motor | Disponible dentro de catálogos/métodos verificados; mantener trazabilidad normativa. |
 | Coordinación TCC puntual | Curvas de fabricante + corriente de falla | Disponible con limitaciones; selectividad integral no demostrada. |
 | Caída estática durante arranque | OpenDSS | Disponible con corriente y fp de arranque explícitos. |
-| Aceleración DOL e interacción de motores | OpenModelica/MSL | Adaptador experimental de equivalente RL común; falta calificación integral y traducción de redes completas. |
+| Aceleración DOL e interacción de motores | OpenModelica/MSL | Adaptador verificado en alcance RL común; siete casos MCP, cuatro contrastes con ejemplo original MSL. Traducción de redes completas excluida. |
 | Arranque suave con SCR y bypass | OpenModelica/MSL | Ejecución experimental de una máquina delta con control MSL, realimentación y bypass automático. Fabricante, estrella y multimotor pendientes. |
 | Compensación de reactiva y bancos | OpenDSS | Integración verificada en alcance estático: bancos ideales por etapas, demanda explícita, FP/tensión/pérdidas/cargabilidad y balances. [Alcance](COMPENSACION_REACTIVA_OPENDSS.md); armónicos, reactores y control automático pendientes. |
 | Armónicos, THD y resonancia | OpenDSS | Prioridad de integración: espectros, fuentes armónicas, barrido y benchmarks. No inferir espectros de un fp. |
@@ -96,8 +96,8 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 
 ## Orden de cierre
 
-1. Cerrar los gates DOL01 a DOL03 y SCR01 a SCR03 del [registro de cierre](ESTADO_CIERRE_MODULOS.md), conservando el alcance admitido. Las fichas del equipo son datos del proyecto; no recuperar física propia.
-2. Bancos estáticos verificados en alcance. Tras cerrar la dinámica actual, ampliar armónicos y perfiles con OpenDSS, verificando cada estudio mediante MCP y referencias independientes. La ampliación no reabre el alcance estático cerrado.
+1. DOL01–DOL03 cerrados: mantener la regresión. Cerrar SCR01–SCR03 del [registro de cierre](ESTADO_CIERRE_MODULOS.md), conservando el alcance admitido. Las fichas del equipo son datos del proyecto; no recuperar física propia.
+2. Bancos estáticos verificados en alcance. Tras cerrar SCR, ampliar armónicos y perfiles con OpenDSS, verificando cada estudio mediante MCP y referencias independientes. La ampliación no reabre el alcance estático cerrado.
 3. Integrar actuación de relés con pandapower y conservar datos de clearing.
 4. Completar datos/benchmarks de uso industrial, informes y mejoras visuales.
 5. Investigar las carencias restantes (p. ej. malla de tierra) antes de agregar

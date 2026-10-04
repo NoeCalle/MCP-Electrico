@@ -19,7 +19,7 @@ EXTERNAL_ENGINES = {
         "strengths": ["motor electrical/mechanical dynamics", "per-phase SCR switching", "connected machines and converters"],
         "limits": ["requires network, controller and initialization configuration", "no manufacturer validation implied"],
         "license": "MSL 4.0.0: BSD-3-Clause; runtime/dependency licenses separate",
-        "windows": "OpenModelica 1.27.1/MSL 4.0.0: experimental MCP common-bus RL DOL adapter; SCR closed-loop gate pending",
+        "windows": "OpenModelica 1.27.1/MSL 4.0.0: DOL adapter verified in declared common-bus RL scope; SCR gates remain pending",
         "integration_status": "SCOPED_EXPERIMENTAL_DOL_MCP_ADAPTER",
         "sources": ["https://github.com/modelica/ModelicaStandardLibrary/tree/v4.0.0", "https://doc.modelica.org/Modelica%204.0.0/Resources/helpWSM/Modelica/Modelica.Electrical.PowerConverters.Examples.ACAC.SoftStarter.html"],
     },
@@ -90,7 +90,7 @@ def planned_route(preferred, alternatives, reason, requirements):
 PLANNED_STUDIES = {
     "motor_dynamics_dol": planned_route(
         "openmodelica+msl", ["opendss+indmach012", "andes", "openmodelica+openipsl", "veragrid"],
-        "Para dinámica eléctrica/mecánica de arranque directo se prioriza MSL: componentes ejecutados localmente; falta adaptador MCP. Las alternativas fasoriales requieren otro alcance/modelo explícito.",
+        "Para dinámica eléctrica/mecánica DOL se prioriza MSL. Existe adaptador MCP verificado para equivalente RL común; la ruta genérica de traducción automática del unifilar completo sigue pendiente. Alternativas solo ante una carencia demostrada del alcance principal.",
         ["adaptador de ejecución MCP", "parámetros eléctricos del motor y conexión", "inercia y curva de par de carga", "red y condiciones iniciales", "benchmark del caso completo"]),
     "motor_dynamics_soft_starter_scr": planned_route(
         "openmodelica+msl", [],
@@ -98,7 +98,7 @@ PLANNED_STUDIES = {
         ["adaptador de ejecución MCP", "parámetros motor/red/carga", "control de disparo SCR y límites explícitos", "lógica y evento de bypass", "benchmark con red y control cerrados"]),
     "motor_dynamics_simultaneous": planned_route(
         "openmodelica+msl", ["opendss+indmach012", "andes", "openmodelica+openipsl"],
-        "Se propone conectar máquinas existentes a una red común en Modelica. La dinámica simultánea no está probada ni integrada; las alternativas fasoriales requieren comprobar la representación de cada máquina.",
+        "El adaptador MCP MSL conecta máquinas a una red RL común y tiene contraste de interacción con dos motores DOL. La ruta genérica de traducción del unifilar completo sigue pendiente; otras configuraciones requieren comprobar su alcance.",
         ["adaptador MCP multimáquina", "red común y eventos de cada arranque", "ficha e inercia de cada motor", "estado de máquinas ya en marcha", "benchmark de interacción entre máquinas"]),
     "motor_dynamics_vfd": planned_route(
         "openmodelica+msl", [],

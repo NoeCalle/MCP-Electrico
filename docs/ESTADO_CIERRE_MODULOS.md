@@ -1,6 +1,6 @@
 # Estado de cierre de módulos
 
-Revisión: **Q1_2026_10_03**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q2_DOL_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
@@ -11,6 +11,8 @@ Se cierra la integración dentro del alcance demostrado por las pruebas citadas.
 Los seis estados se evalúan por separado: verificación de integración, alcance soportado, preparación de datos del proyecto, criterios de diseño, conformidad normativa y aprobación del informe. Un módulo verificado puede recibir un proyecto incompleto o calcular un diseño que incumple sus criterios.
 
 Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los tres componentes P7. Su madurez pública es `VALIDATED_WITH_LIMITATIONS`, con el estado anterior como procedencia. Las ampliaciones excluidas no vuelven a abrir el alcance cerrado.
+
+Q2 añade el cierre DOL01–DOL03 por contraste con el ejemplo original MSL y regresión MCP. SCR conserva su calificación independiente.
 
 `professional_emission=false` se mantiene. El gate actual del producto se consulta con `evaluar_cierre_p7d_engineering_preview`; los flags históricos de componentes P5/P7 no conceden una habilitación global. Un snapshot conserva la calificación de su fecha de captura.
 
@@ -36,7 +38,7 @@ Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los t
 | `reactive_compensation` | OpenDSS | Verificado en alcance | Bancos ideales por etapas; verificación cuantitativa balanceada y comparación estática explícita |
 | `motor_static` | OpenDSS | Verificado en alcance | P13B/C/D: corriente/fp o estados de arranque explícitos, sin aceleración generada |
 | `operating_scenarios` | OpenDSS | Verificado en alcance | P12: contingencias/transferencias/deslastre estáticos declarados |
-| `modelica_dol` | OpenModelica/MSL | En verificación | Máquinas DOL sobre equivalente RL equilibrado común; casos sintéticos ejecutados |
+| `modelica_dol` | OpenModelica/MSL | Verificado en alcance | MSL DOL con equivalente RL equilibrado explícito, resistencias fijas y curva de carga declarada; contraste cuantitativo de una máquina estrella/delta y una/dos máquinas delta con carga |
 | `modelica_scr` | OpenModelica/MSL | En verificación | Una máquina delta y controlador MSL genérico; evidencia sintética |
 | `harmonics` | OpenDSS | Pendiente de integración | Armónicos y resonancia |
 | `time_series` | OpenDSS | Pendiente de integración | Daily/Yearly con perfiles explícitos |
@@ -48,18 +50,12 @@ Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los t
 
 ## Condiciones finitas pendientes
 
-La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, pero todavía falta cerrar las condiciones siguientes. No se anuncia como módulo plenamente verificado por tener MSL instalada. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.
+DOL está verificado en el alcance documentado; SCR conserva `IN_VERIFICATION` con las condiciones siguientes. La instalación de MSL no basta para aprobar un adaptador. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.
 
 ### pandapower_power_flow
 
 - **PPF01 — PENDING:** Contrastar transformación P2, taps, carga y pérdidas por terminal contra ejecución nativa pandapower con entradas independientes
 - **PPF02 — PENDING:** MCP público debe reproducir esos casos y rechazar equipos no traducibles
-
-### modelica_dol
-
-- **DOL01 — PENDING:** Reproducir un ejemplo original MSL directamente y por MCP con parámetros/conexiones equivalentes y tolerancias fijadas antes del contraste
-- **DOL02 — PENDING:** Cerrar la convención de temperatura/pérdidas/inercia y conversión de fase para estrella/delta en los casos admitidos
-- **DOL03 — PENDING:** Ejecutar regresión física automatizada con runtime fijado; rechazar solicitudes fuera del equivalente admitido
 
 ### modelica_scr
 
@@ -78,6 +74,12 @@ La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, 
 ### relay_operation
 
 - **ADAPTER — PENDING:** Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites
+
+## Condiciones cerradas con evidencia
+
+- **modelica_dol / DOL01 — PASSED:** Reproducir un ejemplo original MSL directamente y por MCP con parámetros/conexiones equivalentes y tolerancias fijadas antes del contraste
+- **modelica_dol / DOL02 — PASSED:** Cerrar la convención de temperatura/pérdidas/inercia y conversión de fase para estrella/delta en los casos admitidos
+- **modelica_dol / DOL03 — PASSED:** Ejecutar regresión física automatizada con runtime fijado; rechazar solicitudes fuera del equivalente admitido
 
 ## Evidencia y exclusiones por módulo
 
@@ -191,9 +193,9 @@ Fuera del cierre: Optimización de contingencias y transferencia dinámica/sincr
 
 ### modelica_dol
 
-Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_motor_adapter_mcp.py), [test_modelica_motor_adapter.py](../tests/test_modelica_motor_adapter.py).
+Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_motor_adapter_mcp.py), [test_modelica_motor_adapter.py](../tests/test_modelica_motor_adapter.py), [msl_dol_native_reference.py](../scripts/msl_dol_native_reference.py), [verify_msl_dol_qualification_mcp.py](../scripts/verify_msl_dol_qualification_mcp.py), [msl_motor_dol_native_reference.json](../examples/msl_motor_dol_native_reference.json), [MSL_DOL_VERIFICACION.md](../docs/MSL_DOL_VERIFICACION.md).
 
-Fuera del cierre: Traducción completa del unifilar; calificación de proyecto con fichas reales.
+Fuera del cierre: Traducción automática del unifilar completo, cargas de potencia constante de fondo, variadores y calentamiento/saturación; Calificación del proyecto con fichas reales; todas las combinaciones de las hasta ocho máquinas admitidas; SCR se califica por separado.
 
 ### modelica_scr
 
@@ -235,7 +237,7 @@ Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_mot
 
 ## Orden del roadmap
 
-1. Cerrar DOL con referencia MSL original, convenciones de máquina y regresión reproducible del alcance admitido.
+1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.
 2. Cerrar SCR para una máquina delta: inicialización y eventos, referencia completa y control admitido. Estrella y multimotor requieren sus pruebas propias antes de ampliarse.
 3. Revisar el flujo alternativo pandapower solo si una necesidad concreta justifica su alcance. Mantener OpenDSS como ruta principal ya comprobada.
 4. Después de esos cierres, integrar armónicos/perfiles/relés que falten usando motores existentes, sin duplicar solvers suficientes.
