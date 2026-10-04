@@ -166,7 +166,7 @@ jobs:
           test -s project_report_p7c.html
           test -s project_report_p7c_snapshot.json
           grep -q 'data-module="mcp-p7c-technical-report"' project_report_p7c.html
-          grep -q 'NO APTO PARA EMISIÓN PROFESIONAL' project_report_p7c.html
+          grep -q 'Revisión, aprobación y firma del estudio a cargo del ingeniero responsable' project_report_p7c.html
           grep -q 'Imprimir / Guardar PDF' project_report_p7c.html
           grep -q 'BROWSER_PRINT' project_report_p7c.html
           python - <<'PY'
