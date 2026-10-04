@@ -4,6 +4,17 @@ from mcp_electrico import module_qualification as q,validation_status,engine_sel
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def test_engineer_approval_is_external_to_software_calculation_qualification():
+    data=q.catalogue()
+    assert data['responsibilities']['signature_workflow_required_for_calculation'] is False
+    assert data['responsibilities']['module_status_does_not_approve_design'] is True
+    approval=validation_status.get_module_status('professional_report')
+    assert approval['status']=='EXTERNAL_RESPONSIBILITY' and approval['software_module'] is False
+    assert approval['qualification']['closure_gates']==[]
+    assert approval['qualification']['report_approval']=='ENGINEER_RESPONSIBILITY'
+    assert 'NOT_A_PROHIBITION' in data['responsibilities']['professional_emission_legacy_field']
+
+
 def test_published_qualification_register_matches_runtime_registry():
     from scripts.render_module_qualification import render
     assert (ROOT/'docs/ESTADO_CIERRE_MODULOS.md').read_text(encoding='utf8') == render(q.catalogue())
@@ -28,7 +39,7 @@ def test_scoped_promotion_does_not_promote_data_normative_or_report_approval():
         assert matrix[name]['integration_verification']==q.VERIFIED
         assert not matrix[name]['qualification']['professional_emission']
         assert matrix[name]['qualification']['project_data_readiness']=='EVALUATED_PER_REQUEST'
-    assert matrix['professional_report']['status']=='NOT_IMPLEMENTED'
+    assert matrix['professional_report']['status']=='EXTERNAL_RESPONSIBILITY'
     assert q.get('modelica_scr')['verification_status']=='IN_VERIFICATION'
     assert q.get('arc_flash_ieee1584')['verification_status']=='DEFERRED_BY_USER'
 
@@ -63,4 +74,4 @@ def test_dol_closure_is_independent_of_scr_and_full_network_route():
         assert not cap['implemented'] and cap['planning_only']
     for item in q.catalogue()['modules'].values():
         assert item['design_criteria']=='EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA'
-        assert item['report_approval']=='NOT_GRANTED_BY_MODULE_QUALIFICATION'
+        assert item['report_approval']=='ENGINEER_RESPONSIBILITY'

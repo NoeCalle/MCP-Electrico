@@ -51,6 +51,7 @@ def contract():
         "triac_regularization": {"Ron_ohm": 1e-5, "Goff_siemens": 1e-5, "Vknee_v": 0},
         "qualification": "PER_METHOD_SCOPED_QUALIFICATION",
         "scoped_qualification": {method:module_qualification.get('modelica_'+method.lower()) for method in ('DOL','SCR')},
+        "responsibilities": module_qualification.catalogue()['responsibilities'],
         "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "multiple_machines_with_SCR", "SCR_wye_connection"],
         "professional_emission": False, "automatic_defaults": False,
     }
@@ -338,9 +339,39 @@ def build_model(package):
 
 
 def _run(command, folder, env, timeout):
-    process = subprocess.run(command, cwd=folder, env=env, capture_output=True, text=True,
-                             stdin=subprocess.DEVNULL, encoding="utf8", errors="replace", timeout=timeout)
-    return {"command": command, "returncode": process.returncode, "stdout": process.stdout, "stderr": process.stderr}
+    try:
+        process = subprocess.run(command, cwd=folder, env=env, capture_output=True, text=True,
+                                 stdin=subprocess.DEVNULL, encoding="utf8", errors="replace", timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        # subprocess.run kills and waits for the process. Keep its diagnostic
+        # output; a partial numerical trace must never become an engineering result.
+        def decoded(value):
+            return value.decode("utf8", errors="replace") if isinstance(value, bytes) else (value or "")
+        return {"command": command, "returncode": None, "execution_status": "TIMEOUT",
+                "timeout_s": timeout, "stdout": decoded(exc.stdout), "stderr": decoded(exc.stderr)}
+    return {"command": command, "returncode": process.returncode,
+            "execution_status": "COMPLETED" if process.returncode == 0 else "PROCESS_FAILED",
+            "stdout": process.stdout, "stderr": process.stderr}
+
+
+def _trace_endpoint(path):
+    """Diagnostic only: read the last emitted time, never certify completeness."""
+    try:
+        with Path(path).open("rb") as stream:
+            stream.seek(0, 2)
+            size = stream.tell()
+            stream.seek(max(0, size - 16384))
+            lines = stream.read().decode("utf8", errors="replace").splitlines()
+        for line in reversed(lines):
+            try:
+                value = float(next(csv.reader([line]))[0])
+                if isfinite(value):
+                    return value
+            except (ValueError, IndexError, StopIteration):
+                continue
+    except OSError:
+        pass
+    return None
 
 
 def _summaries(csv_path, package):
@@ -445,14 +476,18 @@ def execute(package, directory):
     env["APPDATA"] = str(output)
     env["MODELICAPATH"] = str(library)
     records = []
+    stage, failure_kind, trace = "COMPILATION", "COMPILATION_FAILED", None
     try:
         record = _run([compiler, str(mos)], output, env, sim["timeout_s"])
+        record["stage"] = stage
         records.append(record)
         executable = output / ("MotorStudy.exe" if platform.system() == "Windows" else "MotorStudy")
-        if record["returncode"] or not executable.is_file(): raise RuntimeError("Modelica compilation failed")
+        if record["returncode"] != 0 or not executable.is_file(): raise RuntimeError("Modelica compilation failed")
         summary_runs = []
         for refined in (False, True):
             file = output / ("Refined.csv" if refined else "Nominal.csv")
+            stage = "REFINED_SIMULATION" if refined else "NOMINAL_SIMULATION"
+            failure_kind, trace = "SIMULATION_FAILED", file
             tol = sim["solver_tolerance"]/(10 if refined else 1)
             step = sim["maximum_internal_step_s"]/(2 if refined else 1)
             command = [str(executable), "-r="+str(file), f"-tolerance={_n(tol)}", f"-maxStepSize={_n(step)}",
@@ -462,9 +497,12 @@ def execute(package, directory):
                 # Explicit compiler-runtime configuration, not a substitute physics model.
                 command += ['-nls=newton']
             record = _run(command, output, env, sim["timeout_s"])
+            record["stage"] = stage
             records.append(record)
-            if record["returncode"] or "The simulation finished successfully." not in record["stdout"] or not file.is_file(): raise RuntimeError("Modelica simulation failed")
+            if record["returncode"] != 0 or "The simulation finished successfully." not in record["stdout"] or not file.is_file(): raise RuntimeError("Modelica simulation failed")
+            stage, failure_kind = "TRACE_VALIDATION", "TRACE_VALIDATION_FAILED"
             summary_runs.append(_summaries(file, package))
+        stage, failure_kind = "REFINEMENT_COMPARISON", "REFINEMENT_COMPARISON_FAILED"
         results = summary_runs[1]
         for nominal, refined, m in zip(summary_runs[0], results, package["motors"]):
             a, b = nominal["trajectory"], refined["trajectory"]
@@ -491,7 +529,12 @@ def execute(package, directory):
                   "library_modified_by_adapter": False, "physical_solver_owned_by_mcp": False,
                   "runtime": rt, "output_directory": str(output), "professional_emission": False}
     except (RuntimeError, subprocess.TimeoutExpired, OSError, ValueError, KeyError, TypeError) as exc:
-        result = {"status": "MODELICA_EXECUTION_FAILED", "message": str(exc), "results": [], "professional_emission": False}
+        timed_out = bool(records and records[-1].get("execution_status") == "TIMEOUT") or isinstance(exc, subprocess.TimeoutExpired)
+        result = {"status": "MODELICA_EXECUTION_FAILED", "message": str(exc), "results": [], "professional_emission": False,
+                  "failure_kind": "TIMEOUT" if timed_out else failure_kind, "failed_stage": stage,
+                  "last_emitted_time_s": _trace_endpoint(trace) if trace else None,
+                  "requested_duration_s": sim["duration_s"], "calculation_status": "NO_VERIFIED_RESULT",
+                  "design_assessment": "NOT_EVALUATED", "diagnostic_scope": "ENGINE_EXECUTION_OR_TRACE; NOT_ELECTRICAL_DESIGN_FAILURE"}
     (output / "Execution.json").write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf8")
     components = ["Modelica/Electrical/Machines/BasicMachines/InductionMachines/IM_SquirrelCage.mo",
                   "Modelica/Electrical/PowerConverters/ACAC/Control/SoftStartControl.mo",

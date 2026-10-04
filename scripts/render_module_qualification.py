@@ -11,6 +11,7 @@ LABELS = {
     'EDUCATIONAL_ONLY': 'Educativo',
     'DEFERRED_BY_USER': 'Diferido por el usuario',
     'RETIRED': 'Retirado',
+    'EXTERNAL_RESPONSIBILITY': 'A cargo del ingeniero (fuera del software)',
 }
 
 
@@ -25,7 +26,7 @@ def render(data):
         'Los seis estados se evalúan por separado: verificación de integración, alcance soportado, preparación de datos del proyecto, criterios de diseño, conformidad normativa y aprobación del informe. Un módulo verificado puede recibir un proyecto incompleto o calcular un diseño que incumple sus criterios.', '',
         'Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los tres componentes P7. Su madurez pública es `VALIDATED_WITH_LIMITATIONS`, con el estado anterior como procedencia. Las ampliaciones excluidas no vuelven a abrir el alcance cerrado.', '',
         'Q2 añade el cierre DOL01–DOL03 por contraste con el ejemplo original MSL y regresión MCP. SCR conserva su calificación independiente.' if dol_closed else 'DOL conserva sus condiciones de cierre pendientes.', '',
-        '`professional_emission=false` se mantiene. El gate actual del producto se consulta con `evaluar_cierre_p7d_engineering_preview`; los flags históricos de componentes P5/P7 no conceden una habilitación global. Un snapshot conserva la calificación de su fecha de captura.', '',
+        'La revisión, aprobación y firma del estudio corresponden al ingeniero. El software debe demostrar confiabilidad de cálculos, traducción de datos y resultados. `professional_emission=false` es un campo histórico de ausencia de aprobación automática: no impide uso, revisión o firma por el ingeniero y no exige implementar una firma digital para cerrar un módulo de cálculo. Un snapshot conserva la calificación de su fecha de captura.', '',
         '## Registro actual', '',
         '| Módulo | Motor | Estado | Alcance comprobado o solicitado |',
         '|---|---|---|---|',

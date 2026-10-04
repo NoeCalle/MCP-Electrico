@@ -32,6 +32,8 @@ async def run(output):
                     assert not response.isError,response
                     value=response.structuredContent or json.loads(next(c.text for c in response.content if c.type=='text'))
                     save(name,value);calls.append({'tool':tool,'file':name});return value
+                qualification=await call('obtener_estado_cierre_modulos',{},'Qualification.json')
+                assert qualification['responsibilities']['signature_workflow_required_for_calculation'] is False
                 contract=await call('obtener_contrato_dinamica_modelica',{},'Contract.json')
                 assert contract['runtime']['ready'] and 'SCR' in contract['starting_methods']
                 package=json.loads((ROOT/'examples/msl_motor_scr.json').read_text(encoding='utf8'))
@@ -41,6 +43,11 @@ async def run(output):
                 two=deepcopy(package);two['motors'].append(deepcopy(two['motors'][0]));two['motors'][1]['id']='SECOND'
                 blocked=await call('ejecutar_dinamica_modelica',{'paquete_estudio':two,'directorio_salida':str(output/'Two-SCR')},'Two-SCR-blocked.json')
                 assert blocked['status']=='BLOCKED_MODELICA_READINESS' and 'MULTIMOTOR_SCR_NOT_QUALIFIED' in blocked['readiness']['qualification_blockers']
+                timeout=deepcopy(package);timeout['simulation']['timeout_s']=0.001
+                timed=await call('ejecutar_dinamica_modelica',{'paquete_estudio':timeout,'directorio_salida':str(output/'Deliberate-timeout')},'Deliberate-timeout.json')
+                assert timed['status']=='MODELICA_EXECUTION_FAILED' and timed['failure_kind']=='TIMEOUT'
+                assert timed['failed_stage']=='COMPILATION' and timed['design_assessment']=='NOT_EVALUATED'
+                assert timed['results']==[] and timed['calculation_status']=='NO_VERIFIED_RESULT'
                 for tag in ('scr','scr_unreachable','scr_50hz'):
                     package=json.loads((ROOT/f'examples/msl_motor_{tag}.json').read_text(encoding='utf8'))
                     ready=await call('validar_dinamica_modelica',{'paquete_estudio':package},tag+'-readiness.json')
@@ -63,7 +70,7 @@ async def run(output):
                     cases[tag]={k:v for k,v in motor.items() if k!='trajectory'}
                     print(json.dumps({'case':tag,**cases[tag]}),flush=True)
     save('Calls.json',calls)
-    save('Summary.json',{'transport':'MCP_STDIO','calls':len(calls),'physical_cases':len(cases),'cases':cases,'scope':'EXPERIMENTAL_ONE_DELTA_MACHINE_RL_NETWORK_MSL_REFERENCE_CONTROLLER','manufacturer_qualified':False,'professional_emission':False})
+    save('Summary.json',{'transport':'MCP_STDIO','calls':len(calls),'physical_cases':len(cases),'cases':cases,'scope':'EXPERIMENTAL_ONE_DELTA_MACHINE_RL_NETWORK_MSL_REFERENCE_CONTROLLER','manufacturer_qualified':False,'professional_emission':False,'deliberate_timeout_correctly_diagnosed':True,'study_approval_responsibility':'ENGINEER'})
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)

@@ -15,6 +15,7 @@ from . import module_qualification
 
 VALID_STATES = {
     "NOT_IMPLEMENTED",
+    "EXTERNAL_RESPONSIBILITY",
     "EXPERIMENTAL",
     "UNDER_VALIDATION",
     "VALIDATED_WITH_LIMITATIONS",
@@ -228,12 +229,13 @@ _MODULES = {
         "limitations": ["No sustituye IEEE 1584"],
     },
     "professional_report": {
-        "status": "NOT_IMPLEMENTED",
-        "basis": None,
+        "status": "EXTERNAL_RESPONSIBILITY",
+        "basis": "La revisión, aprobación y firma del estudio corresponden al ingeniero responsable",
+        "software_module": False,
         "limitations": [
-            "P7C implementa un reporte técnico reproducible para Engineering Preview, no un informe profesional de emisión",
-            "No existe hash de emisión profesional, firma digital ni flujo de aprobación profesional",
-            "professional_emission=false",
+            "P7C genera un reporte técnico reproducible para revisión y uso del ingeniero",
+            "La firma digital integrada es opcional y no condiciona la confiabilidad del cálculo",
+            "professional_emission=false es un campo histórico: no hay aprobación automática del software; no impide revisión, uso o firma por el ingeniero",
         ],
     },
 }

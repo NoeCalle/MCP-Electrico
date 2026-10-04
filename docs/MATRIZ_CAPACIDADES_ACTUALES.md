@@ -1,5 +1,21 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
+## Confiabilidad técnica y responsabilidad del ingeniero — Q3
+
+El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
+que las entradas se traducen correctamente, que los resultados son reproducibles
+y contrastados, y que los datos faltantes, supuestos, límites y errores se informan.
+El ingeniero selecciona los criterios del proyecto, revisa los resultados,
+aprueba el estudio y lo firma. Esa aprobación es una responsabilidad externa;
+no es un módulo numérico pendiente de implementar.
+
+Los campos históricos `professional_emission=false` y `professional_report=false`
+indican que el software no aprueba ni firma automáticamente. No prohíben el uso
+profesional del cálculo ni la firma del ingeniero. Una firma digital integrada
+sería una mejora documental opcional y no una condición para verificar un solver.
+Los estados experimentales se conservan exclusivamente cuando falta evidencia
+técnica de la integración o del alcance. Arc Flash permanece diferido.
+
 **Fecha:** 4 de octubre de 2026. Actualización Q2: DOL verificado por alcance, SCR pendiente. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
 El servidor actualizado registra **154 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
@@ -106,7 +122,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Caída estática de tensión durante arranque | Resuelve antes/durante con impedancia equivalente | — | Convierte corriente/fp explícitos y compara criterios | Disponible, aproximación estática | Acepta etiquetas DOL/SCR/estrella-triángulo/autotransformador/VFD, pero no simula sus controles ni obtiene aceleración con esas etiquetas. |
 | Perfil de arranque por puntos declarados | Resuelve cada punto | — | Ordena puntos proporcionados y compara resultados | Disponible, estático | El tiempo etiqueta los puntos. No integra movimiento ni genera automáticamente corriente/velocidad. |
 | Secuencia de varios motores por estados declarados | Resuelve cada estado conjunto | — | Combina apagado/marcha/punto de arranque | Disponible, estático | Puede representar varios motores en un estado de arranque dado; no calcula cómo aceleran juntos ni optimiza el orden. |
-| Aceleración dinámica con arranque directo DOL | — | — | Configura componentes Modelica/MSL y procesa CSV | Verificado en alcance MSL DOL | Equivalente RL común explícito; datos SI y curva de carga. Sin traducción automática de todo el unifilar ni emisión profesional. |
+| Aceleración dinámica con arranque directo DOL | — | — | Configura componentes Modelica/MSL y procesa CSV | Verificado en alcance MSL DOL | Equivalente RL común explícito; datos SI y curva de carga. Sin traducción automática de todo el unifilar; revisión del estudio por el ingeniero. |
 | Aceleración con arranque suave SCR | — | — | Ejecuta componentes MSL y procesa trazas; sin física propia | Adaptador MSL experimental | Una máquina delta/red RL/control MSL; sin calificación de fabricante. Estrella/multimotor bloqueados. |
 | Contraste estructural del equivalente SCR retirado | — | — | Conserva evidencia histórica | Ejecución de comparación retirada | Ya no vuelve a calcular el surrogate eliminado. El contraste histórico de trazas externas sigue legible. |
 | Contraste externo de dinámica con motor Modelica | Produce amplitud de fuente del candidato | — | Verifica expediente externo y compara RMS/par/velocidad | Disponible para caso sintético; discrepancia registrada | MSL 4.0.0/OpenModelica 1.27.1 ejecutados aparte. Entradas reproducidas, bypass impuesto; no valida red/control en lazo cerrado ni fabricante. |
@@ -139,7 +155,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Arc flash IEEE 1584 | Diferido por solicitud del usuario | Lee educativo sigue disponible; no aporta conformidad IEEE 1584. |
 | Comparación automática OpenDSS–pandapower | No implementada | Los motores se invocan explícitamente. Usar ambos en tareas distintas no es contrastar un mismo estudio entre ambos. |
 | Selección automática de contingencias/deslastre y mínimos normativos universales | No implementada | El alcance, acciones, datos y criterios se declaran; no se deduce un mínimo universal de tensión. |
-| Informe con firma/aprobación profesional | No implementado | Engineering Preview, un PDF y los hashes no constituyen emisión profesional automática. |
+| Firma digital integrada | Mejora documental opcional | El ingeniero revisa, aprueba y firma el estudio. Integrar una firma digital al software no es requisito para verificar los cálculos. |
 
 ## Precisiones sobre documentos y estados
 

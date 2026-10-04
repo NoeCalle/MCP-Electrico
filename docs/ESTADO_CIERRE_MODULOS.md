@@ -1,6 +1,6 @@
 # Estado de cierre de módulos
 
-Revisión: **Q2_DOL_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q3_RELIABILITY_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
@@ -14,7 +14,7 @@ Las nueve promociones Q1 son bancos estáticos, los cinco componentes P5 y los t
 
 Q2 añade el cierre DOL01–DOL03 por contraste con el ejemplo original MSL y regresión MCP. SCR conserva su calificación independiente.
 
-`professional_emission=false` se mantiene. El gate actual del producto se consulta con `evaluar_cierre_p7d_engineering_preview`; los flags históricos de componentes P5/P7 no conceden una habilitación global. Un snapshot conserva la calificación de su fecha de captura.
+La revisión, aprobación y firma del estudio corresponden al ingeniero. El software debe demostrar confiabilidad de cálculos, traducción de datos y resultados. `professional_emission=false` es un campo histórico de ausencia de aprobación automática: no impide uso, revisión o firma por el ingeniero y no exige implementar una firma digital para cerrar un módulo de cálculo. Un snapshot conserva la calificación de su fecha de captura.
 
 ## Registro actual
 
@@ -45,7 +45,7 @@ Q2 añade el cierre DOL01–DOL03 por contraste con el ejemplo original MSL y re
 | `relay_operation` | pandapower OCRelay | Pendiente de integración | Actuación de relés |
 | `arc_flash_ieee1584` | Por integrar | Diferido por el usuario | Arc Flash formal |
 | `arc_flash_lee` | MCP histórico | Educativo | Estimación educativa Lee |
-| `professional_report` | Flujo de aprobación por implementar | Pendiente de integración | Firma y aprobación profesional del informe |
+| `professional_report` | Ingeniero responsable | A cargo del ingeniero (fuera del software) | Revisión, aprobación y firma del estudio por el ingeniero; fuera de la calificación técnica del software |
 | `custom_motor_physics` | MCP retirado | Retirado | Solvers propios DOL/RK4/SCR retirados |
 
 ## Condiciones finitas pendientes
@@ -199,7 +199,7 @@ Fuera del cierre: Traducción automática del unifilar completo, cargas de poten
 
 ### modelica_scr
 
-Evidencia: [verify_msl_scr_mcp.py](../scripts/verify_msl_scr_mcp.py), [verify_msl_triac_reference.py](../scripts/verify_msl_triac_reference.py), [MSL_SCR_VERIFICACION.md](../docs/MSL_SCR_VERIFICACION.md).
+Evidencia: [verify_msl_scr_mcp.py](../scripts/verify_msl_scr_mcp.py), [verify_msl_triac_reference.py](../scripts/verify_msl_triac_reference.py), [MSL_SCR_VERIFICACION.md](../docs/MSL_SCR_VERIFICACION.md), [verify_msl_scr_solver_profiles.py](../scripts/verify_msl_scr_solver_profiles.py), [test_modelica_motor_adapter.py](../tests/test_modelica_motor_adapter.py).
 
 Fuera del cierre: Reproducción de control de fabricante; SCR estrella/multimotor.
 
@@ -229,7 +229,7 @@ Fuera del cierre: No reemplaza IEEE 1584; fuera del cierre industrial actual.
 
 Evidencia: [P7_ENGINEERING_PREVIEW.md](../docs/P7_ENGINEERING_PREVIEW.md).
 
-Fuera del cierre: Es un proceso de emisión separado de la exactitud de cálculos.
+Fuera del cierre: La firma digital integrada es una función opcional de gestión documental; no un requisito para confiar en un cálculo verificado.
 
 ### custom_motor_physics
 

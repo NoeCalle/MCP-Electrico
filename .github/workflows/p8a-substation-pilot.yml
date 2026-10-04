@@ -37,7 +37,7 @@ jobs:
           grep -q '"arc_flash_deferred": true' p8a_ci/p8a_pilot_summary.json
           grep -q '"professional_emission": false' p8a_ci/p8a_pilot_summary.json
           grep -q 'MCP-P5-PROTECTION-V5' p8a_ci/p8a_workspace_v5.html
-          grep -q 'NO APTO PARA EMISIÓN PROFESIONAL' p8a_ci/p8a_technical_report.html
+          grep -q 'Revisión, aprobación y firma del estudio a cargo del ingeniero responsable' p8a_ci/p8a_technical_report.html
           python - <<'PY'
           import json
           from math import sqrt

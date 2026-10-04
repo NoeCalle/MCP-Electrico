@@ -137,13 +137,13 @@ def _criteria() -> list[dict[str, Any]]:
         ),
         _criterion(
             "P7D08",
-            "professional_boundary_closed",
+            "engineering_responsibility_declared",
             p7_implemented
-            and professional_report.get("status") == "NOT_IMPLEMENTED"
+            and professional_report.get("status") == "EXTERNAL_RESPONSIBILITY"
             and p5.get("professional_emission") is False
             and p7c_contract.get("professional_emission") is False,
-            "P7A/B/C implementados con madurez explícita; professional_report=NOT_IMPLEMENTED; professional_emission=false",
-            "La Preview no puede habilitarse si falta P7A/B/C o se abre emisión profesional.",
+            "P7A/B/C implementados con verificación explícita; revisión y firma a cargo del ingeniero; sin aprobación automática del software",
+            "Deben existir P7A/B/C y quedar declaradas las responsabilidades del software y del ingeniero.",
         ),
     ]
 
