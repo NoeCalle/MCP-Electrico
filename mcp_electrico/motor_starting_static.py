@@ -427,7 +427,8 @@ def _build_isolated_base(
 
 
 def _bus_voltage_pu(engine: Any, bus: str) -> list[float]:
-    if not engine.Circuit.SetActiveBus(str(bus)):
+    # OpenDSS returns a zero-based bus index; zero is the first valid bus.
+    if engine.Circuit.SetActiveBus(str(bus)) < 0:
         return []
     raw = engine.Bus.puVmagAngle()
     return [float(value) for value in raw[0::2]]

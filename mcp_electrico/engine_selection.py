@@ -115,6 +115,15 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
 }
 
 CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+CAPABILITY_MATRIX['reactive_compensation'] = {
+    'preferred':'opendss', 'alternatives':[], 'module':'reactive_compensation',
+    'implemented':True, 'requires_active_model':False, 'requires_study_package':True,
+    'professional_emission_candidate':False, 'integration_status':'EXPERIMENTAL_SCOPED_ADAPTER_ONLY',
+    'reason':'OpenDSS resuelve bancos por etapas en red trifásica equilibrada aislada. Exige paquete explícito; no evalúa armónicos, resonancia ni control automático.',
+    'requirements':['validar_compensacion_reactiva: red, bancos, etapas, demanda y criterios explícitos','opt-in experimental'],
+    'contract_tool':'obtener_contrato_compensacion_reactiva',
+    'readiness_tool':'validar_compensacion_reactiva', 'execution_tool':'ejecutar_compensacion_reactiva',
+}
 # A scoped adapter does not promote the full-unifilar study route. Its own
 # package validator is the execution gate; the generic selector has no package.
 for _study in ("motor_dynamics_dol", "motor_dynamics_simultaneous"):
@@ -136,6 +145,8 @@ CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física prop
 
 
 ALIASES = {
+    'compensacion_reactiva':'reactive_compensation', 'reactive_compensation':'reactive_compensation',
+    'bancos_capacitores':'reactive_compensation', 'banco_capacitores':'reactive_compensation',
     "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",
     "caida_tension": "voltage_drop", "voltage_drop": "voltage_drop",
     "cortocircuito": "short_circuit_exploratory", "short_circuit": "short_circuit_exploratory", "faultstudy": "short_circuit_exploratory",
@@ -258,6 +269,9 @@ def seleccionar_motor_estudio(
     active_model = _has_active_model()
     model_requirement_ok = active_model or not capability.get("requires_active_model", False)
     technical_executable = bool(capability["implemented"] and model_requirement_ok)
+    if capability.get('requires_study_package'):
+        # This API receives no package, so it cannot authorize a concrete run.
+        technical_executable = False
 
     readiness = study_readiness.evaluar(
         study=normalized,

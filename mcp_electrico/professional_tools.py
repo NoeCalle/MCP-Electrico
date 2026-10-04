@@ -10,6 +10,7 @@ from . import (
     operating_scenario_dossier_tools,
     operating_scenario_tools,
     motor_starting_tools,
+    reactive_compensation,
     p2_completion,
     p5_completion_tools,
     professional_data,
@@ -295,3 +296,4 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     operating_scenario_tools.register(mcp)
     operating_scenario_dossier_tools.register(mcp)
     motor_starting_tools.register(mcp)
+    reactive_compensation.register(mcp)

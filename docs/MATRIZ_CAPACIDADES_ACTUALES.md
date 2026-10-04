@@ -1,7 +1,9 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
 **Fecha:** 3 de octubre de 2026. Actualización de migración a modelos abiertos.
-El servidor actualizado registra **150 herramientas**. La evidencia stdio de
+El servidor actualizado registra **153 herramientas**. Bancos estáticos añaden
+22 llamadas MCP y 24 comparaciones independientes; ver
+[compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
 refinamiento y un oráculo independiente. La suite MCP general y la disponibilidad
 de las herramientas en este chat son comprobaciones separadas.
@@ -66,6 +68,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Flujo con motor alternativo | Origen del modelo activo | Resuelve flujo balanceado | Puente de datos | Experimental | Líneas/cargas trifásicas y transformadores P2; no traduce todavía motores, generadores ni redes desbalanceadas. Fuente de flujo ideal a 1 pu. |
 | Caída de tensión | Resuelve tensiones | — | Calcula caída y compara criterio | Validado con limitaciones | Validación P1 por Line en red radial balanceada; caída acumulada/desbalanceada pendiente de benchmark. Umbral declarado. |
 | Flujo detallado y cargabilidad | Resultados por alimentador/equipo | — | Indicadores y revisión del workspace | Disponible dentro del alcance del flujo | Para afirmar sobrecarga necesita resultado convergente, rating aplicable y configuración. No convergencia sola no demuestra sobrecarga. |
+| Compensación reactiva y bancos por etapas | Capacitor nativo y flujo aislado | — | Datos, escenarios, criterios, balances e informe | Experimental disponible | Red equilibrada pasiva, etapas fijas ideales; sin armónicos, resonancia, reactores, control automático ni selección integral. |
 | Escenarios y contingencias N-1 declaradas | Resuelve cada configuración | — | Aperturas/cierres, cargas, continuidad y criterios | P12 foundation disponible | No selecciona automáticamente todas las contingencias ni optimiza maniobras/deslastre. El conjunto evaluado debe representar el alcance solicitado. |
 | Deslastre y fuentes alternativas | Equivalente de fuente Vsource | — | Aplica acciones explícitas y restaura la base | Disponible, análisis estático | Transferencia con apertura previa; sin paralelo durante transferencia, sincronización, control AVR/gobernador ni transitorios. Las cargas críticas deben protegerse en las reglas del caso. |
 
@@ -121,7 +124,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 
 | Función | Estado | Qué falta / distinción importante |
 |---|---|---|
-| Dinámica de varios motores acoplados | Pendiente | Integrar simultáneamente velocidad/par/corriente de cada motor y la misma red; incluye arranques superpuestos, aunque no empiecen al mismo instante. |
+| Dinámica de varios motores acoplados del unifilar completo | Calificación integral pendiente | DOL MSL de equivalente RL común disponible experimentalmente, probado con dos motores; traducción completa y SCR multimotor pendientes. |
 | SCR trifásico cualificado para un dispositivo real | Pendiente; contraste sintético externo ya ejecutado con discrepancias | Corregir representación trifásica, contrastar red/control/bypass en lazo cerrado y después parámetros y datos del fabricante. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
@@ -141,7 +144,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 2. **P5:** `evaluar_cierre_p5` declara `READY_WITH_LIMITATIONS`; los cinco componentes de protección conservan `EXPERIMENTAL` en `obtener_matriz_validacion`. El cierre funcional no promociona automáticamente su madurez.
 3. **P7/P8:** P7 mínimo y la Engineering Preview están cerrados como fases, pero sus contratos de componente conservan limitaciones históricas. La reconstrucción P7B no recupera automáticamente todos los datos estructurados ni convierte estudios guardados en vigentes.
 4. **Arc flash:** tanto `estimar_arc_flash_lee` como el alias `calcular_arc_flash` calculan Lee simplificado. No hay cálculo IEEE 1584 implementado detrás del alias.
-5. **Dinámica y perfiles:** las secuencias/perfiles estáticos disponibles no sustituyen la dinámica simultánea pendiente. La etiqueta SCR estática tampoco habilita la dinámica SCR pendiente.
+5. **Dinámica y perfiles:** las secuencias/perfiles estáticos no sustituyen la dinámica. MSL DOL común y SCR de una máquina delta son experimentales y exigen su propio paquete; las etiquetas estáticas no los habilitan automáticamente.
 6. **Conformidad:** P4 tiene revisión IEC con limitaciones; no se afirma conformidad integral ecuación por ecuación. El sistema conserva `professional_emission=false`.
 
 ## Herramientas principales por función
@@ -161,6 +164,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 - **Flujo con motor alternativo:** `ejecutar_flujo_pandapower`.
 - **Caída de tensión:** `analizar_caida_tension`.
 - **Flujo detallado y cargabilidad:** `analizar_flujo_operacion`.
+- **Bancos y compensación reactiva:** `obtener_contrato_compensacion_reactiva`, `validar_compensacion_reactiva`, `ejecutar_compensacion_reactiva`.
 - **Escenarios y contingencias N-1 declaradas:** `validar_escenarios_operativos`, `ejecutar_escenarios_operativos`, `simular_perdida_alimentador`.
 - **Deslastre y fuentes alternativas:** `obtener_contrato_p12_escenarios_operativos`, `ejecutar_escenarios_operativos`.
 
