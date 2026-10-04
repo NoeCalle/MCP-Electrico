@@ -101,9 +101,12 @@ faltantes y motor no preparado, en lugar de una excepción.
 Regresión completa local: **950 aprobadas, 1 omitida**. Las advertencias de
 dependencias se conservan en el registro; no califican los motores investigados.
 
-## Actualización de ejecución y retiro — 2026-10-02
+## Actualización de ejecución y retiro — 2026-10-03
 
-Física propia DOL/RK4 y SCR/RL retirada. Existe un adaptador MCP experimental
-MSL DOL para equivalente RL de barra común; SCR cerrado está bloqueado por
-gate numérico pendiente. La recomendación de integración del catálogo no
-promueve los estudios completos. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md).
+Física propia DOL/RK4 y SCR/RL retirada. El adaptador MCP experimental MSL
+ejecuta DOL y SCR de una máquina delta sobre equivalente RL común. El control
+SCR es el de referencia de MSL, con bypass automático; no es un dispositivo de
+fabricante. SCR multimotor y conexión estrella permanecen bloqueados.
+La recomendación del catálogo no habilita la traducción automática del unifilar
+completo. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md) y
+[verificación SCR](MSL_SCR_VERIFICACION.md).

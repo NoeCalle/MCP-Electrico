@@ -127,8 +127,12 @@ for _study in ("motor_dynamics_dol", "motor_dynamics_simultaneous"):
         "automatic_unifilar_translation": False, "professional_emission": False,
     }
     CAPABILITY_MATRIX[_study]["reason"] += " Existe un adaptador MCP experimental DOL para equivalente RL de barra común; exige su propio paquete explícito y no habilita traducción automática del unifilar."
-CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "PREPARED_ADAPTER_NUMERICAL_GATE_PENDING"
-CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " El surrogate propio se retiró. La ejecución SCR con red y control cerrados está bloqueada por la calificación numérica pendiente."
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "EXPERIMENTAL_SCOPED_ADAPTER_ONLY"
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["scoped_adapter"] = {
+    **deepcopy(CAPABILITY_MATRIX['motor_dynamics_dol']['scoped_adapter']),
+    "scope": "ONE_DELTA_MACHINE_BALANCED_COMMON_BUS_RL_MSL_REFERENCE_SCR",
+}
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR experimental ejecuta una máquina delta, red RL y control MSL de referencia; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
 
 
 ALIASES = {

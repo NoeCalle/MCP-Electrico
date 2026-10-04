@@ -1,6 +1,6 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
-**Fecha:** 2 de octubre de 2026. Actualización de migración a modelos abiertos.
+**Fecha:** 3 de octubre de 2026. Actualización de migración a modelos abiertos.
 El servidor actualizado registra **150 herramientas**. La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
 refinamiento y un oráculo independiente. La suite MCP general y la disponibilidad
@@ -13,7 +13,7 @@ Ver [migración y necesidades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 **Dirección de desarrollo:** integrar herramientas gratuitas y abiertas
 existentes antes de implementar física propia. La matriz describe lo que hoy
 está implementado; existe ejecución DOL experimental de OpenModelica/MSL por MCP para un
-equivalente RL de barra común. SCR cerrado permanece bloqueado.
+equivalente RL de barra común. SCR está habilitado experimentalmente para una máquina delta.
 Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
 
 El selector determinista añade ocho rutas de integración pendientes y un catálogo
@@ -28,11 +28,12 @@ Estas preferencias no suman estudios ejecutables a las capacidades de esta matri
 
 ## Estado del SCR
 
-El equivalente físico propio SCR/RL se retiró. El componente abierto MSL y la
-conexión del adaptador están preparados, pero la prueba con red/control cerrados
-falla en la integración numérica. La ejecución está bloqueada, sin fallback.
-Los contrastes antiguos se conservan como evidencia histórica y no validan
-M1/M2 ni un controlador real. Ver [gates de migración](MIGRACION_MODELOS_ABIERTOS.md).
+El equivalente físico propio SCR/RL se retiró. MSL ejecuta el estudio experimental
+de una máquina delta, con red RL explícita, realimentación de corriente y bypass
+automático. El solver/control de referencia no califica un arrancador de fabricante.
+Estrella y multimotor SCR permanecen bloqueados. Las tensiones de barra y terminal
+se presentan por separado. Los contrastes anteriores son históricos y no validan
+M1/M2. Ver [verificación](MSL_SCR_VERIFICACION.md).
 
 ## Qué significa dinámica simultánea
 
@@ -100,7 +101,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Perfil de arranque por puntos declarados | Resuelve cada punto | — | Ordena puntos proporcionados y compara resultados | Disponible, estático | El tiempo etiqueta los puntos. No integra movimiento ni genera automáticamente corriente/velocidad. |
 | Secuencia de varios motores por estados declarados | Resuelve cada estado conjunto | — | Combina apagado/marcha/punto de arranque | Disponible, estático | Puede representar varios motores en un estado de arranque dado; no calcula cómo aceleran juntos ni optimiza el orden. |
 | Aceleración dinámica con arranque directo DOL | — | — | Configura componentes Modelica/MSL y procesa CSV | Adaptador MSL experimental | Equivalente RL común explícito; datos SI y curva de carga. Sin traducción automática de todo el unifilar ni emisión profesional. |
-| Aceleración con arranque suave SCR | — | — | Prepara conexiones MSL; no resuelve física propia | Bloqueado: gate numérico pendiente | Solucionador SCR/RL propio retirado. No presentar el componente abierto como estudio MCP validado. |
+| Aceleración con arranque suave SCR | — | — | Ejecuta componentes MSL y procesa trazas; sin física propia | Adaptador MSL experimental | Una máquina delta/red RL/control MSL; sin calificación de fabricante. Estrella/multimotor bloqueados. |
 | Contraste estructural del equivalente SCR retirado | — | — | Conserva evidencia histórica | Ejecución de comparación retirada | Ya no vuelve a calcular el surrogate eliminado. El contraste histórico de trazas externas sigue legible. |
 | Contraste externo de dinámica con motor Modelica | Produce amplitud de fuente del candidato | — | Verifica expediente externo y compara RMS/par/velocidad | Disponible para caso sintético; discrepancia registrada | MSL 4.0.0/OpenModelica 1.27.1 ejecutados aparte. Entradas reproducidas, bypass impuesto; no valida red/control en lazo cerrado ni fabricante. |
 
@@ -189,7 +190,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 - **Perfil de arranque por puntos declarados:** `validar_perfiles_arranque_motores`, `ejecutar_perfiles_arranque_motores`.
 - **Secuencia de varios motores por estados declarados:** `validar_secuencias_arranque_motores`, `ejecutar_secuencias_arranque_motores`.
 - **Dinámica MSL DOL experimental:** `obtener_contrato_dinamica_modelica`, `configurar_dinamica_modelica`, `validar_dinamica_modelica`, `ejecutar_dinamica_modelica`.
-- **Dinámica SCR:** bloqueada en el adaptador MSL; entradas antiguas retiradas.
+- **Dinámica SCR:** experimental en MSL para una máquina delta; estrella/multimotor pendientes; entradas antiguas retiradas.
 - **Comparación del surrogate antiguo:** retirada; no genera nuevos resultados.
 - **Contraste externo de dinámica con motor Modelica:** `contrastar_dinamica_con_modelica`.
 

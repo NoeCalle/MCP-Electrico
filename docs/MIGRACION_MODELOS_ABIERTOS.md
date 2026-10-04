@@ -1,6 +1,6 @@
 # Migración a modelos abiertos y cobertura industrial
 
-Actualizado: 2 de octubre de 2026. Regla del usuario: una ruta principal por
+Actualizado: 3 de octubre de 2026. Regla del usuario: una ruta principal por
 estudio; usar el motor integrado suficiente; retirar física propia duplicada.
 
 ## Cambio ejecutado
@@ -17,10 +17,13 @@ estudio; usar el motor integrado suficiente; retirar física propia duplicada.
 - El adaptador DOL es **experimental**, con red trifásica equilibrada
   representada por un equivalente RL explícito en la barra común. No convierte
   automáticamente el circuito OpenDSS ni sus cargas de potencia constante.
-- La ejecución SCR de red/control cerrados está **bloqueada**. El componente
-  abierto existe, pero las pruebas locales de esta conexión han fallado en la
-  integración numérica. Los contrastes anteriores con señales reproducidas y
-  bypass impuesto no solucionan este gate. No hay fallback al modelo retirado.
+- La ejecución SCR está **habilitada experimentalmente para una máquina delta**.
+  Se resolvió el bloqueo con el solucionador algebraico `newton` de OpenModelica
+  (documentado como prototipo); el integrador sigue siendo DASSL del motor externo.
+  El control MSL realimenta corriente de la red cerrada y decide el bypass.
+  Se verifica corriente, velocidad, par, tensión de barra/terminal y tiempos.
+  Multimotor SCR y estrella siguen bloqueados; no hay fallback al modelo retirado.
+  Ver [alcance y evidencia](MSL_SCR_VERIFICACION.md).
 
 ## Herramientas y datos
 
@@ -31,7 +34,10 @@ estudio; usar el motor integrado suficiente; retirar física propia duplicada.
    refinadas, registro de ejecución, resultados y hashes en un directorio nuevo.
 
 Ejemplos: `examples/msl_motor_dol.json`, `msl_motor_two.json`,
-`msl_motor_locked_rotor.json`. Son datos sintéticos; no describen M1/M2.
+`msl_motor_locked_rotor.json`, `msl_motor_scr.json`,
+`msl_motor_scr_unreachable.json`, `msl_motor_scr_50hz.json`. Son datos sintéticos;
+no describen M1/M2. SCR exige además tolerancias de refinamiento de tensión,
+par y tiempo de bypass explícitas.
 
 La red requiere tensión, frecuencia, ángulo de energización y R/X por fase
 referidas a la barra común. La máquina requiere conexión y parámetros SI de
@@ -47,7 +53,8 @@ regularización numérica documentada en el contrato. Los criterios del ejemplo
 son ilustrativos y no son mínimos normativos ni datos de fabricante.
 
 El refinamiento reduce tolerancia, paso interno máximo y paso de salida.
-Las métricas son corriente y tensión RMS por ciclo, par medio por ciclo y
+Las métricas conservan los estados de ambos lados de cada evento SCR y
+calculan corriente/tensión RMS por ciclo, par medio por ciclo y
 velocidad. Estabilidad numérica y cumplimiento de criterios se reportan por
 separado. Un motor que no acelera no se convierte en una ejecución exitosa de
 diseño porque el solver haya terminado.
@@ -57,7 +64,7 @@ diseño porque el solver haya terminado.
 | Componente actual | Decisión | Razón |
 |---|---|---|
 | Física DOL propia: circuito T y RK4 | Retirada | MSL dispone de máquina y mecánica; adaptador DOL experimental ejecutable. |
-| Física SCR/RL propia | Retirada | MSL tiene máquina, triacs y control; sustitución SCR aún bloqueada por prueba numérica. |
+| Física SCR/RL propia | Retirada | MSL tiene máquina, triacs y control; sustitución SCR experimental en alcance de una máquina delta. |
 | Comparación que volvía a calcular el surrogate SCR | Retirada | Dependía de las funciones físicas eliminadas. Se conserva el contraste histórico de trazas. |
 | Admisión de datos de motores | Conservada | Evita datos faltantes, bases o supuestos silenciosos; no sustituye un solver. |
 | Curvas TCC de fabricante, bandas y clearing time | Conservadas | `OCRelay` calcula actuación del relé; no equivale a todas las curvas y tiempos totales de despeje. |
@@ -78,7 +85,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 | Coordinación TCC puntual | Curvas de fabricante + corriente de falla | Disponible con limitaciones; selectividad integral no demostrada. |
 | Caída estática durante arranque | OpenDSS | Disponible con corriente y fp de arranque explícitos. |
 | Aceleración DOL e interacción de motores | OpenModelica/MSL | Adaptador experimental de equivalente RL común; falta calificación integral y traducción de redes completas. |
-| Arranque suave con SCR y bypass | OpenModelica/MSL | Conexión preparada, ejecución bloqueada hasta resolver gate numérico; después validar controlador/dispositivo. |
+| Arranque suave con SCR y bypass | OpenModelica/MSL | Ejecución experimental de una máquina delta con control MSL, realimentación y bypass automático. Fabricante, estrella y multimotor pendientes. |
 | Compensación de reactiva y bancos | OpenDSS | Prioridad de integración: herramienta de bancos/etapas, comparación de escenarios y datos del equipo. No añadir otro solver. |
 | Armónicos, THD y resonancia | OpenDSS | Prioridad de integración: espectros, fuentes armónicas, barrido y benchmarks. No inferir espectros de un fp. |
 | Demanda, perfiles y operación temporal | OpenDSS | Prioridad de integración: perfiles explícitos y simulación temporal. No confundir con transitorios EMT. |
@@ -89,7 +96,8 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 
 ## Orden de cierre
 
-1. Estabilizar y calificar la conexión SCR en MSL, sin recuperar física propia.
+1. Conservar la calificación experimental DOL/SCR, completar fichas y evidencia
+   industrial antes de ampliar fabricante/topologías; no recuperar física propia.
 2. Exponer bancos, armónicos y perfiles con OpenDSS, verificando cada estudio
    mediante herramientas MCP y referencias independientes dentro de su alcance.
 3. Integrar actuación de relés con pandapower y conservar datos de clearing.
