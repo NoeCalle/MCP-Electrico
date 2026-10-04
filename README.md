@@ -1,5 +1,21 @@
 # MCP Eléctrico — OpenDSS
 
+## Confiabilidad técnica y responsabilidad del ingeniero — Q3
+
+El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
+que las entradas se traducen correctamente, que los resultados son reproducibles
+y contrastados, y que los datos faltantes, supuestos, límites y errores se informan.
+El ingeniero selecciona los criterios del proyecto, revisa los resultados,
+aprueba el estudio y lo firma. Esa aprobación es una responsabilidad externa;
+no es un módulo numérico pendiente de implementar.
+
+Los campos históricos `professional_emission=false` y `professional_report=false`
+indican que el software no aprueba ni firma automáticamente. No prohíben el uso
+profesional del cálculo ni la firma del ingeniero. Una firma digital integrada
+sería una mejora documental opcional y no una condición para verificar un solver.
+Los estados experimentales se conservan exclusivamente cuando falta evidencia
+técnica de la integración o del alcance. Arc Flash permanece diferido.
+
 Servidor MCP para modelar, simular e inspeccionar redes eléctricas MT/BT con
 [OpenDSS](https://www.epri.com/pages/sa/opendss) mediante
 `OpenDSSDirect.py`.

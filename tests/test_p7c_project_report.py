@@ -67,7 +67,8 @@ def test_p7c_html_is_print_ready_and_contains_no_engineering_javascript(tmp_path
     html = report["html"]
 
     assert 'data-module="mcp-p7c-technical-report"' in html
-    assert "NO APTO PARA EMISIÓN PROFESIONAL" in html
+    assert "Revisión, aprobación y firma del estudio a cargo del ingeniero responsable" in html
+    assert "NO APTO PARA EMISIÓN PROFESIONAL" not in html
     assert "Imprimir / Guardar PDF" in html
     assert "window.print()" in html
     assert "BROWSER_PRINT" in html

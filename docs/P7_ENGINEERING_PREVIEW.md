@@ -1,5 +1,21 @@
 # P7 — MCP Eléctrico 0.9 Engineering Preview
 
+## Confiabilidad técnica y responsabilidad del ingeniero — Q3
+
+El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
+que las entradas se traducen correctamente, que los resultados son reproducibles
+y contrastados, y que los datos faltantes, supuestos, límites y errores se informan.
+El ingeniero selecciona los criterios del proyecto, revisa los resultados,
+aprueba el estudio y lo firma. Esa aprobación es una responsabilidad externa;
+no es un módulo numérico pendiente de implementar.
+
+Los campos históricos `professional_emission=false` y `professional_report=false`
+indican que el software no aprueba ni firma automáticamente. No prohíben el uso
+profesional del cálculo ni la firma del ingeniero. Una firma digital integrada
+sería una mejora documental opcional y no una condición para verificar un solver.
+Los estados experimentales se conservan exclusivamente cuando falta evidencia
+técnica de la integración o del alcance. Arc Flash permanece diferido.
+
 ## Cierre vigente de módulos — Q2, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
@@ -79,7 +95,8 @@ El reporte incluye:
 
 El navegador no recalcula ingeniería. `Imprimir / Guardar PDF` utiliza únicamente `window.print()` (`BROWSER_PRINT`).
 
-El reporte P7C es un resumen técnico de Engineering Preview, no un informe profesional firmado.
+El reporte P7C es un resumen técnico reproducible que el ingeniero puede revisar,
+incorporar a su estudio y firmar. El software no añade una firma automática.
 
 ## P7D — gate de producto
 
@@ -98,7 +115,8 @@ Criterios obligatorios:
 5. Workspace V5 persistente disponible.
 6. Política de motores determinista: OpenDSS por defecto, `automatic_dispatch=false`, `crosscheck=false` y P5 reconocido como implementado.
 7. P6 IEEE 1584 explícitamente `DEFERRED` y no ejecutable.
-8. Frontera profesional cerrada: `professional_report=NOT_IMPLEMENTED` y `professional_emission=false`.
+8. Responsabilidades declaradas: `professional_report=EXTERNAL_RESPONSIBILITY`;
+   el software documenta sus verificaciones y el ingeniero revisa, aprueba y firma.
 
 Si un criterio falla, el gate devuelve:
 
@@ -134,10 +152,11 @@ Continúan fuera de la promesa de producto:
 
 - IEEE 1584 Arc Flash formal;
 - emisión profesional automática;
-- informe firmado/digitalmente sellado;
+- firma digital automática integrada;
 - conformidad normativa integral no demostrada;
 - generación dominante de motores/generadores/conversores fuera del alcance validado;
 - cross-check automático entre motores;
 - despacho automático de backend.
 
-Usable internamente no equivale a `professional_emission=true`.
+Los campos históricos de emisión no condicionan el uso ni la firma del ingeniero;
+los límites técnicos y la suficiencia de datos se evalúan por estudio.

@@ -61,6 +61,8 @@ def obtener_contrato_p7c() -> dict[str, Any]:
         "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "professional_report": False,
         "professional_emission": False,
+        "approval_responsibility": "ENGINEER",
+        "signature_workflow_required_for_calculation": False,
     }
 
 
@@ -244,7 +246,7 @@ th,td{{border:1px solid #d7dee5;padding:8px;vertical-align:top;text-align:left}}
 </style></head><body><main class="page" data-module="mcp-p7c-technical-report">
 <div class="toolbar no-print"><button type="button" onclick="window.print()">Imprimir / Guardar PDF</button></div>
 <h1>MCP Eléctrico — Resumen técnico reproducible</h1><p class="muted">P7C · Engineering Preview · snapshot P7A verificado</p>
-<div class="banner">NO APTO PARA EMISIÓN PROFESIONAL · professional_emission=false</div>
+<div class="banner">Revisión, aprobación y firma del estudio a cargo del ingeniero responsable.</div>
 <section class="grid"><div class="card"><b>Proyecto</b><br>{_esc(project.get("circuit"))}</div><div class="card"><b>Revisión</b><br>{_esc(project.get("model_revision"))}</div>
 <div class="card"><b>SHA-256 P7A</b><br>{_esc(source_hash)}</div><div class="card"><b>SHA-256 P7C</b><br>{_esc(report_hash)}</div></section>
 <h2>Estado del expediente</h2><p>Integridad: <b>HASH_MATCH</b> · P6 IEEE 1584: <b>DEFERRED</b> · PDF: <b>BROWSER_PRINT</b></p>
@@ -255,7 +257,7 @@ th,td{{border:1px solid #d7dee5;padding:8px;vertical-align:top;text-align:left}}
 <h3>P5 — Protección</h3>{_pre(engineering.get("protection_p5") or {})}<h3>P5 — Datasets TCC</h3>{_pre(engineering.get("tcc_datasets_p5") or [])}
 <h2>Madurez y limitaciones</h2><table><thead><tr><th>Módulo</th><th>Estado</th><th>Base</th><th>Limitaciones</th></tr></thead><tbody>{_maturity_html(governance.get("module_maturity") or [])}</tbody></table>
 <h2>Motores y política</h2>{_pre(governance.get("runtime_versions") or {})}<h3>Selección</h3>{_pre(governance.get("engine_selection") or {})}<h3>Gate P5</h3>{_pre(governance.get("p5_completion") or {})}
-<div class="banner">automatic_dispatch=false · crosscheck=false · disponibilidad del producto: consultar gate P7D · professional_emission=false</div>
+<p class="muted">El software informa datos, alcance, verificaciones y resultados; los criterios y la aprobación del estudio corresponden al ingeniero.</p>
 <p class="muted">Este HTML no recalcula ingeniería. Imprimir / Guardar PDF invoca únicamente la impresión del navegador.</p>
 <script type="application/json" id="p7c-report-data">{embedded}</script></main></body></html>'''
 

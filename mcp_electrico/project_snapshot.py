@@ -201,7 +201,7 @@ def construir_snapshot(
             "milestone": "P7A_PROJECT_SNAPSHOT",
             "maturity": validation['reproducible_project']['status'],
             "reconstruction_import": "NOT_IMPLEMENTED_P7A",
-            "professional_report": "NOT_IMPLEMENTED_P7A",
+            "professional_report": "EXTERNAL_RESPONSIBILITY",
             "engineering_preview_ready": False,
             "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
             "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",

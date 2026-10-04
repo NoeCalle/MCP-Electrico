@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q2_DOL_2026_10_04",
+  "revision": "Q3_RELIABILITY_2026_10_04",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -27,7 +27,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "voltage_drop": {
       "engine": "OpenDSS + postproceso",
@@ -44,7 +44,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "conductor_library": {
       "engine": "Datos primarios + MCP",
@@ -62,7 +62,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "ampacity": {
       "engine": "Tablas trazables + MCP",
@@ -80,7 +80,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "iec60909": {
       "engine": "pandapower",
@@ -98,7 +98,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "pandapower_power_flow": {
       "engine": "pandapower",
@@ -126,7 +126,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "short_circuit": {
       "engine": "OpenDSS FaultStudy",
@@ -143,7 +143,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "protection_data": {
       "engine": "Datos/curvas + postproceso MCP",
@@ -163,7 +163,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "tcc_curve_evaluation": {
       "engine": "Datos/curvas + postproceso MCP",
@@ -183,7 +183,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "protection_checks": {
       "engine": "Datos/curvas + postproceso MCP",
@@ -203,7 +203,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "protection_clearing_time": {
       "engine": "Datos/curvas + postproceso MCP",
@@ -223,7 +223,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "protection_coordination": {
       "engine": "Datos/curvas + postproceso MCP",
@@ -243,7 +243,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "reproducible_project": {
       "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
@@ -261,7 +261,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "project_reconstruction": {
       "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
@@ -279,7 +279,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "technical_report": {
       "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
@@ -297,7 +297,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "reactive_compensation": {
       "engine": "OpenDSS",
@@ -316,7 +316,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "motor_static": {
       "engine": "OpenDSS",
@@ -335,7 +335,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "operating_scenarios": {
       "engine": "OpenDSS",
@@ -354,7 +354,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "modelica_dol": {
       "engine": "OpenModelica/MSL",
@@ -410,7 +410,7 @@
         }
       ],
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "modelica_scr": {
       "engine": "OpenModelica/MSL",
@@ -419,13 +419,16 @@
       "evidence": [
         "scripts/verify_msl_scr_mcp.py",
         "scripts/verify_msl_triac_reference.py",
-        "docs/MSL_SCR_VERIFICACION.md"
+        "docs/MSL_SCR_VERIFICACION.md",
+        "scripts/verify_msl_scr_solver_profiles.py",
+        "tests/test_modelica_motor_adapter.py"
       ],
       "closure_gates": [
         {
           "id": "SCR01",
           "acceptance": "Cerrar perfil numérico reproducible y robustez de inicialización/eventos sobre rango declarado; justificar o sustituir el solver algebraico prototipo",
-          "status": "PENDING"
+          "status": "PENDING",
+          "progress": "Q3: DASSL/Newton completa tres casos nominales/refinados mediante MCP; KINSOL completa 0.2 s y falla al cierre del bypass en 5 s; alternativas acotadas sin perfil sustituto aprobado. Se conservan etapa, logs y resultados parciales solo como diagnóstico."
         },
         {
           "id": "SCR02",
@@ -445,7 +448,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "harmonics": {
       "engine": "OpenDSS",
@@ -466,7 +469,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "time_series": {
       "engine": "OpenDSS",
@@ -487,7 +490,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "relay_operation": {
       "engine": "pandapower OCRelay",
@@ -508,7 +511,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "arc_flash_ieee1584": {
       "engine": "Por integrar",
@@ -523,7 +526,7 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "arc_flash_lee": {
       "engine": "MCP histórico",
@@ -540,24 +543,25 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     },
     "professional_report": {
-      "engine": "Flujo de aprobación por implementar",
-      "verification_status": "NOT_IMPLEMENTED",
-      "scope": "Firma y aprobación profesional del informe",
+      "engine": "Ingeniero responsable",
+      "verification_status": "EXTERNAL_RESPONSIBILITY",
+      "scope": "Revisión, aprobación y firma del estudio por el ingeniero; fuera de la calificación técnica del software",
       "evidence": [
         "docs/P7_ENGINEERING_PREVIEW.md"
       ],
       "closure_gates": [],
       "excluded_extensions": [
-        "Es un proceso de emisión separado de la exactitud de cálculos"
+        "La firma digital integrada es una función opcional de gestión documental; no un requisito para confiar en un cálculo verificado"
       ],
       "project_data_readiness": "EVALUATED_PER_REQUEST",
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY",
+      "software_module": false
     },
     "custom_motor_physics": {
       "engine": "MCP retirado",
@@ -572,7 +576,14 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "NOT_GRANTED_BY_MODULE_QUALIFICATION"
+      "report_approval": "ENGINEER_RESPONSIBILITY"
     }
+  },
+  "responsibilities": {
+    "software": "VERIFY_NUMERICAL_INTEGRATION_DATA_COMPLETENESS_TRACEABILITY_AND_DECLARED_SCOPE",
+    "engineer": "SELECT_DESIGN_CRITERIA_REVIEW_RESULTS_APPROVE_AND_SIGN_STUDY",
+    "professional_emission_legacy_field": "NO_AUTOMATIC_SOFTWARE_APPROVAL; NOT_A_PROHIBITION_ON_ENGINEER_USE_OR_SIGNATURE",
+    "signature_workflow_required_for_calculation": false,
+    "module_status_does_not_approve_design": true
   }
 }

@@ -128,3 +128,40 @@ def test_scr_rms_keeps_both_states_of_switching_events(tmp_path,study):
     assert len(result['trajectory'])==2
     assert result['minimum_voltage_pu']==pytest.approx(100/sqrt(2)/480,abs=1e-12)
     assert result['minimum_bus_voltage_pu']==pytest.approx(1,abs=1e-12)
+
+
+def test_timeout_preserves_partial_engine_log_and_is_not_success(tmp_path,monkeypatch):
+    import subprocess
+    def timeout(*args, **kwargs):
+        raise subprocess.TimeoutExpired(args[0], 30, output=b'initialization completed; partial trace', stderr=b'pending event')
+    monkeypatch.setattr(adapter.subprocess,'run',timeout)
+    record=adapter._run(['native-engine'],tmp_path,{},30)
+    assert record['returncode'] is None and record['execution_status']=='TIMEOUT'
+    assert record['timeout_s']==30 and 'partial trace' in record['stdout']
+    assert record['stderr']=='pending event'
+
+
+@pytest.mark.parametrize('failure',['TIMEOUT','PROCESS_FAILED','INCOMPLETE_TRACE'])
+def test_failed_simulation_never_becomes_failed_electrical_design(tmp_path,monkeypatch,study,failure):
+    library=tmp_path/'library'
+    for name in ['Modelica/Electrical/Machines/BasicMachines/InductionMachines/IM_SquirrelCage.mo',
+                 'Modelica/Electrical/PowerConverters/ACAC/Control/SoftStartControl.mo',
+                 'Modelica/Electrical/PowerConverters/ACAC/PolyphaseTriac.mo']:
+        file=library/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text('test-source')
+    monkeypatch.setattr(adapter,'runtime',lambda:{'ready':True,'library':str(library),'executable':str(tmp_path/'omc')})
+    output=tmp_path/'Study'
+    def run(command,folder,env,timeout):
+        if command[0].endswith('omc'):
+            (folder/('MotorStudy.exe' if adapter.platform.system()=='Windows' else 'MotorStudy')).write_text('test-binary')
+            return {'command':command,'returncode':0,'execution_status':'COMPLETED','stdout':'compiled','stderr':''}
+        (folder/'Nominal.csv').write_text('time,m0speed\n0,0\n0.12,1\n')
+        return {'command':command,'returncode':None if failure=='TIMEOUT' else (1 if failure=='PROCESS_FAILED' else 0),
+                'execution_status':failure,'stdout':'The simulation finished successfully.' if failure=='INCOMPLETE_TRACE' else 'partial execution', 'stderr':''}
+    monkeypatch.setattr(adapter,'_run',run)
+    result=adapter.execute(study,output)
+    assert result['status']=='MODELICA_EXECUTION_FAILED' and result['results']==[]
+    assert result['design_assessment']=='NOT_EVALUATED' and result['calculation_status']=='NO_VERIFIED_RESULT'
+    assert result['last_emitted_time_s']==pytest.approx(.12)
+    assert result['failure_kind']=={'TIMEOUT':'TIMEOUT','PROCESS_FAILED':'SIMULATION_FAILED','INCOMPLETE_TRACE':'TRACE_VALIDATION_FAILED'}[failure]
+    records=json.loads((output/'Execution.json').read_text())
+    assert len(records)==2 and records[1]['stage']=='NOMINAL_SIMULATION'

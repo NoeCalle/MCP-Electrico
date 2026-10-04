@@ -98,7 +98,7 @@ def test_p8e2_generates_workspace_snapshot_reconstruction_and_report_without_des
 
     report_html = (output / "project_report_p7c.html").read_text(encoding="utf-8")
     assert "protection_tcc" in report_html
-    assert "NO APTO PARA EMISIÓN PROFESIONAL" in report_html
+    assert "Revisión, aprobación y firma del estudio a cargo del ingeniero responsable" in report_html
     assert "BROWSER_PRINT" in report_html
 
     # P7B ocurrió en otro contexto DSS: el proyecto calculado sigue activo y vigente aquí.

@@ -11,8 +11,8 @@ def test_p7c_maturity_separates_technical_from_professional_report():
     assert any("BROWSER_PRINT" in item for item in technical["limitations"])
     assert any("professional_emission=false" in item for item in technical["limitations"])
 
-    assert professional["status"] == "NOT_IMPLEMENTED"
-    assert professional["basis"] is None
+    assert professional["status"] == "EXTERNAL_RESPONSIBILITY"
+    assert professional["software_module"] is False
     assert any("P7C" in item for item in professional["limitations"])
 
     assert reconstruction["status"] == "VALIDATED_WITH_LIMITATIONS"

@@ -219,7 +219,7 @@ def test_p7b_contract_tools_and_maturity_are_explicit():
     maturity = validation_status.get_module_status("project_reconstruction")
     assert maturity["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert validation_status.get_module_status("reproducible_project")["status"] == "VALIDATED_WITH_LIMITATIONS"
-    assert validation_status.get_module_status("professional_report")["status"] == "NOT_IMPLEMENTED"
+    assert validation_status.get_module_status("professional_report")["status"] == "EXTERNAL_RESPONSIBILITY"
 
     class FakeMCP:
         def __init__(self):

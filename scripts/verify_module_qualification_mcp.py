@@ -1,6 +1,6 @@
 """Public MCP closure evidence for qualified static banks, P5 and P7.
 
-No MSL promotion: DOL/SCR retain explicit open technical gates.
+This does not change MSL qualification; DOL is qualified and SCR has open gates.
 """
 import argparse
 import asyncio
@@ -35,6 +35,9 @@ async def verify(output):
                     calls.append({'tool':name,'arguments':args,'result':result});return result
                 closure=await call('obtener_estado_cierre_modulos',{})
                 maturity=await call('obtener_matriz_validacion',{})
+                assert maturity['professional_report']['status']=='EXTERNAL_RESPONSIBILITY'
+                assert maturity['professional_report']['software_module'] is False
+                assert closure['responsibilities']['signature_workflow_required_for_calculation'] is False
                 for name in ['reactive_compensation','protection_data','tcc_curve_evaluation','protection_checks','protection_clearing_time','protection_coordination','reproducible_project','project_reconstruction','technical_report']:
                     assert closure['modules'][name]['verification_status']=='VERIFIED_IN_SCOPE'
                     assert maturity[name]['status']=='VALIDATED_WITH_LIMITATIONS'
@@ -92,6 +95,9 @@ async def verify(output):
                 assert restored['roundtrip']['canonical_netlist_match'] and not restored['stored_results_promoted_to_current']
                 report=await call('exportar_reporte_tecnico_p7c',{'snapshot':snapshot,'ruta_salida':str(output/'Informe-P7.html')})
                 assert report['ok'] and not report['professional_emission']
+                html=(output/'Informe-P7.html').read_text(encoding='utf8')
+                assert 'Revisión, aprobación y firma del estudio a cargo del ingeniero responsable' in html
+                assert 'NO APTO PARA EMISIÓN PROFESIONAL' not in html
     evidence={'ok':True,'transport':'MCP_STDIO','registered_tools':len(listing.tools),'calls':calls,'call_count':len(calls),'native_comparisons':references,'professional_emission':False,
               'checked_at_utc':datetime.now(timezone.utc).isoformat(),'qualification_revision':closure['revision'],
               'source_sha256':{path:sha256((ROOT/path).read_bytes()).hexdigest() for path in [

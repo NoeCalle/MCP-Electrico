@@ -105,7 +105,7 @@ def test_p10g_reference_generates_complete_workspace_and_reproducible_dossier(tm
 
     report_html = (output / "project_report_p7c.html").read_text(encoding="utf-8")
     assert "protection_tcc" in report_html
-    assert "NO APTO PARA EMISIÓN PROFESIONAL" in report_html
+    assert "Revisión, aprobación y firma del estudio a cargo del ingeniero responsable" in report_html
 
     assert workspace_state.status()["model_revision"] == result["model_revision"]
     assert workspace_state.status()["studies"]["protection_tcc"]["valid"] is True
