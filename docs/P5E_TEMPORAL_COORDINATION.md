@@ -2,7 +2,7 @@
 
 ## Estado
 
-**P5E IMPLEMENTADO EN ESTA RAMA — EXPERIMENTAL.**
+**P5E VERIFICADO EN ALCANCE — VALIDATED_WITH_LIMITATIONS.**
 
 P5E cierra el primer motor de coordinación de protecciones de MCP Eléctrico con un alcance deliberadamente limitado y trazable: comparar temporalmente un dispositivo downstream y uno upstream en un punto de operación explícito.
 
@@ -11,8 +11,8 @@ P5A  DONE
 P5B  DONE
 P5C  DONE
 P5D  DONE
-P5E  DONE / EXPERIMENTAL
-P5F  NEXT — Workspace V5 / TCC
+P5E  DONE / VALIDATED_WITH_LIMITATIONS
+P5F  DONE — Workspace V5 / TCC
 P5G  PENDIENTE — gate pre-Arc-Flash
 professional_emission = false
 ```
@@ -145,8 +145,10 @@ No se derivan tablas de selectividad/cascading de fabricante a partir de una dif
 ## Madurez
 
 ```text
-validation_status.protection_coordination = EXPERIMENTAL
+validation_status.protection_coordination = VALIDATED_WITH_LIMITATIONS
 professional_emission                     = false
 ```
 
 P5E completa la cadena backend necesaria para visualizar protecciones/TCC. El siguiente gate es P5F, que debe presentar datos y resultados P5A–P5E en el **mismo workspace persistente**. El navegador no calculará curvas, clearing times ni márgenes de coordinación.
+
+Estado y evidencia actuales: [registro de cierre](ESTADO_CIERRE_MODULOS.md).

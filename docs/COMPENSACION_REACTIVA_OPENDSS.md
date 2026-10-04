@@ -1,6 +1,6 @@
 # Bancos de capacitores y compensación reactiva
 
-**Estado:** adaptador experimental, 2026-10-03. La física y el flujo los resuelve
+**Estado:** integración verificada en alcance estático, Q1 2026-10-03. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md). La física y el flujo los resuelve
 OpenDSS. El MCP valida, configura etapas, lee resultados y presenta criterios.
 
 ## Alcance disponible
@@ -32,7 +32,7 @@ las pérdidas internas del equivalente Thevenin no se suman a pérdidas de plant
 
 Ver [paquete completo de referencia](../examples/reactive_compensation_stage1.json).
 Todos los parámetros, ratings y criterios deben ser explícitos y tener procedencia.
-El paquete exige aceptación experimental. El selector determinista elige OpenDSS
+El campo V1 `allow_experimental` se conserva por compatibilidad y admite `false`; no hace falta una aceptación experimental para el alcance estático verificado. El selector determinista elige OpenDSS
 para `compensacion_reactiva` / `bancos_capacitores`, pero no declara listo un caso
 sin pasar el validador específico.
 
@@ -59,6 +59,7 @@ cumplir criterios ni autorizar emisión profesional.
 - 22 llamadas MCP stdio reales en
   `scripts/verify_reactive_compensation_mcp.py`; referencias, caso con
   transformador, etapas, sobrecarga, rechazo de datos y no convergencia.
+- Cierre Q1 por MCP: 38 llamadas de integración (bancos/P5/P7) y 24 comparaciones contra una configuración nativa OpenDSS escrita independientemente del adaptador. Dos bancos, etapas desiguales, taps ±2,5 %, grupos Dyn11/Dyn1/Yy0 y demandas 0,2/1,0. Ver `scripts/verify_module_qualification_mcp.py`.
 - Gate de CI en el workflow principal; las pruebas no acreditan fabricante,
   comportamiento armónico ni todo el universo de redes OpenDSS.
 
@@ -79,8 +80,7 @@ comparación por caso y enlaza los datos por elemento. El modelo padre se conser
 
 Armónicos, resonancia, reactores de rechazo, transitorios de conmutación,
 `CapControl` automático, redes desbalanceadas, generación y selección integral
-de capacitores/protecciones permanecen fuera de alcance. La siguiente integración
-prioritaria es armónicos/resonancia con OpenDSS y espectros explícitos.
+de capacitores/protecciones permanecen fuera de alcance. La ampliación con OpenDSS y espectros explícitos se aborda después de cerrar las condiciones DOL/SCR vigentes.
 
 ## Fuentes primarias del componente
 

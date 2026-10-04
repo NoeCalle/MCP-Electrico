@@ -38,7 +38,7 @@ def test_native_engine_against_closed_form_impedance_circuit(package,tmp_path,co
     (('base_model','source','scc_max_mva'),float('inf')),
     (('base_model','source','pu'),10**400),
     (('scenarios',0,'bank_states','bank1'),[True,0,0]),
-    (('scenarios',0,'load_multiplier'),-1), (('options','allow_experimental'),False),
+    (('scenarios',0,'load_multiplier'),-1), (('options','allow_experimental'),'false'),
     (('criteria','source_reference'),''), (('base_model','topology','loads',0,'model'),3),
     (('base_model','topology','lines',0,'normamps_a'),None),
 ])
@@ -89,6 +89,8 @@ def test_overload_is_distinct_from_nonconvergence(package,tmp_path):
         assert not row['criteria']['evaluated']
 
 def test_first_bus_and_route_require_explicit_package(package):
+    package['options']['allow_experimental']=False
+    assert rc.validate(package)['ready_for_execution']
     p=reference_package(package);engine,_=rc._create_engine(p,p['scenarios'][0]);engine.Solution.Solve()
     assert len(rc.network._bus_voltage_pu(engine,'supply'))==3
     assert rc.network._bus_voltage_pu(engine,'absent')==[]

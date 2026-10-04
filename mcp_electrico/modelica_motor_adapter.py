@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import platform
 import subprocess
+from . import module_qualification
 
 SCHEMA = "MCP_ELECTRICO_MSL_MOTOR_STUDY_V1"
 BACKEND = "OPENMODELICA_MSL_4_0_0"
@@ -39,6 +40,7 @@ def contract():
         "switch_regularization": {"Ron_ohm": 1e-6, "Goff_siemens": 1e-5},
         "triac_regularization": {"Ron_ohm": 1e-5, "Goff_siemens": 1e-5, "Vknee_v": 0},
         "qualification": "EXPERIMENTAL_ADAPTER_SYNTHETIC_CASES_ONLY",
+        "scoped_qualification": {method:module_qualification.get('modelica_'+method.lower()) for method in ('DOL','SCR')},
         "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "multiple_machines_with_SCR", "SCR_wye_connection"],
         "professional_emission": False, "automatic_defaults": False,
     }

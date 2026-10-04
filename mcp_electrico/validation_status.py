@@ -11,6 +11,7 @@ para evitar que una promoción P4 valide accidentalmente todo cortocircuito.
 from __future__ import annotations
 
 from copy import deepcopy
+from . import module_qualification
 
 VALID_STATES = {
     "NOT_IMPLEMENTED",
@@ -164,7 +165,7 @@ _MODULES = {
             "Rutas de exportación y timestamps transitorios se excluyen del hash canónico",
             "El snapshot conserva la madurez y limitaciones existentes; no las convierte en conformidad profesional",
             "P7C puede renderizar el snapshot verificado como reporte técnico reproducible, pero no como emisión profesional",
-            "engineering_preview_ready=false hasta cerrar el gate P7D",
+            "La disponibilidad del producto se consulta mediante evaluar_cierre_p7d_engineering_preview; el snapshot no aprueba un diseño",
             "professional_emission=false",
         ],
     },
@@ -178,7 +179,7 @@ _MODULES = {
             "La representación visual histórica no se restaura automáticamente",
             "Un hash inválido bloquea antes de escribir y un round-trip distinto limpia la reconstrucción no verificada",
             "El reporte técnico P7C no cambia la política de rebind/recalculation de P7B",
-            "engineering_preview_ready=false hasta P7D",
+            "La disponibilidad del producto se consulta mediante evaluar_cierre_p7d_engineering_preview; reconstruir no aprueba un diseño",
             "professional_emission=false",
         ],
     },
@@ -191,7 +192,7 @@ _MODULES = {
             "La salida PDF se obtiene mediante impresión del navegador (BROWSER_PRINT), no mediante un generador PDF nativo",
             "El JavaScript de ingeniería está prohibido; window.print() no modifica resultados",
             "No existe firma digital, sello profesional ni hash de emisión profesional",
-            "engineering_preview_ready=false hasta P7D",
+            "La disponibilidad del producto se consulta mediante evaluar_cierre_p7d_engineering_preview; renderizar no aprueba un diseño",
             "professional_emission=false",
         ],
     },
@@ -229,12 +230,25 @@ def _iec60909_status() -> dict:
 def get_validation_matrix() -> dict:
     modules = deepcopy(_MODULES)
     modules["iec60909"] = _iec60909_status()
-    return modules
+    return {name:_qualified(name,record) for name,record in modules.items()}
+
+
+def _qualified(name,record):
+    qualified=module_qualification.get(name)
+    result=deepcopy(record)
+    # Promotion is scoped technical verification, not normative conformance.
+    # The legacy declaration is retained as provenance, not as current status.
+    if qualified['verification_status']==module_qualification.VERIFIED and result['status']=='EXPERIMENTAL':
+        result['previous_maturity_status']=result['status']
+        result['status']='VALIDATED_WITH_LIMITATIONS'
+    result['integration_verification']=qualified['verification_status']
+    result['qualification']=qualified
+    return result
 
 
 def get_module_status(name: str) -> dict:
     if name == "iec60909":
-        return deepcopy(_iec60909_status())
+        return _qualified(name,_iec60909_status())
     if name not in _MODULES:
         raise KeyError(f"Módulo desconocido: {name}")
-    return deepcopy(_MODULES[name])
+    return _qualified(name,_MODULES[name])

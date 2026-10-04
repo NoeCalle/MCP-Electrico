@@ -235,6 +235,8 @@ def evaluar_cierre_p5() -> dict[str, Any]:
         "deferred_phase": DEFERRED_PHASE,
         "operational_path_ready": ready,
         "engineering_preview_ready": False,
+        "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+        "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "engineering_preview_blockers": ["P7_REPRODUCIBLE_DOSSIER_MINIMUM"] if ready else ["P5_PENDING_CRITERIA", "P7_REPRODUCIBLE_DOSSIER_MINIMUM"],
         "professional_emission": False,
         "note": (

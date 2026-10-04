@@ -216,7 +216,7 @@ def test_p5c_reference_targets_and_validation_state_are_explicit():
     assert refs["targets"]["fuse"]["designation"] == "IEC 60269-1:2024"
     assert refs["targets"]["conductor_overcurrent"]["designation"] == "IEC 60364-4-43:2023"
     assert refs["scope"] == "REFERENCE_TARGETS_NOT_FULL_CONFORMANCE"
-    assert status["status"] == "EXPERIMENTAL"
+    assert status["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5C" in status["basis"]
 
 

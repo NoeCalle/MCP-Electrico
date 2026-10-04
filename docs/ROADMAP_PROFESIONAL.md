@@ -1,5 +1,12 @@
 # Roadmap profesional — MCP Eléctrico
 
+## Cierre vigente de módulos — Q1, 3 de octubre de 2026
+
+Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
+
+**Prioridad actual:** cerrar las condiciones DOL y SCR del registro antes de ampliar estudios. Bancos estáticos, cinco componentes P5 y tres componentes P7 están verificados en sus alcances declarados. Arc Flash sigue diferido.
+
+
 ## Objetivo
 
 Evolucionar MCP Eléctrico desde una herramienta funcional basada en OpenDSS hacia una plataforma de ingeniería reproducible, trazable y verificable. La firma y responsabilidad profesional permanecen siempre en el ingeniero responsable.
@@ -15,7 +22,7 @@ documentar una carencia de las soluciones disponibles. Ver
 **Migración actualizada el 2026-10-03:** física propia DOL/RK4 y SCR/RL retirada.
 Se integra ejecución DOL experimental OpenModelica/MSL para equivalente RL de
 barra común, incluido caso de dos motores. SCR de una máquina delta/red RL/control
-MSL es experimental; pendientes fabricante, estrella y multimotor. El trabajo histórico P13F/G no constituye una ruta
+MSL permanece en verificación con los gates SCR01 a SCR03. Fabricante corresponde a datos del proyecto; estrella y multimotor son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
 vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Mapa maestro — orden de ejecución
@@ -39,16 +46,16 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL EXPERIMENTAL** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
-| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EXPERIMENTAL** | una máquina delta/red RL/control y bypass MSL; completar fabricante y topologías antes de ampliar alcance |
+| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EN VERIFICACIÓN** | una máquina delta/red RL/control y bypass MSL; cerrar gates SCR01 a SCR03 antes de ampliar topologías |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
-| Bancos y compensación reactiva | **ADAPTADOR OPENDSS EXPERIMENTAL DISPONIBLE** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
+| Bancos y compensación reactiva | **INTEGRACIÓN VERIFICADA EN ALCANCE ESTÁTICO** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
 
 **Regla de avance:** Las fases cerradas de P0–P11 conservan sus contratos; P6 IEEE 1584 continúa diferida. P12 y P13 incorporan escenarios operativos y motores/arranque como capacidades aditivas ya disponibles dentro de sus alcances publicados, sin modificar silenciosamente los contratos públicos congelados de la Engineering Preview.
 
 **Alcance local vigente tras el retiro:** la baseline estática conserva su
 disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
 experimental de equivalente RL, con calificación integral pendiente. SCR está
-disponible en su alcance experimental; bancos estáticos tienen adaptador OpenDSS experimental
+disponible en su alcance experimental; bancos estáticos tienen integración OpenDSS verificada en el alcance declarado
 ([alcance y evidencia](COMPENSACION_REACTIVA_OPENDSS.md)); armónicos y perfiles siguen pendientes. Arc Flash
 continúa diferido. No se declara cierre de todas las necesidades habituales.
 
@@ -95,7 +102,7 @@ dinámica simultánea de varios motores y otras exclusiones publicadas.
 
 **Contraste externo con motor:** MSL 4.0.0 ejecutada con OpenModelica 1.27.1,
 parámetros sintéticos equivalentes y secuencia de amplitud/ángulo reproducida.
-El SCR discrepa en corriente/par/aceleración. Ver [evidencia y límites](P13G_MODELICA_REFERENCE.md).
+El equivalente SCR propio, actualmente retirado, discrepó en corriente/par/aceleración en ese contraste histórico. Ver [evidencia y límites](P13G_MODELICA_REFERENCE.md).
 La decisión de arquitectura posterior sustituye la ampliación del equivalente
 propio por un adaptador de ejecución de los modelos externos existentes.
 Debe verificarse red/control/bypass en lazo cerrado y la suficiencia de los
@@ -345,7 +352,7 @@ engineering_preview_ready = false
 professional_emission     = false
 ```
 
-Los módulos `protection_data`, `tcc_curve_evaluation`, `protection_checks`, `protection_clearing_time` y `protection_coordination` permanecen `EXPERIMENTAL`. P5G no los promociona por decreto.
+Los cinco componentes P5 están `VALIDATED_WITH_LIMITATIONS` por verificación Q1 de datos, matemáticas y ejecución MCP dentro de su alcance. P5G no concede por sí mismo conformidad normativa ni selectividad integral.
 
 ### P5A — datos canónicos
 

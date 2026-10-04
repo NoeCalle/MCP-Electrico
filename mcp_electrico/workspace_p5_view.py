@@ -242,7 +242,7 @@ def _panel(snapshot: dict[str, Any], protection_snapshot: dict[str, Any], datase
     if not cards:
         cards = '<div class="p5-empty"><strong>Protecciones P5 no configuradas.</strong><br>Registra interruptores/fusibles, curva y dataset TCC para habilitar la vista.</div>'
     return f'''<section class="panel p5-panel" id="panel-protecciones">
-<div class="p5-panel-title"><div><h3>Protecciones y TCC — Workspace V5</h3><p>P5A–P5E · resultados y coordenadas preparados en Python/MCP.</p></div><span class="p5-maturity">EXPERIMENTAL · SIN EMISIÓN PROFESIONAL</span></div>
+<div class="p5-panel-title"><div><h3>Protecciones y TCC — Workspace V5</h3><p>P5A–P5E · resultados y coordenadas preparados en Python/MCP.</p></div><span class="p5-maturity">VERIFICADO EN ALCANCE P5 · SIN EMISIÓN PROFESIONAL</span></div>
 <div class="p5-policy"><strong>Política V5:</strong> no hay curvas sintéticas, extrapolación, promedios de bandas ni cálculo eléctrico en JavaScript. Un PASS P5E significa coordinación temporal puntual, no selectividad total.</div>
 <div class="p5-device-list">{cards}</div>
 <div class="p5-results-section"><h3>Resultados P5 vigentes</h3>{_study_summary(snapshot)}</div>

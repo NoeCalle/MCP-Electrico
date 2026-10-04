@@ -2,7 +2,7 @@
 
 ## Estado
 
-**P5D IMPLEMENTADO EN ESTA RAMA — EXPERIMENTAL.**
+**P5D VERIFICADO EN ALCANCE — VALIDATED_WITH_LIMITATIONS.**
 
 P5D no crea una nueva curva. Consume únicamente la evaluación numérica P5B del dispositivo y decide si la semántica publicada puede promoverse a tiempo final de despeje.
 
@@ -10,8 +10,8 @@ P5D no crea una nueva curva. Consume únicamente la evaluación numérica P5B de
 P5A  DONE
 P5B  DONE
 P5C  DONE
-P5D  DONE / EXPERIMENTAL
-P5E  NEXT
+P5D  DONE / VALIDATED_WITH_LIMITATIONS
+P5E  DONE
 professional_emission = false
 ```
 
@@ -116,9 +116,11 @@ P5D no expone coordinación ni selectividad.
 ## Madurez
 
 ```text
-validation_status.protection_clearing_time = EXPERIMENTAL
+validation_status.protection_clearing_time = VALIDATED_WITH_LIMITATIONS
 validation_status.protection_coordination  = NOT_IMPLEMENTED
 professional_emission                      = false
 ```
 
 El siguiente gate es P5E: coordinación temporal entre un dispositivo downstream y uno upstream, usando tiempos P5D trazables y comparación conservadora de bandas.
+
+Estado y evidencia actuales: [registro de cierre](ESTADO_CIERRE_MODULOS.md).

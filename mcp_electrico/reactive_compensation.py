@@ -14,13 +14,15 @@ import re
 from opendssdirect import dss
 from . import motor_starting_static as network
 from . import real_pilot_intake, professional_data
+from . import module_qualification
 
 SCHEMA = 'MCP_ELECTRICO_REACTIVE_COMPENSATION_V1'
 SAFE = re.compile(r'^[A-Za-z_][A-Za-z0-9_-]*$')
 
 
 def contract():
-    return {'schema':SCHEMA,'engine':'OpenDSS','maturity':'EXPERIMENTAL',
+    return {'schema':SCHEMA,'engine':'OpenDSS','maturity':'VALIDATED_WITH_LIMITATIONS',
+            'integration_verification':module_qualification.get('reactive_compensation'),
             'scope':'BALANCED_3PH_STATIC_PASSIVE_NETWORK_EXPLICIT_FIXED_STAGES',
             'connections':['wye','delta'],'load_models':[1,2],
             'network_builder':'SHARED_P13_ISOLATED_NETWORK_BUILDER',
@@ -153,7 +155,9 @@ def validate(package):
     if type(criteria.get('voltage_min_pu')) in (int,float) and type(criteria.get('voltage_max_pu')) in (int,float) and criteria['voltage_min_pu']>=criteria['voltage_max_pu']:issue('criteria','increasing voltage bounds required')
     ref(criteria.get('source_reference'),'criteria.source_reference')
     options=obj(root.get('options'),'options',{'allow_experimental','solver_tolerance','max_iterations','active_balance_tolerance_kw','reactive_balance_tolerance_kvar'})
-    if options.get('allow_experimental') is not True:issue('options.allow_experimental','explicit experimental opt-in required')
+    # V1 field retained for package compatibility; verified static scope needs
+    # no experimental opt-in. Unimplemented extensions remain rejected.
+    if type(options.get('allow_experimental')) is not bool:issue('options.allow_experimental','explicit boolean required; legacy V1 option, not an execution gate')
     for key in ('solver_tolerance','active_balance_tolerance_kw','reactive_balance_tolerance_kvar'):num(options.get(key),'options.'+key)
     if type(options.get('max_iterations')) is not int or not 1<=options['max_iterations']<=1000:issue('options.max_iterations','integer 1..1000 required')
     if type(options.get('solver_tolerance')) in (int,float) and not 1e-12<=options['solver_tolerance']<=1e-4:issue('options.solver_tolerance','supported range 1e-12..1e-4')
@@ -270,7 +274,7 @@ def _render_html(package,results):
         details='<br>'.join(escape(b['id'])+': '+str(b['states'])+' · '+fmt(b['actual_injected_kvar'])+' kvar reales' for b in after.get('banks',[]))
         checks=', '.join(k for k,v in row['criteria'].get('checks',{}).items() if not v)
         sections.append('<section><h2>'+escape(str(row['id']))+'</h2><p>Demanda: '+str(row['load_multiplier'])+' pu · <strong>'+status+'</strong></p><table><tr><th>Magnitud</th><th>Sin banco</th><th>Etapas elegidas</th></tr>'+''.join(cells)+'</table><p>'+details+'</p><p>Sentido de reactiva: '+escape(after.get('source',{}).get('reactive_direction','No evaluable'))+'</p><p>Criterios incumplidos: '+escape(checks or 'ninguno / no evaluable')+'</p></section>')
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Compensación reactiva</title><style>body{font:16px system-ui;margin:2rem;max-width:1200px;color:#18354a;background:#f6f9fc}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1rem}section{background:white;padding:1rem;border:1px solid #ccd;border-radius:12px}table{border-collapse:collapse;width:100%}td,th{padding:.5rem;border-bottom:1px solid #ccd;text-align:left}th{background:#edf4f8}h2{font-size:1.2rem}</style></head><body><h1>Bancos de capacitores: comparación estática</h1><p>OpenDSS · experimental · red equilibrada · cada comparación conserva la misma demanda.</p><p>Q positivo: inductivo; Q negativo: capacitivo. Un FP alto con Q negativo puede incumplir el criterio de operación adelantada.</p><main>'+''.join(sections)+'</main><p>Criterios: '+escape(package['criteria']['source_reference'])+'</p><p>Son criterios declarados; no se acredita un mínimo normativo. Este estudio no evalúa armónicos, resonancia, transitorios ni selecciona protecciones del banco. Las cargas PQ que salen de Vminpu/Vmaxpu se identifican y no se aceptan como representación PQ.</p><p><a href="Results.json">Resultados y balances por elemento</a> · <a href="Inputs.json">Datos explícitos</a> · <a href="Integrity.json">Integridad</a></p></body></html>'
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Compensación reactiva</title><style>body{font:16px system-ui;margin:2rem;max-width:1200px;color:#18354a;background:#f6f9fc}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1rem}section{background:white;padding:1rem;border:1px solid #ccd;border-radius:12px}table{border-collapse:collapse;width:100%}td,th{padding:.5rem;border-bottom:1px solid #ccd;text-align:left}th{background:#edf4f8}h2{font-size:1.2rem}</style></head><body><h1>Bancos de capacitores: comparación estática</h1><p>OpenDSS · integración verificada en alcance estático declarado · red equilibrada · cada comparación conserva la misma demanda.</p><p>Q positivo: inductivo; Q negativo: capacitivo. Un FP alto con Q negativo puede incumplir el criterio de operación adelantada.</p><main>'+''.join(sections)+'</main><p>Criterios: '+escape(package['criteria']['source_reference'])+'</p><p>Son criterios declarados; no se acredita un mínimo normativo. Este estudio no evalúa armónicos, resonancia, transitorios ni selecciona protecciones del banco. Las cargas PQ que salen de Vminpu/Vmaxpu se identifican y no se aceptan como representación PQ.</p><p><a href="Results.json">Resultados y balances por elemento</a> · <a href="Inputs.json">Datos explícitos</a> · <a href="Integrity.json">Integridad</a></p></body></html>'
 
 
 def execute(package,directory):

@@ -143,7 +143,7 @@ def test_v5_renderiza_dispositivo_tcc_y_resultados_vigentes():
     assert "0.12 s" in html
     assert "0.25 s" in html
     assert "Térmica conductor" not in html  # estudio obsoleto no se presenta como vigente
-    assert "EXPERIMENTAL · SIN EMISIÓN PROFESIONAL" in html
+    assert "VERIFICADO EN ALCANCE P5 · SIN EMISIÓN PROFESIONAL" in html
     assert "no selectividad total" in html
 
 

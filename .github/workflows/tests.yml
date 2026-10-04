@@ -20,6 +20,12 @@ jobs:
         run: python -m pytest -q
       - name: Verify native reactive compensation and independent references through MCP
         run: python scripts/verify_reactive_compensation_mcp.py --output reactive_compensation_evidence
+      - name: Verify module closure and native engine parity through MCP
+        run: python scripts/verify_module_qualification_mcp.py --output module_qualification_evidence
+      - uses: actions/upload-artifact@v4
+        with:
+          name: module-qualification-mcp
+          path: module_qualification_evidence
       - uses: actions/upload-artifact@v4
         with:
           name: reactive-compensation-mcp

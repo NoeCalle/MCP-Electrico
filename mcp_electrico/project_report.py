@@ -57,6 +57,8 @@ def obtener_contrato_p7c() -> dict[str, Any]:
         "pdf_export_mode": PDF_EXPORT_MODE,
         "native_pdf_generation": False,
         "engineering_preview_ready": False,
+        "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+        "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "professional_report": False,
         "professional_emission": False,
     }
@@ -103,6 +105,8 @@ def construir_reporte(snapshot: dict[str, Any]) -> dict[str, Any]:
             "source_verification": verification,
             "write_performed": False,
             "engineering_preview_ready": False,
+            "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+            "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
             "professional_report": False,
             "professional_emission": False,
         }
@@ -139,8 +143,10 @@ def construir_reporte(snapshot: dict[str, Any]) -> dict[str, Any]:
         "product_status": {
             "p5": "READY_WITH_LIMITATIONS",
             "p6_arc_flash_ieee1584": "DEFERRED",
-            "p7c": "EXPERIMENTAL",
+            "p7c": (governance.get('validation_matrix',{}).get('technical_report') or {}).get('status','UNKNOWN_IN_SNAPSHOT'),
             "engineering_preview_ready": False,
+            "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+            "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
             "professional_report": False,
             "professional_emission": False,
         },
@@ -161,6 +167,8 @@ def construir_reporte(snapshot: dict[str, Any]) -> dict[str, Any]:
         },
         "data": report_data,
         "engineering_preview_ready": False,
+        "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+        "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "professional_report": False,
         "professional_emission": False,
     }
@@ -247,7 +255,7 @@ th,td{{border:1px solid #d7dee5;padding:8px;vertical-align:top;text-align:left}}
 <h3>P5 — Protección</h3>{_pre(engineering.get("protection_p5") or {})}<h3>P5 — Datasets TCC</h3>{_pre(engineering.get("tcc_datasets_p5") or [])}
 <h2>Madurez y limitaciones</h2><table><thead><tr><th>Módulo</th><th>Estado</th><th>Base</th><th>Limitaciones</th></tr></thead><tbody>{_maturity_html(governance.get("module_maturity") or [])}</tbody></table>
 <h2>Motores y política</h2>{_pre(governance.get("runtime_versions") or {})}<h3>Selección</h3>{_pre(governance.get("engine_selection") or {})}<h3>Gate P5</h3>{_pre(governance.get("p5_completion") or {})}
-<div class="banner">automatic_dispatch=false · crosscheck=false · engineering_preview_ready=false · professional_emission=false</div>
+<div class="banner">automatic_dispatch=false · crosscheck=false · disponibilidad del producto: consultar gate P7D · professional_emission=false</div>
 <p class="muted">Este HTML no recalcula ingeniería. Imprimir / Guardar PDF invoca únicamente la impresión del navegador.</p>
 <script type="application/json" id="p7c-report-data">{embedded}</script></main></body></html>'''
 
@@ -268,6 +276,8 @@ def exportar_reporte(snapshot: dict[str, Any], ruta_salida: str = "mcp_electrico
         "pdf_export_mode": PDF_EXPORT_MODE,
         "browser_engineering_calculation": False,
         "engineering_preview_ready": False,
+        "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+        "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "professional_report": False,
         "professional_emission": False,
     }
@@ -283,6 +293,8 @@ def exportar_reporte_desde_archivo(ruta_snapshot: str, ruta_salida: str = "mcp_e
             "error": str(exc),
             "write_performed": False,
             "engineering_preview_ready": False,
+            "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+            "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
             "professional_report": False,
             "professional_emission": False,
         }
