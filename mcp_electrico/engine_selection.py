@@ -15,7 +15,7 @@ import unicodedata
 
 from opendssdirect import dss
 
-from . import model_qa, pandapower_engine, study_readiness, validation_status
+from . import model_qa, pandapower_engine, study_readiness, validation_status, module_qualification
 from .external_engine_catalogue import EXTERNAL_ENGINES, PLANNED_STUDIES, RESEARCH_DATE
 
 
@@ -118,9 +118,9 @@ CAPABILITY_MATRIX.update(PLANNED_STUDIES)
 CAPABILITY_MATRIX['reactive_compensation'] = {
     'preferred':'opendss', 'alternatives':[], 'module':'reactive_compensation',
     'implemented':True, 'requires_active_model':False, 'requires_study_package':True,
-    'professional_emission_candidate':False, 'integration_status':'EXPERIMENTAL_SCOPED_ADAPTER_ONLY',
-    'reason':'OpenDSS resuelve bancos por etapas en red trifásica equilibrada aislada. Exige paquete explícito; no evalúa armónicos, resonancia ni control automático.',
-    'requirements':['validar_compensacion_reactiva: red, bancos, etapas, demanda y criterios explícitos','opt-in experimental'],
+    'professional_emission_candidate':False, 'integration_status':'VERIFIED_SCOPED_ADAPTER',
+    'reason':'Integración OpenDSS verificada en alcance estático declarado. Exige paquete explícito; no evalúa armónicos, resonancia ni control automático.',
+    'requirements':['validar_compensacion_reactiva: red, bancos, etapas, demanda y criterios explícitos'],
     'contract_tool':'obtener_contrato_compensacion_reactiva',
     'readiness_tool':'validar_compensacion_reactiva', 'execution_tool':'ejecutar_compensacion_reactiva',
 }
@@ -191,13 +191,21 @@ def _has_active_model() -> bool:
 
 
 def obtener_capacidades_motores() -> dict[str, Any]:
+    studies=deepcopy(CAPABILITY_MATRIX)
+    bindings={'power_flow':'power_flow','voltage_drop':'voltage_drop','iec60909':'iec60909',
+              'ampacity':'ampacity','protection_coordination':'protection_coordination',
+              'short_circuit_exploratory':'short_circuit','reactive_compensation':'reactive_compensation',
+              'motor_dynamics_dol':'modelica_dol','motor_dynamics_simultaneous':'modelica_dol',
+              'motor_dynamics_soft_starter_scr':'modelica_scr','harmonics':'harmonics','time_series':'time_series',
+              'arc_flash_ieee1584':'arc_flash_ieee1584','arc_flash_lee':'arc_flash_lee'}
+    for study,name in bindings.items():studies[study]['qualification']=module_qualification.get(name)
     return {
         "schema_version": 2,
         "automatic_dispatch": False,
         "crosscheck": False,
         "default_engine": "opendss",
-        "studies": deepcopy(CAPABILITY_MATRIX),
-        "matrix_revision": "E_OPEN_SOURCE_ROUTING_2026_10_02",
+        "studies": studies,
+        "matrix_revision": module_qualification.catalogue()['revision'],
         "research_date": RESEARCH_DATE,
         "external_engine_catalogue": deepcopy(EXTERNAL_ENGINES),
         "integration_policy": "USE_EXISTING_OPEN_SOURCE_MODELS_FIRST",

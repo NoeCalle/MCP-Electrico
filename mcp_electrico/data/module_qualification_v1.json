@@ -1,0 +1,502 @@
+{
+  "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
+  "revision": "Q1_2026_10_03",
+  "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
+  "axes": [
+    "integration_verification",
+    "supported_scope",
+    "project_data_readiness",
+    "design_criteria",
+    "normative_conformance",
+    "report_approval"
+  ],
+  "modules": {
+    "power_flow": {
+      "engine": "OpenDSS",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Radial trifásico equilibrado de dos barras PQ",
+      "evidence": [
+        "tests/test_benchmarks_p1.py",
+        "examples/run_benchmarks_p1.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Desbalance y alimentadores IEEE/EPRI completos"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "voltage_drop": {
+      "engine": "OpenDSS + postproceso",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Caída por Line en el alcance P1",
+      "evidence": [
+        "tests/test_benchmarks_p1.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Caída acumulada y desbalance"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "conductor_library": {
+      "engine": "Datos primarios + MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Catálogo trazable Nexans/INDECO y asignación explícita",
+      "evidence": [
+        "tests/test_professional_validation.py",
+        "docs/P3_BENCHMARK_EVIDENCE.md"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Catálogo exhaustivo y secuencia cero/geometría"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "ampacity": {
+      "engine": "Tablas trazables + MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "P3-v1: filas/factores PRIMARY_VERIFIED CNE y Ib/In/Iz",
+      "evidence": [
+        "docs/P3C12A_INDEPENDENT_BENCHMARKS.md",
+        "docs/P3C12B_PRIMARY_BENCHMARK_GATE.md"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Otras normas/filas no verificadas; tablas completas"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "iec60909": {
+      "engine": "pandapower",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "P4-v1: 3F/2F/1F-T MAX/MIN según contrato y fichas admitidas",
+      "evidence": [
+        "docs/P4_BENCHMARK_3PH.md",
+        "tests/test_iec60909_p4c07.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Conformidad integral de edición objetivo; Ib/Ik permanente y deberes excluidos"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "pandapower_power_flow": {
+      "engine": "pandapower",
+      "verification_status": "IN_VERIFICATION",
+      "scope": "Puente balanceado líneas/cargas/P2; ext_grid ideal 1 pu",
+      "evidence": [
+        "tests/test_pandapower_engine.py"
+      ],
+      "closure_gates": [
+        {
+          "id": "PPF01",
+          "acceptance": "Contrastar transformación P2, taps, carga y pérdidas por terminal contra ejecución nativa pandapower con entradas independientes",
+          "status": "PENDING"
+        },
+        {
+          "id": "PPF02",
+          "acceptance": "MCP público debe reproducir esos casos y rechazar equipos no traducibles",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [
+        "Generadores, motores, desbalance; no se necesita para cerrar el flujo principal OpenDSS"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "short_circuit": {
+      "engine": "OpenDSS FaultStudy",
+      "verification_status": "EXPLORATORY_ONLY",
+      "scope": "Herramienta exploratoria; no ruta IEC 60909",
+      "evidence": [
+        "tests/test_professional_validation.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Uso IEC delegado al módulo pandapower; no duplicar esta calificación"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "protection_data": {
+      "engine": "Datos/curvas + postproceso MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Datos breaker/fuse y vínculo explícito con conductor",
+      "evidence": [
+        "tests/test_p5a_protection_data.py",
+        "examples/run_benchmarks_p5g.py",
+        "tests/test_p10f_reference_protection.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Selectividad integral, actuación de relés, backup/cascading",
+        "Conformidad normativa integral y datasets automáticos k"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "tcc_curve_evaluation": {
+      "engine": "Datos/curvas + postproceso MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Interpolación LOG_LOG por segmentos SINGLE/BAND, sin extrapolación",
+      "evidence": [
+        "tests/test_p5b_tcc_curves.py",
+        "examples/run_benchmarks_p5g.py",
+        "tests/test_p10f_reference_protection.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Selectividad integral, actuación de relés, backup/cascading",
+        "Conformidad normativa integral y datasets automáticos k"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "protection_checks": {
+      "engine": "Datos/curvas + postproceso MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Comparación de corte y chequeo adiabático con entradas explícitas",
+      "evidence": [
+        "tests/test_p5c_protection_checks.py",
+        "examples/run_benchmarks_p5g.py",
+        "tests/test_p10f_reference_protection.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Selectividad integral, actuación de relés, backup/cascading",
+        "Conformidad normativa integral y datasets automáticos k"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "protection_clearing_time": {
+      "engine": "Datos/curvas + postproceso MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "TOTAL_CLEARING_TIME con bandas y procedencia conservadas",
+      "evidence": [
+        "tests/test_p5d_clearing_time.py",
+        "examples/run_benchmarks_p5g.py",
+        "tests/test_p10f_reference_protection.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Selectividad integral, actuación de relés, backup/cascading",
+        "Conformidad normativa integral y datasets automáticos k"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "protection_coordination": {
+      "engine": "Datos/curvas + postproceso MCP",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Margen temporal puntual entre dos dispositivos declarados",
+      "evidence": [
+        "tests/test_p5e_temporal_coordination.py",
+        "examples/run_benchmarks_p5g.py",
+        "tests/test_p10f_reference_protection.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Selectividad integral, actuación de relés, backup/cascading",
+        "Conformidad normativa integral y datasets automáticos k"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "reproducible_project": {
+      "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Snapshot P7A canónico y verificación de integridad",
+      "evidence": [
+        "tests/test_p7a_project_snapshot.py",
+        "tests/test_p7d_engineering_preview.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Restauración automática P2/P3/P5 y vista; firma/aprobación del informe"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "project_reconstruction": {
+      "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Restauración P7B del netlist DSS con round-trip y aislamiento",
+      "evidence": [
+        "tests/test_p7b_project_reconstruction.py",
+        "tests/test_p7d_engineering_preview.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Restauración automática P2/P3/P5 y vista; firma/aprobación del informe"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "technical_report": {
+      "engine": "Persistencia/presentación MCP + OpenDSS cuando reconstruye",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Reporte determinista de snapshot verificado y PDF mediante impresión",
+      "evidence": [
+        "tests/test_p7c_project_report.py",
+        "tests/test_p7d_engineering_preview.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Restauración automática P2/P3/P5 y vista; firma/aprobación del informe"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "reactive_compensation": {
+      "engine": "OpenDSS",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Bancos ideales por etapas; verificación cuantitativa balanceada y comparación estática explícita",
+      "evidence": [
+        "tests/test_reactive_compensation.py",
+        "scripts/verify_reactive_compensation_mcp.py",
+        "scripts/verify_module_qualification_mcp.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Armónicos, reactores, CapControl, desbalance y selección integral"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "motor_static": {
+      "engine": "OpenDSS",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "P13B/C/D: corriente/fp o estados de arranque explícitos, sin aceleración generada",
+      "evidence": [
+        "tests/test_p13b_static_motor_starting.py",
+        "tests/test_p13c_motor_starting_profiles.py",
+        "tests/test_p13d_motor_starting_sequences.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Dinámica y controles de arrancador"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "operating_scenarios": {
+      "engine": "OpenDSS",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "P12: contingencias/transferencias/deslastre estáticos declarados",
+      "evidence": [
+        "tests/test_p12_operating_scenarios.py",
+        "tests/test_p12e_alternative_source_transfer.py",
+        "tests/test_p12d_mcp_scenario_tools.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Optimización de contingencias y transferencia dinámica/sincronismo"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "modelica_dol": {
+      "engine": "OpenModelica/MSL",
+      "verification_status": "IN_VERIFICATION",
+      "scope": "Máquinas DOL sobre equivalente RL equilibrado común; casos sintéticos ejecutados",
+      "evidence": [
+        "scripts/verify_modelica_motor_adapter_mcp.py",
+        "tests/test_modelica_motor_adapter.py"
+      ],
+      "closure_gates": [
+        {
+          "id": "DOL01",
+          "acceptance": "Reproducir un ejemplo original MSL directamente y por MCP con parámetros/conexiones equivalentes y tolerancias fijadas antes del contraste",
+          "status": "PENDING"
+        },
+        {
+          "id": "DOL02",
+          "acceptance": "Cerrar la convención de temperatura/pérdidas/inercia y conversión de fase para estrella/delta en los casos admitidos",
+          "status": "PENDING"
+        },
+        {
+          "id": "DOL03",
+          "acceptance": "Ejecutar regresión física automatizada con runtime fijado; rechazar solicitudes fuera del equivalente admitido",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [
+        "Traducción completa del unifilar; calificación de proyecto con fichas reales"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "modelica_scr": {
+      "engine": "OpenModelica/MSL",
+      "verification_status": "IN_VERIFICATION",
+      "scope": "Una máquina delta y controlador MSL genérico; evidencia sintética",
+      "evidence": [
+        "scripts/verify_msl_scr_mcp.py",
+        "scripts/verify_msl_triac_reference.py",
+        "docs/MSL_SCR_VERIFICACION.md"
+      ],
+      "closure_gates": [
+        {
+          "id": "SCR01",
+          "acceptance": "Cerrar perfil numérico reproducible y robustez de inicialización/eventos sobre rango declarado; justificar o sustituir el solver algebraico prototipo",
+          "status": "PENDING"
+        },
+        {
+          "id": "SCR02",
+          "acceptance": "Contrastar circuito/control completo contra ejemplo MSL original con métricas y tolerancias prefijadas",
+          "status": "PENDING"
+        },
+        {
+          "id": "SCR03",
+          "acceptance": "Verificar referencia de disparo y alcance admitido; mantener bloqueadas estrella y multimáquina hasta pruebas específicas",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [
+        "Reproducción de control de fabricante; SCR estrella/multimotor"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "harmonics": {
+      "engine": "OpenDSS",
+      "verification_status": "NOT_IMPLEMENTED",
+      "scope": "Armónicos y resonancia",
+      "evidence": [
+        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+      ],
+      "closure_gates": [
+        {
+          "id": "ADAPTER",
+          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "time_series": {
+      "engine": "OpenDSS",
+      "verification_status": "NOT_IMPLEMENTED",
+      "scope": "Daily/Yearly con perfiles explícitos",
+      "evidence": [
+        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+      ],
+      "closure_gates": [
+        {
+          "id": "ADAPTER",
+          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "relay_operation": {
+      "engine": "pandapower OCRelay",
+      "verification_status": "NOT_IMPLEMENTED",
+      "scope": "Actuación de relés",
+      "evidence": [
+        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+      ],
+      "closure_gates": [
+        {
+          "id": "ADAPTER",
+          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
+          "status": "PENDING"
+        }
+      ],
+      "excluded_extensions": [],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "arc_flash_ieee1584": {
+      "engine": "Por integrar",
+      "verification_status": "DEFERRED_BY_USER",
+      "scope": "Arc Flash formal",
+      "evidence": [
+        "docs/ROADMAP_PROFESIONAL.md"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "arc_flash_lee": {
+      "engine": "MCP histórico",
+      "verification_status": "EDUCATIONAL_ONLY",
+      "scope": "Estimación educativa Lee",
+      "evidence": [
+        "tests/test_professional_validation.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "No reemplaza IEEE 1584; fuera del cierre industrial actual"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "professional_report": {
+      "engine": "Flujo de aprobación por implementar",
+      "verification_status": "NOT_IMPLEMENTED",
+      "scope": "Firma y aprobación profesional del informe",
+      "evidence": [
+        "docs/P7_ENGINEERING_PREVIEW.md"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Es un proceso de emisión separado de la exactitud de cálculos"
+      ],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    },
+    "custom_motor_physics": {
+      "engine": "MCP retirado",
+      "verification_status": "RETIRED",
+      "scope": "Solvers propios DOL/RK4/SCR retirados",
+      "evidence": [
+        "scripts/verify_modelica_motor_adapter_mcp.py"
+      ],
+      "closure_gates": [],
+      "excluded_extensions": [],
+      "project_data_readiness": "EVALUATED_PER_REQUEST",
+      "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
+      "professional_emission": false
+    }
+  }
+}

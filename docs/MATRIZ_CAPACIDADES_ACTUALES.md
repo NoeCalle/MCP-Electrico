@@ -1,7 +1,7 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
-**Fecha:** 3 de octubre de 2026. Actualización de migración a modelos abiertos.
-El servidor actualizado registra **153 herramientas**. Bancos estáticos añaden
+**Fecha:** 3 de octubre de 2026. Actualización Q1 de cierre y verificación por alcance. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
+El servidor actualizado registra **154 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
@@ -68,7 +68,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Flujo con motor alternativo | Origen del modelo activo | Resuelve flujo balanceado | Puente de datos | Experimental | Líneas/cargas trifásicas y transformadores P2; no traduce todavía motores, generadores ni redes desbalanceadas. Fuente de flujo ideal a 1 pu. |
 | Caída de tensión | Resuelve tensiones | — | Calcula caída y compara criterio | Validado con limitaciones | Validación P1 por Line en red radial balanceada; caída acumulada/desbalanceada pendiente de benchmark. Umbral declarado. |
 | Flujo detallado y cargabilidad | Resultados por alimentador/equipo | — | Indicadores y revisión del workspace | Disponible dentro del alcance del flujo | Para afirmar sobrecarga necesita resultado convergente, rating aplicable y configuración. No convergencia sola no demuestra sobrecarga. |
-| Compensación reactiva y bancos por etapas | Capacitor nativo y flujo aislado | — | Datos, escenarios, criterios, balances e informe | Experimental disponible | Red equilibrada pasiva, etapas fijas ideales; sin armónicos, resonancia, reactores, control automático ni selección integral. |
+| Compensación reactiva y bancos por etapas | Capacitor nativo y flujo aislado | — | Datos, escenarios, criterios, balances e informe | Verificado en alcance estático | Red equilibrada pasiva, etapas fijas ideales; sin armónicos, resonancia, reactores, control automático ni selección integral. |
 | Escenarios y contingencias N-1 declaradas | Resuelve cada configuración | — | Aperturas/cierres, cargas, continuidad y criterios | P12 foundation disponible | No selecciona automáticamente todas las contingencias ni optimiza maniobras/deslastre. El conjunto evaluado debe representar el alcance solicitado. |
 | Deslastre y fuentes alternativas | Equivalente de fuente Vsource | — | Aplica acciones explícitas y restaura la base | Disponible, análisis estático | Transferencia con apertura previa; sin paralelo durante transferencia, sincronización, control AVR/gobernador ni transitorios. Las cargas críticas deben protegerse en las reglas del caso. |
 
@@ -90,11 +90,11 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 |---|---|---|---|---|---|
 | Ampacidad y relación Ib ≤ In ≤ Iz | Puede aportar Ib si se acepta el flujo | — | Calcula capacidad corregida y verifica relación | P3-v1 validado con limitaciones | CNE Utilización 2006 dentro de filas y factores verificados; coincidencia exacta. IEC 60364-5-52 sigue como referencia, sin dataset normativo validado. |
 | Evidencia y aplicabilidad de ampacidad | — | — | Referencias, datasets y evidencias primarias | Disponible con cobertura limitada | No hay búsqueda normativa automática ni interpolación de tablas. Combinaciones no demostradas se bloquean o exigen evidencia explícita. |
-| Dispositivos, ajustes y curvas TCC | — | — | Registro y evaluación de curvas explícitas | Disponible experimental; P5 completado con límites | Interruptores y fusibles. Interpolación dentro de segmentos y bandas; no inventa curvas ni ajustes de fabricante. |
-| Capacidad de corte de la protección | — | Puede aportar corriente de falla | Compara capacidad declarada con corriente | Disponible experimental | Icu explícito para interruptor, capacidad de corte para fusible; Ics/Icw no sustituyen Icu. |
-| Soportabilidad térmica adiabática del conductor | — | Puede aportar corriente de falla | Verifica I²t ≤ k²S² | Disponible experimental | Corriente, despeje, k, sección y procedencia explícitos; no evolución térmica detallada. |
-| Tiempo final de despeje | — | — | Evalúa/promueve TOTAL_CLEARING_TIME | Disponible experimental | Tiempo de disparo, fusión u operación no se convierten solos en despeje total; conserva banda min/max. |
-| Coordinación temporal entre dos protecciones | — | Puede aportar corrientes por dispositivo | Compara tiempos aguas abajo/arriba | Disponible experimental | Evaluación puntual con relación declarada y margen conservador. Sin barrido de todo el dominio ni demostración de selectividad integral. |
+| Dispositivos, ajustes y curvas TCC | — | — | Registro y evaluación de curvas explícitas | Verificado en alcance; P5 completado con límites | Interruptores y fusibles. Interpolación dentro de segmentos y bandas; no inventa curvas ni ajustes de fabricante. |
+| Capacidad de corte de la protección | — | Puede aportar corriente de falla | Compara capacidad declarada con corriente | Verificado en alcance declarado | Icu explícito para interruptor, capacidad de corte para fusible; Ics/Icw no sustituyen Icu. |
+| Soportabilidad térmica adiabática del conductor | — | Puede aportar corriente de falla | Verifica I²t ≤ k²S² | Verificado en alcance declarado | Corriente, despeje, k, sección y procedencia explícitos; no evolución térmica detallada. |
+| Tiempo final de despeje | — | — | Evalúa/promueve TOTAL_CLEARING_TIME | Verificado en alcance declarado | Tiempo de disparo, fusión u operación no se convierten solos en despeje total; conserva banda min/max. |
+| Coordinación temporal entre dos protecciones | — | Puede aportar corrientes por dispositivo | Compara tiempos aguas abajo/arriba | Verificado en alcance declarado | Evaluación puntual con relación declarada y margen conservador. Sin barrido de todo el dominio ni demostración de selectividad integral. |
 
 ### 5. Motores y arranque
 
@@ -114,8 +114,8 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 |---|---|---|---|---|---|
 | Unifilar técnico y workspace | Aporta modelo/resultados | Aporta resultados de estudios soportados | SVG/HTML, inspector y vistas | Disponible | Presenta datos y resultados ligados a revisión; navegador no calcula ingeniería. No sustituye editor CAD completo. |
 | Navegación, etiquetas y láminas de redes grandes | — | — | Presentación y exportación de láminas A3 | Disponible con límites V7.1 | Láminas con solape y numeración; hasta 200 por exportación. PDF mediante impresión, sin nuevos cálculos. |
-| Snapshot y reconstrucción | Guarda/recompila netlist DSS | — | Hashes, aislamiento y comparación de archivos | Disponible; P7 mínimo cerrado, componentes experimentales | P7B restaura netlist, no todos los estados P2/P3/P5 ni la presentación. Requiere re-vincular datos y recalcular resultados. |
-| Reporte técnico reproducible | — | — | Renderiza snapshot verificado | Disponible experimental | HTML preparado para impresión/PDF por navegador; no PDF nativo, firma, sello o aprobación profesional. |
+| Snapshot y reconstrucción | Guarda/recompila netlist DSS | — | Hashes, aislamiento y comparación de archivos | Verificado en alcance; P7 mínimo cerrado | P7B restaura netlist, no todos los estados P2/P3/P5 ni la presentación. Requiere re-vincular datos y recalcular resultados. |
+| Reporte técnico reproducible | — | — | Renderiza snapshot verificado | Verificado en alcance declarado | HTML preparado para impresión/PDF por navegador; no PDF nativo, firma, sello o aprobación profesional. |
 | Expedientes de proyecto, escenarios y arranque | Resuelve según estudio | Se usa según estudio | Gráficas/tablas/CSV/JSON, replay e integridad | Disponible dentro del alcance de cada estudio | Resultados, fuentes y limitaciones conservados. Verificar integridad no valida físicamente entradas o supuestos. |
 | Admisión de proyecto real y uso local | Backend local | Backend local | Checklist, gates y servidor | Engineering Preview local disponible | Windows; stdio y HTTP de loopback. La consulta de este catálogo no confirma por sí sola la conexión de este chat ni instalación remota. |
 | Arc flash simplificado de Lee | — | — | Estimación simplificada | Experimental/educativo | calcular_arc_flash es un alias de Lee. Ninguno implementa IEEE 1584. |
@@ -125,7 +125,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Función | Estado | Qué falta / distinción importante |
 |---|---|---|
 | Dinámica de varios motores acoplados del unifilar completo | Calificación integral pendiente | DOL MSL de equivalente RL común disponible experimentalmente, probado con dos motores; traducción completa y SCR multimotor pendientes. |
-| SCR trifásico cualificado para un dispositivo real | Pendiente; contraste sintético externo ya ejecutado con discrepancias | Corregir representación trifásica, contrastar red/control/bypass en lazo cerrado y después parámetros y datos del fabricante. |
+| SCR trifásico cualificado para un dispositivo real | Pendiente; adaptador MSL delta en verificación | Cerrar gates SCR01 a SCR03. Las discrepancias del equivalente propio retirado son históricas; la ficha de fabricante se exige al estudiar el dispositivo real. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
 | Transitorios EMT, flujos magnéticos y calentamiento dinámico | Fuera del alcance implementado de arranque | No confundir dinámica mecánica RMS con ondas instantáneas o un modelo térmico motor/semiconductor. |
@@ -141,7 +141,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 ## Precisiones sobre documentos y estados
 
 1. **P4-v1 vs P4-v1.1:** la matriz histórica de selección y el registro de madurez P4-v1 mantienen 2F-T fuera de su alcance original. La extensión P4-v1.1 ya ejecuta 2F-T con solver propio MCP y Z1/Z0 de pandapower. Su madurez y promoción normativa son diferentes; no debe omitirse ni confundirse con una falla nativa pandapower.
-2. **P5:** `evaluar_cierre_p5` declara `READY_WITH_LIMITATIONS`; los cinco componentes de protección conservan `EXPERIMENTAL` en `obtener_matriz_validacion`. El cierre funcional no promociona automáticamente su madurez.
+2. **P5:** `evaluar_cierre_p5` declara `READY_WITH_LIMITATIONS`; los cinco componentes están `VALIDATED_WITH_LIMITATIONS` por verificación Q1 en `obtener_matriz_validacion`. La evidencia de integración no concede conformidad normativa ni selectividad integral.
 3. **P7/P8:** P7 mínimo y la Engineering Preview están cerrados como fases, pero sus contratos de componente conservan limitaciones históricas. La reconstrucción P7B no recupera automáticamente todos los datos estructurados ni convierte estudios guardados en vigentes.
 4. **Arc flash:** tanto `estimar_arc_flash_lee` como el alias `calcular_arc_flash` calculan Lee simplificado. No hay cálculo IEEE 1584 implementado detrás del alias.
 5. **Dinámica y perfiles:** las secuencias/perfiles estáticos no sustituyen la dinámica. MSL DOL común y SCR de una máquina delta son experimentales y exigen su propio paquete; las etiquetas estáticas no los habilitan automáticamente.
@@ -164,6 +164,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 - **Flujo con motor alternativo:** `ejecutar_flujo_pandapower`.
 - **Caída de tensión:** `analizar_caida_tension`.
 - **Flujo detallado y cargabilidad:** `analizar_flujo_operacion`.
+- **Estado de cierre:** `obtener_estado_cierre_modulos` (alcance, evidencia y gates finitos separados de preparación del proyecto).
 - **Bancos y compensación reactiva:** `obtener_contrato_compensacion_reactiva`, `validar_compensacion_reactiva`, `ejecutar_compensacion_reactiva`.
 - **Escenarios y contingencias N-1 declaradas:** `validar_escenarios_operativos`, `ejecutar_escenarios_operativos`, `simular_perdida_alimentador`.
 - **Deslastre y fuentes alternativas:** `obtener_contrato_p12_escenarios_operativos`, `ejecutar_escenarios_operativos`.

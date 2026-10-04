@@ -31,7 +31,7 @@ def test_p5g_gate_ready_with_limitations_without_promoting_modules():
     assert gate["engineering_preview_blockers"] == ["P7_REPRODUCIBLE_DOSSIER_MINIMUM"]
     assert gate["professional_emission"] is False
 
-    # P5G cierra la fase funcional; no falsifica una promoción de madurez.
+    # Q1 verifica el alcance técnico; no promueve conformidad normativa ni emisión.
     assert set(gate["module_maturity"]) == {
         "protection_data",
         "tcc_curve_evaluation",
@@ -40,7 +40,7 @@ def test_p5g_gate_ready_with_limitations_without_promoting_modules():
         "protection_coordination",
     }
     assert all(
-        item["status"] == "EXPERIMENTAL"
+        item["status"] == "VALIDATED_WITH_LIMITATIONS"
         for item in gate["module_maturity"].values()
     )
 

@@ -221,7 +221,7 @@ def test_p5e_contract_maturity_and_public_tools_are_narrow():
     assert contract["topology_inference"] is False
     assert contract["claims"]["total_selectivity"] is False
     assert contract["claims"]["backup"] is False
-    assert maturity["status"] == "EXPERIMENTAL"
+    assert maturity["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5E" in maturity["basis"]
 
     class FakeMCP:

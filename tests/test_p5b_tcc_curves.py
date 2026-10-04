@@ -254,10 +254,10 @@ def test_p5b_validation_status_remains_separate_from_later_p5e_coordination():
     tcc = validation_status.get_module_status("tcc_curve_evaluation")
     coordination = validation_status.get_module_status("protection_coordination")
 
-    assert tcc["status"] == "EXPERIMENTAL"
+    assert tcc["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5B" in tcc["basis"]
     assert "P5E" not in tcc["basis"]
-    assert coordination["status"] == "EXPERIMENTAL"
+    assert coordination["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5E" in coordination["basis"]
 
 

@@ -202,10 +202,10 @@ def test_p5a_validation_status_remains_separate_from_later_p5e_coordination():
     data = validation_status.get_module_status("protection_data")
     coordination = validation_status.get_module_status("protection_coordination")
 
-    assert data["status"] == "EXPERIMENTAL"
+    assert data["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5A" in data["basis"]
     assert "P5E" not in data["basis"]
-    assert coordination["status"] == "EXPERIMENTAL"
+    assert coordination["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5E" in coordination["basis"]
     assert any("punto" in item.lower() for item in coordination["limitations"])
 

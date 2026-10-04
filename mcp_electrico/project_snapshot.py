@@ -199,10 +199,12 @@ def construir_snapshot(
         "p7_status": {
             "phase": "P7",
             "milestone": "P7A_PROJECT_SNAPSHOT",
-            "maturity": "EXPERIMENTAL",
+            "maturity": validation['reproducible_project']['status'],
             "reconstruction_import": "NOT_IMPLEMENTED_P7A",
             "professional_report": "NOT_IMPLEMENTED_P7A",
             "engineering_preview_ready": False,
+            "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+            "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
             "professional_emission": False,
         },
     }
@@ -283,5 +285,7 @@ def exportar_snapshot(
         "hash": deepcopy(snapshot["hash"]),
         "verification": verification,
         "engineering_preview_ready": False,
+        "readiness_context": "COMPONENT_ONLY_NOT_PRODUCT_RELEASE",
+        "product_readiness_tool": "evaluar_cierre_p7d_engineering_preview",
         "professional_emission": False,
     }

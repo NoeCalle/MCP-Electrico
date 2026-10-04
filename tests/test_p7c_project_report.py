@@ -80,6 +80,20 @@ def test_p7c_html_is_print_ready_and_contains_no_engineering_javascript(tmp_path
     assert "browser_engineering_calculation" in html
 
 
+def test_p7c_preserves_historical_qualification_instead_of_live_promotion(tmp_path):
+    snapshot = _snapshot_with_current_and_historical_studies(tmp_path)
+    captured = snapshot['payload']['governance']['validation_matrix']['technical_report']
+    captured['status'] = 'EXPERIMENTAL'
+    captured.pop('qualification', None)
+    captured.pop('integration_verification', None)
+    snapshot['hash']['value'] = project_snapshot._digest(snapshot['payload'])
+    report = project_report.construir_reporte(snapshot)
+    assert report['ok']
+    assert report['data']['product_status']['p7c'] == 'EXPERIMENTAL'
+    assert not report['professional_emission']
+    assert report['product_readiness_tool'] == 'evaluar_cierre_p7d_engineering_preview'
+
+
 def test_p7c_tampered_snapshot_is_blocked_before_write(tmp_path):
     snapshot = _snapshot_with_current_and_historical_studies(tmp_path)
     tampered = deepcopy(snapshot)

@@ -6,15 +6,15 @@
 
 P4 suministra corrientes de falla dentro de sus alcances declarados. P5 construye encima de ellas datos de protección, datasets TCC, checks de capacidad de corte y conductor, tiempos finales de despeje, coordinación temporal puntual y representación V5.
 
-El cierre P5G es un **gate de fase funcional**, no una promoción artificial de madurez normativa. Los módulos P5 permanecen `EXPERIMENTAL` y `professional_emission=false`.
+El cierre P5G es un **gate de fase funcional**, no una promoción artificial de madurez normativa. Los módulos P5 están `VALIDATED_WITH_LIMITATIONS` tras la verificación Q1; `professional_emission=false` permanece. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
 
 ```text
-P5A  datos canónicos de protección          DONE / EXPERIMENTAL
-P5B  datasets numéricos / semántica TCC     DONE / EXPERIMENTAL
-P5C  capacidad de corte + conductor          DONE / EXPERIMENTAL
-P5D  tiempos de despeje                      DONE / EXPERIMENTAL
-P5E  coordinación temporal puntual           DONE / EXPERIMENTAL
-P5F  Workspace V5 / TCC                      DONE / EXPERIMENTAL
+P5A  datos canónicos de protección          DONE / VALIDATED_WITH_LIMITATIONS
+P5B  datasets numéricos / semántica TCC     DONE / VALIDATED_WITH_LIMITATIONS
+P5C  capacidad de corte + conductor          DONE / VALIDATED_WITH_LIMITATIONS
+P5D  tiempos de despeje                      DONE / VALIDATED_WITH_LIMITATIONS
+P5E  coordinación temporal puntual           DONE / VALIDATED_WITH_LIMITATIONS
+P5F  Workspace V5 / TCC                      DONE / VALIDATED_WITH_LIMITATIONS
 P5G  benchmarks + gate de uso                DONE
 
 P5 phase_status             = READY_WITH_LIMITATIONS
@@ -24,14 +24,14 @@ operational_path_ready      = true
 engineering_preview_ready   = false
 professional_emission       = false
 
-protection_data             = EXPERIMENTAL
-tcc_curve_evaluation        = EXPERIMENTAL
-protection_checks           = EXPERIMENTAL
-protection_clearing_time    = EXPERIMENTAL
-protection_coordination     = EXPERIMENTAL
+protection_data             = VALIDATED_WITH_LIMITATIONS
+tcc_curve_evaluation        = VALIDATED_WITH_LIMITATIONS
+protection_checks           = VALIDATED_WITH_LIMITATIONS
+protection_clearing_time    = VALIDATED_WITH_LIMITATIONS
+protection_coordination     = VALIDATED_WITH_LIMITATIONS
 ```
 
-`engineering_preview_ready=false` se mantiene hasta cerrar P7 mínimo de reproducibilidad/expediente.
+El bloque anterior conserva los campos del handoff histórico P5 hacia P7. Su `engineering_preview_ready=false` describe ese componente, no el producto actual: P7D ya está cerrado con limitaciones. Consultar `evaluar_cierre_p7d_engineering_preview`.
 
 ## Reglas permanentes
 
@@ -313,7 +313,7 @@ Implementado:
 - segmentos separados para preservar discontinuidades;
 - min/max de bandas como trazos independientes;
 - resultados P5 vigentes para la `model_revision` actual;
-- estado `EXPERIMENTAL · SIN EMISIÓN PROFESIONAL` visible;
+- estado `VERIFICADO EN ALCANCE P5 · SIN EMISIÓN PROFESIONAL` visible;
 - impresión/PDF compatible con la infraestructura existente.
 
 La transformación log-log de coordenadas del SVG ocurre en **Python**. El JavaScript V5 solo gestiona pestañas y selección del elemento protegido:

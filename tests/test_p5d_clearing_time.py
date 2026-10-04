@@ -128,10 +128,10 @@ def test_p5d_contract_and_validation_status_remain_separate_from_p5e():
     assert contract["clearing_ready_time_semantics"] == ["TOTAL_CLEARING_TIME"]
     assert contract["band_policy"]["average_band"] is False
     assert contract["p4_tk_s_consumed"] is False
-    assert clearing["status"] == "EXPERIMENTAL"
+    assert clearing["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5D" in clearing["basis"]
     assert "P5E" not in clearing["basis"]
-    assert coordination["status"] == "EXPERIMENTAL"
+    assert coordination["status"] == "VALIDATED_WITH_LIMITATIONS"
     assert "P5E" in coordination["basis"]
 
 

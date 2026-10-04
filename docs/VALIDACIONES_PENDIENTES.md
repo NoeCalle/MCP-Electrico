@@ -1,5 +1,12 @@
 # Validaciones pendientes — MCP Eléctrico
 
+## Cierre vigente de módulos — Q1, 3 de octubre de 2026
+
+Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
+
+**Prioridad actual:** cerrar las condiciones DOL y SCR del registro antes de ampliar estudios. Bancos estáticos, cinco componentes P5 y tres componentes P7 están verificados en sus alcances declarados. Arc Flash sigue diferido.
+
+
 Este documento registra validaciones que **no deben perderse del roadmap**, pero que actualmente no bloquean el uso interno de los módulos dentro de sus alcances matemáticos/técnicos declarados.
 
 La existencia de una validación pendiente impide elevar el resultado a una afirmación más fuerte de conformidad o emisión profesional cuando corresponda.

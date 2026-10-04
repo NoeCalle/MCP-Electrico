@@ -4,19 +4,19 @@
 
 P7 convierte los resultados técnicos ya disponibles en un proyecto que pueda **congelarse, verificarse, reconstruirse y revisarse** sin depender de memoria de conversación, rutas temporales o capturas manuales.
 
-P7 no cambia la madurez de P1–P5 ni habilita emisión profesional. Su finalidad inmediata es cerrar el blocker restante para **MCP Eléctrico 0.9 — Engineering Preview**.
+P7 no cambia la madurez de P1–P5 ni habilita emisión profesional. El gate P7D de **MCP Eléctrico 0.9 — Engineering Preview** está cerrado con limitaciones. Q1 verifica los componentes P7 dentro del alcance de snapshot, reconstrucción de netlist e informe determinista; ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
 
 ## Roadmap P7
 
 ```text
-P7A  snapshot canónico + SHA-256                DONE / EXPERIMENTAL
-P7B  reconstrucción verificable del netlist     DONE / EXPERIMENTAL
-P7C  resumen técnico HTML/PDF reproducible      DONE / EXPERIMENTAL
-P7D  gate mínimo Engineering Preview 0.9         NEXT / ACTIVE HANDOFF
+P7A  snapshot canónico + SHA-256                DONE / VALIDATED_WITH_LIMITATIONS
+P7B  reconstrucción verificable del netlist     DONE / VALIDATED_WITH_LIMITATIONS
+P7C  resumen técnico HTML/PDF reproducible      DONE / VALIDATED_WITH_LIMITATIONS
+P7D  gate mínimo Engineering Preview 0.9         DONE / READY_WITH_LIMITATIONS
 
 P6 IEEE 1584 = DEFERRED
 professional_emission = false
-engineering_preview_ready = false
+engineering_preview_ready = true
 ```
 
 # P7A — snapshot canónico del proyecto
@@ -25,7 +25,7 @@ Implementación:
 
 - `mcp_electrico.project_snapshot`;
 - `mcp_electrico.project_snapshot_tools`;
-- `validation_status.reproducible_project = EXPERIMENTAL`.
+- `validation_status.reproducible_project = VALIDATED_WITH_LIMITATIONS`.
 
 Schema:
 
@@ -107,7 +107,7 @@ CI demuestra:
 5. netlist por contenido y sin ruta temporal;
 6. timestamp Save Circuit canonizado sin alterar datos eléctricos;
 7. P2/P3/P5 + gobernanza presentes;
-8. `reproducible_project=EXPERIMENTAL`;
+8. `reproducible_project=VALIDATED_WITH_LIMITATIONS`;
 9. `professional_emission=false`.
 
 # P7B — reconstrucción verificable del netlist
@@ -116,7 +116,7 @@ Implementación:
 
 - `mcp_electrico.project_reconstruction`;
 - `mcp_electrico.project_reconstruction_tools`;
-- `validation_status.project_reconstruction = EXPERIMENTAL`.
+- `validation_status.project_reconstruction = VALIDATED_WITH_LIMITATIONS`.
 
 Schema:
 
@@ -232,7 +232,7 @@ Implementación:
 
 - `mcp_electrico.project_report`;
 - `mcp_electrico.project_report_tools`;
-- `validation_status.technical_report = EXPERIMENTAL`;
+- `validation_status.technical_report = VALIDATED_WITH_LIMITATIONS`;
 - `validation_status.professional_report = NOT_IMPLEMENTED`.
 
 Schema:
@@ -341,7 +341,7 @@ CI debe demostrar:
 6. marcador `NO APTO PARA EMISIÓN PROFESIONAL` visible;
 7. `BROWSER_PRINT` explícito;
 8. cero cálculo de ingeniería en navegador;
-9. `technical_report=EXPERIMENTAL`;
+9. `technical_report=VALIDATED_WITH_LIMITATIONS`;
 10. `professional_report=NOT_IMPLEMENTED`;
 11. `engineering_preview_ready=false`;
 12. `professional_emission=false`.
@@ -366,3 +366,7 @@ engineering_preview_ready = true
 ```
 
 Eso habilitará uso operativo interno controlado; no habilitará emisión profesional.
+
+## Flags de componente y estado del producto
+
+Los contratos P7A/P7C conservan por compatibilidad `engineering_preview_ready=false`: exportar un componente no concede habilitación al producto. El gate P7D devuelve la preparación actual del producto. La reconstrucción sigue limitada al netlist con re-vinculación de datos y recálculo; no restaura automáticamente el expediente completo. Un informe conserva la matriz de madurez capturada en su snapshot.

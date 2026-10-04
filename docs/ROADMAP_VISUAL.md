@@ -6,6 +6,19 @@ Mantener la evolución visual alineada con la evolución técnica. El workspace 
 
 Este roadmap complementa `docs/ROADMAP_PROFESIONAL.md`.
 
+## Prioridad Q1 — cierre técnico y claridad del estado
+
+El [registro de cierre de módulos](ESTADO_CIERRE_MODULOS.md) es la fuente de
+estados actuales. Las vistas deben distinguir verificación de integración,
+datos del proyecto, cumplimiento de criterios y aprobación del informe.
+El banner P5 identifica su alcance verificado; los informes P7 conservan la
+calificación capturada en el snapshot, incluso si el servidor cambia después.
+
+Antes de ampliar la visualización de nuevas dinámicas, cerrar los gates DOL/SCR.
+La siguiente mejora visual presentará esas condiciones pendientes y los motivos
+de resultados no evaluables junto al estudio. La verificación numérica de Q1
+no constituye una nueva regresión visual del navegador.
+
 ## Estado base ya conseguido
 
 La línea visual incluye:

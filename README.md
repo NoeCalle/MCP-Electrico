@@ -27,10 +27,14 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > explícitos; P13A–P13E incluyen motores estáticos, perfiles, secuencias y dossier.
 > P14A/P14B incluyen instalación y clientes MCP stdio/HTTP. IEC 60909,
 > ampacidad y coordinación/TCC existen dentro de sus alcances publicados.
-> P13F1–F5 ejecutan dinámica mecánica RMS trifásica DOL con calibración,
-> convergencia, energía y dossier reproducible. IEEE 1584 permanece diferido.
+> La física propia P13F/P13G está retirada. La dinámica usa componentes
+> OpenModelica/MSL: DOL y SCR están en verificación con condiciones de cierre
+> finitas. Bancos estáticos, P5 y P7 están verificados en su alcance Q1.
+> IEEE 1584 permanece diferido.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
+
+Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). La siguiente prioridad es cerrar la dinámica actual antes de ampliar funcionalidades.
 
 Consultar la [matriz completa de capacidades actuales](docs/MATRIZ_CAPACIDADES_ACTUALES.md)
 para distinguir la participación de OpenDSS, pandapower y los módulos propios,
@@ -39,10 +43,9 @@ ampliaciones de 2F-T y SCR sin modificar los contratos históricos del core.
 
 La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 `validar_datos_dinamica_motores` y `obtener_plan_validacion_dinamica_motores`.
-La ejecución usa un contrato adicional con opciones explícitas y genera
-trayectorias, gráficos y expediente. Ver [alcance RMS y validación](docs/P13F_MOTOR_DYNAMICS.md).
+La ejecución vigente usa el adaptador OpenModelica/MSL, datos explícitos y componentes nativos. Ver [migración](docs/MIGRACION_MODELOS_ABIERTOS.md) y [condiciones de cierre](docs/ESTADO_CIERRE_MODULOS.md). El contrato histórico propio no habilita su solver retirado.
 
-P13G añade [arranque suave aproximado SCR/RL](docs/P13G_SOFT_STARTING.md): rampa,
+La implementación histórica P13G, cuya física propia está retirada, documentó [arranque suave aproximado SCR/RL](docs/P13G_SOFT_STARTING.md): rampa,
 límite de corriente, aceleración y bypass de un motor, con criterios trazables
 y dossier. Es un equivalente por fase probado con referencias analíticas y
 numéricas; no está validado contra un arrancador real ni representa conmutación
@@ -57,7 +60,7 @@ dispositivo ni atribuir ese error al motor del proyecto.
 `contrastar_dinamica_con_modelica` añade el [contraste externo con motor](docs/P13G_MODELICA_REFERENCE.md).
 La biblioteca Modelica Standard Library 4.0.0 se ejecutó con OpenModelica 1.27.1:
 motor de inducción y tiristores trifásicos con parámetros sintéticos equivalentes.
-El SCR mostró discrepancias de corriente, par y aceleración bajo la misma
+El equivalente propio SCR, actualmente retirado, mostró discrepancias de corriente, par y aceleración bajo la misma
 secuencia de entradas; permanece sin cualificación de dispositivo. El MCP
 verifica el expediente y compara trazas; no ejecuta el simulador externo.
 
@@ -463,7 +466,7 @@ MCP-Electrico/
 - TCC y coordinación temporal requieren curvas y tiempos explícitos;
 - ATS/UPS pueden documentarse visualmente, pero aún no tienen modelo eléctrico
   detallado propio;
-- los bancos de capacitores estáticos tienen [adaptador OpenDSS experimental](docs/COMPENSACION_REACTIVA_OPENDSS.md)
+- los bancos de capacitores estáticos tienen [integración OpenDSS verificada en alcance estático](docs/COMPENSACION_REACTIVA_OPENDSS.md)
   por etapas explícitas en contexto aislado; no hay `LoadShape`, PV, Storage,
   control automático de bancos, armónicos ni simulación anual;
 - el modelo activo en memoria no se conserva al reiniciar; snapshots y dossiers
