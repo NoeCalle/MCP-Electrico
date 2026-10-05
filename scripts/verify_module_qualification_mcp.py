@@ -1,6 +1,6 @@
 """Public MCP closure evidence for qualified static banks, P5 and P7.
 
-This does not change MSL qualification; DOL is qualified and SCR has open gates.
+This does not run the MSL physical bank; it checks its published scoped closure.
 """
 import argparse
 import asyncio
