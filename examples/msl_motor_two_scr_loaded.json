@@ -1,0 +1,172 @@
+{
+  "schema": "MCP_ELECTRICO_MSL_MOTOR_STUDY_V1",
+  "id": "TWO-SCR-UNEQUAL-LOADED",
+  "source_reference": "Synthetic two-SCR integration qualification, not customer pump data",
+  "network": {
+    "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+    "kv_ll": 0.1,
+    "frequency_hz": 50,
+    "pu": 1.0,
+    "angle_deg": 0.0,
+    "r_ohm": 0.001,
+    "x_ohm": 0.0015,
+    "source_reference": "Explicit shared per-phase impedance for symmetry and integral KVL tests"
+  },
+  "simulation": {
+    "duration_s": 2.3,
+    "output_step_s": 1.25e-05,
+    "solver_tolerance": 1e-07,
+    "maximum_internal_step_s": 1.25e-05,
+    "time_refinement": "TOLERANCE_AND_MAX_STEP_REFINEMENT",
+    "timeout_s": 600,
+    "source_reference": "Numerical refinement after failed 25 us trial: nominal 12.5 us, refined 6.25 us, unchanged acceptance limits"
+  },
+  "motors": [
+    {
+      "id": "SCR-1",
+      "connection": "delta",
+      "source_reference": "MSL SoftStarter generic converter/control, delta machine",
+      "electrical": {
+        "pole_pairs": 2,
+        "stator_resistance_ohm": 0.03,
+        "rotor_resistance_ohm": 0.04,
+        "stator_leakage_inductance_h": 0.0003239643625499069,
+        "rotor_leakage_inductance_h": 0.0003239643625499069,
+        "magnetizing_inductance_h": 0.009225332222963813,
+        "zero_sequence_inductance_h": 0.0003239643625499069,
+        "temperature_k": 293.15,
+        "loss_model": "FIXED_RESISTANCES_NO_CORE_STRAY_THERMAL",
+        "source_reference": "MSL 4.0.0 original IM_SquirrelCageData/InductionMachineData per winding SI values; alpha20s=alpha20r=0"
+      },
+      "mechanical": {
+        "motor_inertia_kg_m2": 0.29,
+        "load_inertia_kg_m2": 0.29,
+        "damping_nm_s_rad": 0.01,
+        "load_curve": [
+          {
+            "speed_rad_s": -200,
+            "torque_nm": -20
+          },
+          {
+            "speed_rad_s": 0,
+            "torque_nm": 0
+          },
+          {
+            "speed_rad_s": 100,
+            "torque_nm": 5.0
+          },
+          {
+            "speed_rad_s": 200,
+            "torque_nm": 20
+          }
+        ],
+        "anti_reverse": "NONE",
+        "source_reference": "Explicit synthetic unequal piecewise load curves, damping and inertia; not customer pump data"
+      },
+      "starting": {
+        "method": "SCR",
+        "time_s": 0.1,
+        "controller": {
+          "rated_current_a": 173.20508075688772,
+          "maximum_current_pu": 2.5,
+          "resume_current_pu": 2.25,
+          "initial_voltage_pu": 0.4,
+          "ramp_up_s": 1.0,
+          "ramp_down_s": 1.0,
+          "current_filter_tau_s": 0.02,
+          "bypass_speed_fraction": 0.9,
+          "bypass_hold_s": 0.05,
+          "snubber_resistance_ohm": 100.0,
+          "snubber_capacitance_f": 1e-06,
+          "reference_acknowledgement": "MSL_REFERENCE_CONTROLLER_NOT_MANUFACTURER",
+          "source_reference": "Explicit generic MSL reference settings; native snubber/bypass added to original example"
+        }
+      },
+      "criteria": {
+        "target_speed_fraction": 0.9,
+        "maximum_acceleration_time_s": 2.1999999999999997,
+        "minimum_terminal_voltage_pu": 0.25,
+        "refinement_current_relative_tolerance": 0.001,
+        "refinement_speed_relative_tolerance": 0.001,
+        "refinement_time_absolute_tolerance_s": 0.001,
+        "source_reference": "Illustrative test acceptance, not normative minima",
+        "refinement_voltage_absolute_tolerance_pu": 0.001,
+        "refinement_torque_relative_tolerance": 0.001,
+        "refinement_bypass_time_absolute_tolerance_s": 0.001
+      }
+    },
+    {
+      "id": "SCR-2",
+      "connection": "delta",
+      "source_reference": "MSL SoftStarter generic converter/control, delta machine",
+      "electrical": {
+        "pole_pairs": 2,
+        "stator_resistance_ohm": 0.03,
+        "rotor_resistance_ohm": 0.04,
+        "stator_leakage_inductance_h": 0.0003239643625499069,
+        "rotor_leakage_inductance_h": 0.0003239643625499069,
+        "magnetizing_inductance_h": 0.009225332222963813,
+        "zero_sequence_inductance_h": 0.0003239643625499069,
+        "temperature_k": 293.15,
+        "loss_model": "FIXED_RESISTANCES_NO_CORE_STRAY_THERMAL",
+        "source_reference": "MSL 4.0.0 original IM_SquirrelCageData/InductionMachineData per winding SI values; alpha20s=alpha20r=0"
+      },
+      "mechanical": {
+        "motor_inertia_kg_m2": 0.29,
+        "load_inertia_kg_m2": 0.145,
+        "damping_nm_s_rad": 0.02,
+        "load_curve": [
+          {
+            "speed_rad_s": -200,
+            "torque_nm": -30
+          },
+          {
+            "speed_rad_s": 0,
+            "torque_nm": 0
+          },
+          {
+            "speed_rad_s": 100,
+            "torque_nm": 7.5
+          },
+          {
+            "speed_rad_s": 200,
+            "torque_nm": 30
+          }
+        ],
+        "anti_reverse": "NONE",
+        "source_reference": "Explicit synthetic unequal piecewise load curves, damping and inertia; not customer pump data"
+      },
+      "starting": {
+        "method": "SCR",
+        "time_s": 0.5,
+        "controller": {
+          "rated_current_a": 173.20508075688772,
+          "maximum_current_pu": 2.5,
+          "resume_current_pu": 2.25,
+          "initial_voltage_pu": 0.4,
+          "ramp_up_s": 1.0,
+          "ramp_down_s": 1.0,
+          "current_filter_tau_s": 0.02,
+          "bypass_speed_fraction": 0.9,
+          "bypass_hold_s": 0.05,
+          "snubber_resistance_ohm": 100.0,
+          "snubber_capacitance_f": 1e-06,
+          "reference_acknowledgement": "MSL_REFERENCE_CONTROLLER_NOT_MANUFACTURER",
+          "source_reference": "Explicit generic MSL reference settings; native snubber/bypass added to original example"
+        }
+      },
+      "criteria": {
+        "target_speed_fraction": 0.9,
+        "maximum_acceleration_time_s": 1.7999999999999998,
+        "minimum_terminal_voltage_pu": 0.25,
+        "refinement_current_relative_tolerance": 0.001,
+        "refinement_speed_relative_tolerance": 0.001,
+        "refinement_time_absolute_tolerance_s": 0.001,
+        "source_reference": "Illustrative test acceptance, not normative minima",
+        "refinement_voltage_absolute_tolerance_pu": 0.001,
+        "refinement_torque_relative_tolerance": 0.001,
+        "refinement_bypass_time_absolute_tolerance_s": 0.001
+      }
+    }
+  ]
+}

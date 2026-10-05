@@ -72,6 +72,10 @@ def test_dol_closure_is_independent_of_scr_and_full_network_route():
     assert scr_cap['integration_status']=='VERIFIED_SCOPED_ADAPTER_ONLY'
     assert scr_cap['scoped_adapter']['status']=='VALIDATED_WITH_LIMITATIONS'
     assert scr_cap['implemented'] is False
+    assert q.get('modelica_scr')['multimotor_qualification']['verification_status']==q.VERIFIED
+    assert q.get('modelica_scr')['multimotor_qualification']['maximum_motors']==2
+    assert 'ONE_OR_TWO_DELTA' in scr_cap['scoped_adapter']['scope']
+    assert contract['scr_multimotor_qualification']['verification_status']==q.VERIFIED
     assert not contract['professional_emission']
     for name in ['motor_dynamics_dol','motor_dynamics_simultaneous']:
         cap=engine_selection.obtener_capacidades_motores()['studies'][name]

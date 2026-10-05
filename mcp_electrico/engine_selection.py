@@ -141,9 +141,9 @@ CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "VE
 CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["scoped_adapter"] = {
     **deepcopy(CAPABILITY_MATRIX['motor_dynamics_dol']['scoped_adapter']),
     "status": "VALIDATED_WITH_LIMITATIONS",
-    "scope": "ONE_DELTA_MACHINE_BALANCED_COMMON_BUS_RL_MSL_REFERENCE_SCR",
+    "scope": "ONE_OR_TWO_DELTA_MACHINES_BALANCED_COMMON_BUS_RL_MSL_REFERENCE_SCR",
 }
-CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR verificado en alcance ejecuta una máquina delta, red RL y control MSL de referencia; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR verificado en alcance ejecuta una o dos máquinas delta, red RL común y controladores MSL independientes; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
 
 
 ALIASES = {

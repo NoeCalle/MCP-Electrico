@@ -1,6 +1,9 @@
 # Roadmap profesional — MCP Eléctrico
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q4
+
+**Ampliación Q5 (4 de octubre):** dos motores SCR delta sobre red RL común verificados mediante siete estudios, 50/60 Hz, cargas distintas y bypass independientes. Ver [alcance y evidencia](MSL_SCR_DOS_MOTORES.md). Más de dos SCR, mezcla DOL/SCR y estrella siguen fuera del alcance.
+
+## Confiabilidad técnica y responsabilidad del ingeniero — Q5
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -16,7 +19,7 @@ sería una mejora documental opcional y no una condición para verificar un solv
 Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
-## Cierre vigente de módulos — Q4, 4 de octubre de 2026
+## Cierre vigente de módulos — Q5, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
 
@@ -37,8 +40,8 @@ documentar una carencia de las soluciones disponibles. Ver
 
 **Migración actualizada el 2026-10-04:** física propia DOL/RK4 y SCR/RL retirada.
 Se integra ejecución DOL verificada en alcance OpenModelica/MSL para equivalente RL de
-barra común, incluido caso de dos motores. SCR de una máquina delta/red RL/control
-MSL tiene cierre Q4 de SCR01–SCR03 en el alcance genérico de una máquina delta. Fabricante corresponde a datos del proyecto; estrella y multimotor son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
+barra común, incluido caso de dos motores. SCR de una o dos máquinas delta/red RL/control
+MSL conserva el cierre Q4 original y amplía en Q5 a dos máquinas delta. Fabricante corresponde a datos del proyecto; estrella, más de dos SCR y DOL/SCR son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
 vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Mapa maestro — orden de ejecución
@@ -62,7 +65,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL VERIFICADO EN ALCANCE** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
-| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR VERIFICADO EN ALCANCE** | una máquina delta/red RL/control y bypass MSL; SCR01–SCR03 cerrados en Q4; estrella/multimotor son ampliaciones excluidas |
+| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR VERIFICADO EN ALCANCE** | una o dos máquinas delta/red RL común/controles y bypass MSL; Q4/Q5 cerrados; estrella, más de dos SCR y DOL/SCR excluidos |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 | Bancos y compensación reactiva | **INTEGRACIÓN VERIFICADA EN ALCANCE ESTÁTICO** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
 
@@ -71,7 +74,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 **Alcance local vigente tras el retiro:** la baseline estática conserva su
 disponibilidad y V7.1 su navegación/láminas. La dinámica DOL tiene reemplazo MSL
 verificado en alcance de equivalente RL (DOL01–DOL03 cerrados). SCR está
-disponible en su alcance experimental; bancos estáticos tienen integración OpenDSS verificada en el alcance declarado
+disponible en su alcance verificado; bancos estáticos tienen integración OpenDSS verificada en el alcance declarado
 ([alcance y evidencia](COMPENSACION_REACTIVA_OPENDSS.md)); armónicos y perfiles siguen pendientes. Arc Flash
 continúa diferido. No se declara cierre de todas las necesidades habituales.
 
@@ -95,7 +98,7 @@ P12 = CLOSED_FOUNDATION_P12A_TO_P12F
 P13 = CLOSED_STATIC_P13A_TO_P13E
 P13F1 = PHYSICAL_INPUT_PREPARATION_COMPLETE
 P13F2_TO_F5 = RETIRED_CUSTOM_BACKEND_MSL_DOL_VERIFIED_IN_SCOPE
-P13G = RETIRED_CUSTOM_BACKEND_MSL_SCR_SINGLE_DELTA_EXPERIMENTAL
+P13G = RETIRED_CUSTOM_BACKEND_MSL_SCR_ONE_OR_TWO_DELTA_VERIFIED_IN_SCOPE
 P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_RECORDED
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE

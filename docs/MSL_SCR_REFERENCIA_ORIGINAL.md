@@ -60,7 +60,7 @@ Tras configurar el runtime local del MCP:
 
 `--first-only` ejecuta el caso base; `--cases phase-positive inertia` selecciona casos concretos. Cada salida usa un directorio nuevo. Un caso fallido conserva sus comparaciones y llamadas MCP, y no genera una evidencia global aprobada.
 
-El alcance sigue siendo controlador genérico MSL y una máquina delta con parámetros explícitos. Las variantes de fabricante, estrella, multimotor SCR y traducción automática de todo el unifilar requieren pruebas distintas. La revisión y aprobación del estudio corresponden al ingeniero.
+El alcance del banco original Q4 es controlador genérico MSL y una máquina delta con parámetros explícitos. Las variantes de fabricante, estrella, multimotor SCR y traducción automática de todo el unifilar requieren pruebas distintas. La revisión y aprobación del estudio corresponden al ingeniero.
 
 ## Resultado del banco completo — Q4
 
@@ -80,3 +80,5 @@ Los casos de mayor inercia y menor tensión inicial necesitaron pasos nominal/re
 La evidencia compacta, hashes y parámetros están en `mcp_electrico/data/msl_scr_native_evidence_v1.json`. Los CSV y logs originales se conservan en el expediente local. Las tres regresiones RL publicadas en Q3 y la referencia resistiva complementan este contraste con fuente ideal. No se modificó la física del adaptador al cerrar estos gates.
 
 Los hashes de bytes conservan la procedencia de las ejecuciones. CI comprueba además hashes del mismo texto con finales de línea LF, para admitir los checkouts CRLF de Windows y LF de Linux sin ocultar cambios de código.
+
+La ampliación Q5 a dos motores tiene su [banco adicional](MSL_SCR_DOS_MOTORES.md). Los hashes originales Q4 se conservan como procedencia; las secciones de construcción, ejecución y postproceso del adaptador siguen idénticas y sus hashes se comprueban aparte. Solo se amplía el contrato y la admisión.
