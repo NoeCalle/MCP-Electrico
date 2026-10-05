@@ -17,6 +17,7 @@ LABELS = {
 
 def render(data):
     dol_closed = data['modules']['modelica_dol']['verification_status'] == 'VERIFIED_IN_SCOPE'
+    scr_closed = data['modules']['modelica_scr']['verification_status'] == 'VERIFIED_IN_SCOPE'
     lines = [
         '# Estado de cierre de módulos', '',
         f"Revisión: **{data['revision']}**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.", '',
@@ -35,7 +36,7 @@ def render(data):
         clean = lambda value: str(value).replace('|', '/').replace('\n', ' ')
         lines.append(f"| `{name}` | {clean(item['engine'])} | {LABELS.get(item['verification_status'], item['verification_status'])} | {clean(item['scope'])} |")
     lines += ['', '## Condiciones finitas pendientes', '',
-              ('DOL está verificado en el alcance documentado; SCR conserva `IN_VERIFICATION` con las condiciones siguientes.' if dol_closed else 'La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, pero todavía falta cerrar las condiciones siguientes.') + ' La instalación de MSL no basta para aprobar un adaptador. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.', '']
+              ('DOL y SCR están verificados dentro de sus alcances documentados.' if dol_closed and scr_closed else 'DOL está verificado en el alcance documentado; SCR conserva `IN_VERIFICATION` con las condiciones siguientes.' if dol_closed else 'La dinámica DOL y SCR conserva `IN_VERIFICATION`: hay ejecuciones sintéticas, pero todavía falta cerrar las condiciones siguientes.') + ' La instalación de MSL no basta para aprobar un adaptador. El motor alternativo pandapower de flujo tampoco bloquea el alcance ya comprobado del motor principal OpenDSS.', '']
     for name, item in data['modules'].items():
         if not item['closure_gates']:
             continue

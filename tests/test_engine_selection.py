@@ -116,7 +116,7 @@ def test_external_routes_cannot_be_promoted_by_model_or_opt_in(study, expected, 
     assert result["selected_engine"] == expected
     assert result["planning_only"] is True
     scoped_status={
-        'motor_dynamics_soft_starter_scr':'EXPERIMENTAL_SCOPED_ADAPTER_ONLY',
+        'motor_dynamics_soft_starter_scr':'VERIFIED_SCOPED_ADAPTER_ONLY',
         'motor_dynamics_dol':'VERIFIED_SCOPED_ADAPTER_ONLY',
         'motor_dynamics_simultaneous':'VERIFIED_SCOPED_ADAPTER_ONLY',
     }

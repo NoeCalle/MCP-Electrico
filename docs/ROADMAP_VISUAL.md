@@ -14,7 +14,7 @@ datos del proyecto, cumplimiento de criterios y aprobación del informe.
 El banner P5 identifica su alcance verificado; los informes P7 conservan la
 calificación capturada en el snapshot, incluso si el servidor cambia después.
 
-DOL01–DOL03 están cerrados en Q2. Presentar su alcance verificado separado del SCR, cuyos gates siguen pendientes. Antes de ampliar nuevas dinámicas, cerrar SCR01–SCR03.
+DOL01–DOL03 están cerrados en Q2 y SCR01–SCR03 en Q4. Presentar los alcances verificados y sus exclusiones; las nuevas topologías requieren pruebas específicas.
 La siguiente mejora visual presentará esas condiciones pendientes y los motivos
 de resultados no evaluables junto al estudio. La verificación numérica de Q1
 no constituye una nueva regresión visual del navegador.

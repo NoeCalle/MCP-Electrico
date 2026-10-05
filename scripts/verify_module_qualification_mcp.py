@@ -1,6 +1,6 @@
 """Public MCP closure evidence for qualified static banks, P5 and P7.
 
-This does not change MSL qualification; DOL is qualified and SCR has open gates.
+This does not run the MSL physical bank; it checks its published scoped closure.
 """
 import argparse
 import asyncio
@@ -41,7 +41,8 @@ async def verify(output):
                 for name in ['reactive_compensation','protection_data','tcc_curve_evaluation','protection_checks','protection_clearing_time','protection_coordination','reproducible_project','project_reconstruction','technical_report']:
                     assert closure['modules'][name]['verification_status']=='VERIFIED_IN_SCOPE'
                     assert maturity[name]['status']=='VALIDATED_WITH_LIMITATIONS'
-                assert closure['modules']['modelica_scr']['closure_gates']
+                assert closure['modules']['modelica_scr']['verification_status']=='VERIFIED_IN_SCOPE'
+                assert {g['id'] for g in closure['modules']['modelica_scr']['completed_closure_gates']}=={'SCR01','SCR02','SCR03'}
                 template=json.loads((ROOT/'examples/reactive_compensation_stage1.json').read_text(encoding='utf8'))
                 template['options']['allow_experimental']=False
                 template['banks'].append(dict(id='hv_bank',bus='utility_13k8',phases=3,kv_ll=13.8,connection='wye',steps_kvar=[20,35],model='IDEAL_NO_REACTOR_NO_LOSSES',source_reference='CONTROLLED_NATIVE_REFERENCE'))

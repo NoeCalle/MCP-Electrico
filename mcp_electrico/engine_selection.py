@@ -137,13 +137,13 @@ for _study in ("motor_dynamics_dol", "motor_dynamics_simultaneous"):
     }
     CAPABILITY_MATRIX[_study]["integration_status"] = "VERIFIED_SCOPED_ADAPTER_ONLY"
     CAPABILITY_MATRIX[_study]["reason"] += " Existe un adaptador MCP DOL verificado en alcance de equivalente RL de barra común; exige su propio paquete explícito y no habilita traducción automática del unifilar."
-CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "EXPERIMENTAL_SCOPED_ADAPTER_ONLY"
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "VERIFIED_SCOPED_ADAPTER_ONLY"
 CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["scoped_adapter"] = {
     **deepcopy(CAPABILITY_MATRIX['motor_dynamics_dol']['scoped_adapter']),
-    "status": "EXPERIMENTAL",
+    "status": "VALIDATED_WITH_LIMITATIONS",
     "scope": "ONE_DELTA_MACHINE_BALANCED_COMMON_BUS_RL_MSL_REFERENCE_SCR",
 }
-CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR experimental ejecuta una máquina delta, red RL y control MSL de referencia; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR verificado en alcance ejecuta una máquina delta, red RL y control MSL de referencia; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
 
 
 ALIASES = {

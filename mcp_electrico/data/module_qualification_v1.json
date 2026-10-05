@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q3_RELIABILITY_2026_10_04",
+  "revision": "Q4_SCR_NATIVE_2026_10_04",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -414,32 +414,19 @@
     },
     "modelica_scr": {
       "engine": "OpenModelica/MSL",
-      "verification_status": "IN_VERIFICATION",
-      "scope": "Una máquina delta y controlador MSL genérico; evidencia sintética",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Una máquina delta, equivalente RL equilibrado, control genérico MSL y disparo referido a fuente sinusoidal; nueve casos sintéticos",
       "evidence": [
         "scripts/verify_msl_scr_mcp.py",
         "scripts/verify_msl_triac_reference.py",
         "docs/MSL_SCR_VERIFICACION.md",
         "scripts/verify_msl_scr_solver_profiles.py",
-        "tests/test_modelica_motor_adapter.py"
-      ],
-      "closure_gates": [
-        {
-          "id": "SCR01",
-          "acceptance": "Cerrar perfil numérico reproducible y robustez de inicialización/eventos sobre rango declarado; justificar o sustituir el solver algebraico prototipo",
-          "status": "PENDING",
-          "progress": "Q3: DASSL/Newton completa tres casos nominales/refinados mediante MCP; KINSOL completa 0.2 s y falla al cierre del bypass en 5 s; alternativas acotadas sin perfil sustituto aprobado. Se conservan etapa, logs y resultados parciales solo como diagnóstico."
-        },
-        {
-          "id": "SCR02",
-          "acceptance": "Contrastar circuito/control completo contra ejemplo MSL original con métricas y tolerancias prefijadas",
-          "status": "PENDING"
-        },
-        {
-          "id": "SCR03",
-          "acceptance": "Verificar referencia de disparo y alcance admitido; mantener bloqueadas estrella y multimáquina hasta pruebas específicas",
-          "status": "PENDING"
-        }
+        "tests/test_modelica_motor_adapter.py",
+        "scripts/msl_scr_native_reference.py",
+        "scripts/verify_msl_scr_native_mcp.py",
+        "scripts/check_msl_scr_trace.py",
+        "mcp_electrico/data/msl_scr_native_evidence_v1.json",
+        "docs/MSL_SCR_REFERENCIA_ORIGINAL.md"
       ],
       "excluded_extensions": [
         "Reproducción de control de fabricante; SCR estrella/multimotor"
@@ -448,7 +435,76 @@
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "ENGINEER_RESPONSIBILITY"
+      "report_approval": "ENGINEER_RESPONSIBILITY",
+      "closure_gates": [],
+      "completed_closure_gates": [
+        {
+          "id": "SCR01",
+          "acceptance": "Cerrar perfil numérico reproducible y robustez de inicialización/eventos sobre rango declarado; justificar o sustituir el solver algebraico prototipo",
+          "status": "PASSED",
+          "evidence": [
+            "scripts/msl_scr_native_reference.py",
+            "scripts/verify_msl_scr_native_mcp.py",
+            "scripts/check_msl_scr_trace.py",
+            "mcp_electrico/data/msl_scr_native_evidence_v1.json",
+            "docs/MSL_SCR_REFERENCIA_ORIGINAL.md",
+            "scripts/verify_msl_scr_mcp.py"
+          ],
+          "basis": "Perfil DASSL/Newton fijado: seis casos originales más tres casos RL MCP nominales/refinados; cierre de bypass, caso sin aceleración y diagnóstico de timeout. Alternativas no aprobadas siguen sin fallback."
+        },
+        {
+          "id": "SCR02",
+          "acceptance": "Contrastar circuito/control completo contra ejemplo MSL original con métricas y tolerancias prefijadas",
+          "status": "PASSED",
+          "evidence": [
+            "scripts/msl_scr_native_reference.py",
+            "scripts/verify_msl_scr_native_mcp.py",
+            "scripts/check_msl_scr_trace.py",
+            "mcp_electrico/data/msl_scr_native_evidence_v1.json",
+            "docs/MSL_SCR_REFERENCIA_ORIGINAL.md",
+            "scripts/verify_msl_scr_mcp.py"
+          ],
+          "basis": "Seis contrastes con SoftStarter original y máquina FundamentalWave, siete métricas prefijadas, cuadratura independiente y balance de energía. Filtro nativo normalizado=false comprobado antes de cada ensayo."
+        },
+        {
+          "id": "SCR03",
+          "acceptance": "Verificar referencia de disparo y alcance admitido; mantener bloqueadas estrella y multimáquina hasta pruebas específicas",
+          "status": "PASSED",
+          "evidence": [
+            "scripts/msl_scr_native_reference.py",
+            "scripts/verify_msl_scr_native_mcp.py",
+            "scripts/check_msl_scr_trace.py",
+            "mcp_electrico/data/msl_scr_native_evidence_v1.json",
+            "docs/MSL_SCR_REFERENCIA_ORIGINAL.md",
+            "scripts/verify_msl_scr_mcp.py"
+          ],
+          "basis": "Fases 0,+15,-27 grados y frecuencias 50/60 Hz; referencia sinusoidal aguas arriba, prueba resistiva independiente, retención del bypass y bloqueos estrella/multimotor."
+        }
+      ],
+      "numerical_profile": {
+        "integrator": "DASSL",
+        "nonlinear_solver": "newton",
+        "runtime_description": "prototype",
+        "scope_verification": "QUANTITATIVE_DECLARED_CASES_WITH_MANDATORY_PER_STUDY_REFINEMENT",
+        "automatic_fallback": false
+      },
+      "verification_envelope": {
+        "native_cases": [
+          "base",
+          "phase-negative",
+          "phase-positive",
+          "frequency-60",
+          "inertia",
+          "initial-voltage"
+        ],
+        "previous_rl_cases": [
+          "scr",
+          "scr_50hz",
+          "scr_unreachable"
+        ],
+        "not_all_combinations_qualified": true,
+        "per_study_refinement_required": true
+      }
     },
     "harmonics": {
       "engine": "OpenDSS",

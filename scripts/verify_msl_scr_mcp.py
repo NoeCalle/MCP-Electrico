@@ -1,4 +1,4 @@
-"""Execute closed-network SCR tests via MCP, with explicit experimental scope.
+"""Execute closed-network SCR tests via MCP, with explicit verified scope.
 
 The isolated converter oracle uses a known resistive phase-angle integral,
 only for verification. It is not a motor/network production backend.
@@ -70,7 +70,7 @@ async def run(output):
                     cases[tag]={k:v for k,v in motor.items() if k!='trajectory'}
                     print(json.dumps({'case':tag,**cases[tag]}),flush=True)
     save('Calls.json',calls)
-    save('Summary.json',{'transport':'MCP_STDIO','calls':len(calls),'physical_cases':len(cases),'cases':cases,'scope':'EXPERIMENTAL_ONE_DELTA_MACHINE_RL_NETWORK_MSL_REFERENCE_CONTROLLER','manufacturer_qualified':False,'professional_emission':False,'deliberate_timeout_correctly_diagnosed':True,'study_approval_responsibility':'ENGINEER'})
+    save('Summary.json',{'transport':'MCP_STDIO','calls':len(calls),'physical_cases':len(cases),'cases':cases,'scope':'ONE_DELTA_MACHINE_RL_NETWORK_MSL_REFERENCE_CONTROLLER','verification_status':qualification['modules']['modelica_scr']['verification_status'],'qualification_revision':qualification['revision'],'manufacturer_qualified':False,'professional_emission':False,'deliberate_timeout_correctly_diagnosed':True,'study_approval_responsibility':'ENGINEER'})
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True)
