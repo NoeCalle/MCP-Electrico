@@ -22,6 +22,7 @@ def render(data):
         '# Estado de cierre de módulos', '',
         f"Revisión: **{data['revision']}**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.", '',
         'Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.', '',
+        f"**Resumen:** {sum(item['verification_status'] == 'VERIFIED_IN_SCOPE' for item in data['modules'].values())} módulos verificados en alcance; {sum(item['verification_status'] == 'IN_VERIFICATION' for item in data['modules'].values())} en verificación; {sum(item['verification_status'] == 'NOT_IMPLEMENTED' for item in data['modules'].values())} pendientes de integración. Ver [estado actual y prioridades](ESTADO_ACTUAL.md).", '',
         '## Qué se cierra', '',
         'Se cierra la integración dentro del alcance demostrado por las pruebas citadas. El respaldo del motor abierto no comprueba por sí solo las unidades, conexiones, traducción de datos y lectura de resultados del adaptador MCP.', '',
         'Los seis estados se evalúan por separado: verificación de integración, alcance soportado, preparación de datos del proyecto, criterios de diseño, conformidad normativa y aprobación del informe. Un módulo verificado puede recibir un proyecto incompleto o calcular un diseño que incumple sus criterios.', '',
@@ -57,9 +58,9 @@ def render(data):
     lines += ['## Orden del roadmap', '',
               '1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.' if dol_closed else '1. Cerrar DOL con referencia MSL original, convenciones de máquina y regresión reproducible del alcance admitido.',
               '2. Conservar la regresión SCR y el alcance de máquinas/controladores indicado en el registro; ampliar otras conexiones y configuraciones solo después de sus pruebas.' if scr_closed else '2. Cerrar SCR: inicialización y eventos, referencia completa y control admitido.',
-              '3. Revisar el flujo alternativo pandapower solo si una necesidad concreta justifica su alcance. Mantener OpenDSS como ruta principal ya comprobada.',
-              '4. Después de esos cierres, integrar armónicos/perfiles/relés que falten usando motores existentes, sin duplicar solvers suficientes.',
-              '5. Mejorar la presentación y realizar pilotos con datos reales y criterios acordados. Arc Flash continúa diferido.', '',
+              '3. Integrar armónicos, después perfiles temporales con OpenDSS y actuación de relés con pandapower; cerrar cada adaptador con datos, ejecución MCP y contraste reproducible.',
+              '4. Mejorar gráficos/informes y realizar estudios con datos reales y criterios acordados. Arc Flash continúa diferido.',
+              '5. El flujo alternativo pandapower permanece en verificación; ampliarlo solo si una necesidad concreta justifica su alcance, manteniendo OpenDSS como ruta principal ya comprobada.', '',
               'Una ficha de fabricante o la validación de un proyecto se exige al usar ese equipo; no es condición interminable para cerrar toda integración genérica. Los criterios se acuerdan por estudio y no se inventan mínimos normativos universales.', '']
     return '\n'.join(lines)
 

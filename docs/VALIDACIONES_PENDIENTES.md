@@ -12,7 +12,7 @@ Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, e
 
 Este documento registra validaciones que **no deben perderse del roadmap**, pero que actualmente no bloquean el uso interno de los módulos dentro de sus alcances matemáticos/técnicos declarados.
 
-La existencia de una validación pendiente impide elevar el resultado a una afirmación más fuerte de conformidad o emisión profesional cuando corresponda.
+Las validaciones pendientes limitan las afirmaciones de conformidad y el alcance técnico demostrable. La revisión, aprobación y firma del ingeniero no son un módulo de software pendiente. P5 está verificado dentro del alcance Q1 publicado; los pendientes siguientes no reabren ese alcance.
 
 ## VP-IEC-01 — IEC 60909-0:2026 completa
 
@@ -47,11 +47,11 @@ Pendiente comparar una subestación reproducible contra una referencia externa i
 
 El benchmark matricial interno ya evita una comparación circular del algoritmo, pero no sustituye este contraste externo.
 
-## VP-2FT-03 — revisión profesional
+## VP-2FT-03 — revisión del estudio por el ingeniero
 
-**Estado:** `PENDING_PROFESSIONAL_REVIEW`
+**Estado:** `ENGINEER_RESPONSIBILITY_PER_STUDY`
 
-Antes de habilitar emisión profesional de 2F-T debe revisarse al menos:
+Responsabilidad externa al software. Para usar un resultado 2F-T en un estudio, el ingeniero revisa al menos:
 
 - topología y escenario MAX/MIN;
 - `Z1/Z2/Z0` de la misma revisión del modelo;
@@ -125,10 +125,11 @@ external_reference_case = PENDING
 professional_emission   = false
 ```
 
-P5C puede utilizarse internamente bajo el estado:
+P5C conserva el alcance matemático verificado Q1 (entradas explícitas y procedencia), con:
 
 ```text
-protection_checks              = EXPERIMENTAL
+protection_checks              = VALIDATED_WITH_LIMITATIONS
+integration_verification        = VERIFIED_IN_SCOPE
 full_standard_compliance_claim = false
 professional_emission          = false
 ```

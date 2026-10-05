@@ -38,7 +38,8 @@ estudio; usar el motor integrado suficiente; retirar física propia duplicada.
 
 Ejemplos: `examples/msl_motor_dol.json`, `msl_motor_two.json`,
 `msl_motor_locked_rotor.json`, `msl_motor_scr.json`,
-`msl_motor_scr_unreachable.json`, `msl_motor_scr_50hz.json`. Son datos sintéticos;
+`msl_motor_scr_unreachable.json`, `msl_motor_scr_50hz.json`, `msl_motor_two_scr.json`,
+`msl_motor_two_scr_60hz.json` y `msl_motor_two_scr_loaded.json`. Son datos sintéticos;
 no describen M1/M2. SCR exige además tolerancias de refinamiento de tensión,
 par y tiempo de bypass explícitas.
 
@@ -99,8 +100,8 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 
 ## Orden de cierre
 
-1. DOL01–DOL03 y SCR01–SCR03 cerrados: mantener ambas regresiones y los alcances del [registro de cierre](ESTADO_CIERRE_MODULOS.md). Las fichas del equipo son datos del proyecto; no recuperar física propia.
-2. Bancos estáticos verificados en alcance. Tras cerrar SCR, ampliar armónicos y perfiles con OpenDSS, verificando cada estudio mediante MCP y referencias independientes. La ampliación no reabre el alcance estático cerrado.
+1. DOL01–DOL03, SCR01–SCR03 y TWO_SCR01–TWO_SCR02 cerrados: mantener ambas regresiones y los alcances del [registro de cierre](ESTADO_CIERRE_MODULOS.md). Las fichas del equipo son datos del proyecto; no recuperar física propia.
+2. Bancos estáticos verificados en alcance. Ampliar armónicos y perfiles con OpenDSS, verificando cada estudio mediante MCP y referencias independientes. La ampliación no reabre el alcance estático cerrado.
 3. Integrar actuación de relés con pandapower y conservar datos de clearing.
 4. Completar datos/benchmarks de uso industrial, informes y mejoras visuales.
 5. Investigar las carencias restantes (p. ej. malla de tierra) antes de agregar

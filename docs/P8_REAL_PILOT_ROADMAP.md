@@ -1,5 +1,7 @@
 # P8 — Roadmap del primer piloto real
 
+**Documento del cierre histórico P8.** La capacidad vigente, prioridades y responsabilidad de firma se consultan en [estado actual Q5](ESTADO_ACTUAL.md). `professional_emission=false` describe ausencia de aprobación automática y no prohíbe revisión, uso o firma por el ingeniero.
+
 P8 demuestra y endurece la transición de MCP Eléctrico 0.9 desde módulos validados por separado hacia una ruta completa para **uso real controlado bajo Engineering Preview**.
 
 P8 queda cerrado sin ampliar el alcance profesional declarado. `professional_emission=false` permanece obligatorio.
@@ -295,7 +297,8 @@ Checklist legible: `docs/P8_CONTROLLED_REAL_USE_CHECKLIST.md`.
 
 ```text
 OpenDSS = motor por defecto
-pandapower = IEC 60909 explícito/experimental
+pandapower = IEC 60909 explícito, verificado en alcance P4-v1
+OpenModelica/MSL = DOL y SCR verificados en alcances publicados
 MCP = ampacidad/protección y gobernanza
 ```
 

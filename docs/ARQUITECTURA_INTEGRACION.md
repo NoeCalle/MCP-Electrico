@@ -1,5 +1,7 @@
 # Arquitectura: integrar herramientas existentes
 
+**Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
+
 ## Decisión del usuario
 
 MCP Eléctrico permite al usuario pedir estudios en lenguaje natural. El cliente
@@ -53,7 +55,7 @@ esta decisión de arquitectura.
 |---|---|---|
 | Flujo de carga y operación de red | OpenDSS | Integración existente; mantener como motor principal dentro de su alcance. |
 | Cortocircuito IEC 60909 | pandapower | Integración existente; revisar por separado extensiones propias y documentar cualquier carencia del motor. |
-| Dinámica de motor y arranque SCR | OpenModelica + Modelica Standard Library | Adaptador MCP experimental disponible para equivalente RL explícito: DOL y SCR de una máquina delta. Calificación de fabricante y traducción de redes completas pendientes. |
+| Dinámica de motor y arranque SCR | OpenModelica + Modelica Standard Library | Adaptador MCP verificado para equivalente RL explícito: DOL y SCR de una/dos máquinas delta con controles independientes. Datos y contraste de fabricante se revisan por proyecto; traducción de redes completas excluida. |
 | Otras funciones pendientes | Por evaluar para cada estudio | Buscar y probar herramientas existentes antes de crear cálculos nuevos. |
 
 **OpenModelica está integrado mediante `ejecutar_dinamica_modelica`.**
@@ -61,32 +63,30 @@ El contrato delimita los componentes, topologías y datos admitidos.
 `contrastar_dinamica_con_modelica` conserva su función histórica de comparación
 de trazas; esa comparación no sustituye la nueva ejecución de red/control.
 
-## Corrección del trabajo de motores
+## Corrección del trabajo de motores — completada
 
-1. Detener la ampliación de los modelos físicos propios DOL/SCR como ruta principal.
-2. Mantener los resultados y contrastes existentes como evidencia histórica y regresión.
-3. Crear un adaptador de ejecución para los componentes existentes de Modelica:
-   datos del usuario, conexiones, configuración, ejecución y lectura de resultados.
-4. Probar arranque directo y SCR mediante llamadas MCP reales al motor externo,
-   declarando los parámetros del motor, la carga y el controlador.
-5. Definir cómo representar la red y verificar el estudio completo. La reproducción
-   de amplitud/ángulos y el bypass impuesto de la comparación anterior no cubren
-   esa integración ni la realimentación del controlador.
-6. Después de verificar el reemplazo, migrar las herramientas de estudio y marcar
-   la ruta propia anterior como histórica o retirarla con una transición explícita.
+1. Física propia DOL/RK4 y SCR/RL retirada; las entradas antiguas se rechazan sin fallback.
+2. Expedientes y contrastes antiguos conservados como antecedentes, no como ejecución vigente.
+3. Adaptador `ejecutar_dinamica_modelica` disponible: entradas explícitas, conexiones de componentes MSL y lectura de resultados.
+4. DOL01–DOL03 cerrados en Q2; SCR01–SCR03 cerrados en Q4.
+5. TWO_SCR01–TWO_SCR02 cerrados en Q5: dos ramas sobre red común, controles/bypass independientes y arranque simultáneo/escalonado a 50/60 Hz.
 
-Los cierres y capacidades publicados describen el código existente. No se
-reclasifican como una integración externa ya completada. El siguiente trabajo es completar calificación industrial y las funciones
-habituales de OpenDSS pendientes, manteniendo las rutas físicas propias retiradas.
+La verificación incluye referencias originales MSL, refinamiento por estudio,
+interacción red/máquinas, balances y rechazo de ejecuciones incompletas.
+[Detalle DOL](MSL_DOL_VERIFICACION.md), [SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md)
+y [dos SCR](MSL_SCR_DOS_MOTORES.md).
+
+El siguiente trabajo integra armónicos y perfiles con OpenDSS, actuación de
+relés con pandapower y mejoras de informes/visualización. Se mantienen las
+regresiones cerradas y una ruta principal por estudio.
 
 Arc Flash permanece diferido por instrucción del usuario.
 
-## Actualización de ejecución y retiro — 2026-10-03
+## Alcance vigente de ejecución — 2026-10-04
 
-Física propia DOL/RK4 y SCR/RL retirada. El adaptador MCP experimental MSL
-ejecuta DOL y SCR de una máquina delta sobre equivalente RL común. El control
-SCR es el de referencia de MSL, con bypass automático; no es un dispositivo de
-fabricante. SCR multimotor y conexión estrella permanecen bloqueados.
-La recomendación del catálogo no habilita la traducción automática del unifilar
-completo. Ver [migración](MIGRACION_MODELOS_ABIERTOS.md) y
-[verificación SCR](MSL_SCR_VERIFICACION.md).
+OpenModelica 1.27.1 y MSL 4.0.0 fijados por hashes. La ejecución usa un
+equivalente RL común equilibrado, datos SI y curva mecánica explícita.
+SCR admite una/dos máquinas delta y el controlador de referencia MSL.
+Más de dos SCR, mezclas DOL/SCR, estrella y traducción automática del unifilar
+permanecen excluidos. No se añade una física sustituta para solicitudes excluidas.
+Ver [migración](MIGRACION_MODELOS_ABIERTOS.md) y [estado actual](ESTADO_ACTUAL.md).

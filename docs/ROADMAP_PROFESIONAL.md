@@ -1,6 +1,8 @@
 # Roadmap profesional — MCP Eléctrico
 
 
+Consultar primero el [estado actual y próximos pasos](ESTADO_ACTUAL.md).
+
 **Ampliación Q5 (4 de octubre):** dos motores SCR delta sobre red RL común verificados mediante siete estudios, 50/60 Hz, cargas distintas y bypass independientes. Ver [alcance y evidencia](MSL_SCR_DOS_MOTORES.md). Más de dos SCR, mezcla DOL/SCR y estrella siguen fuera del alcance.
 
 ## Confiabilidad técnica y responsabilidad del ingeniero — Q5
@@ -103,7 +105,7 @@ P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = INTEGRATE_OPENDSS_CAPACITOR_HARMONIC_TIME_SERIES_TOOLS
+next_activity = INTEGRATE_OPENDSS_HARMONICS_THEN_TIME_SERIES_AND_OCRELAY
 
 professional_report = false
 professional_emission = false
@@ -116,8 +118,7 @@ automatic_normative_lookup = false
 SCR/RL por fase con dinámica mecánica y red fundamental. Su alcance es aproximado:
 no se declara cerrado el modelo de un arrancador industrial. Ver
 [P13G](P13G_SOFT_STARTING.md). La dinámica DOL P13F ya existe; para M1 faltan
-datos físicos revisados. Siguen pendientes la validación trifásica del dispositivo,
-dinámica simultánea de varios motores y otras exclusiones publicadas.
+datos físicos revisados. En aquella entrega no se había verificado el dispositivo ni la dinámica simultánea. La ruta propia se retiró; DOL multimotor y dos SCR se verificaron después mediante MSL. Los límites vigentes están en el registro Q5.
 
 **Contraste externo con motor:** MSL 4.0.0 ejecutada con OpenModelica 1.27.1,
 parámetros sintéticos equivalentes y secuencia de amplitud/ángulo reproducida.
@@ -697,25 +698,33 @@ professional_emission = false
 
 Detalle: `docs/P13_MOTOR_STARTING.md`.
 
-P13F se reactivó el 2026-09-30 y cerró el alcance de dinámica mecánica RMS equilibrada. P13F1 añade
-datos físicos SI, vínculo SHA al manifiesto, controles de admisión,
-dos referencias mecánicas analíticas y plan de calificación independiente.
-P13F2 califica MCP_BALANCED_RMS_RK4_V1; P13F3 acopla la red aislada;
-P13F4 calcula trayectorias y P13F5 entrega Workspace/CSV/dossier. La ejecución
-requiere opciones explícitas y consistencia con datos nominales/arranque.
-El alcance es un motor de jaula trifásico equilibrado con arranque directo
-desde reposo por estudio; los demás motores permanecen como cargas de marcha.
-VFD, soft starter, conmutaciones, EMT y secuencias dinámicas simultáneas
-quedan fuera de esta entrega.
-Detalle: [P13F — contrato y gates](P13F_MOTOR_DYNAMICS.md).
+### P13F/P13G — sustitución por modelos abiertos
+
+La entrega propia P13F2–F5 (circuito T/RK4) y el equivalente SCR/RL P13G
+se retiraron. Sus documentos y expedientes describen antecedentes históricos;
+sus herramientas antiguas no generan cálculos nuevos.
+
+La ejecución actual usa `ejecutar_dinamica_modelica` con componentes MSL,
+equivalente RL común y paquete explícito. DOL01–DOL03 cerraron en Q2;
+SCR01–SCR03 en Q4; TWO_SCR01–TWO_SCR02 en Q5. Se verificó interacción de dos
+SCR, órdenes simultáneas/escalonadas, controles y bypass independientes,
+50/60 Hz y cargas mecánicas diferentes. Cada estudio requiere refinamiento.
+
+La admisión DOL permite hasta ocho máquinas, pero el banco publicado contrasta
+una/dos; no se califican todas las combinaciones por inferencia. SCR admite
+una/dos máquinas delta. Más de dos SCR, mezclas DOL/SCR, SCR estrella, VFD y
+traducción automática del unifilar completo están excluidos.
+
+Ver [DOL](MSL_DOL_VERIFICACION.md), [SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md),
+[dos SCR](MSL_SCR_DOS_MOTORES.md) y [migración](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Fase P14 — Runtime e integración local
 
-La investigación de motores abiertos amplía la matriz E con ocho preferencias
-de integración pendientes, sin habilitar ejecución ni modificar física propia.
-Prioridad: adaptador OpenModelica/MSL; después, relés pandapower, y pilotos
-ANDES/VeraGrid cuando el estudio solicitado los requiera.
-Detalle: [motores abiertos](MOTORES_ABIERTOS_INVESTIGACION.md).
+La matriz E conserva rutas de planificación y publica adaptadores acotados
+verificados para DOL/SCR. El paquete Modelica tiene su propio validador;
+el selector genérico no traduce el unifilar. ANDES/VeraGrid siguen como
+candidatos que requieren una carencia documentada antes de instalarse.
+Ver [selección](ENGINE_SELECTION.md) e [investigación](MOTORES_ABIERTOS_INVESTIGACION.md).
 
 **Estado: ALCANCE LOCAL COMPLETO — P14A/P14B DONE.**
 
@@ -725,28 +734,37 @@ y detención Windows. La verificación de cierre P14B registró 133 tools y comp
 expedientes P8/P12/P13, replay e integridad. Los tests de protocolo se ejecutan
 en CI Windows/Linux. Detalle: `docs/P14_LOCAL_RUNTIME.md`.
 
-El 2026-09-30 se eligió la instalación local. P13F1–F5 ya incluye dinámica
-mecánica RMS equilibrada dentro del alcance declarado. Alojamiento remoto,
-IEEE 1584 y las extensiones dinámicas enumeradas en P13 permanecen fuera
-de esta entrega.
+El 2026-09-30 se eligió instalación local. El cierre Q5 se integró mediante
+[#163](https://github.com/NoeCalle/MCP-Electrico/pull/163), con 77 comprobaciones
+CI y seis llamadas MCP posteriores a la instalación. Actualizar archivos no
+recarga un servidor Python ya abierto; una conexión persistente requiere
+reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega.
 
 ## Siguiente actividad y pendientes vigentes
 
-La prioridad operativa es `FIRST_CONTROLLED_LOCAL_PROJECT`: revisar datos,
-procedencia y supuestos del proyecto, ejecutar los estudios admisibles y
-verificar el dossier reproducible. Los casos de referencia y ejercicios
-existentes no sustituyen la revisión de los datos de ese proyecto.
+| Orden | Trabajo | Motor / componente | Criterio de cierre |
+|---|---|---|---|
+| 1 | Armónicos y resonancia | OpenDSS | Espectros/datos explícitos, ejecución MCP y contraste nativo reproducible; publicar límites |
+| 2 | Perfiles temporales Daily/Yearly | OpenDSS | Perfiles y pasos explícitos, balances y referencia nativa; no confundir con EMT |
+| 3 | Actuación de relés | pandapower OCRelay | Datos/ajustes, actuación contrastada y tiempos de interruptor separados |
+| 4 | Informes y mejoras visuales | MCP/workspace | Gráficos por motor, tensión barra/terminal, comparación de casos, datos/criterios visibles y exportación legible |
+| Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
-Los cierres anteriores conservan estos pendientes explícitos:
+DOL/SCR y bancos estáticos están cerrados en alcance; se conservan sus
+regresiones. El flujo alternativo pandapower permanece en verificación
+(PPF01–PPF02), pero no es una prioridad de duplicación ni bloquea OpenDSS.
+Se amplía únicamente ante una necesidad concreta.
 
-- P6/V6: Arc Flash IEEE 1584 diferido.
-- P4/P5: revisión normativa completa, datasets y referencias externas pendientes
-  según [Validaciones pendientes](VALIDACIONES_PENDIENTES.md).
-- SC3 con máquinas: decaimiento, corriente de corte/permanente, `ip/Ith`
-  y variadores fuera del alcance validado; ver [SC3](SC3_MACHINES.md).
-- P13: ampliaciones más allá de un motor dinámico RMS DOL por estudio.
-- P11: espejo externo independiente diferido; export y restore internos cerrados.
-- P14: alojamiento remoto fuera de la entrega local.
+Pendientes y exclusiones adicionales:
 
-Estos pendientes no cambian `professional_emission=false` ni amplían la
-madurez de los módulos cerrados con limitaciones.
+- P6/V6: **Arc Flash IEEE 1584 diferido por el usuario**.
+- P4/P5: evidencia normativa completa, datasets y contrastes externos según
+  [validaciones pendientes](VALIDACIONES_PENDIENTES.md); no son condiciones de firma automática del software.
+- SC3: decaimiento, corriente de corte/permanente, `ip/Ith` con máquinas y
+  variadores fuera del alcance; ver [SC3](SC3_MACHINES.md).
+- Modelica: redes completas, control de fabricante, VFD, más de dos SCR,
+  mezclas DOL/SCR y SCR estrella excluidos; no se declaran pendientes los dos SCR ya verificados.
+- P11: espejo externo diferido. P14: alojamiento remoto fuera del alcance local.
+
+La revisión, aprobación y firma del estudio son responsabilidad del ingeniero.
+Una integración verificada no acredita que cualquier diseño cumpla sus criterios.

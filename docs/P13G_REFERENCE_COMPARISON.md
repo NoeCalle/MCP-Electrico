@@ -1,5 +1,10 @@
 # P13G — Contraste estructural con referencia trifásica
 
+> Antecedente histórico del equivalente propio SCR/RL, ahora retirado.
+> `contrastar_arranque_suave` no genera nuevas comparaciones del solver eliminado.
+> El alcance ejecutable actual se documenta en [estado Q5](ESTADO_ACTUAL.md),
+> [SCR original MSL](MSL_SCR_REFERENCIA_ORIGINAL.md) y [dos SCR](MSL_SCR_DOS_MOTORES.md).
+
 ## Resultado y alcance
 
 Se incorpora `contrastar_arranque_suave(paquete_comparacion)` como herramienta
