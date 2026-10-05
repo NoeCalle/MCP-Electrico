@@ -1,5 +1,7 @@
 # Eje E — selección determinista de motor
 
+**Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
+
 ## Propósito
 
 La conversación interpreta el estudio solicitado y consulta una matriz explícita
@@ -19,44 +21,49 @@ La matriz recomienda/selecciona el backend y evalúa readiness; las tools de eje
 
 ## Matriz actual
 
-| Estudio | Backend preferente | Estado actual |
-| --- | --- | --- |
-| Flujo de potencia | OpenDSS | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
-| Caída de tensión | OpenDSS + MCP | ejecutable; `VALIDATED_WITH_LIMITATIONS` |
-| Cortocircuito exploratorio | OpenDSS FaultStudy | `UNDER_VALIDATION`; no equivale a IEC 60909 formal |
-| IEC 60909 P4-v1 | pandapower 3.5.4 | 3F/2F/1F-T; `VALIDATED_WITH_LIMITATIONS`; revisión 2026 completada con limitaciones |
-| Ampacidad normativa | MCP | P3-v1 `VALIDATED_WITH_LIMITATIONS` |
-| Protección / TCC | MCP + pandapower cuando aplique | P5 implementada con alcance temporal puntual; OCRelay aún no integrado |
-| IEEE 1584 | MCP | P6 pendiente |
-| Lee | MCP | experimental/educativo |
-| Armónicos | OpenDSS | solver disponible; módulo MCP profesional pendiente |
-| Series temporales | OpenDSS | solver disponible; módulo MCP profesional pendiente |
-| Dinámica de motores P13F RMS | MCP_BALANCED_RMS_RK4_V1 + OpenDSS aislado | `VALIDATED_WITH_LIMITATIONS`; mecánica RK4 con circuito eléctrico algebraico, un motor DOL equilibrado |
+| Estudio | Ruta principal | Estado actual |
+|---|---|---|
+| Flujo, caída, pérdidas y cargabilidad | OpenDSS + postproceso MCP | Verificado en los alcances P1 publicados |
+| Contingencias y transferencias | OpenDSS | Escenarios estáticos explícitos P12; sin transferencia dinámica |
+| Cortocircuito IEC 60909 P4-v1 | pandapower 3.5.4 | 3F/2F/1F-T y fichas admitidas; `VALIDATED_WITH_LIMITATIONS` |
+| Cortocircuito exploratorio | OpenDSS FaultStudy | `UNDER_VALIDATION`; no sustituye IEC 60909 |
+| Ampacidad y protección/TCC | Tablas/curvas trazables + postproceso MCP | Alcances P3/P5 verificados; actuación OCRelay pendiente |
+| Bancos de compensación | OpenDSS | Etapas estáticas explícitas verificadas; sin armónicos/control automático |
+| Dinámica DOL e interacción de motores | OpenModelica/MSL 4.0.0 | Equivalente RL explícito verificado; bancos de una/dos máquinas, sin traducción del unifilar completo |
+| Arranque suave SCR | OpenModelica/MSL 4.0.0 | Una/dos máquinas delta, controles y bypass propios; Q4/Q5 verificados |
+| Armónicos y series temporales | OpenDSS | Integraciones MCP pendientes |
+| Actuación de relés | pandapower OCRelay | Integración MCP pendiente; no equivale al TCC ya disponible |
+| IEEE 1584 | Por integrar | Diferido por el usuario |
+| Lee | MCP histórico | Estimación educativa; no IEEE 1584 |
 
-La fila P13F describe el código propio histórico, que permanece ejecutable en sus
-tools explícitas. La ruta de desarrollo vigente es integrar componentes existentes;
-no ampliar esas ecuaciones físicas. La comparación de trazas Modelica actual
-no es un adaptador de ejecución. Detalle: [arquitectura](ARQUITECTURA_INTEGRACION.md).
+La física propia P13F/P13G está retirada: sus herramientas antiguas devuelven
+`RETIRED_CUSTOM_BACKEND` sin resultados. Las comparaciones de trazas históricas
+no sustituyen el adaptador actual. Ver [arquitectura](ARQUITECTURA_INTEGRACION.md).
 
-## Ampliación E — candidatos abiertos y rutas pendientes
+## Ruta genérica y adaptador con paquete explícito
 
-La misma matriz incorpora ocho estudios concretos: dinámica DOL, SCR, simultánea,
-VFD y EMT → `openmodelica+msl`; estabilidad transitoria y pequeña señal → `andes`;
-flujo continuado → `veragrid`. Son preferencias propuestas para integración,
-basadas en el fenómeno y la evidencia disponible; no solvers nuevos ya habilitados.
+La matriz conserva ocho estudios de planificación. Tres (`motor_dynamics_dol`,
+`motor_dynamics_simultaneous` y `motor_dynamics_soft_starter_scr`) publican
+`integration_status=VERIFIED_SCOPED_ADAPTER_ONLY`: existe ejecución por
+`ejecutar_dinamica_modelica`, previa `validar_dinamica_modelica`, dentro de su
+equivalente RL y con paquete propio. El selector genérico de dinámica simultánea
+expone el alcance DOL; para SCR se consulta el contrato y la ruta SCR.
 
-El catálogo incluye OpenIPSL, DPsim y la biblioteca de protecciones pandapower,
-con fuentes, licencias, límites y situación local. `schema_version=2` conserva su
-contrato; `matrix_revision=E_OPEN_SOURCE_ROUTING_2026_10_02` identifica la ampliación.
+En los ocho estudios, `planning_only=true` e `implemented=false` se refieren a
+la ruta genérica del unifilar completo. `evaluar_preparacion_estudio` continúa
+devolviendo `MODULE_NOT_READY` para esa ruta: no recibe el paquete Modelica ni
+traduce automáticamente la red. La admisión efectiva del paquete usa
+`ready_for_execution` y `integration_verification`; la revisión del proyecto
+continúa siendo necesaria. Esta distinción no implica que DOL/SCR estén
+pendientes de implementación.
 
-En estas ocho rutas `planning_only=true`, `implemented=false`,
-`integration_status=ADAPTER_NOT_IMPLEMENTED`; la preparación global es
-`MODULE_NOT_READY`, incluso con modelo activo y permiso experimental.
-`data_evaluated=false` y `data_status=MISSING_DATA` indican que aún no existe
-validación de entradas para declarar suficiencia. No se cambia el significado
-de los estados ni las preferencias de los estudios existentes.
+VFD, estabilidad transitoria/pequeña señal, CPF y EMT general siguen como
+planificación sin adaptador ejecutable para esos estudios. ANDES, VeraGrid,
+OpenIPSL y DPsim son candidatos; se incorpora otro motor solo ante una carencia
+documentada de los ya integrados. Ver [investigación](MOTORES_ABIERTOS_INVESTIGACION.md).
 
-Ver la [investigación y tabla completa](MOTORES_ABIERTOS_INVESTIGACION.md).
+`schema_version=2` se conserva; `matrix_revision=Q5_TWO_SCR_2026_10_04` identifica
+el registro vigente. `automatic_dispatch=false` y `crosscheck=false` se mantienen.
 
 ## Dos preguntas distintas: ejecutar vs. estar preparado
 
@@ -193,13 +200,13 @@ No todos los estudios pertenecen a un solver:
 - P5 produce comprobaciones de tiempos de despeje y coordinación puntual;
 - P6 IEEE 1584 consumirá corrientes y tiempos trazables.
 
-La matriz distingue entre **motor numérico**, **capa de estudio**, **preparación de datos** y **madurez para emisión**.
+La matriz distingue entre **motor numérico**, **capa de estudio**, **preparación de datos** y **verificación de integración**. La aprobación y firma del informe corresponden al ingeniero; `professional_emission=false` no prohíbe ese uso.
 
 ## Reglas de seguridad
 
-- Nunca convertir un módulo pendiente en profesional por el solo hecho de que una librería externa tenga una función relacionada.
+- No declarar verificada una integración MCP solo porque la biblioteca externa tenga esa función.
 - Nunca usar un backend incompatible con el modelo activo.
-- Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`; además, `professional_emission` permanece como gate separado de producto.
+- Nunca confundir `technical_executable`, `professional_execution_ready` y `apto_para_emision`; `professional_emission` es un campo histórico de ausencia de aprobación automática, no un requisito de firma digital.
 - Nunca confundir una revisión `REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION` con `VERIFIED_AGAINST_TARGET_EDITION`.
 - Nunca asumir el tipo de falla.
 - Nunca completar datos ausentes con valores típicos para lograr compatibilidad.

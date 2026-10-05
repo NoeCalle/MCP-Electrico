@@ -1,5 +1,11 @@
 # Contraste externo de motor y SCR
 
+> Contraste histórico de trazas del equivalente propio retirado. La herramienta
+> de lectura de expedientes conserva ese diagnóstico; no ejecuta el estudio
+> vigente de red/control/bypass. La ejecución actual usa el adaptador MSL:
+> [estado Q5](ESTADO_ACTUAL.md), [SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md)
+> y [dos motores](MSL_SCR_DOS_MOTORES.md).
+
 ## Contra qué se compara
 
 Se ejecutaron componentes **sin modificar** de Modelica Standard Library **4.0.0**

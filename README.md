@@ -1,4 +1,6 @@
-# MCP Eléctrico — OpenDSS
+# MCP Eléctrico — OpenDSS, pandapower y OpenModelica/MSL
+
+**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q5, 4 de octubre de 2026.
 
 ## Confiabilidad técnica y responsabilidad del ingeniero — Q5
 
@@ -54,13 +56,17 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). DOL y SCR están cerrados dentro de sus alcances publicados. Ver [evidencia DOL](docs/MSL_DOL_VERIFICACION.md) y [contraste SCR original](docs/MSL_SCR_REFERENCIA_ORIGINAL.md) y [dos motores SCR](docs/MSL_SCR_DOS_MOTORES.md).
 
 Consultar la [matriz completa de capacidades actuales](docs/MATRIZ_CAPACIDADES_ACTUALES.md)
-para distinguir la participación de OpenDSS, pandapower y los módulos propios,
+para distinguir la participación de OpenDSS, pandapower, OpenModelica/MSL y las capas MCP,
 el alcance disponible, la madurez y las funciones pendientes. Incluye las
 ampliaciones de 2F-T y SCR sin modificar los contratos históricos del core.
 
 La preparación dinámica de motores expone `obtener_contrato_dinamica_motores`,
 `validar_datos_dinamica_motores` y `obtener_plan_validacion_dinamica_motores`.
 La ejecución vigente usa el adaptador OpenModelica/MSL, datos explícitos y componentes nativos. Ver [migración](docs/MIGRACION_MODELOS_ABIERTOS.md) y [condiciones de cierre](docs/ESTADO_CIERRE_MODULOS.md). El contrato histórico propio no habilita su solver retirado.
+
+## Antecedentes de motores — rutas retiradas
+
+Las herramientas de contraste siguientes conservan expedientes históricos; la ejecución vigente es `ejecutar_dinamica_modelica`.
 
 La implementación histórica P13G, cuya física propia está retirada, documentó [arranque suave aproximado SCR/RL](docs/P13G_SOFT_STARTING.md): rampa,
 límite de corriente, aceleración y bypass de un motor, con criterios trazables

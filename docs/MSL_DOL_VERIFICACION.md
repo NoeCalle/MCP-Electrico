@@ -131,7 +131,7 @@ son casos de verificación; no constituyen fichas de las bombas del usuario.
 
 Quedan excluidos la traducción automática de todo el unifilar, cargas de
 potencia constante de fondo, saturación/temperatura variable, modelos de
-fabricante y variadores. El cierre DOL no habilita SCR ni emisión profesional.
+fabricante y variadores. El cierre DOL no habilita SCR por inferencia: SCR tiene sus propios cierres Q4/Q5. La revisión, aprobación y firma corresponden al ingeniero.
 
 Consultar el [registro vigente](ESTADO_CIERRE_MODULOS.md) y la
 [verificación SCR](MSL_SCR_VERIFICACION.md).

@@ -1,12 +1,14 @@
 # Roadmap visual transversal — MCP Eléctrico
 
+**Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
+
 ## Objetivo
 
 Mantener la evolución visual alineada con la evolución técnica. El workspace y el unifilar no son decoración: permiten comprender el modelo, inspeccionar resultados y conservar trazabilidad entre elemento, estudio y revisión.
 
 Este roadmap complementa `docs/ROADMAP_PROFESIONAL.md`.
 
-## Prioridad Q1 — cierre técnico y claridad del estado
+## Prioridad Q5 — presentación y claridad del estado
 
 El [registro de cierre de módulos](ESTADO_CIERRE_MODULOS.md) es la fuente de
 estados actuales. Las vistas deben distinguir verificación de integración,
@@ -15,7 +17,7 @@ El banner P5 identifica su alcance verificado; los informes P7 conservan la
 calificación capturada en el snapshot, incluso si el servidor cambia después.
 
 DOL01–DOL03 están cerrados en Q2, SCR01–SCR03 en Q4 y la ampliación a dos SCR en Q5. Presentar los alcances verificados y sus exclusiones; las nuevas topologías requieren pruebas específicas.
-La siguiente mejora visual presentará esas condiciones pendientes y los motivos
+La siguiente mejora visual presentará el alcance, los datos pendientes y los motivos
 de resultados no evaluables junto al estudio. La verificación numérica de Q1
 no constituye una nueva regresión visual del navegador.
 
@@ -287,10 +289,8 @@ de píxeles permanece pendiente.
 - Exportación SVG/impresión conserva la red completa después de hacer zoom.
 - `exportar_laminas_unifilar` divide el SVG en láminas A3 numeradas y solapadas;
   conserva revisión y SVG completo, bloquea sobrescritura y limita a 200 láminas.
-- P13F5 muestra velocidad, corriente, par y tensión desde Python, con CSV/replay/SHA.
-- La ampliación P13G presenta control, bypass, tensión de entrada, tensión fundamental
-  y RMS equivalente del motor, con procedencia de criterios. Identifica el modelo
-  el SCR/RL propio como retirado; MSL con alcance verificado y sin calificación de un arrancador real.
+- Las vistas históricas P13F5/P13G conservan sus trayectorias y CSV/replay/SHA de la fecha de captura; sus solvers propios están retirados.
+- El adaptador MSL vigente exporta resultados y CSV por motor. La presentación integrada de DOL/SCR Q5 se detalla como mejora pendiente abajo; no se presenta el visor histórico como integración nueva ya completada.
 - Verificación real de búsqueda, selección, zoom y disposición estrecha/escritorio,
   con capturas; tests cubren cobertura de láminas y regresión.
 
@@ -308,6 +308,20 @@ Objetivos del bloque operacional mínimo:
 - selección consistente de anexos;
 - estilo de impresión limpio;
 - exportación reproducible sin redibujar manualmente.
+
+## Mejoras siguientes — pendientes de implementación
+
+| Prioridad | Vista | Evidencia necesaria para cerrar |
+|---|---|---|
+| 1 | Resultados DOL/SCR por motor y caso | Selección M1/M2, corriente, velocidad, par, orden y bypass propios; representar tensión de barra y terminal separadas |
+| 2 | Comparación de escenarios | Tabla/gráfico con base, caso, variación, unidades y criterio explícito; datos insuficientes/no evaluado visibles |
+| 3 | Informes imprimibles | Gráficos y tablas legibles, fuentes/supuestos y límites del estudio; aprobación/firma a cargo del ingeniero |
+| 4 | Nuevas vistas armónicas/temporales/relés | Consumir resultados de los adaptadores cuando se cierren, conservando revisión e integridad |
+
+Los SVG del banco Q5 son artefactos de verificación, no una nueva pestaña del
+workspace ya implementada. Cada cambio de vista necesita generación, interacción
+y exportación verificadas. El navegador no recalcula física ni criterios.
+V6 Arc Flash permanece diferido.
 
 ## Regla para pandapower
 

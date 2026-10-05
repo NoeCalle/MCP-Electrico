@@ -1,5 +1,7 @@
 # P8F — Hardening posterior al primer piloto real
 
+**Documento del cierre histórico P8.** La capacidad vigente, prioridades y responsabilidad de firma se consultan en [estado actual Q5](ESTADO_ACTUAL.md). `professional_emission=false` describe ausencia de aprobación automática y no prohíbe revisión, uso o firma por el ingeniero.
+
 P8A–P8E demostraron la cadena integral del piloto. P8F no añadió tipos de cálculo: convirtió esa cadena en una ruta pública, íntegra, repetible y operable desde MCP Eléctrico 0.9 Engineering Preview.
 
 P6 IEEE 1584 permanece `DEFERRED` y no bloquea este cierre.

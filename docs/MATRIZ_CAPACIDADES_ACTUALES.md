@@ -30,6 +30,8 @@ de las herramientas en este chat son comprobaciones separadas.
 Q2: 22 llamadas MCP, siete casos DOL y cuatro contrastes con el ejemplo original MSL;
 ver [evidencia y convenciones DOL](MSL_DOL_VERIFICACION.md). Estos casos no son fichas de las bombas del proyecto.
 
+Q5: siete estudios de extensión SCR (seis de dos motores y un control), 18 llamadas MCP, 14 trazas y 26 comprobaciones por máquina. Suite general: 968 aprobadas y una omitida; CI de #163: 77 aprobadas. Ver [dos SCR](MSL_SCR_DOS_MOTORES.md) y [estado actual](ESTADO_ACTUAL.md).
+
 Ver [migración y necesidades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Cómo leer la matriz
@@ -40,9 +42,9 @@ está implementado; existe ejecución DOL verificada en alcance de OpenModelica/
 equivalente RL de barra común. SCR está verificado para una o dos máquinas delta con controles genéricos MSL independientes.
 Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
 
-El selector determinista añade ocho rutas de integración pendientes y un catálogo
+El selector determinista conserva ocho rutas genéricas de planificación, tres con adaptadores acotados DOL/SCR verificados, y un catálogo
 de modelos abiertos: [investigación y reglas](MOTORES_ABIERTOS_INVESTIGACION.md).
-Estas preferencias no suman estudios ejecutables a las capacidades de esta matriz.
+Las rutas genéricas no traducen automáticamente el unifilar. El adaptador MSL se ejecuta con paquete explícito; ver [selección vigente](ENGINE_SELECTION.md).
 
 - **OpenDSS**: solver principal de red. **pandapower**: segundo solver, especialmente cortocircuito IEC 60909. **Módulo propio MCP**: lógica de datos, cálculo específico, control, criterios y documentación.
 - Una fila con aportes de dos columnas significa que trabajan juntos en ese estudio; no significa que dos solvers estén contrastando el mismo resultado.
@@ -65,7 +67,7 @@ Ejemplo: M1 empieza en t=0 s; M2 empieza en t=2 s mientras M1 aún acelera. Ambo
 
 El adaptador MSL DOL verificado en alcance conecta varias máquinas a la misma red RL
 declarada; se probaron dos motores con arranques en t=0 y t=2 s.
-Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados conjuntos de varios motores con sus demandas declaradas, incluso puntos simultáneos de arranque, pero no calcula su evolución mecánica conjunta. Un motor acelerando con otro representado como carga de marcha tampoco equivale a integrar dos motores dinámicos.
+Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después del bypass de M1, a 50/60 Hz y con cargas distintas. Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados conjuntos de varios motores con sus demandas declaradas, incluso puntos simultáneos de arranque, pero no calcula su evolución mecánica conjunta. Un motor acelerando con otro representado como carga de marcha tampoco equivale a integrar dos motores dinámicos.
 
 ## Matriz completa por funcionalidad
 
@@ -150,7 +152,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | SCR trifásico cualificado para un dispositivo real | Datos y contraste del dispositivo real pendientes; controlador genérico verificado | SCR01–SCR03 cerrados para controlador genérico MSL. Las discrepancias del equivalente propio retirado son históricas; la ficha y el contraste de fabricante corresponden al dispositivo real. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
-| Transitorios EMT, flujos magnéticos y calentamiento dinámico | Fuera del alcance implementado de arranque | No confundir dinámica mecánica RMS con ondas instantáneas o un modelo térmico motor/semiconductor. |
+| EMT general, saturación y calentamiento dinámico | Sin adaptador general / extensiones excluidas | MSL sí simula señales instantáneas y conmutación SCR en su circuito de arranque. No habilita cualquier topología EMT ni un modelo térmico motor/semiconductor. |
 | Series temporales de operación diaria/anual | No implementadas como módulo | Los perfiles estáticos de arranque P13C no son un estudio Daily/Yearly de la red. |
 | Estabilidad dinámica de generadores y transferencia | No implementada por P12 | El equivalente de fuente y escenarios estáticos no resuelven sincronismo, AVR, gobernador ni interrupción transitoria del suministro. |
 | Relés, CT/VT, lógica y selectividad integral | Fuera de P5-v1 | No están implementados el estudio integral de relés ni la selectividad energética, backup/cascading o ajustes automáticos verificados. |
