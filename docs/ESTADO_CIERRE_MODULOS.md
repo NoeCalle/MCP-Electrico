@@ -1,6 +1,6 @@
 # Estado de cierre de módulos
 
-Revisión: **Q4_SCR_NATIVE_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q5_TWO_SCR_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
@@ -39,7 +39,7 @@ La revisión, aprobación y firma del estudio corresponden al ingeniero. El soft
 | `motor_static` | OpenDSS | Verificado en alcance | P13B/C/D: corriente/fp o estados de arranque explícitos, sin aceleración generada |
 | `operating_scenarios` | OpenDSS | Verificado en alcance | P12: contingencias/transferencias/deslastre estáticos declarados |
 | `modelica_dol` | OpenModelica/MSL | Verificado en alcance | MSL DOL con equivalente RL equilibrado explícito, resistencias fijas y curva de carga declarada; contraste cuantitativo de una máquina estrella/delta y una/dos máquinas delta con carga |
-| `modelica_scr` | OpenModelica/MSL | Verificado en alcance | Una máquina delta, equivalente RL equilibrado, control genérico MSL y disparo referido a fuente sinusoidal; nueve casos sintéticos |
+| `modelica_scr` | OpenModelica/MSL | Verificado en alcance | Una o dos máquinas delta, red RL equilibrada común y controladores genéricos MSL independientes; arranques simultáneos/escalonados en bancos Q4/Q5 |
 | `harmonics` | OpenDSS | Pendiente de integración | Armónicos y resonancia |
 | `time_series` | OpenDSS | Pendiente de integración | Daily/Yearly con perfiles explícitos |
 | `relay_operation` | pandapower OCRelay | Pendiente de integración | Actuación de relés |
@@ -77,6 +77,8 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 - **modelica_scr / SCR01 — PASSED:** Cerrar perfil numérico reproducible y robustez de inicialización/eventos sobre rango declarado; justificar o sustituir el solver algebraico prototipo
 - **modelica_scr / SCR02 — PASSED:** Contrastar circuito/control completo contra ejemplo MSL original con métricas y tolerancias prefijadas
 - **modelica_scr / SCR03 — PASSED:** Verificar referencia de disparo y alcance admitido; mantener bloqueadas estrella y multimáquina hasta pruebas específicas
+- **modelica_scr / TWO_SCR01 — PASSED:** Dos ramas sobre una impedancia común: contraste original, equivalencia Z/2Z y KVL con suma de corrientes
+- **modelica_scr / TWO_SCR02 — PASSED:** Controladores y bypass independientes; arranques simultáneos, solapados y tras bypass; 50/60 Hz; bloqueos fuera de alcance
 
 ## Evidencia y exclusiones por módulo
 
@@ -196,9 +198,9 @@ Fuera del cierre: Traducción automática del unifilar completo, cargas de poten
 
 ### modelica_scr
 
-Evidencia: [verify_msl_scr_mcp.py](../scripts/verify_msl_scr_mcp.py), [verify_msl_triac_reference.py](../scripts/verify_msl_triac_reference.py), [MSL_SCR_VERIFICACION.md](../docs/MSL_SCR_VERIFICACION.md), [verify_msl_scr_solver_profiles.py](../scripts/verify_msl_scr_solver_profiles.py), [test_modelica_motor_adapter.py](../tests/test_modelica_motor_adapter.py), [msl_scr_native_reference.py](../scripts/msl_scr_native_reference.py), [verify_msl_scr_native_mcp.py](../scripts/verify_msl_scr_native_mcp.py), [check_msl_scr_trace.py](../scripts/check_msl_scr_trace.py), [msl_scr_native_evidence_v1.json](../mcp_electrico/data/msl_scr_native_evidence_v1.json), [MSL_SCR_REFERENCIA_ORIGINAL.md](../docs/MSL_SCR_REFERENCIA_ORIGINAL.md).
+Evidencia: [verify_msl_scr_mcp.py](../scripts/verify_msl_scr_mcp.py), [verify_msl_triac_reference.py](../scripts/verify_msl_triac_reference.py), [MSL_SCR_VERIFICACION.md](../docs/MSL_SCR_VERIFICACION.md), [verify_msl_scr_solver_profiles.py](../scripts/verify_msl_scr_solver_profiles.py), [test_modelica_motor_adapter.py](../tests/test_modelica_motor_adapter.py), [msl_scr_native_reference.py](../scripts/msl_scr_native_reference.py), [verify_msl_scr_native_mcp.py](../scripts/verify_msl_scr_native_mcp.py), [check_msl_scr_trace.py](../scripts/check_msl_scr_trace.py), [msl_scr_native_evidence_v1.json](../mcp_electrico/data/msl_scr_native_evidence_v1.json), [MSL_SCR_REFERENCIA_ORIGINAL.md](../docs/MSL_SCR_REFERENCIA_ORIGINAL.md), [verify_msl_scr_two_mcp.py](../scripts/verify_msl_scr_two_mcp.py), [verify_msl_scr_two_60_mcp.py](../scripts/verify_msl_scr_two_60_mcp.py), [verify_msl_scr_two_loaded_mcp.py](../scripts/verify_msl_scr_two_loaded_mcp.py), [test_scr_two_oracles.py](../tests/test_scr_two_oracles.py), [msl_two_scr_evidence_v1.json](../mcp_electrico/data/msl_two_scr_evidence_v1.json), [MSL_SCR_DOS_MOTORES.md](../docs/MSL_SCR_DOS_MOTORES.md).
 
-Fuera del cierre: Reproducción de control de fabricante; SCR estrella/multimotor.
+Fuera del cierre: Control real de fabricante; SCR estrella; más de dos máquinas SCR; combinaciones DOL/SCR; traducción automática del unifilar.
 
 ### harmonics
 
@@ -235,7 +237,7 @@ Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_mot
 ## Orden del roadmap
 
 1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.
-2. Cerrar SCR para una máquina delta: inicialización y eventos, referencia completa y control admitido. Estrella y multimotor requieren sus pruebas propias antes de ampliarse.
+2. Conservar la regresión SCR y el alcance de máquinas/controladores indicado en el registro; ampliar otras conexiones y configuraciones solo después de sus pruebas.
 3. Revisar el flujo alternativo pandapower solo si una necesidad concreta justifica su alcance. Mantener OpenDSS como ruta principal ya comprobada.
 4. Después de esos cierres, integrar armónicos/perfiles/relés que falten usando motores existentes, sin duplicar solvers suficientes.
 5. Mejorar la presentación y realizar pilotos con datos reales y criterios acordados. Arc Flash continúa diferido.

@@ -36,10 +36,10 @@ _MODULES = {
     },
     "modelica_scr": {
         "status": "EXPERIMENTAL",
-        "basis": "MSL SCR delta; cierre Q4 SCR01–SCR03 con ejemplo original, seis contrastes y regresión RL MCP",
+        "basis": "MSL SCR delta; cierre Q4 original y ampliación Q5 a dos máquinas con siete estudios, KVL común, energía y bypass independientes",
         "limitations": [
-            "Una máquina delta, red RL, control MSL genérico y solver algebraico prototipo",
-            "Estrella y multimotor SCR permanecen bloqueados",
+            "Una o dos máquinas delta, red RL común, controles MSL genéricos y solver algebraico prototipo",
+            "Estrella, más de dos motores SCR y combinaciones DOL/SCR permanecen bloqueados",
             "El cierre DOL no califica SCR ni un dispositivo de fabricante",
             "professional_emission=false",
         ],

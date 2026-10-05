@@ -41,6 +41,7 @@ async def run(output):
                 blocked=await call('ejecutar_dinamica_modelica',{'paquete_estudio':bad,'directorio_salida':str(output/'Incomplete')},'Incomplete.json')
                 assert blocked['status']=='BLOCKED_MODELICA_READINESS' and not (output/'Incomplete').exists()
                 two=deepcopy(package);two['motors'].append(deepcopy(two['motors'][0]));two['motors'][1]['id']='SECOND'
+                two['motors'].append(deepcopy(two['motors'][0]));two['motors'][2]['id']='THIRD'
                 blocked=await call('ejecutar_dinamica_modelica',{'paquete_estudio':two,'directorio_salida':str(output/'Two-SCR')},'Two-SCR-blocked.json')
                 assert blocked['status']=='BLOCKED_MODELICA_READINESS' and 'MULTIMOTOR_SCR_NOT_QUALIFIED' in blocked['readiness']['qualification_blockers']
                 timeout=deepcopy(package);timeout['simulation']['timeout_s']=0.001

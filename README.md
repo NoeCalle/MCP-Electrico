@@ -1,6 +1,6 @@
 # MCP Eléctrico — OpenDSS
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q4
+## Confiabilidad técnica y responsabilidad del ingeniero — Q5
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -45,13 +45,13 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > ampacidad y coordinación/TCC existen dentro de sus alcances publicados.
 > La física propia P13F/P13G está retirada. La dinámica usa componentes
 > OpenModelica/MSL: DOL está verificado dentro del alcance RL declarado (Q2);
-> SCR está verificado dentro del alcance genérico de una máquina delta (Q4). Bancos estáticos, P5 y P7
+> SCR está verificado dentro del alcance genérico de una o dos máquinas delta (Q5). Bancos estáticos, P5 y P7
 > conservan su verificación Q1.
 > IEEE 1584 permanece diferido.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
-Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). DOL y SCR están cerrados dentro de sus alcances publicados. Ver [evidencia DOL](docs/MSL_DOL_VERIFICACION.md) y [contraste SCR original](docs/MSL_SCR_REFERENCIA_ORIGINAL.md).
+Consultar el [estado de cierre, evidencia y gates pendientes](docs/ESTADO_CIERRE_MODULOS.md). DOL y SCR están cerrados dentro de sus alcances publicados. Ver [evidencia DOL](docs/MSL_DOL_VERIFICACION.md) y [contraste SCR original](docs/MSL_SCR_REFERENCIA_ORIGINAL.md) y [dos motores SCR](docs/MSL_SCR_DOS_MOTORES.md).
 
 Consultar la [matriz completa de capacidades actuales](docs/MATRIZ_CAPACIDADES_ACTUALES.md)
 para distinguir la participación de OpenDSS, pandapower y los módulos propios,

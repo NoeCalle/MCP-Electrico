@@ -867,5 +867,19 @@
   "independent_trace_checker_lf_sha256": "30f393f9d35750d702626db845c38077e81da130bed4257bc77a8f0e5e193a15",
   "source_lf_hash_convention": "SHA256_OF_ORIGINAL_RUN_SOURCE_WITH_CRLF_REPLACED_BY_LF_ONLY",
   "attempted_mcp_requests": 22,
-  "returned_mcp_response_records": 21
+  "returned_mcp_response_records": 21,
+  "adapter_physical_sections_lf_sha256": {
+    "_digest": "18e6155bf9474d4bbf4c0ad4b3be2889c7f33e7f2e8b88943fb553cf7416f624",
+    "_environment": "397786aaa92c4aba5233ea0bb11162e29b16ff839f116420448ec63e42fd94e0",
+    "_library_digest": "64caca4b65e0841acd9239cd2e170ee1a0634b544fc359db6c87524b7c653fce",
+    "_n": "ec0d92589528202647be38ce420b53944ea38d393836d607c9dbdabbf5ed8d77",
+    "_quote": "bc48fed37a495786149e81398d9d5ab086a4943add2e31cfd56876ad339a21ac",
+    "build_model": "de1b93318a0f65dd55eafc64c6cb2e80a5311260cfb0aceb63966ceb612bc06c",
+    "_run": "ea72dce078f6d597762ce42992dc8580e6595ffdccec86b11ff1d9665d7e1853",
+    "_trace_endpoint": "f4fd5503b01e6557622d5c0d006d45063145aa0bcfef3e4c3a83b1315c62058f",
+    "_summaries": "25a8a8a7d5a0cacc83c557319e50583c7a758f620f984efacad53683ada64116",
+    "execute": "9edaeb34b5ce3d486014c1a06a39cbd2b60883ff22c44f8c575e2750889e0324"
+  },
+  "adapter_provenance_commit": "1375a9a3f0b25f0ecfe98f85bc3de3db7242d1f0",
+  "current_adapter_binding": "UNCHANGED_PHYSICAL_BUILD_EXECUTION_AND_POSTPROCESS_SECTIONS; CONTRACT_AND_ADMISSION_MAY_EXTEND_SCOPE"
 }

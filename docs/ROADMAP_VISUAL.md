@@ -14,7 +14,7 @@ datos del proyecto, cumplimiento de criterios y aprobación del informe.
 El banner P5 identifica su alcance verificado; los informes P7 conservan la
 calificación capturada en el snapshot, incluso si el servidor cambia después.
 
-DOL01–DOL03 están cerrados en Q2 y SCR01–SCR03 en Q4. Presentar los alcances verificados y sus exclusiones; las nuevas topologías requieren pruebas específicas.
+DOL01–DOL03 están cerrados en Q2, SCR01–SCR03 en Q4 y la ampliación a dos SCR en Q5. Presentar los alcances verificados y sus exclusiones; las nuevas topologías requieren pruebas específicas.
 La siguiente mejora visual presentará esas condiciones pendientes y los motivos
 de resultados no evaluables junto al estudio. La verificación numérica de Q1
 no constituye una nueva regresión visual del navegador.
@@ -290,7 +290,7 @@ de píxeles permanece pendiente.
 - P13F5 muestra velocidad, corriente, par y tensión desde Python, con CSV/replay/SHA.
 - La ampliación P13G presenta control, bypass, tensión de entrada, tensión fundamental
   y RMS equivalente del motor, con procedencia de criterios. Identifica el modelo
-  SCR/RL como aproximado y sin validación contra un arrancador real.
+  el SCR/RL propio como retirado; MSL con alcance verificado y sin calificación de un arrancador real.
 - Verificación real de búsqueda, selección, zoom y disposición estrecha/escritorio,
   con capturas; tests cubren cobertura de láminas y regresión.
 

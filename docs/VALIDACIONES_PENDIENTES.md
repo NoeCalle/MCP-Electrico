@@ -1,6 +1,9 @@
 # Validaciones pendientes — MCP Eléctrico
 
-## Cierre vigente de módulos — Q4, 4 de octubre de 2026
+
+**Ampliación Q5 (4 de octubre):** dos motores SCR delta sobre red RL común verificados mediante siete estudios, 50/60 Hz, cargas distintas y bypass independientes. Ver [alcance y evidencia](MSL_SCR_DOS_MOTORES.md). Más de dos SCR, mezcla DOL/SCR y estrella siguen fuera del alcance.
+
+## Cierre vigente de módulos — Q5, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
 

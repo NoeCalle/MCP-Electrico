@@ -49,6 +49,20 @@ async def run(args):
                 scr=deepcopy(package);scr['motors'][0]['starting']['method']='SCR'
                 pending=await call('validar_dinamica_modelica',{'paquete_estudio':scr},'SCR-pending.json')
                 assert not pending['ready_for_execution'] and pending['issues']
+                two=json.loads((ROOT/'examples/msl_motor_scr_native_reference.json').read_text(encoding='utf8'))
+                two['motors'].append(deepcopy(two['motors'][0]));two['motors'][1]['id']='SECOND-SCR'
+                two_ready=await call('validar_dinamica_modelica',{'paquete_estudio':two},'SCR-two-readiness.json')
+                assert two_ready['data_ready'] and not two_ready['qualification_blockers']
+                assert two_ready['ready_for_execution']==bool(two_ready['runtime']['ready'])
+                three=deepcopy(two);three['motors'].append(deepcopy(three['motors'][0]));three['motors'][2]['id']='THIRD-SCR'
+                blocked=await call('ejecutar_dinamica_modelica',{'paquete_estudio':three,'directorio_salida':str(output/'Three-SCR')},'SCR-three-blocked.json')
+                assert blocked['status']=='BLOCKED_MODELICA_READINESS' and blocked['readiness']['data_ready']
+                assert 'MULTIMOTOR_SCR_NOT_QUALIFIED' in blocked['readiness']['qualification_blockers'] and not (output/'Three-SCR').exists()
+                mixed=deepcopy(two);mixed['motors'][1]['starting']={'method':'DOL','time_s':.1,'controller':None}
+                for key in ('refinement_voltage_absolute_tolerance_pu','refinement_torque_relative_tolerance','refinement_bypass_time_absolute_tolerance_s'):
+                    del mixed['motors'][1]['criteria'][key]
+                mixed_ready=await call('validar_dinamica_modelica',{'paquete_estudio':mixed},'Mixed-blocked.json')
+                assert mixed_ready['data_ready'] and mixed_ready['qualification_blockers']==['MULTIMOTOR_SCR_NOT_QUALIFIED']
                 if args.omc:
                     assert args.msl
                     await call('configurar_dinamica_modelica',{'ruta_omc':str(args.omc.resolve()),'directorio_msl':str(args.msl.resolve())},'Runtime.json')

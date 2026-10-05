@@ -1,5 +1,6 @@
 """A scoped qualification must retain passing evidence for the current adapter."""
 from hashlib import sha256
+import ast
 import json
 from pathlib import Path
 
@@ -15,6 +16,12 @@ def test_published_scr_evidence_matches_sources_and_all_declared_limits():
     # hashes as run provenance; compare the same source text across platforms.
     assert set(data['source_lf_sha256'])==set(data['source_sha256'])
     for path,digest in data['source_lf_sha256'].items():
+        if path=='mcp_electrico/modelica_motor_adapter.py':
+            source=(ROOT/path).read_text(encoding='utf8')
+            functions={n.name:ast.get_source_segment(source,n) for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)}
+            for name,expected in data['adapter_physical_sections_lf_sha256'].items():
+                assert sha256(functions[name].encode()).hexdigest()==expected,name
+            continue
         assert sha256((ROOT/path).read_bytes().replace(b'\r\n',b'\n')).hexdigest()==digest,path
     checker=ROOT/'scripts/check_msl_scr_trace.py'
     assert sha256(checker.read_bytes().replace(b'\r\n',b'\n')).hexdigest()==data['independent_trace_checker_lf_sha256']

@@ -29,7 +29,8 @@ def contract():
         "engine": "OpenModelica", "library": "Modelica Standard Library 4.0.0",
         "network_scope": "DECLARED_BALANCED_COMMON_BUS_RL_EQUIVALENT",
         "starting_methods": ["DOL", "SCR"], "prepared_not_enabled_methods": [],
-        "scr_scope": "ONE_DELTA_MACHINE_REFERENCE_CONTROLLER",
+        "scr_scope": "ONE_OR_TWO_DELTA_MACHINES_INDEPENDENT_REFERENCE_CONTROLLERS",
+        "scr_multimotor_qualification": module_qualification.get('modelica_scr').get('multimotor_qualification', {'verification_status':'IN_VERIFICATION'}),
         "scr_numerical_profile": {"integrator": "dassl", "nonlinear_solver": "newton", "openmodelica_solver_status": "PROTOTYPE_PER_RUNTIME_DOCUMENTATION"},
         "multiple_dynamic_machines": True,
         "physical_solver_owned_by_mcp": False,
@@ -52,7 +53,7 @@ def contract():
         "qualification": "PER_METHOD_SCOPED_QUALIFICATION",
         "scoped_qualification": {method:module_qualification.get('modelica_'+method.lower()) for method in ('DOL','SCR')},
         "responsibilities": module_qualification.catalogue()['responsibilities'],
-        "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "multiple_machines_with_SCR", "SCR_wye_connection"],
+        "not_supported": ["automatic_full_unifilar_EMT_translation", "constant_power_background_loads", "VFD", "thermal_evolution", "manufacturer_device_validation", "more_than_two_machines_with_SCR", "mixed_DOL_SCR", "SCR_wye_connection"],
         "professional_emission": False, "automatic_defaults": False,
     }
 
@@ -220,14 +221,14 @@ def validate(package):
     rt = runtime()
     qualification_blockers = []
     scr_motors = [m for m in motors if isinstance(m,dict) and isinstance(m.get("starting"),dict) and m["starting"].get("method") == "SCR"]
-    if scr_motors and len(motors) != 1:
+    if scr_motors and (len(motors)>2 or len(scr_motors)!=len(motors)):
         qualification_blockers.append("MULTIMOTOR_SCR_NOT_QUALIFIED")
     if any(m.get("connection") != "delta" for m in scr_motors):
         qualification_blockers.append("SCR_WYE_CONNECTION_NOT_QUALIFIED")
     methods={m['starting']['method'] for m in motors if isinstance(m,dict)
              and isinstance(m.get('starting'),dict) and m['starting'].get('method') in ('DOL','SCR')}
     return {"schema": SCHEMA, "data_ready": not issues, "issues": issues, "runtime": rt,
-            "integration_verification": {method:module_qualification.get('modelica_'+method.lower())['verification_status'] for method in sorted(methods)},
+            "integration_verification": {method:(module_qualification.get('modelica_scr').get('multimotor_qualification', {'verification_status':'IN_VERIFICATION'})['verification_status'] if method=='SCR' and len(motors)==2 else module_qualification.get('modelica_'+method.lower())['verification_status']) for method in sorted(methods)},
             "qualification_blockers": qualification_blockers,
             "ready_for_execution": not issues and rt["ready"] and not qualification_blockers, "physical_solver_owned_by_mcp": False,
             "professional_emission": False}

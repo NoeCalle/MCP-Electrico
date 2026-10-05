@@ -46,7 +46,7 @@ def render(data):
         lines.append('')
     lines += ['## Condiciones cerradas con evidencia', '']
     for name, item in data['modules'].items():
-        for gate in item.get('completed_closure_gates', []):
+        for gate in item.get('completed_closure_gates', []) + item.get('completed_extension_gates', []):
             lines.append(f"- **{name} / {gate['id']} — {gate['status']}:** {gate['acceptance']}")
     lines.append('')
     lines += ['## Evidencia y exclusiones por módulo', '']
@@ -56,7 +56,7 @@ def render(data):
             lines += ['Fuera del cierre: ' + '; '.join(item['excluded_extensions']) + '.', '']
     lines += ['## Orden del roadmap', '',
               '1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.' if dol_closed else '1. Cerrar DOL con referencia MSL original, convenciones de máquina y regresión reproducible del alcance admitido.',
-              '2. Cerrar SCR para una máquina delta: inicialización y eventos, referencia completa y control admitido. Estrella y multimotor requieren sus pruebas propias antes de ampliarse.',
+              '2. Conservar la regresión SCR y el alcance de máquinas/controladores indicado en el registro; ampliar otras conexiones y configuraciones solo después de sus pruebas.' if scr_closed else '2. Cerrar SCR: inicialización y eventos, referencia completa y control admitido.',
               '3. Revisar el flujo alternativo pandapower solo si una necesidad concreta justifica su alcance. Mantener OpenDSS como ruta principal ya comprobada.',
               '4. Después de esos cierres, integrar armónicos/perfiles/relés que falten usando motores existentes, sin duplicar solvers suficientes.',
               '5. Mejorar la presentación y realizar pilotos con datos reales y criterios acordados. Arc Flash continúa diferido.', '',

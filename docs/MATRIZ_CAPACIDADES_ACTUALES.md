@@ -1,6 +1,9 @@
 # Matriz de capacidades actuales — MCP Eléctrico
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q4
+
+**Ampliación Q5 (4 de octubre):** dos motores SCR delta sobre red RL común verificados mediante siete estudios, 50/60 Hz, cargas distintas y bypass independientes. Ver [alcance y evidencia](MSL_SCR_DOS_MOTORES.md). Más de dos SCR, mezcla DOL/SCR y estrella siguen fuera del alcance.
+
+## Confiabilidad técnica y responsabilidad del ingeniero — Q5
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -16,7 +19,7 @@ sería una mejora documental opcional y no una condición para verificar un solv
 Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
-**Fecha:** 4 de octubre de 2026. Actualización Q4: DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
+**Fecha:** 4 de octubre de 2026. Actualización Q5: DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
 El servidor actualizado registra **154 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
@@ -34,7 +37,7 @@ Ver [migración y necesidades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 **Dirección de desarrollo:** integrar herramientas gratuitas y abiertas
 existentes antes de implementar física propia. La matriz describe lo que hoy
 está implementado; existe ejecución DOL verificada en alcance de OpenModelica/MSL por MCP para un
-equivalente RL de barra común. SCR está verificado para una máquina delta con control genérico MSL.
+equivalente RL de barra común. SCR está verificado para una o dos máquinas delta con controles genéricos MSL independientes.
 Ver [arquitectura de integración](ARQUITECTURA_INTEGRACION.md).
 
 El selector determinista añade ocho rutas de integración pendientes y un catálogo
@@ -50,9 +53,9 @@ Estas preferencias no suman estudios ejecutables a las capacidades de esta matri
 ## Estado del SCR
 
 El equivalente físico propio SCR/RL se retiró. MSL ejecuta el estudio verificado en alcance
-de una máquina delta, con red RL explícita, realimentación de corriente y bypass
+de una o dos máquinas delta, con red RL común explícita, realimentación de corriente y bypass
 automático. El solver/control de referencia no califica un arrancador de fabricante.
-Estrella y multimotor SCR permanecen bloqueados. Las tensiones de barra y terminal
+Estrella, más de dos motores SCR y combinaciones DOL/SCR permanecen bloqueados. Las tensiones de barra y terminal
 se presentan por separado. Los contrastes anteriores son históricos y no validan
 M1/M2. Q4 añade seis contrastes con el ejemplo original MSL y comprobaciones independientes de energía y bypass en doce trazas. Ver [verificación](MSL_SCR_VERIFICACION.md) y [referencia original](MSL_SCR_REFERENCIA_ORIGINAL.md).
 
@@ -123,7 +126,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 | Perfil de arranque por puntos declarados | Resuelve cada punto | — | Ordena puntos proporcionados y compara resultados | Disponible, estático | El tiempo etiqueta los puntos. No integra movimiento ni genera automáticamente corriente/velocidad. |
 | Secuencia de varios motores por estados declarados | Resuelve cada estado conjunto | — | Combina apagado/marcha/punto de arranque | Disponible, estático | Puede representar varios motores en un estado de arranque dado; no calcula cómo aceleran juntos ni optimiza el orden. |
 | Aceleración dinámica con arranque directo DOL | — | — | Configura componentes Modelica/MSL y procesa CSV | Verificado en alcance MSL DOL | Equivalente RL común explícito; datos SI y curva de carga. Sin traducción automática de todo el unifilar; revisión del estudio por el ingeniero. |
-| Aceleración con arranque suave SCR | — | — | Ejecuta componentes MSL y procesa trazas; sin física propia | Verificado en alcance genérico MSL SCR | Una máquina delta/red RL/control MSL; sin calificación de fabricante. Estrella/multimotor bloqueados. |
+| Aceleración con arranque suave SCR | — | — | Ejecuta componentes MSL y procesa trazas; sin física propia | Verificado en alcance genérico MSL SCR | Una o dos máquinas delta/red RL común/controles MSL; sin calificación de fabricante. Estrella, más de dos motores y DOL/SCR bloqueados. |
 | Contraste estructural del equivalente SCR retirado | — | — | Conserva evidencia histórica | Ejecución de comparación retirada | Ya no vuelve a calcular el surrogate eliminado. El contraste histórico de trazas externas sigue legible. |
 | Contraste externo de dinámica con motor Modelica | Produce amplitud de fuente del candidato | — | Verifica expediente externo y compara RMS/par/velocidad | Disponible para caso sintético; discrepancia registrada | MSL 4.0.0/OpenModelica 1.27.1 ejecutados aparte. Entradas reproducidas, bypass impuesto; no valida red/control en lazo cerrado ni fabricante. |
 
@@ -143,7 +146,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 
 | Función | Estado | Qué falta / distinción importante |
 |---|---|---|
-| Dinámica de varios motores acoplados del unifilar completo | Calificación integral pendiente | DOL MSL de equivalente RL común verificado en alcance, probado con dos motores; traducción completa y SCR multimotor pendientes. |
+| Dinámica de varios motores acoplados del unifilar completo | Calificación integral pendiente | DOL MSL de equivalente RL común verificado en alcance, probado con dos motores; SCR con dos motores verificado; traducción completa, más de dos SCR y mezcla DOL/SCR excluidas. |
 | SCR trifásico cualificado para un dispositivo real | Datos y contraste del dispositivo real pendientes; controlador genérico verificado | SCR01–SCR03 cerrados para controlador genérico MSL. Las discrepancias del equivalente propio retirado son históricas; la ficha y el contraste de fabricante corresponden al dispositivo real. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
@@ -214,7 +217,7 @@ Los solucionadores propios P13F/P13G se retiraron. P13D sí resuelve estados con
 - **Perfil de arranque por puntos declarados:** `validar_perfiles_arranque_motores`, `ejecutar_perfiles_arranque_motores`.
 - **Secuencia de varios motores por estados declarados:** `validar_secuencias_arranque_motores`, `ejecutar_secuencias_arranque_motores`.
 - **Dinámica MSL DOL verificada en alcance:** `obtener_contrato_dinamica_modelica`, `configurar_dinamica_modelica`, `validar_dinamica_modelica`, `ejecutar_dinamica_modelica`.
-- **Dinámica SCR:** verificada en alcance MSL para una máquina delta y control genérico; estrella/multimotor excluidos; entradas antiguas retiradas.
+- **Dinámica SCR:** verificada en alcance MSL para una o dos máquinas delta y controles genéricos; estrella, más de dos motores y mezcla DOL/SCR excluidos; entradas antiguas retiradas.
 - **Comparación del surrogate antiguo:** retirada; no genera nuevos resultados.
 - **Contraste externo de dinámica con motor Modelica:** `contrastar_dinamica_con_modelica`.
 

@@ -66,6 +66,14 @@ def test_scr_complete_scoped_package_and_unqualified_topologies(monkeypatch):
     assert adapter.validate(package)['ready_for_execution']
     package['motors'].append(deepcopy(package['motors'][0]))
     package['motors'][1]['id']='SECOND'
+    assert adapter.validate(package)['ready_for_execution']
+    package['motors'].append(deepcopy(package['motors'][0]));package['motors'][2]['id']='THIRD'
+    assert adapter.validate(package)['qualification_blockers']==['MULTIMOTOR_SCR_NOT_QUALIFIED']
+    package['motors'].pop()
+    package['motors'][1]['starting']={'method':'DOL','time_s':.05,'controller':None}
+    for key in ('refinement_voltage_absolute_tolerance_pu','refinement_torque_relative_tolerance','refinement_bypass_time_absolute_tolerance_s'):
+        del package['motors'][1]['criteria'][key]
+    assert adapter.validate(package)['data_ready']
     assert adapter.validate(package)['qualification_blockers']==['MULTIMOTOR_SCR_NOT_QUALIFIED']
     package['motors'].pop()
     package['motors'][0]['connection']='wye'
