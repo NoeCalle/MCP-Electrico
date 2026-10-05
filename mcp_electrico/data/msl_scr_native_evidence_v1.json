@@ -1,0 +1,871 @@
+{
+  "schema": "MCP_ELECTRICO_MSL_SCR_NATIVE_EVIDENCE_V1",
+  "checked_at_utc": "2026-10-04T23:49:26.638307+00:00",
+  "transport": "MCP_STDIO",
+  "calls": 21,
+  "original_class": "Modelica.Electrical.PowerConverters.Examples.ACAC.SoftStarter",
+  "runtime": {
+    "compiler_version": "OpenModelica v1.27.1 (64-bit)",
+    "compiler_sha256": "461af7f3a8ea20252fa1659902206598739c49f5f5114617a6d8751173bf1da5",
+    "library_tree_sha256": "494589fc5405cc5eb210f925c810375ede179612a9d19ef38fdb5aee9709c573"
+  },
+  "source_sha256": {
+    "mcp_electrico/modelica_motor_adapter.py": "b8a8bb844587ddd7a87b3ce5d354d0477fdc34370425f7377df211b5431349d5",
+    "scripts/msl_scr_native_reference.py": "4e92457d820fce3f8ba40c31342078465e0660d5f4d140c2fb363adf03542bae",
+    "scripts/verify_msl_scr_native_mcp.py": "1550522e9b71ea4da56eeefe63970bd466e88387585d4da6cca2e2776fa89696",
+    "examples/msl_motor_scr_native_reference.json": "5ff87fa1fea856b91360c75bc318c4c366e775b7f16aa4b52bef8d9f678afafe"
+  },
+  "native_source_sha256": {
+    "Modelica/Electrical/PowerConverters/Examples/ACAC/SoftStarter.mo": "6cfebec478321f296216eb0b3a774f1be0e8075c3ca9e597934ca2426cf5f278"
+  },
+  "independent_trace_checker_sha256": "30f393f9d35750d702626db845c38077e81da130bed4257bc77a8f0e5e193a15",
+  "cases": {
+    "base": {
+      "comparison": {
+        "errors": {
+          "current_relative": 4.585910175432643e-07,
+          "torque_relative": 4.021064921599522e-06,
+          "speed_relative": 1.4089881710777888e-07,
+          "voltage_absolute_pu": 0.0001747502478137708,
+          "reference_absolute_pu": 3.65348519215658e-08,
+          "acceleration_absolute_s": 9.441894155415298e-08,
+          "bypass_absolute_s": 6.089044912727104e-08
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 3.0426896110056203e-06,
+        "speed_relative_error": 3.0596596758419186e-07,
+        "acceleration_time_error_s": 1.9623126568113491e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.000535044109974403,
+        "bus_voltage_absolute_error_pu": 1.2218307287037433e-06,
+        "torque_relative_error": 6.103574033857628e-06,
+        "bypass_time_error_s": 1.2233463309030412e-07
+      },
+      "acceleration_time_s": 1.2388687053810814,
+      "bypass_time_s": 1.886392838434345,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 50,
+        "pu": 1.0,
+        "angle_deg": 0,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.29,
+      "initial_voltage_pu": 0.4,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 7155.461508735125,
+            "kinetic_energy_delta_j": 7155.463965445526,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.43333487930895e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.8863928993218881,
+            "observed_time_s": 1.886392899324794,
+            "absolute_error_s": 2.9058977446538847e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "0a3c523a95d1fc8514d34cb5a4737138e6ee12b45a5a65d5f8a7a3a940dd5b7a",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 7155.461438882976,
+            "kinetic_energy_delta_j": 7155.463901925024,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.4421835987640765e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.8863928384314381,
+            "observed_time_s": 1.886392838434345,
+            "absolute_error_s": 2.906785923073585e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "8ba24ad1e7a9223b3f4e3ff8ae37160c959e422d2e4fe8d2343eb9d0ff6236c6",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "base-input.json": "641b78a3e1b6d7440fd6925716f84a642728111daf81d314195778d3c279a021",
+        "base-native\\NativeSCRReference.mo": "d5b85d0c7ac122562516a56354894d4f4dd380e48a1a83ee31c82b59efd10276",
+        "base-native\\Native.csv": "0a3c523a95d1fc8514d34cb5a4737138e6ee12b45a5a65d5f8a7a3a940dd5b7a",
+        "base-MCP\\MCPMSLMotorStudy.mo": "816792ead43b09d9c90f511cbb7a47177c1192cd33bb86c7162d04161654bff3",
+        "base-MCP\\Nominal.csv": "5a0ebc9b1a3dab4b662281127e3c925c1e5ed7fae2ed7f75bf267db60acc7eb0",
+        "base-MCP\\Refined.csv": "8ba24ad1e7a9223b3f4e3ff8ae37160c959e422d2e4fe8d2343eb9d0ff6236c6"
+      }
+    },
+    "phase-negative": {
+      "comparison": {
+        "errors": {
+          "current_relative": 3.380560646388649e-07,
+          "torque_relative": 2.8393111598375034e-06,
+          "speed_relative": 8.367657465149049e-08,
+          "voltage_absolute_pu": 0.0003864509396733218,
+          "reference_absolute_pu": 1.7646314631747373e-08,
+          "acceleration_absolute_s": 5.149874282572853e-08,
+          "bypass_absolute_s": 2.9391193034911112e-08
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 2.5628698924144842e-06,
+        "speed_relative_error": 3.600803181586028e-07,
+        "acceleration_time_error_s": 2.1321391785456e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.000589488011151551,
+        "bus_voltage_absolute_error_pu": 1.0290854933758808e-06,
+        "torque_relative_error": 8.168460486817813e-06,
+        "bypass_time_error_s": 1.6712221695414087e-07
+      },
+      "acceleration_time_s": 1.2411191319372754,
+      "bypass_time_s": 1.889182292438486,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 50,
+        "pu": 1.0,
+        "angle_deg": -27,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.29,
+      "initial_voltage_pu": 0.4,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 7155.4616195082535,
+            "kinetic_energy_delta_j": 7155.464074586838,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.4310543091624533e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.88918232182679,
+            "observed_time_s": 1.889182321829679,
+            "absolute_error_s": 2.8890223546795823e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "6a4ce16fd06f1258cc7a671529e53ee1be7ea61b7b36756e91ce8ce0881c83bd",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 7155.461537978928,
+            "kinetic_energy_delta_j": 7155.464047963503,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.507787276258371e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.8891822924355741,
+            "observed_time_s": 1.889182292438486,
+            "absolute_error_s": 2.9118929489868606e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "f6774dc5aefc5b62940b631f78b736eadad69407454bd0c7e89f1ebe43c4e5ad",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "phase-negative-input.json": "6cef795880cb6a13081abd5dec0e0d8677fb11d1807ec39b3b2a9336e52f7cc8",
+        "phase-negative-native\\NativeSCRReference.mo": "681b89671f7aa7058ad092511f774ee83ce02c477674958fbb9f74b417e273bf",
+        "phase-negative-native\\Native.csv": "6a4ce16fd06f1258cc7a671529e53ee1be7ea61b7b36756e91ce8ce0881c83bd",
+        "phase-negative-MCP\\MCPMSLMotorStudy.mo": "3bc304f228ce86796b6b0985011440b80df01321caa9e56cd2ffe3d41f938e16",
+        "phase-negative-MCP\\Nominal.csv": "9774850c7076059240d985966b8bfb944b15f657e2586df148e508de73f8f032",
+        "phase-negative-MCP\\Refined.csv": "f6774dc5aefc5b62940b631f78b736eadad69407454bd0c7e89f1ebe43c4e5ad"
+      }
+    },
+    "phase-positive": {
+      "comparison": {
+        "errors": {
+          "current_relative": 5.022459635259362e-07,
+          "torque_relative": 3.962877904753116e-06,
+          "speed_relative": 1.455054242621194e-07,
+          "voltage_absolute_pu": 0.00033456601117831664,
+          "reference_absolute_pu": 3.695440975448605e-08,
+          "acceleration_absolute_s": 9.241441834006991e-08,
+          "bypass_absolute_s": 6.158268495148889e-08
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 2.7891016758377642e-06,
+        "speed_relative_error": 3.004813273105631e-07,
+        "acceleration_time_error_s": 1.9072404455755532e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.0005135879156238365,
+        "bus_voltage_absolute_error_pu": 9.800488296463072e-07,
+        "torque_relative_error": 6.072687832279553e-06,
+        "bypass_time_error_s": 1.3569875001451237e-07
+      },
+      "acceleration_time_s": 1.2394433100328197,
+      "bypass_time_s": 1.886672075578189,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 50,
+        "pu": 1.0,
+        "angle_deg": 15,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.29,
+      "initial_voltage_pu": 0.4,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 7155.461627640094,
+            "kinetic_energy_delta_j": 7155.464002014843,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.318268037025136e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.886672137157976,
+            "observed_time_s": 1.886672137160874,
+            "absolute_error_s": 2.8979041388765836e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "0575fe3c6c8cbf23a464d57dbbc5c230e8b8aab9b7f7f69d3e92bbb89debab5b",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 7155.46145718994,
+            "kinetic_energy_delta_j": 7155.463916376472,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.436795378912999e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.88667207557528,
+            "observed_time_s": 1.886672075578189,
+            "absolute_error_s": 2.909006369122835e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "e4b939a992b60466347297af75b4442b5de1e8944753ae4ea9f42ef98d35f7d4",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "phase-positive-input.json": "95f69cc7022bd63d7917a66720c7f50e19cadc66131ef8cdc10a46562bea9e92",
+        "phase-positive-native\\NativeSCRReference.mo": "3bf17b0ec569c59820c7a58a58d120ba6c92aa32ef6080849ebe116b6aed0224",
+        "phase-positive-native\\Native.csv": "0575fe3c6c8cbf23a464d57dbbc5c230e8b8aab9b7f7f69d3e92bbb89debab5b",
+        "phase-positive-MCP\\MCPMSLMotorStudy.mo": "4277d1bacf8dd87cb80742755d12229fa6b61f500a7aec2a01d90417080e3548",
+        "phase-positive-MCP\\Nominal.csv": "282dbc91cc582d18afbd19e03c022d9a577933393d3fc9bcb578b0fdd686ddde",
+        "phase-positive-MCP\\Refined.csv": "e4b939a992b60466347297af75b4442b5de1e8944753ae4ea9f42ef98d35f7d4"
+      }
+    },
+    "frequency-60": {
+      "comparison": {
+        "errors": {
+          "current_relative": 6.419002526159753e-07,
+          "torque_relative": 2.539608535930944e-06,
+          "speed_relative": 9.958385848680307e-08,
+          "voltage_absolute_pu": 0.0005609080198770711,
+          "reference_absolute_pu": 2.1259690674568787e-08,
+          "acceleration_absolute_s": 8.374203086525256e-08,
+          "bypass_absolute_s": 2.0669791211958e-08
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 4.28033727399304e-06,
+        "speed_relative_error": 3.319156491161745e-07,
+        "acceleration_time_error_s": 2.816807309624636e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.0007638594838362822,
+        "bus_voltage_absolute_error_pu": 1.4440706308516127e-06,
+        "torque_relative_error": 5.857933646862729e-06,
+        "bypass_time_error_s": 1.5749135906517608e-07
+      },
+      "acceleration_time_s": 1.7337520242779334,
+      "bypass_time_s": 2.28417749981272,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 60,
+        "pu": 1.0,
+        "angle_deg": 15,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.29,
+      "initial_voltage_pu": 0.4,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 10303.8639161106,
+            "kinetic_energy_delta_j": 10303.8670474146,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.0389600190866e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 2.2841775204792167,
+            "observed_time_s": 2.284177520482511,
+            "absolute_error_s": 3.2942537586677645e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "0fa839f4f4186f9ebed368cb65fff1f223576e91449814697399375fa882813d",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 10303.863721379896,
+            "kinetic_energy_delta_j": 10303.866995130747,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 3.177206046381409e-07,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 2.2841774998093958,
+            "observed_time_s": 2.28417749981272,
+            "absolute_error_s": 3.3240077357277187e-12,
+            "predeclared_limit_s": 2.5010000000000003e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "f7914d96f9ab6c0aa2bcb2379a034da864e1497a027831a80a65dac9a5d408ad",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "frequency-60-input.json": "b58a6aa207d92495b9eae1df09c5d55804eeb23031a58171abeda00fd3881afa",
+        "frequency-60-native\\NativeSCRReference.mo": "7695be3f6b8b6c1cf58852e9c0f1c605fc6565b369b254c309b4955d66c04c9f",
+        "frequency-60-native\\Native.csv": "0fa839f4f4186f9ebed368cb65fff1f223576e91449814697399375fa882813d",
+        "frequency-60-MCP\\MCPMSLMotorStudy.mo": "1f86efc7bc5744ca923a303daafec4df2ba0cdb37891c8319d821f3978c14924",
+        "frequency-60-MCP\\Nominal.csv": "5e56243486fe1e83c825c6e8f754389eb90265428b775e66ceca2ace7c24e187",
+        "frequency-60-MCP\\Refined.csv": "f7914d96f9ab6c0aa2bcb2379a034da864e1497a027831a80a65dac9a5d408ad"
+      }
+    },
+    "inertia": {
+      "comparison": {
+        "errors": {
+          "current_relative": 2.651091365371747e-07,
+          "torque_relative": 2.2947426358870603e-06,
+          "speed_relative": 8.370277577258609e-08,
+          "voltage_absolute_pu": 5.3312835436858386e-05,
+          "reference_absolute_pu": 2.622722894418672e-08,
+          "acceleration_absolute_s": 6.4833916679774e-08,
+          "bypass_absolute_s": 2.0524399069188348e-08
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 7.843930908587073e-07,
+        "speed_relative_error": 2.3542990880147398e-07,
+        "acceleration_time_error_s": 1.763121737496931e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.00024589699146770894,
+        "bus_voltage_absolute_error_pu": 2.4459047043290383e-07,
+        "torque_relative_error": 4.054781433112139e-06,
+        "bypass_time_error_s": 8.847358712316122e-08
+      },
+      "acceleration_time_s": 1.779593372552838,
+      "bypass_time_s": 2.360836563692701,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 50,
+        "pu": 1.0,
+        "angle_deg": 0,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.58,
+      "initial_voltage_pu": 0.4,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 10733.194224572891,
+            "kinetic_energy_delta_j": 10733.194850719769,
+            "rotating_inertia_kg_m2": 0.8699999999999999,
+            "fixed_stator_included": false,
+            "relative_error": 5.833741823824261e-08,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 2.360836584213709,
+            "observed_time_s": 2.3608365842171,
+            "absolute_error_s": 3.391065206415078e-12,
+            "predeclared_limit_s": 1.251e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "7fd72bb5afffb51ccd0bb9e8cc70cabc8fee596519c2a16caffb01f342ce3bc7",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 10733.193990108706,
+            "kinetic_energy_delta_j": 10733.194787384782,
+            "rotating_inertia_kg_m2": 0.8699999999999999,
+            "fixed_stator_included": false,
+            "relative_error": 7.428133856634883e-08,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 2.360836563689325,
+            "observed_time_s": 2.360836563692701,
+            "absolute_error_s": 3.375966173280176e-12,
+            "predeclared_limit_s": 1.251e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "6d17ccff958f772d1f15014f9e2f8720ef3160b9ba0edfdd57300ccf9fac7581",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "inertia-input.json": "c4af2742e38931675ac1f6166256032bdb15e83a0d740faf34e93749cfebb15f",
+        "inertia-native\\NativeSCRReference.mo": "b92c9f641d3c1cc6feb2df09447fe85fec04b63d7acce43067fc3dbc1964abdd",
+        "inertia-native\\Native.csv": "7fd72bb5afffb51ccd0bb9e8cc70cabc8fee596519c2a16caffb01f342ce3bc7",
+        "inertia-MCP\\MCPMSLMotorStudy.mo": "26fd05de900d6ef003f22293c28e1d9dec35ca6b25f55eeb61d5cd6b6c3cb612",
+        "inertia-MCP\\Nominal.csv": "e32268dee045ef43f9b658a915dabc8aff444a4845eed8bdce3adf53f401743d",
+        "inertia-MCP\\Refined.csv": "6d17ccff958f772d1f15014f9e2f8720ef3160b9ba0edfdd57300ccf9fac7581"
+      }
+    },
+    "initial-voltage": {
+      "comparison": {
+        "errors": {
+          "current_relative": 2.0363488624194515e-06,
+          "torque_relative": 1.2905337151616884e-05,
+          "speed_relative": 7.852185467087575e-07,
+          "voltage_absolute_pu": 0.00010251454121706916,
+          "reference_absolute_pu": 2.1907219049932536e-07,
+          "acceleration_absolute_s": 4.5320107422419653e-07,
+          "bypass_absolute_s": 3.129447549987674e-07
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      },
+      "mcp_refinement": {
+        "current_relative_error": 4.470766929286495e-06,
+        "speed_relative_error": 1.6409793413730506e-06,
+        "acceleration_time_error_s": 9.492464740912254e-07,
+        "passed": true,
+        "terminal_voltage_absolute_error_pu": 0.00029390582652102926,
+        "bus_voltage_absolute_error_pu": 2.445867403055857e-07,
+        "torque_relative_error": 2.884942731315286e-05,
+        "bypass_time_error_s": 6.44749744926898e-07
+      },
+      "acceleration_time_s": 1.3435441773637549,
+      "bypass_time_s": 1.905072439968263,
+      "network": {
+        "basis": "PER_PHASE_THEVENIN_AT_COMMON_MOTOR_BUS",
+        "kv_ll": 0.1,
+        "frequency_hz": 50,
+        "pu": 1.0,
+        "angle_deg": 0,
+        "r_ohm": 0.0,
+        "x_ohm": 0.0,
+        "source_reference": "Original SoftStarter: VNominal=100 line-to-line RMS; ideal source"
+      },
+      "load_inertia_kg_m2": 0.29,
+      "initial_voltage_pu": 0.3,
+      "energy_and_bypass": {
+        "native": {
+          "energy": {
+            "electromagnetic_work_j": 7155.462732176542,
+            "kinetic_energy_delta_j": 7155.4632470511215,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 7.195545022277212e-08,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.905072127020599,
+            "observed_time_s": 1.905072127023508,
+            "absolute_error_s": 2.909006369122835e-12,
+            "predeclared_limit_s": 1.251e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "84488a1e013968beecdb0aad384b5220a317b1869ab01baa455135523e48dc4e",
+          "passed": true
+        },
+        "mcp": {
+          "energy": {
+            "electromagnetic_work_j": 7155.462556566326,
+            "kinetic_energy_delta_j": 7155.463181757613,
+            "rotating_inertia_kg_m2": 0.58,
+            "fixed_stator_included": false,
+            "relative_error": 8.737258099673166e-08,
+            "predeclared_limit": 0.0001,
+            "passed": true
+          },
+          "bypass": {
+            "expected_time_s": 1.905072439965356,
+            "observed_time_s": 1.905072439968263,
+            "absolute_error_s": 2.90700796767851e-12,
+            "predeclared_limit_s": 1.251e-05,
+            "latched": true,
+            "passed": true
+          },
+          "trace_sha256": "c43bcb13408bceff80d5bfd9f51d56448a10be2fc71a88c28c94fe03ffa36cd0",
+          "passed": true
+        }
+      },
+      "native_filter_pole": {
+        "actual_pole_per_s": -50.0,
+        "expected_pole_per_s": -50.0,
+        "native_normalization": false,
+        "passed": true
+      },
+      "files_sha256": {
+        "initial-voltage-input.json": "fdd0f2d6b3c97a69b30fde54aab7ece538549e97749b4ec8f40d74b7413de350",
+        "initial-voltage-native\\NativeSCRReference.mo": "ce079195e4f3f3ab3232b088e0d3faa19a5241af8ee27b0483dfe93059823cf5",
+        "initial-voltage-native\\Native.csv": "84488a1e013968beecdb0aad384b5220a317b1869ab01baa455135523e48dc4e",
+        "initial-voltage-MCP\\MCPMSLMotorStudy.mo": "06c63d3c124e8744bc9adfe6d8143f533d1cf5469efcd4a94d497910c4851585",
+        "initial-voltage-MCP\\Nominal.csv": "c4fbc3d14be513344c278f5df457da0a0ad0d310eda65526f43bbe5e360dd590",
+        "initial-voltage-MCP\\Refined.csv": "c43bcb13408bceff80d5bfd9f51d56448a10be2fc71a88c28c94fe03ffa36cd0"
+      }
+    }
+  },
+  "scope": "ONE_DELTA_GENERIC_MSL_SCR; IDEAL_SOURCE_NATIVE_PARITY_PLUS_PREVIOUS_RL_MCP_REGRESSION",
+  "physical_solver_owned_by_mcp": false,
+  "engineer_approval_required": true,
+  "manufacturer_qualified": false,
+  "reference_filter_normalization": false,
+  "limits_relaxed_after_failure": false,
+  "unreturned_mcp_request": {
+    "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-06",
+    "client_timeout_s": 900,
+    "server_failure_kind": "TIMEOUT",
+    "failed_stage": "REFINED_SIMULATION",
+    "last_emitted_time_s": 3.0,
+    "calculation_status": "NO_VERIFIED_RESULT"
+  },
+  "original_plans": [
+    {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-04",
+      "plan_sha256": "3feefc49abe0423daa99e9b988962bb91ed07716a1e92258e763b2d99f164322",
+      "source_sha256": {
+        "mcp_electrico/modelica_motor_adapter.py": "b8a8bb844587ddd7a87b3ce5d354d0477fdc34370425f7377df211b5431349d5",
+        "scripts/msl_scr_native_reference.py": "4e92457d820fce3f8ba40c31342078465e0660d5f4d140c2fb363adf03542bae",
+        "scripts/verify_msl_scr_native_mcp.py": "6a082df3010db2aa21fea28f7117abb60e85ac12320f74635cd2cb9e9f61ade8",
+        "examples/msl_motor_scr_native_reference.json": "5ff87fa1fea856b91360c75bc318c4c366e775b7f16aa4b52bef8d9f678afafe"
+      }
+    },
+    {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-05",
+      "plan_sha256": "9efce12c5cf7a2676d981905f30f529f19c6c5b58dd04eb46296f747ca1e5233",
+      "source_sha256": {
+        "mcp_electrico/modelica_motor_adapter.py": "b8a8bb844587ddd7a87b3ce5d354d0477fdc34370425f7377df211b5431349d5",
+        "scripts/msl_scr_native_reference.py": "4e92457d820fce3f8ba40c31342078465e0660d5f4d140c2fb363adf03542bae",
+        "scripts/verify_msl_scr_native_mcp.py": "4bf807d0f70809a700fecb72738830b1a88ddabbac70d46a14b27fa0158eed73",
+        "examples/msl_motor_scr_native_reference.json": "5ff87fa1fea856b91360c75bc318c4c366e775b7f16aa4b52bef8d9f678afafe"
+      }
+    },
+    {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-07",
+      "plan_sha256": "d1d6740a7b51f688210ee85e8a97964909dbbd6b8edd079ee1300884785a84c0",
+      "source_sha256": {
+        "mcp_electrico/modelica_motor_adapter.py": "b8a8bb844587ddd7a87b3ce5d354d0477fdc34370425f7377df211b5431349d5",
+        "scripts/msl_scr_native_reference.py": "4e92457d820fce3f8ba40c31342078465e0660d5f4d140c2fb363adf03542bae",
+        "scripts/verify_msl_scr_native_mcp.py": "1550522e9b71ea4da56eeefe63970bd466e88387585d4da6cca2e2776fa89696",
+        "examples/msl_motor_scr_native_reference.json": "5ff87fa1fea856b91360c75bc318c4c366e775b7f16aa4b52bef8d9f678afafe"
+      }
+    }
+  ],
+  "case_origins": {
+    "base": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-04",
+      "input_sha256": "641b78a3e1b6d7440fd6925716f84a642728111daf81d314195778d3c279a021",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 8.932759508461451e-13,
+          "torque_relative": 2.2709696197161496e-13,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 2.5768276401549883e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    },
+    "phase-negative": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-04",
+      "input_sha256": "6cef795880cb6a13081abd5dec0e0d8677fb11d1807ec39b3b2a9336e52f7cc8",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 6.790634610086356e-13,
+          "torque_relative": 1.9425541975214103e-13,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 1.9484414082171497e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    },
+    "phase-positive": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-04",
+      "input_sha256": "95f69cc7022bd63d7917a66720c7f50e19cadc66131ef8cdc10a46562bea9e92",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 9.609785157204423e-13,
+          "torque_relative": 1.9059023565675224e-13,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 1.496580637194711e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    },
+    "frequency-60": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-05",
+      "input_sha256": "b58a6aa207d92495b9eae1df09c5d55804eeb23031a58171abeda00fd3881afa",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 2.86752820754325e-12,
+          "torque_relative": 3.72119424396113e-12,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 2.8477220581635265e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    },
+    "inertia": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-05",
+      "input_sha256": "c4af2742e38931675ac1f6166256032bdb15e83a0d740faf34e93749cfebb15f",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 3.746481210317606e-12,
+          "torque_relative": 6.158756205549984e-12,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 2.5501822875639846e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    },
+    "initial-voltage": {
+      "directory": "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-original-native-07",
+      "input_sha256": "fdd0f2d6b3c97a69b30fde54aab7ece538549e97749b4ec8f40d74b7413de350",
+      "independent_reread": {
+        "errors": {
+          "current_relative": 1.0743992491818775e-12,
+          "torque_relative": 2.8850964548216143e-13,
+          "speed_relative": 0.0,
+          "voltage_absolute_pu": 2.717825964282383e-13,
+          "reference_absolute_pu": 0.0,
+          "acceleration_absolute_s": 0.0,
+          "bypass_absolute_s": 0.0
+        },
+        "predeclared_limits": {
+          "current_relative": 0.001,
+          "torque_relative": 0.001,
+          "speed_relative": 0.001,
+          "acceleration_absolute_s": 0.001,
+          "voltage_absolute_pu": 0.001,
+          "reference_absolute_pu": 0.001,
+          "bypass_absolute_s": 0.001
+        },
+        "passed": true
+      }
+    }
+  },
+  "physical_attempts": 9,
+  "previous_trials": {
+    "initial_voltage_coarse_refinement_error_pu": 0.0011897505933219088,
+    "inertia_coarse_voltage_refinement_error_pu": 0.0011343592588889395,
+    "coarse_step_voltage_refinement_error_pu": 0.0020302874481368804,
+    "normalized_filter_par_relative_error": 0.0013723903618106624,
+    "native_normalized_filter_pole_per_s": -50.11886465038003,
+    "corrected_filter_pole_per_s": -50.0
+  },
+  "source_lf_sha256": {
+    "mcp_electrico/modelica_motor_adapter.py": "e30cfb2d6d2ee8dcb8dfdf1869a836fa4df4cd9c6698be3d432750749242ea14",
+    "scripts/msl_scr_native_reference.py": "4e92457d820fce3f8ba40c31342078465e0660d5f4d140c2fb363adf03542bae",
+    "scripts/verify_msl_scr_native_mcp.py": "1550522e9b71ea4da56eeefe63970bd466e88387585d4da6cca2e2776fa89696",
+    "examples/msl_motor_scr_native_reference.json": "d384ef4366490f355eb48f561de4dc823ee558dea60d70bd45b16c3303a4a554"
+  },
+  "independent_trace_checker_lf_sha256": "30f393f9d35750d702626db845c38077e81da130bed4257bc77a8f0e5e193a15",
+  "source_lf_hash_convention": "SHA256_OF_ORIGINAL_RUN_SOURCE_WITH_CRLF_REPLACED_BY_LF_ONLY",
+  "attempted_mcp_requests": 22,
+  "returned_mcp_response_records": 21
+}

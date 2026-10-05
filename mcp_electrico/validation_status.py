@@ -36,7 +36,7 @@ _MODULES = {
     },
     "modelica_scr": {
         "status": "EXPERIMENTAL",
-        "basis": "MSL SCR delta; condiciones SCR01–SCR03 pendientes",
+        "basis": "MSL SCR delta; cierre Q4 SCR01–SCR03 con ejemplo original, seis contrastes y regresión RL MCP",
         "limitations": [
             "Una máquina delta, red RL, control MSL genérico y solver algebraico prototipo",
             "Estrella y multimotor SCR permanecen bloqueados",

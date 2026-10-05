@@ -40,13 +40,13 @@ def test_scoped_promotion_does_not_promote_data_normative_or_report_approval():
         assert not matrix[name]['qualification']['professional_emission']
         assert matrix[name]['qualification']['project_data_readiness']=='EVALUATED_PER_REQUEST'
     assert matrix['professional_report']['status']=='EXTERNAL_RESPONSIBILITY'
-    assert q.get('modelica_scr')['verification_status']=='IN_VERIFICATION'
+    assert q.get('modelica_scr')['verification_status']==q.VERIFIED
     assert q.get('arc_flash_ieee1584')['verification_status']=='DEFERRED_BY_USER'
 
 
 def test_catalogue_and_public_matrix_are_independent_copies():
-    data=q.catalogue();data['modules']['modelica_scr']['closure_gates'].clear()
-    assert q.get('modelica_scr')['closure_gates']
+    data=q.catalogue();data['modules']['modelica_scr']['completed_closure_gates'].clear()
+    assert q.get('modelica_scr')['completed_closure_gates']
     matrix=engine_selection.obtener_capacidades_motores()
     assert matrix['matrix_revision']==q.catalogue()['revision']
     assert matrix['studies']['reactive_compensation']['qualification']['verification_status']==q.VERIFIED
@@ -60,13 +60,14 @@ def test_dol_closure_is_independent_of_scr_and_full_network_route():
     scr=validation_status.get_module_status('modelica_scr')
     assert dol['status']=='VALIDATED_WITH_LIMITATIONS'
     assert dol['integration_verification']==q.VERIFIED
-    assert scr['status']=='EXPERIMENTAL' and scr['integration_verification']=='IN_VERIFICATION'
+    assert scr['status']=='VALIDATED_WITH_LIMITATIONS' and scr['integration_verification']==q.VERIFIED
+    assert {g['id'] for g in q.get('modelica_scr')['completed_closure_gates']}=={'SCR01','SCR02','SCR03'}
     completed=q.get('modelica_dol')['completed_closure_gates']
     assert {g['id'] for g in completed}=={'DOL01','DOL02','DOL03'}
     assert all(g['status']=='PASSED' and all((ROOT/p).is_file() for p in g['evidence']) for g in completed)
     contract=modelica_motor_adapter.contract()
     assert contract['scoped_qualification']['DOL']['verification_status']==q.VERIFIED
-    assert contract['scoped_qualification']['SCR']['verification_status']=='IN_VERIFICATION'
+    assert contract['scoped_qualification']['SCR']['verification_status']==q.VERIFIED
     assert not contract['professional_emission']
     for name in ['motor_dynamics_dol','motor_dynamics_simultaneous']:
         cap=engine_selection.obtener_capacidades_motores()['studies'][name]

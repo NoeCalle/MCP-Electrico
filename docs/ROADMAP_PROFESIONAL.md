@@ -1,6 +1,6 @@
 # Roadmap profesional — MCP Eléctrico
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q3
+## Confiabilidad técnica y responsabilidad del ingeniero — Q4
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -16,11 +16,11 @@ sería una mejora documental opcional y no una condición para verificar un solv
 Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
-## Cierre vigente de módulos — Q2, 4 de octubre de 2026
+## Cierre vigente de módulos — Q4, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
 
-**Actualización Q2 (4 de octubre):** DOL01–DOL03 están cerrados por contraste con el ejemplo original MSL y regresión MCP; ver [evidencia DOL](MSL_DOL_VERIFICACION.md). La prioridad pasa a SCR01–SCR03. Bancos estáticos, P5 y P7 conservan sus cierres por alcance. Arc Flash sigue diferido.
+**Actualización Q4 (4 de octubre):** DOL01–DOL03 y SCR01–SCR03 están cerrados dentro de sus alcances MSL publicados. Ver [evidencia DOL](MSL_DOL_VERIFICACION.md) y [contraste SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md). Bancos estáticos, P5 y P7 conservan sus cierres por alcance. Arc Flash sigue diferido.
 
 
 ## Objetivo
@@ -38,7 +38,7 @@ documentar una carencia de las soluciones disponibles. Ver
 **Migración actualizada el 2026-10-04:** física propia DOL/RK4 y SCR/RL retirada.
 Se integra ejecución DOL verificada en alcance OpenModelica/MSL para equivalente RL de
 barra común, incluido caso de dos motores. SCR de una máquina delta/red RL/control
-MSL permanece en verificación con los gates SCR01 a SCR03. Fabricante corresponde a datos del proyecto; estrella y multimotor son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
+MSL tiene cierre Q4 de SCR01–SCR03 en el alcance genérico de una máquina delta. Fabricante corresponde a datos del proyecto; estrella y multimotor son ampliaciones excluidas. El trabajo histórico P13F/G no constituye una ruta
 vigente de ejecución. Ver [migración y prioridades industriales](MIGRACION_MODELOS_ABIERTOS.md).
 
 ## Mapa maestro — orden de ejecución
@@ -62,7 +62,7 @@ Este documento es la guía maestra del proyecto. Los ejes visual y de selección
 | P11 — Release Safety | **CERRADA INTERNAMENTE — P11A–P11D DONE** | recovery anchors, contratos del core, export portable y restore probado; mirror externo diferido |
 | P12 — Operating Scenarios | **CERRADA FOUNDATION — P12A–P12F DONE** | escenarios, fuentes alternativas explícitas, Workspace y dossier íntegro |
 | P13 — Motores y arranque | **P13A–P13E DONE; física propia F2–F5 RETIRADA; MSL DOL VERIFICADO EN ALCANCE** | datos explícitos y ejecución de componentes existentes; equivalente RL común y multimáquina probado sintéticamente |
-| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR EN VERIFICACIÓN** | una máquina delta/red RL/control y bypass MSL; cerrar gates SCR01 a SCR03 antes de ampliar topologías |
+| P13G — Arranque suave | **Física propia RETIRADA; MSL SCR VERIFICADO EN ALCANCE** | una máquina delta/red RL/control y bypass MSL; SCR01–SCR03 cerrados en Q4; estrella/multimotor son ampliaciones excluidas |
 | P14 — Runtime & Agent Integration | **ALCANCE LOCAL COMPLETO — P14A/P14B DONE** | construcción Rev.0, instalación Windows y clientes stdio/HTTP verificados |
 | Bancos y compensación reactiva | **INTEGRACIÓN VERIFICADA EN ALCANCE ESTÁTICO** | etapas explícitas a igual demanda, balances, FP, tensión, pérdidas y cargabilidad; armónicos/resonancia pendientes |
 

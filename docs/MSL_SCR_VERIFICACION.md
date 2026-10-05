@@ -1,6 +1,6 @@
-# Arranque suave SCR: ejecución experimental con MSL
+# Arranque suave SCR: alcance genérico MSL verificado
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q3
+## Confiabilidad técnica y responsabilidad del ingeniero — Q4
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -16,11 +16,11 @@ sería una mejora documental opcional y no una condición para verificar un solv
 Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
-## Cierre vigente de módulos — Q2, 4 de octubre de 2026
+## Cierre vigente de módulos — Q4, 4 de octubre de 2026
 
 Consultar el [registro de cierre](ESTADO_CIERRE_MODULOS.md): estados, alcance, evidencia y condiciones finitas pendientes. La integración verificada, los datos del proyecto, los criterios de diseño, la conformidad normativa y la aprobación del informe se evalúan por separado.
 
-**Actualización Q2 (4 de octubre):** DOL01–DOL03 están cerrados por contraste con el ejemplo original MSL y regresión MCP; ver [evidencia DOL](MSL_DOL_VERIFICACION.md). La prioridad pasa a SCR01–SCR03. Bancos estáticos, P5 y P7 conservan sus cierres por alcance. Arc Flash sigue diferido.
+**Actualización Q4 (4 de octubre):** DOL01–DOL03 y SCR01–SCR03 están cerrados dentro de sus alcances MSL publicados. Ver [evidencia DOL](MSL_DOL_VERIFICACION.md) y [contraste SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md). Bancos estáticos, P5 y P7 conservan sus cierres por alcance. Arc Flash sigue diferido.
 
 
 Actualizado: 4 de octubre de 2026.
@@ -35,9 +35,9 @@ trazas. No contiene un nuevo modelo físico del arrancador ni integra la máquin
 
 La ejecución anterior se cerraba con el solucionador algebraico seleccionado
 automáticamente. El perfil comprobado usa DASSL y `-nls=newton`. Este solucionador
-de OpenModelica está documentado como **prototipo**. SCR conserva su condición
-de verificación pendiente porque aún faltan evidencias SCR01–SCR03, no por esa
-palabra aislada. Las alternativas que no completaron las pruebas tampoco se
+de OpenModelica está documentado como **prototipo**. Q4 cierra SCR01–SCR03 mediante seis contrastes originales, regresión RL y
+refinamiento obligatorio por estudio. La palabra prototipo permanece como
+procedencia del runtime; el alcance verificado es el de estas pruebas. Las alternativas que no completaron las pruebas tampoco se
 habilitan como reemplazo ni fallback automático.
 
 El procesamiento RMS conserva los estados de ambos lados de las conmutaciones;
@@ -75,14 +75,14 @@ Los ensayos acotados de `mixed` y `homotopy` no completaron la ventana de 5 s
 en 90 s de ejecución. Inhibir el disparo después del bypass en una copia de
 pruebas tampoco resolvió la dificultad. Esa variante no se incorporó al MCP.
 La regresión operacional conserva DASSL/Newton y completa los tres casos con
-refinamiento; la calificación SCR01–SCR03 continúa pendiente por motivos técnicos.
+refinamiento. En Q3 la calificación SCR01–SCR03 aún estaba pendiente; Q4 añade
+el contraste original y cierra esos gates dentro del alcance documentado.
 
 La palabra *prototipo* en la documentación del solver es un dato de procedencia,
-no una prueba de error. Para cerrar SCR01 faltan robustez demostrada en el rango
-declarado y una justificación cuantitativa del perfil elegido o su sustitución.
-SCR02 exige el contraste del circuito/control completo con la referencia MSL
-original; SCR03 exige comprobar la referencia de disparo. Estas son pruebas
-técnicas de la herramienta que se realizan para cerrar cada integración.
+no una prueba de error. Q4 incorpora la evidencia cuantitativa del perfil,
+el contraste original y los cambios de fase/frecuencia para cerrar SCR01–SCR03.
+La integración no garantiza todas las combinaciones de parámetros; cada nuevo
+estudio debe aprobar su propio refinamiento y conservar sus entradas y límites.
 
 Reproducción del diagnóstico de KINSOL después de la regresión MCP:
 
@@ -144,7 +144,8 @@ motor ni valida el controlador de red cerrada por sí sola.
   pérdidas térmicas, saturación y variadores.
 - Sincronización con tensión distorsionada de barra: el disparo actual usa la
   referencia sinusoidal de la fuente aguas arriba, indicada en el contrato.
-- Contraste técnico del circuito/control completo y robustez numérica: pendientes.
+- Contraste original y robustez: cerrados en Q4 dentro de los casos declarados;
+  no se califican automáticamente otras topologías o perfiles numéricos.
 
 Los ejemplos no representan las bombas M1/M2 del usuario. Los solucionadores
 propios retirados siguen bloqueados. El selector general recomienda MSL pero
