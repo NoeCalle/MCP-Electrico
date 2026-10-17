@@ -84,9 +84,10 @@ La suite compara formas de onda e integral por fase para 50 Hz/0°, 50 Hz/37°
 y 60 Hz/0°, con velocidad 98% de la síncrona y límites prefijados de 0,1%.
 También contrasta el postproceso con integrales analíticas lineales, sinusoidales
 y exponenciales, prueba datos malformados y conserva el bloqueo SC3 IEC.
-El workflow ejecuta el circuito nativo en Windows con el compilador fijado;
+El workflow ejecuta el circuito nativo en Linux con la imagen oficial del
+compilador fijada por digest;
 Linux/Windows ejecutan las pruebas del contrato. El alcance del compilador
-nativo no se presenta como validado en Linux sin su ejecución correspondiente.
+nativo no se presenta como validado en Windows sin su ejecución correspondiente.
 
 ## Corrección de frecuencia en la ruta IEC existente
 
