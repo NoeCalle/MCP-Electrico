@@ -1,0 +1,29 @@
+{
+  "schema": "MCP_ELECTRICO_MOTOR_TERMINAL_FAULT_EMT_V1",
+  "id": "MSL-WYE-IMPOSED-SPEED-TERMINAL-FAULT-50HZ",
+  "source_reference": "Synthetic qualification boundary using published MSL 4.0.0 IM_SquirrelCageData SI parameters; not a plant nameplate",
+  "kv_ll": 0.17320508075688773,
+  "frequency_hz": 50,
+  "angle_deg": 0,
+  "shaft_speed_rad_s": 153.93804002589985,
+  "fault_time_s": 1,
+  "end_time_s": 1.2,
+  "switch_resistance_ohm": 0.0001,
+  "output_step_s": 0.00002,
+  "maximum_internal_step_s": 0.00002,
+  "solver_tolerance": 1e-8,
+  "timeout_s": 240,
+  "verification_relative_tolerance": 0.001,
+  "machine": {
+    "pole_pairs": 2,
+    "stator_resistance_ohm": 0.03,
+    "rotor_resistance_ohm": 0.04,
+    "stator_leakage_inductance_h": 0.0003239643625499069,
+    "rotor_leakage_inductance_h": 0.0003239643625499069,
+    "magnetizing_inductance_h": 0.009225332222963813,
+    "zero_sequence_inductance_h": 0.0003239643625499069,
+    "rotor_inertia_kg_m2": 0.29,
+    "temperature_k": 293.15,
+    "source_reference": "Modelica Standard Library 4.0.0 IM_SquirrelCageData/InductionMachineData; copper fixed at declared temperature, alpha=0"
+  }
+}
