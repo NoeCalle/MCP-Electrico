@@ -1,6 +1,9 @@
+> **Q9 — 17 de octubre de 2026:** informes de motores MSL, comparación de casos,
+> barra/terminal separados, criterios y exportaciones verificados.
+> Ver [alcance y evidencia](INFORMES_MOTORES_Q9.md).
+
 > **Actualización Q8 — 16 de octubre de 2026:** actuación OCRelay verificada
-> dentro del [alcance publicado](ACTUACION_RELES_PANDAPOWER.md). Siguiente trabajo:
-> informes y mejoras visuales. Q6/Q7 conservan sus cierres y regresiones.
+> dentro del [alcance publicado](ACTUACION_RELES_PANDAPOWER.md). Q6/Q7 conservan sus cierres y regresiones.
 
 # Matriz de capacidades actuales — MCP Eléctrico
 
@@ -24,7 +27,7 @@ Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
 **Fecha:** 16 de octubre de 2026. Actualización Q6: armónicos, DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
-El servidor actualizado registra **163 herramientas**. Bancos estáticos añaden
+El servidor actualizado registra **166 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con

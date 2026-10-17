@@ -168,6 +168,8 @@ def test_failed_simulation_never_becomes_failed_electrical_design(tmp_path,monke
     monkeypatch.setattr(adapter,'_run',run)
     result=adapter.execute(study,output)
     assert result['status']=='MODELICA_EXECUTION_FAILED' and result['results']==[]
+    assert result['presentation']['status']=='MSL_REPORT_CREATED'
+    assert (output/'Report/Informe.html').is_file()
     assert result['design_assessment']=='NOT_EVALUATED' and result['calculation_status']=='NO_VERIFIED_RESULT'
     assert result['last_emitted_time_s']==pytest.approx(.12)
     assert result['failure_kind']=={'TIMEOUT':'TIMEOUT','PROCESS_FAILED':'SIMULATION_FAILED','INCOMPLETE_TRACE':'TRACE_VALIDATION_FAILED'}[failure]

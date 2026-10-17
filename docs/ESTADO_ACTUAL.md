@@ -1,6 +1,6 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **16 de octubre de 2026**, registro `Q8_RELAY_OPERATION_2026_10_16`.
+Actualizado: **16 de octubre de 2026**, presentación Q9; registro de calificación `Q8_RELAY_OPERATION_2026_10_16`.
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
@@ -29,6 +29,13 @@ conservar evidencia y explicar errores, faltantes y resultados.
 El MCP configura componentes existentes y procesa resultados. **La física
 propia DOL/RK4 y SCR/RL está retirada**, sin fallback. No se agrega otro motor
 para duplicar una ruta suficiente. Ver [arquitectura](ARQUITECTURA_INTEGRACION.md).
+
+## Último cierre de presentación — Q9
+
+Informe MSL por motor, comparación de casos guardados, curvas de barra/terminal
+separadas, criterios y faltantes visibles, CSV/SVG/HTML e impresión legible.
+No cambia los alcances numéricos ni la calificación histórica de los estudios.
+Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
 
 ## Último cierre de cálculo — Q8
 
@@ -78,12 +85,16 @@ contrastan una/dos. SCR admite una/dos máquinas delta; más de dos SCR, mezclas
 DOL/SCR y SCR estrella están bloqueados. El controlador MSL es genérico;
 fabricante y traducción automática del unifilar completo no están calificados.
 
-## Próximos trabajos — pendientes reales
+## Trabajos priorizados y pendientes vigentes
 
 | Orden | Integración | Qué debe demostrarse para cerrarla |
 |---|---|---|
-| 1 | Informes y mejoras visuales | Gráficos por motor, barra/terminal separados, comparación entre casos, criterios/faltantes visibles y exportación legible |
+| Cerrado Q9 | Informes de motores MSL | Gráficos por motor, barra/terminal separados, comparación, criterios/faltantes, CSV/SVG/HTML e impresión; [alcance](INFORMES_MOTORES_Q9.md) |
 | Continuo | Uso con datos revisados del proyecto | Modelo completo para el estudio, supuestos autorizados y expediente reproducible |
+
+Las integraciones priorizadas Q6-Q8 y la presentación de motores Q9 están cerradas
+en sus alcances. Las mejoras de otros informes se priorizan por una necesidad
+concreta del estudio; no se declara terminada toda posible ampliación visual.
 
 El flujo alternativo pandapower sigue **en verificación** (PPF01–PPF02).
 OpenDSS continúa como ruta principal; completar una ruta duplicada solo se

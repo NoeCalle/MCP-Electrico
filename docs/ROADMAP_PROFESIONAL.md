@@ -1,6 +1,9 @@
+> **Q9 — 17 de octubre de 2026:** informes de motores MSL, comparación de casos,
+> barra/terminal separados, criterios y exportaciones verificados.
+> Ver [alcance y evidencia](INFORMES_MOTORES_Q9.md).
+
 > **Actualización Q8 — 16 de octubre de 2026:** actuación OCRelay verificada
-> dentro del [alcance publicado](ACTUACION_RELES_PANDAPOWER.md). Siguiente trabajo:
-> informes y mejoras visuales. Q6/Q7 conservan sus cierres y regresiones.
+> dentro del [alcance publicado](ACTUACION_RELES_PANDAPOWER.md). Q6/Q7 conservan sus cierres y regresiones.
 
 # Roadmap profesional — MCP Eléctrico
 
@@ -109,7 +112,7 @@ P13G_REFERENCE = THREE_WIRE_RESISTIVE_COMPARISON_IMPLEMENTED_MODEL_DISAGREEMENT_
 P13G_MOTOR_REFERENCE = EXTERNAL_MODELICA_SYNTHETIC_REPLAY_COMPLETED_MODEL_DISAGREEMENT_RECORDED
 P14 = LOCAL_RUNTIME_P14A_P14B_COMPLETE
 product_release = MCP_ELECTRICO_0_9_ENGINEERING_PREVIEW
-next_activity = IMPROVE_REPORTS_AND_VISUALS
+next_activity = APPLY_REVIEWED_PROJECT_DATA_AND_PRIORITIZE_SCOPED_EXTENSIONS
 
 professional_report = false
 professional_emission = false
@@ -751,7 +754,7 @@ reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega
 | Cerrado Q6 | Armónicos y barrido de impedancia | OpenDSS | Espectros no triplén y barrido positivo verificados con referencias independientes y MCP; [alcance](ARMONICOS_OPENDSS.md) |
 | Cerrado Q7 | Perfiles temporales Daily/Yearly | OpenDSS | Perfiles P/Q, balances y energía del periodo verificados con referencias nativas e independientes; [alcance](SERIES_TEMPORALES_OPENDSS.md) |
 | Cerrado Q8 | Actuación de relés | pandapower OCRelay | DTOC/IDMT/IDTOC explícitos, actuación contrastada y tiempos separados; [alcance](ACTUACION_RELES_PANDAPOWER.md) |
-| 1 | Informes y mejoras visuales | MCP/workspace | Gráficos por motor, tensión barra/terminal, comparación de casos, datos/criterios visibles y exportación legible |
+| Cerrado Q9 | Informes de motores MSL | MCP | Gráficos por motor, barra/terminal, comparación, criterios y exportación; [alcance](INFORMES_MOTORES_Q9.md) |
 | Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
 DOL/SCR y bancos estáticos están cerrados en alcance; se conservan sus

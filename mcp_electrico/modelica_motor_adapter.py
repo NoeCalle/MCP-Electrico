@@ -543,4 +543,9 @@ def execute(package, directory):
     result["library_source_sha256"] = {f: _digest(library/f) for f in components}
     result["files_sha256"] = {p.name: _digest(p) for p in output.iterdir() if p.is_file() and p.suffix in {".json", ".mo", ".mos", ".csv"}}
     (output / "Results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf8")
-    return result
+    # Presentation consumes the saved result, without changing its qualification
+    # or turning a report error into a numerical/design failure.
+    from . import motor_study_report
+    presentation = motor_study_report.generate(
+        [{"case_id": package["id"], "study_directory": str(output)}], output / "Report")
+    return {**result, "presentation": presentation}
