@@ -1,0 +1,15 @@
+Clear
+Set DefaultBaseFrequency=60
+New Circuit.native_transformer bus1=utility_13k8 basekv=13.8 frequency=60
+New Spectrum.clean NumHarm=1 Harmonic=[1] %Mag=[100] Angle=[0]
+New Spectrum.known NumHarm=3 Harmonic=[1,5,7] %Mag=[100,20,10] Angle=[0,0,0]
+Edit Vsource.source basekv=13.8 bus1=utility_13k8 phases=3 pu=1 angle=0 R1=0.09474744125179518 X1=0.9474744125179518 BaseFreq=60 Frequency=60 Spectrum=clean
+New Transformer.t1 Phases=3 Windings=2 Buses=[utility_13k8,bus_480] Conns=[delta,wye] kVs=[13.8,0.48] kVAs=[1500,1500] %Rs=[0.35659986194397436,0.35659986194397436] XHL=5.70559779110359 Taps=[1,1] %Noloadloss=0.13333333333333333 %imag=0.8 LeadLag=Lead XRConst=No ppm_Antifloat=0 BaseFreq=60
+New Line.mcc_feeder phases=3 bus1=bus_480 bus2=mcc_480 length=0.03 units=km R1=0.08 X1=0.05 C1=0 Rg=0 Xg=0 BaseFreq=60
+New Load.background phases=3 bus1=mcc_480 kv=0.48 kw=250 kvar=100 conn=wye model=1 Vminpu=0.5 Vmaxpu=1.5 %SeriesRL=50 puXHarm=0 XRHarm=6 Spectrum=known BaseFreq=60
+New Load.m01_run phases=3 bus1=mcc_480 kv=0.48 kw=165 kvar=80 conn=delta model=1 Vminpu=0.5 Vmaxpu=1.5 %SeriesRL=50 puXHarm=0 XRHarm=6 Spectrum=clean BaseFreq=60
+New Capacitor.bank phases=3 bus1=mcc_480 bus2=mcc_480.0.0.0 kv=0.48 kvar=100 conn=delta NumSteps=1 R=[0] XL=[0] States=[1] BaseFreq=60
+Set VoltageBases=[13.8,0.48]
+CalcVoltageBases
+Set Mode=Snapshot Frequency=60 ControlMode=Off Tolerance=1e-10 MaxIterations=100 NeglectLoadY=No
+Solve

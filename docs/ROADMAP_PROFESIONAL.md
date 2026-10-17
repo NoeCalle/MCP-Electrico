@@ -1,3 +1,7 @@
+> **Actualización Q6 — 16 de octubre de 2026:** armónicos y barrido positivo
+> verificados dentro del [alcance publicado](ARMONICOS_OPENDSS.md). El siguiente
+> trabajo es Daily/Yearly; se mantienen las exclusiones y registros históricos.
+
 # Roadmap profesional — MCP Eléctrico
 
 
@@ -744,10 +748,10 @@ reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega
 
 | Orden | Trabajo | Motor / componente | Criterio de cierre |
 |---|---|---|---|
-| 1 | Armónicos y resonancia | OpenDSS | Espectros/datos explícitos, ejecución MCP y contraste nativo reproducible; publicar límites |
-| 2 | Perfiles temporales Daily/Yearly | OpenDSS | Perfiles y pasos explícitos, balances y referencia nativa; no confundir con EMT |
-| 3 | Actuación de relés | pandapower OCRelay | Datos/ajustes, actuación contrastada y tiempos de interruptor separados |
-| 4 | Informes y mejoras visuales | MCP/workspace | Gráficos por motor, tensión barra/terminal, comparación de casos, datos/criterios visibles y exportación legible |
+| Cerrado Q6 | Armónicos y barrido de impedancia | OpenDSS | Espectros no triplén y barrido positivo verificados con referencias independientes y MCP; [alcance](ARMONICOS_OPENDSS.md) |
+| 1 | Perfiles temporales Daily/Yearly | OpenDSS | Perfiles y pasos explícitos, balances y referencia nativa; no confundir con EMT |
+| 2 | Actuación de relés | pandapower OCRelay | Datos/ajustes, actuación contrastada y tiempos de interruptor separados |
+| 3 | Informes y mejoras visuales | MCP/workspace | Gráficos por motor, tensión barra/terminal, comparación de casos, datos/criterios visibles y exportación legible |
 | Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
 DOL/SCR y bancos estáticos están cerrados en alcance; se conservan sus

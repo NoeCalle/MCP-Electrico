@@ -11,6 +11,7 @@ from . import (
     operating_scenario_tools,
     motor_starting_tools,
     reactive_compensation,
+    harmonics,
     module_qualification,
     p2_completion,
     p5_completion_tools,
@@ -37,6 +38,7 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     # Circuit nuevo y preflight Z0 para FaultStudy.
     runtime_safety.install()
     module_qualification.register(mcp)
+    harmonics.register(mcp)
     sc_machines.register(mcp, on_model_change=on_model_change)
 
     def changed(action: str) -> None:

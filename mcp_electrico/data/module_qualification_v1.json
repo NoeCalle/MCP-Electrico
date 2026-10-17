@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q5_TWO_SCR_2026_10_04",
+  "revision": "Q6_HARMONICS_2026_10_16",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -570,24 +570,38 @@
     },
     "harmonics": {
       "engine": "OpenDSS",
-      "verification_status": "NOT_IMPLEMENTED",
-      "scope": "Armónicos y resonancia",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Red trifasica equilibrada; espectros no triplen de carga y barrido de impedancia de secuencia positiva; R constante/X proporcional a frecuencia",
       "evidence": [
-        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+        "tests/test_harmonics.py",
+        "scripts/harmonics_reference.py",
+        "scripts/verify_harmonics_mcp.py",
+        "examples/harmonics_transformer_native.dss",
+        "docs/ARMONICOS_OPENDSS.md"
       ],
-      "closure_gates": [
-        {
-          "id": "ADAPTER",
-          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
-          "status": "PENDING"
-        }
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Triplen/secuencia cero y desbalance",
+        "Armónicos de tensión de fondo e interarmónicos de emisión",
+        "Efecto pelicular, filtros desintonizados y transitorios",
+        "Conformidad IEEE 519 automática; pico exacto de resonancia sin refinamiento"
       ],
-      "excluded_extensions": [],
       "project_data_readiness": "EVALUATED_PER_REQUEST",
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "ENGINEER_RESPONSIBILITY"
+      "report_approval": "ENGINEER_RESPONSIBILITY",
+      "completed_closure_gates": [
+        {
+          "id": "HARM01",
+          "status": "PASSED",
+          "acceptance": "24 combinaciones RL/C independientes a 50/60 Hz, wye/delta, banco ON/OFF y amortiguamiento 0/50/100%; contraste nativo y 54 llamadas MCP",
+          "evidence": [
+            "tests/test_harmonics.py",
+            "scripts/verify_harmonics_mcp.py"
+          ]
+        }
+      ]
     },
     "time_series": {
       "engine": "OpenDSS",

@@ -1,8 +1,8 @@
 # MCP Eléctrico — OpenDSS, pandapower y OpenModelica/MSL
 
-**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q5, 4 de octubre de 2026.
+**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q6, 16 de octubre de 2026.
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q5
+## Confiabilidad técnica y responsabilidad del ingeniero — Q6
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -49,7 +49,8 @@ workspace es una vista estructurada del estado, propiedades y estudios.
 > OpenModelica/MSL: DOL está verificado dentro del alcance RL declarado (Q2);
 > SCR está verificado dentro del alcance genérico de una o dos máquinas delta (Q5). Bancos estáticos, P5 y P7
 > conservan su verificación Q1.
-> IEEE 1584 permanece diferido.
+> Armónicos Q6 incorpora espectros no triplén y barrido de impedancia positivo
+> [verificados en alcance](docs/ARMONICOS_OPENDSS.md). IEEE 1584 permanece diferido.
 > `professional_emission=false`.
 > Ver [roadmap](docs/ROADMAP_PROFESIONAL.md).
 
@@ -491,7 +492,8 @@ MCP-Electrico/
   detallado propio;
 - los bancos de capacitores estáticos tienen [integración OpenDSS verificada en alcance estático](docs/COMPENSACION_REACTIVA_OPENDSS.md)
   por etapas explícitas en contexto aislado; no hay `LoadShape`, PV, Storage,
-  control automático de bancos, armónicos ni simulación anual;
+  control automático de bancos ni simulación anual. Armónicos y barrido positivo
+  tienen un [adaptador explícito separado](docs/ARMONICOS_OPENDSS.md);
 - el modelo activo en memoria no se conserva al reiniciar; snapshots y dossiers
   proporcionan persistencia y reconstrucción explícitas;
 - un HTML local abierto requiere refresco manual para leer una regeneración;
@@ -506,6 +508,13 @@ MCP-Electrico/
 
 La capacidad y sus gates vigentes se detallan en `docs/ROADMAP_PROFESIONAL.md`.
 
+
+## Armónicos y barrido de impedancia
+
+Las herramientas `obtener_contrato_armonicos`, `validar_armonicos` y
+`ejecutar_armonicos` reciben un paquete explícito y ejecutan OpenDSS aislado.
+Incluyen espectros no triplén, THDv truncada, corrientes de terminal de equipos
+pasivos y barridos positivos. Ver [alcance, evidencia y ejemplo](docs/ARMONICOS_OPENDSS.md).
 
 ## Construcción Rev.0 para agentes
 

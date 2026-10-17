@@ -35,7 +35,8 @@ def contract():
             'professional_emission':False}
 
 
-def validate(package):
+def validate_base_network(base_model):
+    """Validate the explicit balanced passive network shared by scoped studies."""
     issues=[]
     def issue(path,msg):issues.append({'path':path,'message':msg})
     def obj(raw,path,required,optional=()):
@@ -58,10 +59,7 @@ def validate(package):
     def collection(raw,path,maximum):
         if not isinstance(raw,list) or len(raw)>maximum:issue(path,'explicit bounded list required');return []
         return raw
-    root=obj(package,'study',{'schema','id','source_reference','base_model','banks','scenarios','criteria','options'})
-    if root.get('schema')!=SCHEMA:issue('schema',SCHEMA+' required')
-    ref(root.get('id'),'id');ref(root.get('source_reference'),'source_reference')
-    base=obj(root.get('base_model'),'base_model',{'project','source','topology'})
+    base=obj(base_model,'base_model',{'project','source','topology'})
     project=obj(base.get('project'),'project',{'id','name','source_reference'})
     for key in project:ref(project[key],'project.'+key)
     source=obj(base.get('source'),'source',{'bus','kv_ll','frequency_hz','pu','angle_deg','scc_max_mva','x_r_max','source_reference'})
@@ -118,6 +116,39 @@ def validate(package):
     if not issues:
         issues.extend(real_pilot_intake._topology_issues(base))
         preflight,bases=network._preflight_base(base,[]);issues.extend(preflight)
+    return issues,bases
+
+
+def validate(package):
+    issues=[]
+    def issue(path,msg):issues.append({'path':path,'message':msg})
+    def obj(raw,path,required,optional=()):
+        if not isinstance(raw,dict):issue(path,'object required');return {}
+        if not set(required)<=set(raw) or set(raw)-set(required)-set(optional):issue(path,'explicit fields required: '+', '.join(sorted(required)))
+        return raw
+    def num(v,path,minimum=0,strict=True):
+        try:
+            if type(v) in (int,float) and isfinite(v) and not (v<=minimum if strict else v<minimum):return float(v)
+        except OverflowError:pass
+        issue(path,'finite explicit number outside range');return None
+    def ref(v,path):
+        if not isinstance(v,str) or not v.strip():issue(path,'source reference required')
+    def name(v,path,kind=None):
+        try:
+            if kind:return network._element_name(v,kind)
+            if isinstance(v,str) and SAFE.fullmatch(v):return v
+            raise ValueError('safe identifier required')
+        except ValueError as exc:issue(path,str(exc));return None
+    def collection(raw,path,maximum):
+        if not isinstance(raw,list) or len(raw)>maximum:issue(path,'explicit bounded list required');return []
+        return raw
+    root=obj(package,'study',{'schema','id','source_reference','base_model','banks','scenarios','criteria','options'})
+    if root.get('schema')!=SCHEMA:issue('schema',SCHEMA+' required')
+    ref(root.get('id'),'id');ref(root.get('source_reference'),'source_reference')
+    base=root.get('base_model') if isinstance(root.get('base_model'),dict) else {}
+    base_issues,bases=validate_base_network(base)
+    issues.extend(base_issues)
+    buses=(base.get('topology') or {}).get('buses') or []
     banks=collection(root.get('banks'),'banks',8);bank_map={}
     if not banks:issue('banks','at least one bank required')
     for i,raw in enumerate(banks):
