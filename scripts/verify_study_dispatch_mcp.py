@@ -4,6 +4,8 @@ import asyncio
 from datetime import datetime, timezone
 import hashlib
 import json
+from copy import deepcopy
+from math import isclose
 import os
 from pathlib import Path
 import sys
@@ -12,6 +14,23 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def compare_repeated_flow(first, second):
+    """Two real solves: preserve legacy equality, check new phasors numerically.
+
+    The unit test separately asserts exact payload preservation for a SINGLE
+    executor call. Successive solves may refine the newly exposed microvolts.
+    """
+    left, right = deepcopy(first), deepcopy(second)
+    assert set(left["voltajes_por_bus"]) == set(right["voltajes_por_bus"])
+    for bus, row in left["voltajes_por_bus"].items():
+        other = right["voltajes_por_bus"][bus]
+        for key, tolerance in (("voltajes_ln_v", .001), ("angulos_ln_deg", .0001)):
+            actual, expected = row.pop(key), other.pop(key)
+            assert len(actual) == len(expected)
+            assert all(isclose(a,b,rel_tol=0.,abs_tol=tolerance) for a,b in zip(actual,expected)), (bus,key,actual,expected)
+    assert left == right
 
 
 async def verify(output):
@@ -54,7 +73,8 @@ async def verify(output):
                                              "fases": 3, "kv": .48})
                 flow = await call("ejecutar_estudio", {"estudio": "flujo"})
                 direct = await call("ejecutar_flujo_potencia", {})
-                assert flow["selected_engine"] == "opendss" and flow["result"] == direct
+                assert flow["selected_engine"] == "opendss"
+                compare_repeated_flow(flow["result"], direct)
                 assert direct["convergio"]
                 voltage = await call("ejecutar_estudio", {"estudio": "caida_tension", "parametros": {"limite_pct": 1.0}})
                 assert voltage["result"] == await call("analizar_caida_tension", {"limite_pct": 1.0})
