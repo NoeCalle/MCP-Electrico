@@ -83,6 +83,7 @@ def _active_line_measurements(name: str) -> dict[str, Any]:
 
     return {
         "corrientes_terminal1_a": [round(v, 3) for v in current_mags],
+        "angulos_corriente_terminal1_deg": [round(v, 6) for v in currents[1:2*ncond:2]],
         "corriente_max_a": round(max(current_mags), 3) if current_mags else None,
         "flujo_kw_terminal1": round(sum(p_terminal), 3) if p_terminal else None,
         "flujo_kvar_terminal1": round(sum(q_terminal), 3) if q_terminal else None,

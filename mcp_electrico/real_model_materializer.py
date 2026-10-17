@@ -36,6 +36,7 @@ from . import (
     protection_data,
     real_pilot_intake,
     power_flow_boundaries,
+    phase_network_inputs,
     visual_state,
     workspace_state,
     zero_sequence,
@@ -127,7 +128,7 @@ def _reference(item: dict[str, Any], project_reference: str) -> tuple[str, str |
 
 def _preflight(manifest: dict[str, Any]) -> list[dict[str, str]]:
     """Valida serialización/materialización sin tocar OpenDSS."""
-    issues: list[dict[str, str]] = power_flow_boundaries.validate(manifest)
+    issues: list[dict[str, str]] = power_flow_boundaries.validate(manifest) + phase_network_inputs.validate(manifest)
     source = manifest.get("source") or {}
     topology = manifest.get("topology") or {}
 
@@ -184,6 +185,10 @@ def _preflight(manifest: dict[str, Any]) -> list[dict[str, str]]:
     for i, item in enumerate(topology.get("transformers") or []):
         if not isinstance(item, dict):
             continue
+        try:
+            professional_data._magnetizing_current_percent(item.get("kva"), item.get("no_load_loss_kw"), item.get("i0_percent"))
+        except ValueError as exc:
+            issues.append(_issue("P8C3B011", f"topology.transformers[{i}]", str(exc)))
         group = str(item.get("vector_group") or "").strip().lower()
         if group and group not in _ALLOWED_VECTOR_GROUPS:
             issues.append(_issue(
@@ -247,7 +252,7 @@ def _engine_default_dependencies(manifest: dict[str, Any], p2: dict[str, Any]) -
         dependencies.append({"path": "source.angle_deg", "note": "Vsource conserva el ángulo interno de OpenDSS; no se presenta como dato profesional."})
 
     for i, line in enumerate((manifest.get("topology") or {}).get("lines") or []):
-        if isinstance(line, dict) and not _present(line.get("c1_nf_km")):
+        if isinstance(line, dict) and "phase_impedance" not in line and not _present(line.get("c1_nf_km")):
             dependencies.append({
                 "path": f"topology.lines[{i}].c1_nf_km",
                 "note": "C1 no fue suministrada; OpenDSS conserva su valor interno. P8C3B no la inventa.",
@@ -435,6 +440,9 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
 
         for item in topology.get("lines") or []:
             name = _element_name(item["id"], "Line")
+            if "phase_impedance" in item:
+                phase_network_inputs.create_line(name, item)
+                continue
             core.agregar_linea(
                 name,
                 str(item["bus1"]),
@@ -451,7 +459,7 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
             name = _element_name(item["id"], "Load")
             core.agregar_carga(
                 name,
-                str(item["bus"]),
+                phase_network_inputs.load_bus(item),
                 float(item["kw"]),
                 float(item["kvar"]),
                 fases=int(float(item["phases"])),

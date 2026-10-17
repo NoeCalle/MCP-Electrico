@@ -267,6 +267,9 @@ def ejecutar_flujo_potencia() -> dict[str, Any]:
     for bus in dss.Circuit.AllBusNames():
         dss.Circuit.SetActiveBus(bus)
         voltajes[bus] = {
+            "nodes": list(dss.Bus.Nodes()),
+            "voltajes_ln_v": [round(float(v), 6) for v in dss.Bus.VMagAngle()[0::2]],
+            "angulos_ln_deg": [round(float(v), 6) for v in dss.Bus.VMagAngle()[1::2]],
             "kv_base": round(float(dss.Bus.kVBase()), 3),
             "voltajes_pu": [
                 round(float(v), 4) for v in dss.Bus.puVmagAngle()[0::2]

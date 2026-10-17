@@ -9,7 +9,7 @@ supuesto de proyección; nunca se presenta como dato profesional.
 from __future__ import annotations
 
 from copy import deepcopy
-from math import sqrt
+from math import isfinite, sqrt
 import re
 from typing import Any
 
@@ -165,6 +165,17 @@ def _tap_data(tap_side: str | None, tap_neutral: int, tap_min: int, tap_max: int
     return {"enabled": True, "side": side, "neutral": int(tap_neutral), "min": int(tap_min), "max": int(tap_max), "step_percent": float(tap_step_percent), "position": int(tap_pos), "tap_pu": tap_pu}
 
 
+def _magnetizing_current_percent(kva, no_load_loss_kw, i0_percent):
+    if i0_percent is None or no_load_loss_kw is None:
+        return i0_percent
+    if not all(type(v) in (int, float) and isfinite(v) for v in (kva, no_load_loss_kw, i0_percent)) or kva <= 0:
+        raise ValueError("P2TR017: kva/P0/I0 deben ser numeros finitos y kva positivo.")
+    core_current_percent = float(no_load_loss_kw) / float(kva) * 100.0
+    if no_load_loss_kw < 0 or i0_percent < core_current_percent:
+        raise ValueError("P2TR017: i0_percent implica una potencia en vacio menor que no_load_loss_kw.")
+    return sqrt(float(i0_percent)**2 - core_current_percent**2)
+
+
 def agregar_transformador_profesional(
     nombre: str,
     bus_hv: str,
@@ -202,6 +213,11 @@ def agregar_transformador_profesional(
     if i0_percent is not None and i0_percent < 0:
         raise ValueError("P2TR016: i0_percent no puede ser negativo.")
 
+    # I0 on a nameplate is the TOTAL no-load current. OpenDSS %IMag is
+    # the reactive component; core-loss current is added independently.
+    # Decompose only when both explicit inputs are available.
+    imag_percent = _magnetizing_current_percent(kva, no_load_loss_kw, i0_percent)
+
     vg = _parse_vector_group(grupo_vectorial)
     series = _series_impedance(float(kva), float(uk_percent), x_r, load_loss_kw)
     tap = _tap_data(tap_side, tap_neutral, tap_min, tap_max, tap_step_percent, tap_pos)
@@ -223,7 +239,7 @@ def agregar_transformador_profesional(
     else:
         projection_assumptions.append("no_load_loss_kw no suministrado: OpenDSS conserva su valor por defecto; no se presenta como dato profesional.")
     if i0_percent is not None:
-        parts.append(f"%imag={float(i0_percent)}")
+        parts.append(f"%imag={float(imag_percent)}")
     else:
         projection_assumptions.append("i0_percent no suministrado: OpenDSS conserva su valor por defecto; no se presenta como dato profesional.")
     if vg["lead_lag_opendss"]:
@@ -251,7 +267,7 @@ def agregar_transformador_profesional(
         "model": modelo,
         "provenance": _provenance(fuente_referencia, fuente_url, fields),
         "projection": {
-            "opendss": {"r_percent_each_winding": r_half, "xhl_percent": series["x_percent"], "lead_lag": vg["lead_lag_opendss"], "complete": not projection_assumptions, "assumptions": projection_assumptions},
+            "opendss": {"r_percent_each_winding": r_half, "xhl_percent": series["x_percent"], "lead_lag": vg["lead_lag_opendss"], "imag_percent": imag_percent, "i0_decomposition": "sqrt(I0_percent^2 - (100*P0_kW/Sn_kVA)^2)" if i0_percent is not None and no_load_loss_kw is not None else "INCOMPLETE_EXPLICIT_EXCITATION_DATA", "complete": not projection_assumptions, "assumptions": projection_assumptions},
             "pandapower_ready": pandapower_ready,
             "pandapower_missing": [] if pandapower_ready else [field for field, value in (("no_load_loss_kw", no_load_loss_kw), ("i0_percent", i0_percent)) if value is None],
             "zero_sequence_ready": False,
