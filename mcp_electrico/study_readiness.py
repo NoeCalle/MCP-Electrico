@@ -323,7 +323,7 @@ def evaluar(study: str, capability: dict[str, Any], fault_type: str | None = Non
             'data_evaluated':False, 'overall_status':MISSING_DATA, 'engine_status':ENGINE_NOT_READY,
             'request_issues':[], 'missing_data':[_item('PACKAGE001','Debe validar el paquete explícito mediante '+capability['readiness_tool'])],
             'engine_reasons':[], 'engine_note':'El selector no recibe ni valida paquetes de estudio.',
-            'module_status':validation_status.get_module_status(capability['module']),
+            'module_status':validation_status.get_module_status(capability['module']) if capability.get('module') else None,
             'professional_context':True, 'note':'Adaptador explícito disponible; datos del caso no evaluados.',
         }
     if capability.get("planning_only"):

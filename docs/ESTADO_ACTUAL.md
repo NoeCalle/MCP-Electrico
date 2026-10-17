@@ -1,6 +1,6 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **16 de octubre de 2026**, presentación Q9; registro de calificación `Q8_RELAY_OPERATION_2026_10_16`.
+Actualizado: **17 de octubre de 2026**, ejecución por ruta y presentación Q9; registro de calificación `Q8_RELAY_OPERATION_2026_10_16`.
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
@@ -36,6 +36,15 @@ Informe MSL por motor, comparación de casos guardados, curvas de barra/terminal
 separadas, criterios y faltantes visibles, CSV/SVG/HTML e impresión legible.
 No cambia los alcances numéricos ni la calificación histórica de los estudios.
 Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
+
+## Ejecución por motor asignado
+
+`ejecutar_estudio` conecta la tabla con los ejecutores públicos: flujo/caída,
+escenarios P12, IEC 3F/2F/1F-T, ampacidad, coordinación temporal puntual,
+compensación, armónicos, series y paquetes Modelica. Conserva sus gates,
+resultados, efectos de modelo y reportes; no ejecuta dos motores ni hace fallback.
+El selector sigue siendo read-only. Hay **168 herramientas MCP** registradas.
+Ver [contrato, parámetros y evidencia](EJECUCION_ESTUDIOS.md).
 
 ## Último cierre de cálculo — Q8
 
@@ -89,6 +98,7 @@ fabricante y traducción automática del unifilar completo no están calificados
 
 | Orden | Integración | Qué debe demostrarse para cerrarla |
 |---|---|---|
+| Cerrado | Tabla → ejecutor por estudio | Entrada común, una ruta por llamada, contratos y gates conservados; [uso y evidencia](EJECUCION_ESTUDIOS.md) |
 | Cerrado Q9 | Informes de motores MSL | Gráficos por motor, barra/terminal separados, comparación, criterios/faltantes, CSV/SVG/HTML e impresión; [alcance](INFORMES_MOTORES_Q9.md) |
 | Continuo | Uso con datos revisados del proyecto | Modelo completo para el estudio, supuestos autorizados y expediente reproducible |
 

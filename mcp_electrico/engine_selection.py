@@ -4,7 +4,8 @@ Esta capa no ejecuta estudios. Decide qué backend corresponde, qué
 alternativas existen, qué requisitos deben cumplirse y si el estudio está
 habilitado en la madurez/modelo actuales.
 
-No existe cross-check ni despacho automático en esta versión.
+No ejecuta ni compara motores. La entrada explícita ejecutar_estudio conecta
+las rutas admitidas con sus ejecutores públicos y sus gates independientes.
 """
 
 from __future__ import annotations
@@ -130,6 +131,16 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
 }
 
 CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+CAPABILITY_MATRIX['operating_scenarios'] = {
+    'preferred': 'opendss', 'alternatives': [], 'module': None,
+    'implemented': True, 'professional_emission_candidate': False,
+    'requires_active_model': False, 'requires_study_package': True,
+    'reason': 'P12: escenarios estáticos explícitos en contextos aislados; no elige maniobras ni cargas.',
+    'requirements': ['manifest y paquete_escenarios explícitos con acciones y criterios'],
+    'contract_tool': 'obtener_contrato_p12_escenarios_operativos',
+    'readiness_tool': 'validar_escenarios_operativos',
+    'execution_tool': 'ejecutar_escenarios_operativos',
+}
 CAPABILITY_MATRIX['reactive_compensation'] = {
     'preferred':'opendss', 'alternatives':[], 'module':'reactive_compensation',
     'implemented':True, 'requires_active_model':False, 'requires_study_package':True,
@@ -162,6 +173,8 @@ CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física prop
 
 
 ALIASES = {
+    'escenarios_operativos': 'operating_scenarios', 'contingencias': 'operating_scenarios',
+    'n_1': 'operating_scenarios',
     'compensacion_reactiva':'reactive_compensation', 'reactive_compensation':'reactive_compensation',
     'bancos_capacitores':'reactive_compensation', 'banco_capacitores':'reactive_compensation',
     "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",
@@ -209,8 +222,9 @@ def _has_active_model() -> bool:
 
 
 def obtener_capacidades_motores() -> dict[str, Any]:
+    from .study_dispatch import routes
     studies=deepcopy(CAPABILITY_MATRIX)
-    bindings={'power_flow':'power_flow','voltage_drop':'voltage_drop','iec60909':'iec60909',
+    bindings={'operating_scenarios':'operating_scenarios','power_flow':'power_flow','voltage_drop':'voltage_drop','iec60909':'iec60909',
               'ampacity':'ampacity','protection_coordination':'protection_coordination',
               'short_circuit_exploratory':'short_circuit','reactive_compensation':'reactive_compensation',
               'motor_dynamics_dol':'modelica_dol','motor_dynamics_simultaneous':'modelica_dol',
@@ -221,6 +235,7 @@ def obtener_capacidades_motores() -> dict[str, Any]:
         "schema_version": 2,
         "automatic_dispatch": False,
         "crosscheck": False,
+        "execution_dispatch": routes(),
         "default_engine": "opendss",
         "studies": studies,
         "matrix_revision": module_qualification.catalogue()['revision'],
@@ -232,7 +247,7 @@ def obtener_capacidades_motores() -> dict[str, Any]:
             "engine": ["READY_ENGINE", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
             "overall": ["READY_TO_EXECUTE", "MISSING_DATA", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
         },
-        "note": "La matriz selecciona/recomienda y evalúa preparación; las tools explícitas siguen ejecutando cada backend.",
+        "note": "El selector es read-only. ejecutar_estudio invoca una ruta admitida con parámetros explícitos; las tools específicas siguen disponibles. No hay fallback ni comparación automática.",
     }
 
 
