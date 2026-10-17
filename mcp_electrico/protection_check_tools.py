@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from . import protection_checks
+from . import protection_checks, protection_let_through
 
 
 def register(mcp, on_result=None) -> None:
@@ -67,3 +67,31 @@ def register(mcp, on_result=None) -> None:
             result,
             f"evaluar_soportabilidad_termica_conductor_p5c:{elemento}",
         )
+
+    @mcp.tool()
+    def evaluar_energia_pasante_conductor_p5c(
+        dispositivo: str,
+        elemento: str,
+        corriente_falla_ka: float,
+        tension_operacion_kv: float,
+        seccion_mm2: float,
+        k_a_sqrt_s_per_mm2: float,
+        fuente_corriente: str,
+        fuente_k: str,
+        fuente_seccion: str,
+        punto_energia: dict,
+    ) -> dict:
+        """Comprueba I2t total publicado y capacidad de corte sin inventar tiempo.
+
+        punto_energia: manufacturer, model, current_ka, voltage_kv, value,
+        unit=A2s|kA2s, semantics=TOTAL_LET_THROUGH_I2T, source_reference.
+        Solo un punto exacto aplicable al dispositivo: no extrapola ni
+        promueve energia de prearco/fusion a energia total.
+        """
+        result = protection_let_through.evaluar_energia_pasante_conductor(
+            dispositivo,elemento,corriente_falla_ka,tension_operacion_kv,
+            seccion_mm2,k_a_sqrt_s_per_mm2,fuente_corriente,fuente_k,
+            fuente_seccion,punto_energia,
+        )
+        return recorded("protection_conductor_let_through",result,
+            f"evaluar_energia_pasante_conductor_p5c:{elemento}")

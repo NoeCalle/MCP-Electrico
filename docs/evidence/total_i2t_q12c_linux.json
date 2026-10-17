@@ -1,0 +1,714 @@
+{
+  "schema": "MCP_Q12C_TOTAL_I2T_ACCEPTANCE_V1",
+  "ok": true,
+  "status": "VERIFIED_PUBLISHED_MANUFACTURER_POINT_NOT_FIELD_VALIDATION",
+  "checked_at_utc": "2026-10-17T22:39:00.750070+00:00",
+  "transport": "MCP_STDIO",
+  "registered_tools": 169,
+  "call_count": 13,
+  "calls": [
+    "crear_circuito",
+    "definir_dispositivo_proteccion_p5a",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_energia_pasante_conductor_p5c",
+    "evaluar_tiempo_despeje_p5d",
+    "evaluar_energia_pasante_conductor_p5c"
+  ],
+  "records": [
+    {
+      "kind": "PUBLISHED_MANUFACTURER_CASE",
+      "Inputs": {
+        "dispositivo": "Protection.abb_cb1",
+        "elemento": "Bus.sourcebus",
+        "corriente_falla_ka": 30,
+        "tension_operacion_kv": 0.4,
+        "seccion_mm2": 50,
+        "k_a_sqrt_s_per_mm2": 115,
+        "fuente_corriente": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve",
+        "fuente_k": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published k=115 in k2S2 calculation",
+        "fuente_seccion": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable",
+        "punto_energia": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 750000,
+          "unit": "A2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        }
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": true,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "PASS",
+        "energy_reference_status": "EXACT_PUBLISHED_POINT",
+        "energy_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA",
+        "unit_conversion": {
+          "input_unit": "kA2s",
+          "output_unit": "A2s",
+          "multiplier": 1000000
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 50,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable",
+          "automatic_section_substitution": false
+        },
+        "breaking_capacity_check": {
+          "schema": "MCP_ELECTRICO_P5C_BREAKING_CAPACITY_CHECK_V1",
+          "status": "PASS",
+          "check": "DECLARED_BREAKING_CAPACITY_VS_FAULT_CURRENT",
+          "scope": "TECHNICAL_RATING_COMPARISON_NOT_FULL_STANDARD_COMPLIANCE",
+          "device_id": "Protection.abb_cb1",
+          "device_type": "circuit_breaker",
+          "protected_element": "Bus.sourcebus",
+          "standard_reference_declared_by_device": "ABB published IEC device rating; no full normative verification",
+          "reference_target": {
+            "id": "IEC_60947_2_2024",
+            "designation": "IEC 60947-2:2024",
+            "edition": "6.0",
+            "publication_date": "2024-09-18",
+            "scope_role": "reference_target_for_declared_breaker_ratings",
+            "full_conformance_claim": false
+          },
+          "fault": {
+            "current_ka": 30,
+            "operating_voltage_kv": 0.4,
+            "type": null,
+            "case": null,
+            "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+          },
+          "rating_used": {
+            "type": "Icu",
+            "value_ka": 36,
+            "ue_kv": 0.4
+          },
+          "other_declared_ratings_not_used_for_pass": {
+            "ics_ka": null,
+            "icw_ka": null
+          },
+          "margin_ka": 6,
+          "rating_to_fault_ratio": 1.2,
+          "full_standard_compliance_claim": false,
+          "professional_emission": false
+        },
+        "inputs": {
+          "section_mm2": 50,
+          "k_a_sqrt_s_per_mm2": 115,
+          "k_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published k=115 in k2S2 calculation",
+          "section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable"
+        },
+        "results": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 33062500,
+          "utilization_ratio": 0.022684310018903593,
+          "minimum_section_mm2": 7.530655685082075
+        }
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "total_let_through_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "minimum_section_mm2": 0
+        },
+        "reference": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 33062500,
+          "utilization_ratio": 0.022684310018903593,
+          "minimum_section_mm2": 7.530655685082075
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "kind": "EXPLICIT_EQUIVALENT_UNIT_CONTROL",
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 750000,
+          "unit": "A2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": true,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "PASS",
+        "energy_reference_status": "EXACT_PUBLISHED_POINT",
+        "energy_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA",
+        "unit_conversion": {
+          "input_unit": "A2s",
+          "output_unit": "A2s",
+          "multiplier": 1
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 50,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable",
+          "automatic_section_substitution": false
+        },
+        "breaking_capacity_check": {
+          "schema": "MCP_ELECTRICO_P5C_BREAKING_CAPACITY_CHECK_V1",
+          "status": "PASS",
+          "check": "DECLARED_BREAKING_CAPACITY_VS_FAULT_CURRENT",
+          "scope": "TECHNICAL_RATING_COMPARISON_NOT_FULL_STANDARD_COMPLIANCE",
+          "device_id": "Protection.abb_cb1",
+          "device_type": "circuit_breaker",
+          "protected_element": "Bus.sourcebus",
+          "standard_reference_declared_by_device": "ABB published IEC device rating; no full normative verification",
+          "reference_target": {
+            "id": "IEC_60947_2_2024",
+            "designation": "IEC 60947-2:2024",
+            "edition": "6.0",
+            "publication_date": "2024-09-18",
+            "scope_role": "reference_target_for_declared_breaker_ratings",
+            "full_conformance_claim": false
+          },
+          "fault": {
+            "current_ka": 30,
+            "operating_voltage_kv": 0.4,
+            "type": null,
+            "case": null,
+            "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+          },
+          "rating_used": {
+            "type": "Icu",
+            "value_ka": 36,
+            "ue_kv": 0.4
+          },
+          "other_declared_ratings_not_used_for_pass": {
+            "ics_ka": null,
+            "icw_ka": null
+          },
+          "margin_ka": 6,
+          "rating_to_fault_ratio": 1.2,
+          "full_standard_compliance_claim": false,
+          "professional_emission": false
+        },
+        "inputs": {
+          "section_mm2": 50,
+          "k_a_sqrt_s_per_mm2": 115,
+          "k_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published k=115 in k2S2 calculation",
+          "section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable"
+        },
+        "results": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 33062500,
+          "utilization_ratio": 0.022684310018903593,
+          "minimum_section_mm2": 7.530655685082075
+        }
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "total_let_through_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "minimum_section_mm2": 0
+        },
+        "reference": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 33062500,
+          "utilization_ratio": 0.022684310018903593,
+          "minimum_section_mm2": 7.530655685082075
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "factor": 0.999,
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": true,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "FAIL",
+        "energy_reference_status": "EXACT_PUBLISHED_POINT",
+        "energy_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA",
+        "unit_conversion": {
+          "input_unit": "kA2s",
+          "output_unit": "A2s",
+          "multiplier": 1000000
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 7.523125029396993,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable",
+          "automatic_section_substitution": false
+        },
+        "breaking_capacity_check": {
+          "schema": "MCP_ELECTRICO_P5C_BREAKING_CAPACITY_CHECK_V1",
+          "status": "PASS",
+          "check": "DECLARED_BREAKING_CAPACITY_VS_FAULT_CURRENT",
+          "scope": "TECHNICAL_RATING_COMPARISON_NOT_FULL_STANDARD_COMPLIANCE",
+          "device_id": "Protection.abb_cb1",
+          "device_type": "circuit_breaker",
+          "protected_element": "Bus.sourcebus",
+          "standard_reference_declared_by_device": "ABB published IEC device rating; no full normative verification",
+          "reference_target": {
+            "id": "IEC_60947_2_2024",
+            "designation": "IEC 60947-2:2024",
+            "edition": "6.0",
+            "publication_date": "2024-09-18",
+            "scope_role": "reference_target_for_declared_breaker_ratings",
+            "full_conformance_claim": false
+          },
+          "fault": {
+            "current_ka": 30,
+            "operating_voltage_kv": 0.4,
+            "type": null,
+            "case": null,
+            "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+          },
+          "rating_used": {
+            "type": "Icu",
+            "value_ka": 36,
+            "ue_kv": 0.4
+          },
+          "other_declared_ratings_not_used_for_pass": {
+            "ics_ka": null,
+            "icw_ka": null
+          },
+          "margin_ka": 6,
+          "rating_to_fault_ratio": 1.2,
+          "full_standard_compliance_claim": false,
+          "professional_emission": false
+        },
+        "inputs": {
+          "section_mm2": 7.523125029396993,
+          "k_a_sqrt_s_per_mm2": 115,
+          "k_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published k=115 in k2S2 calculation",
+          "section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable"
+        },
+        "results": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 748500.75,
+          "utilization_ratio": 1.002003004005006,
+          "minimum_section_mm2": 7.530655685082075
+        }
+      }
+    },
+    {
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "factor": 1.001,
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": true,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "PASS",
+        "energy_reference_status": "EXACT_PUBLISHED_POINT",
+        "energy_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA",
+        "unit_conversion": {
+          "input_unit": "kA2s",
+          "output_unit": "A2s",
+          "multiplier": 1000000
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 7.538186340767156,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable",
+          "automatic_section_substitution": false
+        },
+        "breaking_capacity_check": {
+          "schema": "MCP_ELECTRICO_P5C_BREAKING_CAPACITY_CHECK_V1",
+          "status": "PASS",
+          "check": "DECLARED_BREAKING_CAPACITY_VS_FAULT_CURRENT",
+          "scope": "TECHNICAL_RATING_COMPARISON_NOT_FULL_STANDARD_COMPLIANCE",
+          "device_id": "Protection.abb_cb1",
+          "device_type": "circuit_breaker",
+          "protected_element": "Bus.sourcebus",
+          "standard_reference_declared_by_device": "ABB published IEC device rating; no full normative verification",
+          "reference_target": {
+            "id": "IEC_60947_2_2024",
+            "designation": "IEC 60947-2:2024",
+            "edition": "6.0",
+            "publication_date": "2024-09-18",
+            "scope_role": "reference_target_for_declared_breaker_ratings",
+            "full_conformance_claim": false
+          },
+          "fault": {
+            "current_ka": 30,
+            "operating_voltage_kv": 0.4,
+            "type": null,
+            "case": null,
+            "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+          },
+          "rating_used": {
+            "type": "Icu",
+            "value_ka": 36,
+            "ue_kv": 0.4
+          },
+          "other_declared_ratings_not_used_for_pass": {
+            "ics_ka": null,
+            "icw_ka": null
+          },
+          "margin_ka": 6,
+          "rating_to_fault_ratio": 1.2,
+          "full_standard_compliance_claim": false,
+          "professional_emission": false
+        },
+        "inputs": {
+          "section_mm2": 7.538186340767156,
+          "k_a_sqrt_s_per_mm2": 115,
+          "k_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published k=115 in k2S2 calculation",
+          "section_source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published 50 mm2 Cu/PVC cable"
+        },
+        "results": {
+          "total_let_through_i2t_a2s": 750000,
+          "limit_k2s2_a2s": 751500.7499999999,
+          "utilization_ratio": 0.9980029960049942,
+          "minimum_section_mm2": 7.530655685082075
+        }
+      }
+    },
+    {
+      "kind": "NEGATIVE_APPLICABILITY_CONTROL",
+      "changed": {
+        "semantics": "PRE_ARCING_I2T"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "PRE_ARCING_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": false,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "ENERGY_SEMANTICS_NOT_TOTAL"
+      }
+    },
+    {
+      "kind": "NEGATIVE_APPLICABILITY_CONTROL",
+      "changed": {
+        "unit": "J"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "J",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": false,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "ENERGY_UNIT_NOT_SUPPORTED"
+      }
+    },
+    {
+      "kind": "NEGATIVE_APPLICABILITY_CONTROL",
+      "changed": {
+        "current_ka": 29
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 29,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": false,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "ENERGY_REFERENCE_POINT_MISMATCH"
+      }
+    },
+    {
+      "kind": "NEGATIVE_APPLICABILITY_CONTROL",
+      "changed": {
+        "voltage_kv": 0.415
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In160",
+          "current_ka": 30,
+          "voltage_kv": 0.415,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": false,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "ENERGY_REFERENCE_POINT_MISMATCH"
+      }
+    },
+    {
+      "kind": "NEGATIVE_APPLICABILITY_CONTROL",
+      "changed": {
+        "model": "T1N160 In125"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_TOTAL_LET_THROUGH_V1",
+        "scope": "EXACT_SOURCED_TOTAL_I2T_AND_DECLARED_BREAKING_CAPACITY",
+        "device_id": "Protection.abb_cb1",
+        "element": "Bus.sourcebus",
+        "fault": {
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA; published prospective current, NOT a network solve"
+        },
+        "energy_reference": {
+          "manufacturer": "ABB",
+          "model": "T1N160 In125",
+          "current_ka": 30,
+          "voltage_kv": 0.4,
+          "value": 0.75,
+          "unit": "kA2s",
+          "semantics": "TOTAL_LET_THROUGH_I2T",
+          "source_reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+        },
+        "thermal_calculation_performed": false,
+        "clearing_time": null,
+        "clearing_time_derived_from_i2t": false,
+        "interpolation_used": false,
+        "extrapolated": false,
+        "backup_coordination_claim": false,
+        "full_standard_compliance_claim": false,
+        "professional_emission": false,
+        "status": "ENERGY_DEVICE_IDENTITY_MISMATCH"
+      }
+    }
+  ],
+  "Device": {
+    "schema": "MCP_ELECTRICO_P5A_PROTECTION_DEVICE_V1",
+    "id": "Protection.abb_cb1",
+    "name": "abb_cb1",
+    "device_type": "circuit_breaker",
+    "protected_element": "Bus.sourcebus",
+    "manufacturer": "ABB",
+    "series": null,
+    "model": "T1N160 In160",
+    "poles": null,
+    "standard_reference": "ABB published IEC device rating; no full normative verification",
+    "utilization_category": null,
+    "ratings": {
+      "in_a": 160,
+      "ue_kv": 0.4,
+      "icu_ka": 36,
+      "ics_ka": null,
+      "icw_ka": null,
+      "breaking_capacity_ka": null
+    },
+    "settings": null,
+    "curve": null,
+    "provenance": {
+      "reference": "ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA",
+      "url": "https://library.e.abb.com/public/561a28a17753c444c125714f00360967/1SDC010001D0204.pdf"
+    },
+    "professional_emission": false
+  },
+  "TCCClearingGate": {
+    "schema": "MCP_ELECTRICO_P5D_CLEARING_TIME_V1",
+    "status": "TCC_DATA_NOT_BOUND",
+    "device_id": "Protection.abb_cb1",
+    "current_a": 30000,
+    "clearing_time": null,
+    "p4_tk_s_consumed": false,
+    "professional_emission": false
+  },
+  "restored_reference_passed": true,
+  "source_url": "https://library.e.abb.com/public/561a28a17753c444c125714f00360967/1SDC010001D0204.pdf",
+  "source_pdf_sha256": "88267fa9f77cc6dfdf7d6d1581a65040ae479aba91b977afb36475ab2df89e24",
+  "source_verified_upstream": true,
+  "fact_file_sha256": "1142792bbda7e9386a98d205acdb101ff780b5096691353d4ba8eb0bbf41f7fb",
+  "source_sha256": {
+    "mcp_electrico/protection_let_through.py": "6a463ecc9c895d7edca3196fc9ab3458ed1919b7cb5c3719a0a743ea8d7dd4c4",
+    "mcp_electrico/protection_check_tools.py": "fe6b35eaaf1f0db6b59a1f004b9602b8d38d71f1af6d2e36cd118c5ed65c7709",
+    "scripts/abb_let_through_reference.py": "c9e958b2b374b69889081f990a367397248e880f39b6a0015bde215b1d2b561e",
+    "scripts/verify_total_let_through_mcp.py": "edc071bf00bb81bfc5a5cdc58b0652c07d3d88febd83193318c31e55a4f24736"
+  },
+  "software": {
+    "mcp": "1.30.0",
+    "opendssdirect.py": "0.9.4"
+  },
+  "field_validation": false,
+  "complete_real_project_qualified": false,
+  "clearing_time_derived_from_i2t": false,
+  "full_standard_compliance_claim": false,
+  "evidence_revision": "361aa1a5c77383f039e68a41795806eea16e62f8",
+  "ci_job_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39075632964/job/117522085229",
+  "evidence_kind": "HISTORICAL_LINUX_ACCEPTANCE_BEFORE_CANONICAL_ELEMENT_HARDENING"
+}
