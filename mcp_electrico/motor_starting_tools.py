@@ -24,6 +24,11 @@ from . import (
 
 def register(mcp) -> None:
     @mcp.tool()
+    def configurar_falla_terminal_motor_modelica(ruta_omc: str, directorio_msl: str) -> dict:
+        """Registra el runtime de falla EMT 1.27.1/MSL 4.0.0 sin alterar el de DOL/SCR."""
+        return motor_fault_thermal.configure(ruta_omc, directorio_msl)
+
+    @mcp.tool()
     def validar_falla_terminal_motor_modelica(paquete_estudio: dict) -> dict:
         """Admite un motor estrella a velocidad impuesta y falla 3F terminal EMT."""
         return motor_fault_thermal.validate(paquete_estudio)

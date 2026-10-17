@@ -120,3 +120,13 @@ def test_model_uses_msl_components_and_no_custom_machine_equations(package):
     assert "Continuous.Integrator" in model and "each Goff=0" in model
     assert "der(" not in model and "reinit(" not in model
     assert not fault.contract()["iec60909_conformance_claim"]
+
+
+@pytest.mark.parametrize("version", ["OpenModelica 1.27.1", "OpenModelica v1.27.1", "OpenModelica v1.27.1 (64-bit)"])
+def test_official_release_version_spellings(version):
+    assert fault.supported_compiler_version(version)
+
+
+@pytest.mark.parametrize("version", ["OpenModelica 1.27.10", "OpenModelica 1.27.1-dev", "OpenModelica 1.26.0", "unverified runtime"])
+def test_other_compiler_versions_do_not_pass(version):
+    assert not fault.supported_compiler_version(version)

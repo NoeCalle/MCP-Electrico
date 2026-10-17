@@ -33,7 +33,7 @@ async def verify(args):
                     value = result.structuredContent or json.loads(next(b.text for b in result.content if b.type == "text"))
                     calls.append(name)
                     return value
-                rt = await call("configurar_dinamica_modelica", {"ruta_omc": str(args.omc.resolve()), "directorio_msl": str(args.msl.resolve())})
+                rt = await call("configurar_falla_terminal_motor_modelica", {"ruta_omc": str(args.omc.resolve()), "directorio_msl": str(args.msl.resolve())})
                 fixture = json.loads((ROOT/"examples/qualification/motor_terminal_fault_emt.json").read_text(encoding="utf8"))
                 invalid = deepcopy(fixture)
                 invalid["machine"]["rotor_resistance_ohm"] = None

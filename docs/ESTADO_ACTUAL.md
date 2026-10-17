@@ -107,7 +107,7 @@ Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
 escenarios P12, IEC 3F/2F/1F-T, ampacidad, coordinación temporal puntual,
 compensación, armónicos, series y paquetes Modelica. Conserva sus gates,
 resultados, efectos de modelo y reportes; no ejecuta dos motores ni hace fallback.
-El selector sigue siendo read-only. Hay **171 herramientas MCP** registradas.
+El selector sigue siendo read-only. Hay **172 herramientas MCP** registradas.
 Ver [contrato, parámetros y evidencia](EJECUCION_ESTUDIOS.md).
 
 ## Último cierre de cálculo — Q8

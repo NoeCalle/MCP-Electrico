@@ -8,6 +8,8 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
+import subprocess
 from math import isfinite, pi, sqrt
 from pathlib import Path
 
@@ -26,6 +28,54 @@ MACHINE_FIELDS = {
     "magnetizing_inductance_h", "zero_sequence_inductance_h",
     "rotor_inertia_kg_m2", "temperature_k", "source_reference",
 }
+
+
+CONFIG = Path(__file__).resolve().parents[1] / "local_data" / "modelica-fault-runtime.json"
+_configuration = None
+
+
+def supported_compiler_version(text):
+    return bool(re.fullmatch(r"OpenModelica v?1\.27\.1(?: \\(64-bit\\))?", text.strip()))
+
+
+def configure(executable, library):
+    """Record the real compiler version, including Linux's release spelling."""
+    global _configuration
+    compiler, msl = Path(executable).expanduser().resolve(), Path(library).expanduser().resolve()
+    if compiler.name.lower() not in {"omc", "omc.exe"} or not compiler.is_file():
+        raise ValueError("MOTOR_FAULT_RUNTIME: installed omc executable required")
+    required = ("Modelica/package.mo", "Complex.mo", "ModelicaServices/package.mo")
+    if any(not (msl/p).is_file() for p in required) or 'version="4.0.0"' not in (msl/required[0]).read_text(encoding="utf8"):
+        raise ValueError("MOTOR_FAULT_LIBRARY: unmodified Modelica 4.0.0 with dependencies required")
+    result = subprocess.run([str(compiler), "--version"], capture_output=True, text=True,
+                            stdin=subprocess.DEVNULL, env=runtime_adapter._environment(compiler),
+                            timeout=60, check=True)
+    version = result.stdout.strip()
+    if not supported_compiler_version(version):
+        raise ValueError("MOTOR_FAULT_COMPILER_VERSION: expected release 1.27.1; actual=" + version)
+    _configuration = {"executable": str(compiler), "library": str(msl), "compiler_version": version,
+                      "compiler_sha256": runtime_adapter._digest(compiler),
+                      "library_tree_sha256": runtime_adapter._library_digest(msl)}
+    CONFIG.parent.mkdir(parents=True, exist_ok=True)
+    CONFIG.write_text(json.dumps(_configuration, indent=2), encoding="utf8")
+    return dict(_configuration)
+
+
+def runtime():
+    global _configuration
+    if _configuration is None and not CONFIG.is_file():
+        return runtime_adapter.runtime()
+    try:
+        if _configuration is None:
+            _configuration = json.loads(CONFIG.read_text(encoding="utf8"))
+        if (not supported_compiler_version(_configuration["compiler_version"])
+            or runtime_adapter._digest(_configuration["executable"]) != _configuration["compiler_sha256"]
+            or runtime_adapter._library_digest(Path(_configuration["library"])) != _configuration["library_tree_sha256"]):
+            return {"ready": False, "reason": "Fault runtime changed; configure again"}
+        return {"ready": True, **_configuration}
+    except (OSError, KeyError, TypeError, ValueError):
+        return {"ready": False, "reason": "Fault runtime unavailable"}
+
 
 
 def contract():
@@ -90,7 +140,7 @@ def validate(package):
         if not 1e-8 <= root["switch_resistance_ohm"] <= 1: issue("switch_resistance_ohm", "explicit finite contact/fault resistance between 1e-8 and 1 ohm")
         if root["shaft_speed_rad_s"] > 2*pi*f/machine["pole_pairs"]:
             issue("shaft_speed_rad_s", "motoring range through synchronous speed only")
-    rt = runtime_adapter.runtime()
+    rt = runtime()
     return {"data_ready": not issues, "issues": issues, "runtime": rt,
             "ready_for_execution": not issues and rt["ready"], "contract": contract()}
 

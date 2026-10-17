@@ -29,6 +29,8 @@ red de planta, maniobras sucesivas ni una protección que determine el despeje.
 
 ## Entradas y herramientas
 
+- `configurar_falla_terminal_motor_modelica(ruta_omc, directorio_msl)` registra
+  la versión real 1.27.1 y hashes del compilador/biblioteca, sin modificar DOL/SCR.
 - `validar_falla_terminal_motor_modelica(paquete_estudio)` comprueba el
   contrato, parámetros SI, procedencia, presupuesto y runtime instalado.
 - `ejecutar_falla_terminal_motor_modelica(paquete_estudio, directorio_salida)`
@@ -38,8 +40,8 @@ red de planta, maniobras sucesivas ni una protección que determine el despeje.
 
 La [plantilla de prueba](../examples/qualification/motor_terminal_fault_emt.json)
 contiene valores de MSL y fronteras sintéticas declaradas. No es una ficha
-de placa de un motor industrial. Usa el runtime existente configurado mediante
-`configurar_dinamica_modelica`. El adaptador DOL/SCR previo permanece intacto.
+de placa de un motor industrial. Usa el runtime configurado para falla terminal; si no se ha seleccionado uno,
+admite el runtime DOL/SCR existente de la misma versión. El adaptador DOL/SCR previo permanece intacto.
 
 El modelo no admite campos adicionales que amplíen silenciosamente el alcance.
 Se exigen referencias, 50/60 Hz, resistencia de contacto/falla positiva,
