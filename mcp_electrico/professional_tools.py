@@ -99,8 +99,9 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     ) -> dict:
         """Indica motor/modelo, requisitos y aptitud sin ejecutar.
 
-        Dinámica DOL/SCR/simultánea/VFD, estabilidad transitoria/pequeña señal,
-        flujo continuado y EMT tienen rutas propuestas con adaptador pendiente.
+        DOL/SCR/simultánea conservan una ruta genérica de unifilar pendiente y
+        un adaptador de paquete RL explícito disponible. VFD, estabilidad,
+        flujo continuado y EMT conservan rutas propuestas pendientes.
         Consulta obtener_capacidades_motores para identificadores y límites.
         Una preferencia pendiente no habilita ejecución ni fallback propio.
         """

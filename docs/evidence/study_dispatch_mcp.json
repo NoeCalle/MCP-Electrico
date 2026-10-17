@@ -1,0 +1,211 @@
+{
+  "ok": true,
+  "transport": "MCP_STDIO",
+  "checked_at_utc": "2026-10-17T19:33:25.008145+00:00",
+  "registered_tools": 168,
+  "call_count": 26,
+  "checks": [
+    "Registered contracts and parameter schemas",
+    "Unsupported, ambiguous and invalid requests do not invoke executors",
+    "OpenDSS flow and voltage drop equal explicit public execution",
+    "Native armonicos execution, saved artifacts and parent model preservation",
+    "Native series_temporales execution, saved artifacts and parent model preservation",
+    "Native actuacion_reles execution, saved artifacts and parent model preservation",
+    "Native compensacion_reactiva execution, saved artifacts and parent model preservation",
+    "Modelica DOL, SCR and multimotor gates preserved; no new physical simulations",
+    "IEC 3F review gate cannot be bypassed",
+    "Pandapower IEC 3F executes with explicitly reviewed synthetic inputs",
+    "P12 restores declared manifest base and preserves failed design criterion"
+  ],
+  "calls": [
+    {
+      "tool": "obtener_contrato_ejecucion_estudios",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "arc_flash",
+      "status": "BLOCKED_DISPATCH_ROUTE",
+      "executor": null,
+      "invoked": false
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "iec60909",
+      "status": "BLOCKED_FAULT_TYPE",
+      "executor": null,
+      "invoked": false
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "flujo",
+      "status": "BLOCKED_PARAMETERS",
+      "executor": "ejecutar_flujo_potencia",
+      "invoked": false
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "dinamica_variador",
+      "status": "BLOCKED_DISPATCH_ROUTE",
+      "executor": null,
+      "invoked": false
+    },
+    {
+      "tool": "crear_circuito",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "agregar_linea",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "agregar_carga",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "flujo",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_flujo_potencia",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_flujo_potencia",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "caida_tension",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "analizar_caida_tension",
+      "invoked": true
+    },
+    {
+      "tool": "analizar_caida_tension",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "armonicos",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_armonicos",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "series_temporales",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_series_temporales",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "actuacion_reles",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_actuacion_reles",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "compensacion_reactiva",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_compensacion_reactiva",
+      "invoked": true
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "dinamica_arranque_directo",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_dinamica_modelica",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "dinamica_scr",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_dinamica_modelica",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "dinamica_simultanea",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_dinamica_modelica",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "iec60909",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_cortocircuito_iec60909_3ph",
+      "invoked": true
+    },
+    {
+      "tool": "definir_red_equivalente",
+      "study": null,
+      "status": null,
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "evaluar_preparacion_cortocircuito_3ph",
+      "study": null,
+      "status": "REQUIERE_REVISION_PREVIA",
+      "executor": null,
+      "invoked": null
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "cortocircuito",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_cortocircuito_iec60909_3ph",
+      "invoked": true
+    },
+    {
+      "tool": "ejecutar_estudio",
+      "study": "N-1",
+      "status": "EXECUTOR_RETURNED",
+      "executor": "ejecutar_escenarios_operativos",
+      "invoked": true
+    }
+  ],
+  "modelica_physical_simulations_performed": false,
+  "source_sha256": {
+    "mcp_electrico/study_dispatch.py": "2b1f542f2d3e7eea27d6f27d402a3023dcc9af3b82e98ff0325b916305bf2114",
+    "mcp_electrico/engine_selection.py": "40522e886ff3c7ad14a996826fbd1385266b583f4e174ed0c433f78a820c0d7f",
+    "server.py": "13574d7df958b8127978b35ba5d1dcf2aaf9ce0095e5489b46d0ea534bd04356",
+    "scripts/verify_study_dispatch_mcp.py": "e71deeb0b7f82f84247599f834992eb2d6523048c83ff400654d67b05ab7031d"
+  }
+}

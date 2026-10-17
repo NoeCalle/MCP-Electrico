@@ -44,6 +44,11 @@ El HTML no contiene un segundo chatbot ni usa una API de modelos: ChatGPT sigue
 siendo la interfaz conversacional, OpenDSS sigue siendo el motor eléctrico y el
 workspace es una vista estructurada del estado, propiedades y estudios.
 
+`ejecutar_estudio` conecta la tabla de motores con los ejecutores existentes:
+una ruta por tarea, parámetros explícitos y los mismos gates, sin fallback ni
+ejecución doble. `obtener_contrato_ejecucion_estudios` expone rutas y esquemas.
+Ver [uso y alcance](docs/EJECUCION_ESTUDIOS.md). El selector sigue siendo read-only.
+
 > **Estado:** Engineering Preview 0.9 operativa local. P0–P11 conservan sus
 > cierres con limitaciones; P12A–P12F están completas como escenarios estáticos
 > explícitos; P13A–P13E incluyen motores estáticos, perfiles, secuencias y dossier.

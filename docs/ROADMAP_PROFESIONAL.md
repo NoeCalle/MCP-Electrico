@@ -755,6 +755,7 @@ reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega
 | Cerrado Q7 | Perfiles temporales Daily/Yearly | OpenDSS | Perfiles P/Q, balances y energía del periodo verificados con referencias nativas e independientes; [alcance](SERIES_TEMPORALES_OPENDSS.md) |
 | Cerrado Q8 | Actuación de relés | pandapower OCRelay | DTOC/IDMT/IDTOC explícitos, actuación contrastada y tiempos separados; [alcance](ACTUACION_RELES_PANDAPOWER.md) |
 | Cerrado Q9 | Informes de motores MSL | MCP | Gráficos por motor, barra/terminal, comparación, criterios y exportación; [alcance](INFORMES_MOTORES_Q9.md) |
+| Cerrado | Tabla → ejecución de estudios | Orquestación MCP | Una ruta por petición, gates y ejecutores públicos conservados; [contrato y evidencia](EJECUCION_ESTUDIOS.md) |
 | Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
 DOL/SCR y bancos estáticos están cerrados en alcance; se conservan sus

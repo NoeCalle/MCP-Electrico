@@ -1,6 +1,6 @@
 # Arquitectura: integrar herramientas existentes
 
-**Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
+**Estado vigente: 17 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
 
 ## Decisión del usuario
 
@@ -29,6 +29,11 @@ La matriz asigna una ruta operativa principal por estudio. Las alternativas
 investigadas son reservas; no implican instalaciones comprometidas ni ejecución
 doble. Los contrastes puntuales de validación pueden utilizar una referencia
 independiente sin crear una segunda ruta operativa permanente.
+
+`ejecutar_estudio` conecta las rutas admitidas con sus herramientas públicas.
+Selecciona un solo ejecutor, preserva sus validadores y no hace fallback.
+La selección read-only no ejecuta; la nueva entrada exige una petición explícita
+con los parámetros del estudio. Ver [contrato de ejecución](EJECUCION_ESTUDIOS.md).
 
 Las preferencias de rutas pendientes son propuestas revisables. En particular,
 no se incorporará VeraGrid solamente para CPF si un motor ya integrado lo cubre
@@ -76,9 +81,9 @@ interacción red/máquinas, balances y rechazo de ejecuciones incompletas.
 [Detalle DOL](MSL_DOL_VERIFICACION.md), [SCR original](MSL_SCR_REFERENCIA_ORIGINAL.md)
 y [dos SCR](MSL_SCR_DOS_MOTORES.md).
 
-El siguiente trabajo integra armónicos y perfiles con OpenDSS, actuación de
-relés con pandapower y mejoras de informes/visualización. Se mantienen las
-regresiones cerradas y una ruta principal por estudio.
+Armónicos Q6, perfiles Q7, relés Q8 e informes Modelica Q9 están integrados
+dentro de sus alcances. La entrada común conecta las rutas con la ejecución;
+se mantienen las regresiones y una ruta principal por estudio.
 
 Arc Flash permanece diferido por instrucción del usuario.
 

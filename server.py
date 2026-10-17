@@ -2,9 +2,8 @@
 Servidor MCP Eléctrico.
 
 La lógica eléctrica principal vive en mcp_electrico.core y mcp_electrico.studies.
-OpenDSS continúa siendo el motor por defecto. Pandapower se incorpora como un
-segundo motor experimental, invocado de forma explícita y sin cross-check ni
-selección automática en esta fase.
+Cada tarea utiliza su motor asignado. ejecutar_estudio conecta la tabla con
+los ejecutores públicos, sin fallback ni cross-check entre motores.
 """
 
 from __future__ import annotations
@@ -21,6 +20,7 @@ from mcp_electrico import (
     professional_tools,
     short_circuit_precheck,
     studies,
+    study_dispatch,
     visual_state,
     visual_sheets,
     workspace,
@@ -564,6 +564,7 @@ professional_tools.register(
 )
 conductor_tools.register(mcp, _refresh_after_model_change)
 visual_sheets.register(mcp)
+study_dispatch.register(mcp)
 
 
 def main(argv: list[str] | None = None) -> None:

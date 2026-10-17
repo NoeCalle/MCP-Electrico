@@ -1,0 +1,27 @@
+name: study-dispatch
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  single-engine:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest tests/test_study_dispatch.py tests/test_engine_selection.py -q
+      - run: python scripts/verify_study_dispatch_mcp.py --output outputs/dispatch-mcp
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study-dispatch-${{ matrix.os }}
+          path: outputs/dispatch-mcp
