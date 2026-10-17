@@ -88,6 +88,19 @@ upstream por hash y conservan respuestas MCP, referencias, errores, versiones
 y hashes de codigo en sus artefactos. No hay descarga externa en el uso
 productivo de la herramienta.
 
+## Evidencia conservada
+
+Primera aceptacion: commit `361aa1a5c77383f039e68a41795806eea16e62f8`,
+[banco Linux/Windows](https://github.com/NoeCalle/MCP-Electrico/actions/runs/39075632964).
+Aprobo 47 pruebas dirigidas y 13 llamadas MCP por plataforma. Ambos verificaron
+el PDF upstream y las 169 herramientas registradas. La suite general de esa
+revision aprobo 1.300 pruebas, con 62 omitidas.
+
+La [evidencia Linux](evidence/total_i2t_q12c_linux.json) corresponde exactamente
+a esa revision. El refuerzo posterior de normalizacion de nombres del elemento
+y su prueba de no elusion se verifican de nuevo en CI antes de integrar.
+Los resultados preservan `clearing_time=null` y el bloqueo P5D sin TCC.
+
 ## Investigacion de proyectos y limite de cierre
 
 Se reviso si LuPech publicaba curvas y tiempos finales suficientes: el
@@ -95,12 +108,12 @@ expediente no aporta el paquete necesario para vincular el criterio de
 40 kA de Q12B a un despeje comprobado por curvas. No se renombra su tabla
 de energia como una curva autentificada del fabricante.
 
-Tambien se obtuvo la tesis UNAB de Karina Blanco Usuga (2022), anexo de la
+Tambien se obtuvo la [tesis UNAB de Karina Blanco Usuga (2022)](https://repository.unab.edu.co/bitstream/20.500.12749/17620/1/2022_Tesis_Karina_Blanco_Usuga.pdf), anexo de la
 Urbanizacion El Carmen. Contiene cifras de falla, Icu y duracion, pero no
 el paquete suficiente de identidad y TCC para cerrar por inferencia la cadena.
 El ejemplo ABB evita completar ese faltante con un tiempo supuesto.
 
-Q12C amplifica la validacion externa del subcalculo de proteccion/conductor
+Q12C amplia la validacion externa del subcalculo de proteccion/conductor
 con una referencia primaria y una ruta energetica explicita. VP-P5C-03
 permanece abierto para el estudio real integral y los tiempos de despeje.
 El registro de madurez Q11 no se promociona por esta ampliacion. La red real

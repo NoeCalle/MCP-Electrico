@@ -96,6 +96,15 @@ def test_registered_conductor_section_is_not_substituted(setup_case,monkeypatch)
     assert not result["thermal_calculation_performed"]
 
 
+def test_whitespace_cannot_bypass_the_registered_conductor(setup_case,monkeypatch):
+    setup_case["elemento"] = "  Bus.sourcebus  "
+    monkeypatch.setattr(conductor_library,"obtener_asignacion",
+        lambda e:{"producto":{"seccion_mm2":35}} if e == "Bus.sourcebus" else None)
+    result = energy.evaluar_energia_pasante_conductor(**setup_case)
+    assert result["status"] == "SECTION_MISMATCH"
+    assert not result["thermal_calculation_performed"]
+
+
 def test_cut_rating_at_another_voltage_is_not_reused(setup_case):
     protection_data.reset()
     protection_data.definir_dispositivo("abb_cb1","circuit_breaker","Bus.sourcebus",160,.69,

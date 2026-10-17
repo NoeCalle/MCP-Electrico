@@ -72,7 +72,7 @@ def evaluar_energia_pasante_conductor(
             return {**base,"status":"ENERGY_DEVICE_IDENTITY_MISMATCH"}
     if not isclose(float(device.get("ratings",{}).get("ue_kv") or 0),voltage,rel_tol=1e-9,abs_tol=1e-12):
         return {**base,"status":"BREAKING_RATING_VOLTAGE_MISMATCH"}
-    binding = _section_binding(str(elemento),section,section_source)
+    binding = _section_binding(device["protected_element"],section,section_source)
     if binding["status"] == "SECTION_MISMATCH":
         return {**base,"status":"SECTION_MISMATCH","section_binding":binding}
     breaking = evaluar_capacidad_corte(dispositivo,fault,voltage,fault_source)
