@@ -42,6 +42,14 @@ Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_
 Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
 y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
+## Validación de diseño real — Q12B
+
+Siete selecciones de cables del proyecto LuPech, con corriente, duración,
+k y sección publicados, contrastan la soportabilidad adiabática vía MCP.
+Seis cumplen y una falla el criterio publicado; la discrepancia se conserva.
+Ver [alcance y límites](VALIDACION_REAL_LUPECH_Q12B.md). La calificación de
+la instalación completa y el despeje de sus protecciones siguen abiertos.
+
 ## Caso industrial — Q12A
 
 Auditado el caso UNAM: cuatro variantes diagnósticas de la topología publicada,

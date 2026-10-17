@@ -43,6 +43,20 @@ la instalación propuesta se haya construido o ensayado. Sus valores de
 impedancia del apartado de puesta a tierra no se trasladaron al modelo de
 flujo sin aclarar bases, unidades y correspondencia con las capturas ETAP.
 
+## Avance con diseño industrial real — Q12B
+
+Comillas / Cristina López Rodríguez-Roselló (2023), proyecto de refinería LuPech
+ESS-044 con Intecsa Industrial: PDF completo de 575 páginas obtenido y hash
+fijado. Se admiten siete cálculos de soportabilidad de cables, tablas 105-107
+(páginas 159-161), con datos completos para ese subcálculo. No se admite por
+inferencia la planta completa. Ver [fuente, resultados y límites](VALIDACION_REAL_LUPECH_Q12B.md).
+
+También se investigó Norgesnett/SINTEF, red industrial noruega con datos
+medidos (DOI 10.5281/zenodo.10361330). El artículo de datos explica que varias
+impedancias desconocidas se publican como cero y ratings desconocidos como
+1000; esos valores no se adoptan como equipos ideales o ratings reales.
+Referencia: https://pmc.ncbi.nlm.nih.gov/articles/PMC10139931/
+
 ## Regla de admisión y siguiente trabajo
 
 Un caso completo requiere topología, frecuencia, tensiones y referencia de

@@ -101,6 +101,13 @@ Mientras este dataset no exista:
 
 ## VP-P5C-03 — caso externo de protección/conductor
 
+**Avance Q12B (17 de octubre):** siete selecciones de cables del proyecto real
+LuPech reproducen el cálculo adiabático publicado mediante MCP. Se conserva
+una selección de 300 mm² que falla el criterio individual de 40 kA/1 s.
+[Alcance y fuente](VALIDACION_REAL_LUPECH_Q12B.md). Es evidencia externa del
+subcálculo con k y duración explícitos; no cierra este pendiente integral,
+porque faltan enlace de barra/revisión, dispositivo, rating y despeje por curva.
+
 **Estado:** `PENDING_EXTERNAL_REFERENCE_CASE`
 
 Pendiente contrastar al menos un alimentador real o benchmark publicado que incluya, con los mismos datos y supuestos:
