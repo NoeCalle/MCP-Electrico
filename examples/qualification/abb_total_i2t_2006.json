@@ -1,0 +1,30 @@
+{
+  "schema": "MCP_Q12C_MANUFACTURER_I2T_V1",
+  "source_url": "https://library.e.abb.com/public/561a28a17753c444c125714f00360967/1SDC010001D0204.pdf",
+  "source_title": "ABB SACE Electrical Installation Handbook, 2006, electrical devices, section 2.4, Example Choice of CB1",
+  "source_pdf_sha256": "88267fa9f77cc6dfdf7d6d1581a65040ae479aba91b977afb36475ab2df89e24",
+  "source_pdf_bytes": 1642486,
+  "source_pdf_pages": 270,
+  "printed_page": 74,
+  "pdf_page_one_based": 77,
+  "provenance": "Published manufacturer worked example, not an identified field installation",
+  "voltage_kv": 0.4,
+  "fault_current_ka": 30,
+  "device": {"manufacturer":"ABB","model":"T1N160 In160","in_a":160,"icu_ka":36},
+  "conductor": {"section_mm2":50,"material":"Copper","insulation":"PVC","length_m":150,"ampacity_a":134,"k_a_sqrt_s_per_mm2":115},
+  "energy_point": {
+    "manufacturer":"ABB",
+    "model":"T1N160 In160",
+    "current_ka":30,
+    "voltage_kv":0.4,
+    "value":0.75,
+    "unit":"kA2s",
+    "semantics":"TOTAL_LET_THROUGH_I2T",
+    "source_reference":"ABB 1SDC010001D0204, printed p.74 / PDF p.77: protection at conductor beginning, specific let-through energy at 30 kA"
+  },
+  "published_cable_capacity_ka2s":33.1,
+  "published_result":"Cable protected against short circuit at its beginning",
+  "minimum_fault_at_cable_end_ka":1.98,
+  "minimum_fault_calculation_admitted":false,
+  "excluded": ["No grid or source-equivalent calculation", "No fault waveform or clearing-time reconstruction", "No interpolation of the single I2t point", "No ampacity or voltage-drop verification", "No automatic selectivity/backup claim", "No complete real-project qualification"]
+}

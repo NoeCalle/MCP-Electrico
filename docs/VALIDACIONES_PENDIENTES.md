@@ -101,6 +101,12 @@ Mientras este dataset no exista:
 
 ## VP-P5C-03 — caso externo de protección/conductor
 
+**Avance Q12C:** referencia primaria ABB y nueva comprobación de energía
+pasante total para el mismo dispositivo, tensión y corriente. El ejemplo
+publicado contrasta Icu, I²t y k²S² sin fabricar una duración de despeje.
+[Alcance](ENERGIA_PASANTE_Q12C.md). Este subcálculo no cierra el caso real
+integral ni la validación de tiempos por curvas.
+
 **Avance Q12B (17 de octubre):** siete selecciones de cables del proyecto real
 LuPech reproducen el cálculo adiabático publicado mediante MCP. Se conserva
 una selección de 300 mm² que falla el criterio individual de 40 kA/1 s.

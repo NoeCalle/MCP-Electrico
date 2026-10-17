@@ -1,0 +1,29 @@
+name: total-let-through
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  total-i2t:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      POWERSHELL_TELEMETRY_OPTOUT: '1'
+      OTEL_SDK_DISABLED: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest tests/test_total_let_through.py tests/test_p5c_protection_checks.py tests/test_p5d_clearing_time.py -q
+      - run: python scripts/verify_total_let_through_mcp.py --output outputs/total-i2t --verify-upstream
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: total-i2t-${{ matrix.os }}
+          path: outputs/total-i2t

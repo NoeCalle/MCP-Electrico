@@ -42,6 +42,14 @@ Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_
 Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
 y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
+## Energía pasante total — Q12C
+
+Nueva herramienta P5C para comparar I²t total publicado con k²S² y la
+capacidad de corte del mismo dispositivo/punto. Referencia primaria ABB,
+identidad y unidades explícitas, sin inventar tiempo TCC. Ver
+[alcance y evidencia](ENERGIA_PASANTE_Q12C.md). La instalación real completa
+y sus tiempos de despeje siguen pendientes.
+
 ## Validación de diseño real — Q12B
 
 Siete selecciones de cables del proyecto LuPech, con corriente, duración,
@@ -80,7 +88,7 @@ Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
 escenarios P12, IEC 3F/2F/1F-T, ampacidad, coordinación temporal puntual,
 compensación, armónicos, series y paquetes Modelica. Conserva sus gates,
 resultados, efectos de modelo y reportes; no ejecuta dos motores ni hace fallback.
-El selector sigue siendo read-only. Hay **168 herramientas MCP** registradas.
+El selector sigue siendo read-only. Hay **169 herramientas MCP** registradas.
 Ver [contrato, parámetros y evidencia](EJECUCION_ESTUDIOS.md).
 
 ## Último cierre de cálculo — Q8
