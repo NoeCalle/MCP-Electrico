@@ -105,3 +105,31 @@ python scripts/verify_external_feeders_mcp.py --output outputs/external-feeders 
 El directorio de salida debe ser nuevo. Evidence.json registra estados,
 versiones y fuentes; Integrity.json inventaría los archivos, entradas, resultados,
 referencias y netlist. MCP-stderr.log es un registro de diagnóstico separado.
+
+## Primer contraste terminado
+
+Ejecución Windows aprobada en [CI](https://github.com/NoeCalle/MCP-Electrico/actions/runs/39064995668/job/117490655598),
+commit `aa864bce15ed2c894fde093324f25cdb4bb8f400`. El resumen versionado
+[conserva resultados, errores y hashes](evidence/external_feeders_windows.json).
+El expediente completo y su netlist se conservan como artefacto de esa ejecución.
+
+| Caso al 100 % | Referencia de pérdidas | MCP/OpenDSS | Tensión mínima de referencia |
+|---|---|---|---|
+| 33 barras | 202.677126 kW | 202.677 kW | 0.913090 pu, n18 |
+| 69 barras | 224.991694 kW | 224.992 kW | 0.909188 pu, n65 |
+
+Los seis casos cumplieron todas las tolerancias fijadas. El máximo error de
+tensión en el resultado público fue inferior a 0.00005 pu, consistente con
+su redondeo a cuatro decimales. Hubo **152 llamadas MCP**, **100 contingencias**
+y **43 pruebas dirigidas aprobadas** (33 del banco y 10 de materialización/runtime).
+
+La representación con los valores internos anteriores dio 185.667 kW y
+197.806 kW, diferencias de 17.010 kW y 27.186 kW respecto del caso publicado.
+No eran las mismas condiciones de fuente y carga. Los nuevos campos permiten
+declararlas fielmente; no cambian silenciosamente las condiciones de proyectos
+anteriores ni convierten los defaults en datos de fabricante.
+
+Al 125 % las tensiones mínimas son aproximadamente 0.8889 y 0.8834 pu.
+Un cálculo numérico verificado no implica que el diseño cumpla sus límites.
+Las redes radiales sin respaldo pierden servicio en las contingencias: que
+la prueba detecte correctamente esa pérdida no significa que la red cumpla N-1.

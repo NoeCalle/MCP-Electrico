@@ -1,6 +1,6 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **17 de octubre de 2026**, ejecución por ruta y presentación Q9; registro de calificación `Q8_RELAY_OPERATION_2026_10_16`.
+Actualizado: **17 de octubre de 2026**, ejecución por ruta y presentación Q9; registro de calificación `Q10_EXTERNAL_FEEDERS_2026_10_17`.
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
@@ -14,7 +14,7 @@ conservar evidencia y explicar errores, faltantes y resultados.
 
 | Estudio | Ruta principal | Alcance vigente / evidencia |
 |---|---|---|
-| Flujo, caída, pérdidas y cargabilidad | OpenDSS | P1 dentro del banco radial equilibrado; [matriz de capacidades](MATRIZ_CAPACIDADES_ACTUALES.md) |
+| Flujo, caída, pérdidas y cargabilidad | OpenDSS | P1 y contraste externo case33bw/case69 equilibrados PQ (50/100/125%); cargabilidad solo con ratings explícitos; [matriz de capacidades](MATRIZ_CAPACIDADES_ACTUALES.md) |
 | Contingencias, transferencias y deslastre | OpenDSS | Escenarios estáticos explícitos P12; no optimización ni transferencia dinámica |
 | Cortocircuito IEC 60909 | pandapower | P4-v1 3F/2F/1F-T y fichas admitidas; [alcance P4](P4_IEC60909.md) |
 | Ampacidad, protección de cables y TCC | Tablas/curvas trazables + postproceso MCP | P3/P5 verificados en alcance; Q8 OCRelay tiene su contrato independiente |
@@ -29,6 +29,15 @@ conservar evidencia y explicar errores, faltantes y resultados.
 El MCP configura componentes existentes y procesa resultados. **La física
 propia DOL/RK4 y SCR/RL está retirada**, sin fallback. No se agrega otro motor
 para duplicar una ruta suficiente. Ver [arquitectura](ARQUITECTURA_INTEGRACION.md).
+
+## Calificación externa — Q10
+
+Dos redes publicadas (33/69 barras), seis niveles/casos de carga contrastados
+contra PYPOWER AC Newton como referencia de validación; ejecución operativa
+OpenDSS mediante MCP. Se verifican 100 aperturas radiales, pérdida de servicio
+y restauración. Las fronteras PF y los rangos PQ se declaran explícitamente;
+no se inventan SCC, ratings ni paquetes de otros estudios.
+Ver [resultados, fuentes y límites](CALIFICACION_ALIMENTADORES_EXTERNOS.md).
 
 ## Último cierre de presentación — Q9
 
