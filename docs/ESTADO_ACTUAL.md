@@ -42,6 +42,17 @@ Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_
 Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
 y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
+## Expediente de instalación real — Brno
+
+Recuperados el proyecto ETAP original y tres informes SQLite de una fábrica
+alimentaria existente. La auditoría encuentra ángulos de transformador distintos,
+una sola ubicación de falla guardada y ajustes reales todavía no confirmados.
+No se ejecutó esta fábrica mediante MCP ni se cierra la validación integral.
+Ver [hallazgos y auditoría reproducible](EXPEDIENTE_INSTALACION_REAL_BRNO.md) y
+[paquete concreto para cerrar el caso](PAQUETE_PARA_CERRAR_INSTALACION_REAL.md).
+También quedan fuera de contrato el Ith con máquinas y la puesta a tierra
+compensada si se exige reproducir íntegramente esta fábrica.
+
 ## Energía pasante total — Q12C
 
 Nueva herramienta P5C para comparar I²t total publicado con k²S² y la

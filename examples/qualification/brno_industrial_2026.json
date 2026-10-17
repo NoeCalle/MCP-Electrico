@@ -1,0 +1,54 @@
+{
+  "schema": "BRNO_PUBLIC_ARCHIVE_AUDIT_V1",
+  "case_id": "BRNO_FOOD_FACTORY_POLAK_2026",
+  "author": "Máté Áron Polák",
+  "institution": "Brno University of Technology",
+  "record_url": "https://www.vut.cz/studenti/zav-prace/detail/176344",
+  "thesis": {
+    "url": "https://www.vut.cz/www_base/zav_prace_soubor_verejne.php?file_id=299910",
+    "sha256": "f956e6754bf4c48795bff15cd6760c093c119703ad48a8d6e0a5c9cf03c46b66",
+    "bytes": 7066894,
+    "pages": 102,
+    "reviewed_pdf_pages_one_based": [31, 32, 33, 34, 35, 43, 44, 45, 59, 60]
+  },
+  "archive": {
+    "url": "https://www.vut.cz/www_base/zav_prace_soubor_verejne.php?file_id=299911",
+    "sha256": "87520699f504aa964f8e438c7426bb99d28d74e8b2d609213d7fc513da8c180d",
+    "bytes": 13341749,
+    "members": {
+      "Untitled.LF1S": "6b175ddb2aabc8e2637c47ad82df51cd0c6830cd04950fbb303279995af0eab5",
+      "Untitled.SI1S": "14594fc708c31f3984637604f4e5037f387e9721881988455e050ecf54dce817",
+      "Untitled.SQ2S": "6333d616074156f0d4dd3f68b3ab98760db44be02a34ff015653dbfecb186425"
+    }
+  },
+  "expected_observations": {
+    "counts": {
+      "LF1S": {"IBus": 273, "Icable": 244, "IXFMR2": 12, "IConnect": 270},
+      "SI1S": {"IBus": 267, "Icable": 238, "IXFMR2": 12, "IConnect": 264},
+      "SQ2S": {"IBus": 267, "Icable": 238, "IXFMR2": 12, "IConnect": 264}
+    },
+    "phase_angles_raw_degrees": {"LF1S": [0.0], "SI1S": [0.0], "SQ2S": [30.0]},
+    "cable_temperatures_raw_c": {"LF1S": [75], "SI1S": [20], "SQ2S": [75]},
+    "lf_only_cables_vs_sc": ["LV.22-WL0.2", "LV.32-WL0.1", "LV.42-WL0.1", "N°1", "N°217", "N°59"],
+    "fault_locations_in_sequence_export": ["Bus194"],
+    "sequence_rows": 11,
+    "did_not_trip_rows": 9,
+    "transformers_with_secondary_petersen_coil": {"LF1S": 12, "SI1S": 12, "SQ2S": 12},
+    "sc_sq_cable_geometry_equal": true
+  },
+  "admission": {
+    "installation_validation_closed": false,
+    "electrical_simulation_performed": false,
+    "field_validation_performed": false,
+    "professional_emission": false,
+    "status": "BLOCKED_FOR_COMPLETE_INSTALLATION_VALIDATION",
+    "blocking_items": [
+      "Reconcile exported transformer phase angles with the documented Dyn1 connection on one frozen revision.",
+      "Reconcile LV secondary Petersen-coil entries with the documented LV TN-C and MV compensated grounding.",
+      "Export all device identities, settings, TCC tolerances, breaking ratings and total-clearing semantics; the single saved fault sequence is insufficient.",
+      "Identify measured/nameplate inputs versus estimates and substituted breakers; authorize the intended comparison scope.",
+      "Provide explicit source MAX/MIN cases and a documented projection from the frozen model for every requested study.",
+      "Qualify or exclude by an explicit scope decision the machine-decay/Ith and compensated-grounding behavior outside current supported contracts."
+    ]
+  }
+}
