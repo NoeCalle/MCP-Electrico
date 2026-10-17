@@ -1,0 +1,24 @@
+name: industrial-source-audit
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  archive-audit:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Audit original public archive without electrical execution
+        run: python scripts/audit_brno_industrial_archive.py --verify-upstream --output outputs/brno-audit/source-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: industrial-source-audit-${{ matrix.os }}
+          path: outputs/brno-audit

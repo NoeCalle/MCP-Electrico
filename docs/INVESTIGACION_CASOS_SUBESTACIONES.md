@@ -70,3 +70,15 @@ La ausencia de un dato se registra; no se completan datos de una tesis con
 valores por defecto para luego declarar concordancia. El banco Q11 resuelve
 la verificación de transformadores en un alcance acotado. La calificación de
 una instalación real completa y su revisión de ingeniería siguen abiertas.
+
+## Proyecto original recuperado — Brno 2026
+
+Se obtuvo desde el portal oficial VUT la tesis de Máté Áron Polák y su ZIP
+con proyecto ETAP e informes SQLite. Se auditó la fábrica alimentaria real
+con 12 transformadores: 273 barras/244 cables en flujo y 267/238 en SC/secuencia.
+Los mismos encabezados no garantizan la misma revisión eléctrica; hay ángulos
+y opciones diferentes, además de supuestos y sustituciones declarados por el autor.
+La única secuencia guardada tiene una ubicación de falla. No se simula ni se
+califica la instalación a partir de esos resultados. Ver
+[expediente reproducible](EXPEDIENTE_INSTALACION_REAL_BRNO.md) y
+[dependencias de cierre](PAQUETE_PARA_CERRAR_INSTALACION_REAL.md).
