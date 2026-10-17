@@ -52,7 +52,7 @@
   "solver_executed": false,
   "parent_model_preserved": true,
   "source_files_preserved": true,
-  "checked_at_utc": "2026-10-17T02:01:56.070788+00:00",
+  "checked_at_utc": "2026-10-17T19:00:44.649817+00:00",
   "source_file_hashes": {
     "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-two-02\\ideal-simultaneous\\Inputs.json": "5c29d1ae1632a5d276906e4dd740cb242f58efdad668b1ba34d2a4d3890d69cf",
     "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\SCR-two-02\\ideal-simultaneous\\Results.json": "f6247be3b7246b361201d1e4cb033e92db724467ddab1c03cd55e57a39d51b2d",
@@ -71,7 +71,7 @@
     "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\msl-adapter-dol-01\\Inputs.json": "089d5274ec3a9f9cc44a9168bf52be3d6a7195ab175267eb56f5bcf07e7fb2c8",
     "C:\\Users\\noeca\\Documents\\Codex\\2026-09-30\\co\\work\\msl-adapter-dol-01\\Results.json": "3799be6c9b2e2a4b13038eff35cd29d4af5ee01be3b7dc518356c3a30da2fedc"
   },
-  "report_source_sha256": "2d5745ecaca1f509fbc843992136777af7f8048ac59b329cff8e2354de9576ab",
+  "report_source_sha256": "7569263ffae3ec99a3e5f929f26cd6710d88a458576e3b9b80307e8921641ffd",
   "report_files_sha256": {
     "case-01/Inputs.json": "5c29d1ae1632a5d276906e4dd740cb242f58efdad668b1ba34d2a4d3890d69cf",
     "case-01/motor-01-chart-1.svg": "4729b8c73e22216ea2d79a957c9b8b16db0fb3c6de07265f88f82f930b9fd7c8",

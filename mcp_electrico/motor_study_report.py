@@ -325,6 +325,16 @@ def verify(directory):
     return {"ok":not issues,"issues":issues,"solver_executed":False,"professional_emission":False}
 
 
+def execute_with_report(package, directory):
+    """MCP orchestration only; keep the evidence-pinned physical adapter intact."""
+    from . import modelica_motor_adapter
+    result = modelica_motor_adapter.execute(package,directory)
+    if result.get("status") not in STATUSES:
+        return result
+    presentation = generate([{"case_id":package["id"],"study_directory":str(directory)}], Path(directory)/"Report")
+    return {**result,"presentation":presentation}
+
+
 def register(mcp):
     @mcp.tool()
     def obtener_contrato_informe_dinamica_modelica() -> dict:

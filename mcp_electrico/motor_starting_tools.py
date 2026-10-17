@@ -17,6 +17,7 @@ from . import (
     soft_starter_reference,
     motor_external_reference,
     modelica_motor_adapter,
+    motor_study_report,
 )
 
 
@@ -43,7 +44,7 @@ def register(mcp) -> None:
         Adaptador experimental; no traduce automáticamente el unifilar OpenDSS.
         Control SCR de referencia, sin validación de un fabricante.
         """
-        return modelica_motor_adapter.execute(paquete_estudio, directorio_salida)
+        return motor_study_report.execute_with_report(paquete_estudio, directorio_salida)
     @mcp.tool()
     def contrastar_dinamica_con_modelica(directorio_evidencia: str) -> dict:
         """Verifica expediente y compara RMS/par/velocidad con trazas externas Modelica.

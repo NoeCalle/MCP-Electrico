@@ -52,6 +52,7 @@ Un fallo del motor de cálculo no demuestra incumplimiento del diseño eléctric
 
 Consultar `obtener_contrato_informe_dinamica_modelica`. Para un estudio nuevo,
 `ejecutar_dinamica_modelica` crea automáticamente una carpeta `Report`.
+La llamada se añade en la orquestación MCP; el adaptador físico permanece intacto.
 El resultado MCP incluye `presentation`, separado del estado numérico.
 `Results.json` conserva el resultado canónico guardado antes de presentar;
 un problema del informe no cambia un cálculo válido a fallo de diseño.

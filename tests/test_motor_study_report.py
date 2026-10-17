@@ -186,7 +186,7 @@ def test_successful_adapter_execution_adds_report_without_an_extra_engine_run(tm
         return {"returncode":0,"execution_status":"COMPLETED","stdout":"The simulation finished successfully."}
     monkeypatch.setattr(adapter,"_run",run)
     output = tmp_path/"study"
-    generated = adapter.execute(inputs,output)
+    generated = report.execute_with_report(inputs,output)
     assert generated["status"] == "MODELICA_MOTOR_STUDIES_COMPLETED"
     assert generated["presentation"]["status"] == "MSL_REPORT_CREATED"
     assert len(calls) == 3  # Compilation, nominal, refined; presentation never calls the engine.
