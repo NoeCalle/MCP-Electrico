@@ -63,7 +63,7 @@ def manifest(case, load_factor=1.0, explicit_boundary=True):
     return {"project": {"id": case["case"]+"_external", "name": case["case"]+" published feeder",
                         "source_reference": provenance},
             "requested_scope": ["POWER_FLOW", "VOLTAGE_DROP"], "source": source,
-            "topology": {"buses": [f"n{int(row[0])}" for row in case["bus"]], "transformers": [],
+            "topology": {"buses": [f"n{int(row[0])}" for row in case["bus"]], "transformers": [], "transformers_declared_absent": True,
                 "lines": [{"id": f"Line.b{i+1}", "bus1": f"n{int(row[0])}", "bus2": f"n{int(row[1])}",
                            "phases": 3, "length_km": 1., "r1_ohm_km": row[2], "x1_ohm_km": row[3],
                            "c1_nf_km": 0., "source_reference": provenance}

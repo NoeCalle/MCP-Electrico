@@ -91,3 +91,9 @@ def test_empty_transformer_inventory_is_explicit_and_not_a_missing_field():
     assert builder.materializar_modelo(inputs)["materializer_status"]=="MODEL_BUILT_NOT_EXECUTED"
     inputs["topology"].pop("transformers")
     assert builder.materializar_modelo(inputs)["materializer_status"]=="BLOCKED_BY_P8B_INTAKE"
+
+@pytest.mark.parametrize("flag",[None,False,"true"])
+def test_empty_inventory_without_true_absence_declaration_is_not_complete(flag):
+    inputs=manifest(load_case("case33bw"))
+    inputs["topology"]["transformers_declared_absent"]=flag
+    assert builder.materializar_modelo(inputs)["materializer_status"]=="BLOCKED_BY_P8B_INTAKE"

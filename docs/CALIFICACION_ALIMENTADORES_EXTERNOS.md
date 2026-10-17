@@ -133,3 +133,11 @@ Al 125 % las tensiones mínimas son aproximadamente 0.8889 y 0.8834 pu.
 Un cálculo numérico verificado no implica que el diseño cumpla sus límites.
 Las redes radiales sin respaldo pierden servicio en las contingencias: que
 la prueba detecte correctamente esa pérdida no significa que la red cumpla N-1.
+
+## Inventario vacío frente a datos desconocidos
+
+Una red sin transformadores declara `topology.transformers: []` y
+`topology.transformers_declared_absent: true`. Una lista vacía por sí sola
+conserva el significado de datos pendientes de los formularios históricos.
+Una ausencia declarada con un inventario no vacío se rechaza por contradicción.
+No se modifica el test histórico del expediente P10 Stage 0 incompleto.

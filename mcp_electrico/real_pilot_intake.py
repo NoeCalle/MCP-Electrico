@@ -108,9 +108,9 @@ def _base_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
     }
     for index, (path, message) in enumerate(required.items(), start=1):
         value = _get(manifest, path)
-        # An explicit empty transformer inventory is valid for a single-voltage
-        # feeder. Missing/None/wrong-type inventory is still incomplete.
-        if path == "topology.transformers" and isinstance(value, list):
+        # Empty in an incomplete legacy form is not a declaration of absence.
+        if (path == "topology.transformers" and value == []
+                and (manifest.get("topology") or {}).get("transformers_declared_absent") is True):
             continue
         if not _present(value):
             issues.append(_issue(f"P8B_BASE_{index:02d}", path, message))
@@ -127,6 +127,12 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
     """
     issues: list[dict[str, str]] = []
     topology = manifest.get("topology") or {}
+    if "transformers_declared_absent" in topology:
+        flag = topology["transformers_declared_absent"]
+        if type(flag) is not bool:
+            issues.append(_issue("P8B_TOPO18", "topology.transformers_declared_absent", "Explicit boolean declaration required."))
+        elif flag and topology.get("transformers"):
+            issues.append(_issue("P8B_TOPO19", "topology.transformers", "Declared transformer absence conflicts with a non-empty inventory."))
     buses_raw = topology.get("buses") or []
     buses = [str(item).strip() for item in buses_raw if _present(item)]
     bus_set = set(buses)
