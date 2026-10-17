@@ -1,6 +1,6 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **17 de octubre de 2026**, ejecución por ruta y presentación Q9; registro de calificación `Q10_EXTERNAL_FEEDERS_2026_10_17`.
+Actualizado: **17 de octubre de 2026**, calificación de transformadores Q11; registro de calificación `Q11_TRANSFORMERS_2026_10_17`.
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
@@ -14,7 +14,7 @@ conservar evidencia y explicar errores, faltantes y resultados.
 
 | Estudio | Ruta principal | Alcance vigente / evidencia |
 |---|---|---|
-| Flujo, caída, pérdidas y cargabilidad | OpenDSS | P1 y contraste externo case33bw/case69 equilibrados PQ (50/100/125%); cargabilidad solo con ratings explícitos; [matriz de capacidades](MATRIZ_CAPACIDADES_ACTUALES.md) |
+| Flujo, caída, pérdidas y cargabilidad | OpenDSS | P1 y contraste externo case33bw/case69 equilibrados PQ (50/100/125%); Q11: ocho casos IEEE4 por fase y 48 variantes de transformador/taps/pérdidas; cargabilidad solo con ratings explícitos; [matriz de capacidades](MATRIZ_CAPACIDADES_ACTUALES.md) |
 | Contingencias, transferencias y deslastre | OpenDSS | Escenarios estáticos explícitos P12; no optimización ni transferencia dinámica |
 | Cortocircuito IEC 60909 | pandapower | P4-v1 3F/2F/1F-T y fichas admitidas; [alcance P4](P4_IEC60909.md) |
 | Ampacidad, protección de cables y TCC | Tablas/curvas trazables + postproceso MCP | P3/P5 verificados en alcance; Q8 OCRelay tiene su contrato independiente |
@@ -29,6 +29,18 @@ conservar evidencia y explicar errores, faltantes y resultados.
 El MCP configura componentes existentes y procesa resultados. **La física
 propia DOL/RK4 y SCR/RL está retirada**, sin fallback. No se agrega otro motor
 para duplicar una ruta suficiente. Ver [arquitectura](ARQUITECTURA_INTEGRACION.md).
+
+## Calificación de transformadores — Q11
+
+Ocho casos publicados IEEE4 elevadores/reductores y equilibrados/desequilibrados,
+con matrices por fase; 48 variantes controladas de siete grupos, taps HV/LV y
+excitación contrastadas con AC Newton independiente. El motor operativo sigue
+siendo OpenDSS. Corregidas bases nominales y proyección de corriente de vacío.
+Ver [resultados, fuentes y límites](CALIFICACION_TRANSFORMADORES_Q11.md).
+
+Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_CASOS_SUBESTACIONES.md).
+Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
+y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
 ## Calificación externa — Q10
 

@@ -134,6 +134,15 @@ def crear_circuito(
     return f"Circuito '{nombre}' creado a {kv_base} kV, {frecuencia} Hz"
 
 
+def _inherit_line_voltage_base(bus1: str, bus2: str) -> None:
+    key1, key2 = _bus_key(bus1), _bus_key(bus2)
+    if key1 in _bus_voltage_bases_ll and key2 not in _bus_voltage_bases_ll:
+        _record_bus_voltage_base(bus2, _bus_voltage_bases_ll[key1])
+    elif key2 in _bus_voltage_bases_ll and key1 not in _bus_voltage_bases_ll:
+        _record_bus_voltage_base(bus1, _bus_voltage_bases_ll[key2])
+    _recalcular_bases_de_tension()
+
+
 def agregar_linea(
     nombre: str,
     bus1: str,
@@ -152,12 +161,7 @@ def agregar_linea(
         f"New Line.{nombre} Bus1={bus1} Bus2={bus2} Length={longitud_km} "
         f"Units=km Phases={fases} R1={r1_ohm_km} X1={x1_ohm_km}"
     )
-    key1, key2 = _bus_key(bus1), _bus_key(bus2)
-    if key1 in _bus_voltage_bases_ll and key2 not in _bus_voltage_bases_ll:
-        _record_bus_voltage_base(bus2, _bus_voltage_bases_ll[key1])
-    elif key2 in _bus_voltage_bases_ll and key1 not in _bus_voltage_bases_ll:
-        _record_bus_voltage_base(bus1, _bus_voltage_bases_ll[key2])
-    _recalcular_bases_de_tension()
+    _inherit_line_voltage_base(bus1, bus2)
     return f"Línea '{nombre}' agregada: {bus1} -> {bus2} ({longitud_km} km)"
 
 
@@ -267,6 +271,9 @@ def ejecutar_flujo_potencia() -> dict[str, Any]:
     for bus in dss.Circuit.AllBusNames():
         dss.Circuit.SetActiveBus(bus)
         voltajes[bus] = {
+            "nodes": list(dss.Bus.Nodes()),
+            "voltajes_ln_v": [round(float(v), 6) for v in dss.Bus.VMagAngle()[0::2]],
+            "angulos_ln_deg": [round(float(v), 6) for v in dss.Bus.VMagAngle()[1::2]],
             "kv_base": round(float(dss.Bus.kVBase()), 3),
             "voltajes_pu": [
                 round(float(v), 4) for v in dss.Bus.puVmagAngle()[0::2]

@@ -183,7 +183,8 @@ def _topology_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         if not isinstance(line, dict):
             issues.append(_issue("P8B_TOPO20", f"topology.lines[{i}]", "Cada línea/cable debe ser un objeto estructurado."))
             continue
-        for key in ("id", "bus1", "bus2", "phases", "length_km", "r1_ohm_km", "x1_ohm_km"):
+        impedance_fields = () if "phase_impedance" in line else ("r1_ohm_km", "x1_ohm_km")
+        for key in ("id", "bus1", "bus2", "phases", "length_km", *impedance_fields):
             if not _present(line.get(key)):
                 issues.append(_issue("P8B_TOPO21", f"topology.lines[{i}].{key}", f"Dato de línea requerido para construir el modelo: {key}."))
         if _present(line.get("phases")) and not _positive(line.get("phases")):

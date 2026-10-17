@@ -1,0 +1,30 @@
+name: transformer-qualification
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  transformers:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      POWERSHELL_TELEMETRY_OPTOUT: '1'
+      OTEL_SDK_DISABLED: 'true'
+      APPLICATIONINSIGHTS_ENABLE_AGENT: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev,qualification]"
+      - run: python -m pytest tests/test_transformer_external_qualification.py tests/test_external_feeder_qualification.py tests/test_p8c3b_real_model_materializer.py tests/test_professional_data_p2.py -q
+      - run: python scripts/verify_transformers_mcp.py --output outputs/transformers --verify-upstream
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: transformers-${{ matrix.os }}
+          path: outputs/transformers

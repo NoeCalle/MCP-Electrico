@@ -85,16 +85,26 @@ def test_package_fields_required_before_invocation(tmp_path):
 def test_actual_flow_matches_public_executor_and_records_workspace(monkeypatch):
     circuit()
     calls = []
+    executor_payloads = []
     native_call = server.mcp.call_tool
     async def tracked(name, args):
         calls.append(name)
-        return await native_call(name, args)
+        response = await native_call(name, args)
+        # Capture the actual public executor response from THIS invocation.
+        # A second Solve may legitimately refine microvolts at solver tolerance.
+        if isinstance(response, tuple):
+            executor_payloads.append(deepcopy(response[1]))
+        elif isinstance(response, dict):
+            executor_payloads.append(deepcopy(response))
+        else:
+            executor_payloads.append(json.loads(response[0].text))
+        return response
     monkeypatch.setattr(server.mcp, "call_tool", tracked)
     result = run("flujo")
     assert calls == ["ejecutar_flujo_potencia"]
     assert result["selected_engine"] == "opendss"
     assert result["result"]["convergio"]
-    assert result["result"] == server.ejecutar_flujo_potencia()
+    assert executor_payloads == [result["result"]]
     assert "flow" in workspace_state.status()["studies"]
 
 

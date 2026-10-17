@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q10_EXTERNAL_FEEDERS_2026_10_17",
+  "revision": "Q11_TRANSFORMERS_2026_10_17",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -14,18 +14,24 @@
     "power_flow": {
       "engine": "OpenDSS",
       "verification_status": "VERIFIED_IN_SCOPE",
-      "scope": "Radial trifásico equilibrado PQ: dos barras y case33bw/case69 publicados, 50/100/125% de carga, frontera slack PF explícita",
+      "scope": "Radial trifásico equilibrado PQ: dos barras y case33bw/case69 publicados, 50/100/125% de carga, frontera slack PF explícita; IEEE4 de cuatro nodos (ocho casos por fase) y 48 variantes equilibradas de transformador/taps/excitacion",
       "evidence": [
         "tests/test_benchmarks_p1.py",
         "examples/run_benchmarks_p1.py",
         "tests/test_external_feeder_qualification.py",
         "scripts/verify_external_feeders_mcp.py",
         "docs/CALIFICACION_ALIMENTADORES_EXTERNOS.md",
-        "docs/evidence/external_feeders_windows.json"
+        "docs/evidence/external_feeders_windows.json",
+        "tests/test_transformer_external_qualification.py",
+        "scripts/verify_transformers_mcp.py",
+        "scripts/transformer_reference.py",
+        "docs/CALIFICACION_TRANSFORMADORES_Q11.md",
+        "docs/evidence/transformers_q11_linux.json"
       ],
       "closure_gates": [],
       "excluded_extensions": [
-        "Desbalance y alimentadores IEEE/EPRI completos"
+        "Otros desbalances y alimentadores IEEE/EPRI completos",
+        "Neutros explicitos, regulacion automatica y transitorios de transformadores"
       ],
       "project_data_readiness": "EVALUATED_PER_REQUEST",
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
@@ -42,6 +48,18 @@
             "scripts/verify_external_feeders_mcp.py",
             "docs/CALIFICACION_ALIMENTADORES_EXTERNOS.md",
             "docs/evidence/external_feeders_windows.json"
+          ]
+        },
+        {
+          "id": "PF_EXT02",
+          "status": "PASSED",
+          "acceptance": "Ocho casos IEEE4 por fase y 48 variantes controladas de grupos/taps/perdidas contrastados mediante MCP, con fuentes fijadas y tolerancias previas. No califica una instalacion real, SC/protecciones ni regulacion automatica.",
+          "evidence": [
+            "tests/test_transformer_external_qualification.py",
+            "scripts/verify_transformers_mcp.py",
+            "scripts/transformer_reference.py",
+            "docs/CALIFICACION_TRANSFORMADORES_Q11.md",
+            "docs/evidence/transformers_q11_linux.json"
           ]
         }
       ]

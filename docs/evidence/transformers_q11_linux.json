@@ -1,0 +1,1745 @@
+{
+  "record": "First successful Linux Q11 bank; historical immutable execution, not a claim about later documentation bytes",
+  "commit": "d8a72274e0e2432d81a699c081be18666757c76b",
+  "ci_job": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39070031398/job/117505549947",
+  "targeted_pytest": "126 passed",
+  "summary": {
+    "schema": "MCP_TRANSFORMER_QUALIFICATION_Q11_V1",
+    "ok": true,
+    "checked_at_utc": "2026-10-17T21:16:58.177946+00:00",
+    "transport": "MCP_STDIO",
+    "software": {
+      "mcp": "1.30.0",
+      "opendssdirect.py": "0.9.4",
+      "dss-python-backend": "0.14.5",
+      "PYPOWER": "5.1.21",
+      "numpy": "2.4.6"
+    },
+    "published_case_count": 8,
+    "controlled_case_count": 48,
+    "cases": [
+      {
+        "id": "ieee4_down_ynyn_balanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.4877630000000863,
+          "voltage_angle_deg_abs": 0.044216000000005806,
+          "current_a_abs": 0.13900000000001,
+          "current_angle_deg_abs": 0.04258799999999496,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.0000460537166308006
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_down_ynyn_unbalanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.49672300000020186,
+          "voltage_angle_deg_abs": 0.043295999999998,
+          "current_a_abs": 0.3389999999999418,
+          "current_angle_deg_abs": 0.051604999999995016,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.00004793642828637701
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_down_dyn_balanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.5067030000000159,
+          "voltage_angle_deg_abs": 0.04674399999998968,
+          "current_a_abs": 0.051000000000044565,
+          "current_angle_deg_abs": 0.05210999999999899,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.00004892736383521612
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_down_dyn_unbalanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.5977939999997943,
+          "voltage_angle_deg_abs": 0.048756944373508304,
+          "current_a_abs": 0.14799999999991087,
+          "current_angle_deg_abs": 0.05164800000000014,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.000047773252989213866
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_up_ynyn_balanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.4183740000025864,
+          "voltage_angle_deg_abs": 0.05413599999999974,
+          "current_a_abs": 0.03600000000005821,
+          "current_angle_deg_abs": 0.017193999999989273,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.00004747220327794288
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_up_ynyn_unbalanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.49117999999998574,
+          "voltage_angle_deg_abs": 0.05131499999998823,
+          "current_a_abs": 0.09499999999999886,
+          "current_angle_deg_abs": 0.039864999999991824,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.0000433728136479683
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_up_dyn_balanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.4186649999992369,
+          "voltage_angle_deg_abs": 0.043722999999971535,
+          "current_a_abs": 0.03099999999994907,
+          "current_angle_deg_abs": 0.04272100000002865,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.000048249450536386185
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "ieee4_up_dyn_unbalanced",
+        "kind": "PUBLISHED_IEEE4",
+        "errors": {
+          "voltage_v_abs": 0.45844799999940733,
+          "voltage_angle_deg_abs": 0.046065999999996166,
+          "current_a_abs": 0.05500000000000682,
+          "current_angle_deg_abs": 0.038293000000010124,
+          "nominal_base_kv_abs": 0.0004421432053662855,
+          "pu_consistency_abs": 0.000049576212410307186
+        },
+        "tolerances": {
+          "voltage_v_abs": 5,
+          "voltage_angle_deg_abs": 1,
+          "current_a_abs": 5,
+          "current_angle_deg_abs": 1.5,
+          "nominal_base_kv_abs": 0.0006,
+          "pu_consistency_abs": 0.0001
+        },
+        "passed": true
+      },
+      {
+        "id": "tap_Yy0_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000049984265295788255,
+          "angle_deg_abs": 2.995373051817296e-7,
+          "loss_kw_abs": 0.0003552368931423189,
+          "loss_kvar_abs": 0.006268225589735721
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yy0_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 7.103706707312085e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.005497588660830388
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yy0_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00002162576175768205,
+          "angle_deg_abs": 6.433880628264887e-7,
+          "loss_kw_abs": 0.00010959360969309273,
+          "loss_kvar_abs": 0.005550871483421815
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yy0_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428384515197,
+          "angle_deg_abs": 4.211185000713158e-7,
+          "loss_kw_abs": 0.00013212366198445125,
+          "loss_kvar_abs": 0.005996300306037483
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yy0_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 7.103706707312085e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.005497588660830388
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yy0_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004946652346371483,
+          "angle_deg_abs": 0.0000010122338380824658,
+          "loss_kw_abs": 0.0004981969841537648,
+          "loss_kvar_abs": 0.006097014379236043
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000049984265295788255,
+          "angle_deg_abs": 2.995373051817296e-7,
+          "loss_kw_abs": 0.0003552368931423189,
+          "loss_kvar_abs": 0.006268225589735721
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 7.103706707312085e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.005497588660830388
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00002162576175768205,
+          "angle_deg_abs": 6.433880628264887e-7,
+          "loss_kw_abs": 0.00010959360969309273,
+          "loss_kvar_abs": 0.005550871483421815
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428384515197,
+          "angle_deg_abs": 4.211185000713158e-7,
+          "loss_kw_abs": 0.00013212366198445125,
+          "loss_kvar_abs": 0.005996300306037483
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 7.103706707312085e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.005497588660830388
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yyn0_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004946652346371483,
+          "angle_deg_abs": 0.0000010122338380824658,
+          "loss_kw_abs": 0.0004981969841537648,
+          "loss_kvar_abs": 0.006097014379236043
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000049984265295788255,
+          "angle_deg_abs": 2.995373051817296e-7,
+          "loss_kw_abs": 0.0003552368931423189,
+          "loss_kvar_abs": 0.004268225589726171
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.0034975886608208384
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00002162576175768205,
+          "angle_deg_abs": 6.433880628264887e-7,
+          "loss_kw_abs": 0.00010959360969309273,
+          "loss_kvar_abs": 0.0035508714834122657
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428384515197,
+          "angle_deg_abs": 4.211185000713158e-7,
+          "loss_kw_abs": 0.00013212366198445125,
+          "loss_kvar_abs": 0.003996300306084777
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364240987936,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.00011219963582220771,
+          "loss_kvar_abs": 0.0034975886608208384
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dd0_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004946652346371483,
+          "angle_deg_abs": 1.8268136159349524e-7,
+          "loss_kw_abs": 0.0004981969841537648,
+          "loss_kvar_abs": 0.0040970143792264935
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000049984265292346564,
+          "angle_deg_abs": 2.9953773150737106e-7,
+          "loss_kw_abs": 0.0003552373621005245,
+          "loss_kvar_abs": 0.005268227465535347
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000387253642393226,
+          "angle_deg_abs": 7.10370699152918e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588490266935
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000021625762021360018,
+          "angle_deg_abs": 6.434003125832533e-7,
+          "loss_kw_abs": 0.00010959783031694315,
+          "loss_kvar_abs": 0.004550863894849044
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428303801983,
+          "angle_deg_abs": 4.2111838638447807e-7,
+          "loss_kw_abs": 0.00013212741365009606,
+          "loss_kvar_abs": 0.004996293655381123
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000387253642393226,
+          "angle_deg_abs": 7.10370699152918e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588490266935
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn1_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000494665234720415,
+          "angle_deg_abs": 8.173184937732003e-7,
+          "loss_kw_abs": 0.0004981970694188931,
+          "loss_kvar_abs": 0.00509701472026336
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004998426529567723,
+          "angle_deg_abs": 2.995373051817296e-7,
+          "loss_kw_abs": 0.00035523685050975473,
+          "loss_kvar_abs": 0.005268225674967653
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364239433624,
+          "angle_deg_abs": 7.10370699152918e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588405001807
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00002162576202091593,
+          "angle_deg_abs": 6.434003410049627e-7,
+          "loss_kw_abs": 0.00010959774505181485,
+          "loss_kvar_abs": 0.004550863980114173
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428303913005,
+          "angle_deg_abs": 4.2111838638447807e-7,
+          "loss_kw_abs": 0.00013212732838496777,
+          "loss_kvar_abs": 0.0049962937406462515
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364239433624,
+          "angle_deg_abs": 7.10370699152918e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588405001807
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004946652346382585,
+          "angle_deg_abs": 8.173186643034569e-7,
+          "loss_kw_abs": 0.0004981968988886365,
+          "loss_kvar_abs": 0.005097014293937718
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000049984265292346564,
+          "angle_deg_abs": 2.9953773150737106e-7,
+          "loss_kw_abs": 0.0003552373621005245,
+          "loss_kvar_abs": 0.005268227465535347
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000387253642393226,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588490266935
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000021625762021360018,
+          "angle_deg_abs": 6.434003125832533e-7,
+          "loss_kw_abs": 0.00010959783031694315,
+          "loss_kvar_abs": 0.004550863894849044
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428303801983,
+          "angle_deg_abs": 4.2111838638447807e-7,
+          "loss_kw_abs": 0.00013212741365009606,
+          "loss_kvar_abs": 0.004996293655381123
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000387253642393226,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588490266935
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd1_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000494665234720415,
+          "angle_deg_abs": 1.8268153212375182e-7,
+          "loss_kw_abs": 0.0004981970694188931,
+          "loss_kvar_abs": 0.00509701472026336
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_hv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004998426529567723,
+          "angle_deg_abs": 2.995373051817296e-7,
+          "loss_kw_abs": 0.00035523685050975473,
+          "loss_kvar_abs": 0.005268225674967653
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_hv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364239433624,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588405001807
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_hv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00002162576202091593,
+          "angle_deg_abs": 6.434003410049627e-7,
+          "loss_kw_abs": 0.00010959774505181485,
+          "loss_kvar_abs": 0.004550863980114173
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_lv_-2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000022899428303913005,
+          "angle_deg_abs": 4.2111838638447807e-7,
+          "loss_kw_abs": 0.00013212732838496777,
+          "loss_kvar_abs": 0.0049962937406462515
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_lv_0_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000038725364239433624,
+          "angle_deg_abs": 6.242805739020696e-7,
+          "loss_kw_abs": 0.000112199721087336,
+          "loss_kvar_abs": 0.004497588405001807
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Yd11_lv_2_False",
+        "kind": "CONTROLLED_TAP_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004946652346382585,
+          "angle_deg_abs": 1.826813331717858e-7,
+          "loss_kw_abs": 0.0004981968988886365,
+          "loss_kvar_abs": 0.005097014293937718
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_-2_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000045113274360963906,
+          "angle_deg_abs": 6.928442815024027e-7,
+          "loss_kw_abs": 0.00006919497826629595,
+          "loss_kvar_abs": 0.005191348513392313
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_0_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004895064340193489,
+          "angle_deg_abs": 5.854932965121407e-7,
+          "loss_kw_abs": 0.00013566148496124697,
+          "loss_kvar_abs": 0.0052271567811317254
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_hv_2_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004810510237396315,
+          "angle_deg_abs": 8.174467609478597e-7,
+          "loss_kw_abs": 0.000290908753157737,
+          "loss_kvar_abs": 0.004233007161644764
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_-2_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004606881815782948,
+          "angle_deg_abs": 3.155410297495109e-7,
+          "loss_kw_abs": 0.0003669716971046455,
+          "loss_kvar_abs": 0.004992385545506295
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_0_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004895064340193489,
+          "angle_deg_abs": 5.854932965121407e-7,
+          "loss_kw_abs": 0.00013566148496124697,
+          "loss_kvar_abs": 0.0052271567811317254
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      },
+      {
+        "id": "tap_Dyn11_lv_2_True",
+        "kind": "CONTROLLED_EXCITATION_NEWTON",
+        "passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000047551096162390394,
+          "angle_deg_abs": 3.246265123379999e-7,
+          "loss_kw_abs": 0.0002976248332231535,
+          "loss_kvar_abs": 0.005038296524901398
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "angle_deg_abs": 0.01,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05
+        }
+      }
+    ],
+    "call_count": 172,
+    "calls": [
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "obtener_netlist",
+        "status": null
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://raw.githubusercontent.com/PowerGridModel/power-grid-model-io/4cb5f85c7e361bd68243036ca255d2100ed0a937/_network_data_generation/ieee_4_node/results_step_down_balanced_loading.csv",
+        "sha256": "d2af3f8c1b98728832b9097be8b9470b8c568fcb6ddf767853f73005999ff3a2",
+        "pinned_upstream_verified": true
+      },
+      {
+        "url": "https://raw.githubusercontent.com/PowerGridModel/power-grid-model-io/4cb5f85c7e361bd68243036ca255d2100ed0a937/_network_data_generation/ieee_4_node/results_step_down_unbalanced_loading.csv",
+        "sha256": "80d7a150417079a82203a820d37fc291bcf2358e4823e5551f2503d36492b7a4",
+        "pinned_upstream_verified": true
+      },
+      {
+        "url": "https://raw.githubusercontent.com/PowerGridModel/power-grid-model-io/4cb5f85c7e361bd68243036ca255d2100ed0a937/_network_data_generation/ieee_4_node/results_step_up_balanced_loading.csv",
+        "sha256": "ba41349d21b22924fd69d71e3bbafe693b754ca0d7add681b5abc5ccf5be7c5a",
+        "pinned_upstream_verified": true
+      },
+      {
+        "url": "https://raw.githubusercontent.com/PowerGridModel/power-grid-model-io/4cb5f85c7e361bd68243036ca255d2100ed0a937/_network_data_generation/ieee_4_node/results_step_up_unbalanced_loading.csv",
+        "sha256": "c3d9dba3f13d4b9b37bab9ea261963e7d1f158acb6f4394556961ffcc799c98d",
+        "pinned_upstream_verified": true
+      },
+      {
+        "url": "https://raw.githubusercontent.com/PowerGridModel/power-grid-model-io/4cb5f85c7e361bd68243036ca255d2100ed0a937/_network_data_generation/ieee_4_node/wire_data_ieee_4_node.csv",
+        "sha256": "dc26d12493cfe04da821765bcf2df642a770b060eed3e6159485020c106a4d52",
+        "pinned_upstream_verified": true
+      }
+    ],
+    "restored_base_matches": true,
+    "source_sha256": {
+      "server.py": "13574d7df958b8127978b35ba5d1dcf2aaf9ce0095e5489b46d0ea534bd04356",
+      "mcp_electrico/core.py": "2e67daaae34e2a7d734e74248af9c620b606e3a4373de55e153a5b8c8355f893",
+      "mcp_electrico/studies.py": "cca475215fea62f0356ef2a4ddacde3c7fc8b2e96bcf77cb3f5f16159d76d703",
+      "mcp_electrico/phase_network_inputs.py": "01d8af75d03753f093deb1ec44d11a38a276359bfae936ca1058cc334dc8ef4c",
+      "mcp_electrico/real_model_materializer.py": "31e2dc64fd2b9fbacb779b069bb3c8aefffcbacace1d6270d4d266065683ca73",
+      "mcp_electrico/real_pilot_intake.py": "dd9a4cabc4d36ac5e5650f3d6d3c6f063b1694e7b4ae12141a6e862a32848571",
+      "mcp_electrico/professional_data.py": "4b94d4ca424a980ba49a8b1e41b4b840b35417e51f26ad4ee5e65cab5ea4823f",
+      "scripts/transformer_reference.py": "4e744ba104b60fb889df23289db0e87eb3c6328528c43ff71e0ea3ad3864237d",
+      "scripts/verify_transformers_mcp.py": "7e3df75f3acb76cbd4e12c768ea36d2c1da9fd57d97b010f9f308361b1b07ca9"
+    },
+    "scope_limits": [
+      "No real installation qualified; thesis candidates lack reproducible inputs",
+      "No SC/protection qualification",
+      "No explicit neutral voltages",
+      "No automatic tap regulation",
+      "No open-delta, three-winding, saturation or arbitrary vector groups",
+      "Published low-voltage results validate calculations, not design compliance"
+    ]
+  }
+}
