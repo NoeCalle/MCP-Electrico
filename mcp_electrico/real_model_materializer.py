@@ -35,6 +35,7 @@ from . import (
     protection_curves,
     protection_data,
     real_pilot_intake,
+    power_flow_boundaries,
     visual_state,
     workspace_state,
     zero_sequence,
@@ -126,7 +127,7 @@ def _reference(item: dict[str, Any], project_reference: str) -> tuple[str, str |
 
 def _preflight(manifest: dict[str, Any]) -> list[dict[str, str]]:
     """Valida serialización/materialización sin tocar OpenDSS."""
-    issues: list[dict[str, str]] = []
+    issues: list[dict[str, str]] = power_flow_boundaries.validate(manifest)
     source = manifest.get("source") or {}
     topology = manifest.get("topology") or {}
 
@@ -398,6 +399,8 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
                 bus_fuente=str(source["bus"]),
             )
 
+        power_flow_boundaries.apply_source(source)
+
         created_transformers: list[dict[str, Any]] = []
         for item in topology.get("transformers") or []:
             name = _element_name(item["id"], "Transformer")
@@ -455,7 +458,7 @@ def materializar_modelo(manifest: dict[str, Any]) -> dict[str, Any]:
                 kv=float(item["kv"]),
                 critica=bool(item.get("critical", False)),
             )
-            edits: list[str] = []
+            edits: list[str] = power_flow_boundaries.load_edits(item)
             if _present(item.get("connection")):
                 edits.append(f"Conn={str(item['connection']).lower()}")
             if _present(item.get("model")):

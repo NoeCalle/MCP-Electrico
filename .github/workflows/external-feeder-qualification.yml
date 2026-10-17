@@ -1,0 +1,25 @@
+name: external-feeder-qualification
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  published-feeders:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev,qualification]"
+      - run: python -m pytest tests/test_external_feeder_qualification.py tests/test_p8c3b_real_model_materializer.py tests/test_runtime_safety_p2.py -q
+      - run: python scripts/verify_external_feeders_mcp.py --output outputs/external-feeders --verify-upstream
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: external-feeders-${{ matrix.os }}
+          path: outputs/external-feeders

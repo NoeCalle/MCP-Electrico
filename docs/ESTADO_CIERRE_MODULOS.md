@@ -1,6 +1,6 @@
 # Estado de cierre de módulos
 
-Revisión: **Q8_RELAY_OPERATION_2026_10_16**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q10_EXTERNAL_FEEDERS_2026_10_17**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
@@ -22,8 +22,8 @@ La revisión, aprobación y firma del estudio corresponden al ingeniero. El soft
 
 | Módulo | Motor | Estado | Alcance comprobado o solicitado |
 |---|---|---|---|
-| `power_flow` | OpenDSS | Verificado en alcance | Radial trifásico equilibrado de dos barras PQ |
-| `voltage_drop` | OpenDSS + postproceso | Verificado en alcance | Caída por Line en el alcance P1 |
+| `power_flow` | OpenDSS | Verificado en alcance | Radial trifásico equilibrado PQ: dos barras y case33bw/case69 publicados, 50/100/125% de carga, frontera slack PF explícita |
+| `voltage_drop` | OpenDSS + postproceso | Verificado en alcance | Caída por Line: alcance P1 y ramas de case33bw/case69 equilibrados, 50/100/125% de carga |
 | `conductor_library` | Datos primarios + MCP | Verificado en alcance | Catálogo trazable Nexans/INDECO y asignación explícita |
 | `ampacity` | Tablas trazables + MCP | Verificado en alcance | P3-v1: filas/factores PRIMARY_VERIFIED CNE y Ib/In/Iz |
 | `iec60909` | pandapower | Verificado en alcance | P4-v1: 3F/2F/1F-T MAX/MIN según contrato y fichas admitidas |
@@ -61,6 +61,8 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 
 ## Condiciones cerradas con evidencia
 
+- **power_flow / PF_EXT01 — PASSED:** Seis casos de 33/69 barras contrastados con PYPOWER AC Newton mediante MCP; tolerancias explícitas y datos upstream fijados. No incluye transformadores, desbalance ni redes malladas.
+- **voltage_drop / VD_EXT01 — PASSED:** Seis casos de 33/69 barras contrastados con PYPOWER AC Newton mediante MCP; tolerancias explícitas y datos upstream fijados. No incluye transformadores, desbalance ni redes malladas.
 - **modelica_dol / DOL01 — PASSED:** Reproducir un ejemplo original MSL directamente y por MCP con parámetros/conexiones equivalentes y tolerancias fijadas antes del contraste
 - **modelica_dol / DOL02 — PASSED:** Cerrar la convención de temperatura/pérdidas/inercia y conversión de fase para estrella/delta en los casos admitidos
 - **modelica_dol / DOL03 — PASSED:** Ejecutar regresión física automatizada con runtime fijado; rechazar solicitudes fuera del equivalente admitido
@@ -78,13 +80,13 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 
 ### power_flow
 
-Evidencia: [test_benchmarks_p1.py](../tests/test_benchmarks_p1.py), [run_benchmarks_p1.py](../examples/run_benchmarks_p1.py).
+Evidencia: [test_benchmarks_p1.py](../tests/test_benchmarks_p1.py), [run_benchmarks_p1.py](../examples/run_benchmarks_p1.py), [test_external_feeder_qualification.py](../tests/test_external_feeder_qualification.py), [verify_external_feeders_mcp.py](../scripts/verify_external_feeders_mcp.py), [CALIFICACION_ALIMENTADORES_EXTERNOS.md](../docs/CALIFICACION_ALIMENTADORES_EXTERNOS.md), [external_feeders_windows.json](../docs/evidence/external_feeders_windows.json).
 
 Fuera del cierre: Desbalance y alimentadores IEEE/EPRI completos.
 
 ### voltage_drop
 
-Evidencia: [test_benchmarks_p1.py](../tests/test_benchmarks_p1.py).
+Evidencia: [test_benchmarks_p1.py](../tests/test_benchmarks_p1.py), [test_external_feeder_qualification.py](../tests/test_external_feeder_qualification.py), [verify_external_feeders_mcp.py](../scripts/verify_external_feeders_mcp.py), [CALIFICACION_ALIMENTADORES_EXTERNOS.md](../docs/CALIFICACION_ALIMENTADORES_EXTERNOS.md), [external_feeders_windows.json](../docs/evidence/external_feeders_windows.json).
 
 Fuera del cierre: Caída acumulada y desbalance.
 

@@ -54,6 +54,17 @@ def _three_phase_lines() -> list[str]:
 
 def evaluar_faultstudy_opendss() -> dict[str, Any]:
     """Evalúa si FaultStudy puede usar los datos P2 sin defaults/stale Z0."""
+    try:
+        dss("? Vsource.source.Model")
+        pf_only = str(dss.Text.Result()).strip().lower() == "ideal"
+    except Exception:
+        pf_only = False
+    if pf_only:
+        return {
+            "professional_context": True, "ready": False, "status": "BLOCKED_PF_ONLY_SOURCE",
+            "reasons": [{"code": "PFBND_FAULT001", "message": "A quasi-ideal PF source is not an explicit fault equivalent."}],
+            "note": "Provide a separately reviewed Thevenin/Z0 model before FaultStudy.",
+        }
     source = professional_data.obtener_red_equivalente()
     transformers = _professional_transformers()
     z0 = zero_sequence.snapshot()

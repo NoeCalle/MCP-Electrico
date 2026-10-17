@@ -1,0 +1,250 @@
+{
+  "schema": "MCP_EXTERNAL_FEEDER_QUALIFICATION_SUMMARY_V1",
+  "verified_head": "aa864bce15ed2c894fde093324f25cdb4bb8f400",
+  "job_api": "https://api.github.com/repos/NoeCalle/MCP-Electrico/actions/jobs/117490655598",
+  "ok": true,
+  "software": {
+    "mcp": "1.30.0",
+    "opendssdirect.py": "0.9.4",
+    "dss-python": "0.15.7",
+    "dss-python-backend": "0.14.5",
+    "PYPOWER": "5.1.21",
+    "numpy": "2.4.6",
+    "scipy": "1.18.1"
+  },
+  "cases": [
+    {
+      "case": "case33bw",
+      "load_factor": 0.5,
+      "errors": {
+        "voltage_pu_abs": 0.00004902202288636914,
+        "loss_kw_abs": 0.00023688243980757306,
+        "loss_kvar_abs": 0.0004023778913264664,
+        "branch_current_a_abs": 0.000496113854131508,
+        "branch_power_kw_abs": 0.00046963582434500495,
+        "branch_power_kvar_abs": 0.00048603510393263605,
+        "voltage_drop_pct_abs": 0.0004949808063145072
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.9582647068604246,
+      "minimum_voltage_bus": "n18",
+      "reference_loss_kw": 47.07076311756019,
+      "opendss_loss_kw": 47.071,
+      "bus_count": 33,
+      "branch_count": 32
+    },
+    {
+      "case": "case33bw",
+      "load_factor": 1,
+      "errors": {
+        "voltage_pu_abs": 0.00004994212677578158,
+        "loss_kw_abs": 0.00012645592676108208,
+        "loss_kvar_abs": 0.00002902658695802529,
+        "branch_current_a_abs": 0.0004963130200223986,
+        "branch_power_kw_abs": 0.00047655473974828055,
+        "branch_power_kvar_abs": 0.0004849031211051624,
+        "voltage_drop_pct_abs": 0.00048531252318456675
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.9130904793610655,
+      "minimum_voltage_bus": "n18",
+      "reference_loss_kw": 202.67712645592675,
+      "opendss_loss_kw": 202.677,
+      "bus_count": 33,
+      "branch_count": 32
+    },
+    {
+      "case": "case33bw",
+      "load_factor": 1.25,
+      "errors": {
+        "voltage_pu_abs": 0.00004783714337175393,
+        "loss_kw_abs": 0.000003928478292891668,
+        "loss_kvar_abs": 0.00025762330434986325,
+        "branch_current_a_abs": 0.0004991047570399587,
+        "branch_power_kw_abs": 0.00049571437511986,
+        "branch_power_kvar_abs": 0.0004999779785066494,
+        "voltage_drop_pct_abs": 0.0004446410544174384
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.8889091822784989,
+      "minimum_voltage_bus": "n18",
+      "reference_loss_kw": 329.8550039284783,
+      "opendss_loss_kw": 329.855,
+      "bus_count": 33,
+      "branch_count": 32
+    },
+    {
+      "case": "case69",
+      "load_factor": 0.5,
+      "errors": {
+        "voltage_pu_abs": 0.000049767617314677715,
+        "loss_kw_abs": 0.00043740091526700553,
+        "loss_kvar_abs": 0.0002252239405606815,
+        "branch_current_a_abs": 0.000497819634627028,
+        "branch_power_kw_abs": 0.0004998767385586689,
+        "branch_power_kvar_abs": 0.0004996354176256546,
+        "voltage_drop_pct_abs": 0.0004954492196565575
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.9566803444177736,
+      "minimum_voltage_bus": "n65",
+      "reference_loss_kw": 51.604437400915266,
+      "opendss_loss_kw": 51.604,
+      "bus_count": 69,
+      "branch_count": 68
+    },
+    {
+      "case": "case69",
+      "load_factor": 1,
+      "errors": {
+        "voltage_pu_abs": 0.0000499510054149388,
+        "loss_kw_abs": 0.00030584813583800496,
+        "loss_kvar_abs": 0.00004984493156712233,
+        "branch_current_a_abs": 0.00048422552902938065,
+        "branch_power_kw_abs": 0.0004974150785983511,
+        "branch_power_kvar_abs": 0.0004996266051193743,
+        "voltage_drop_pct_abs": 0.000491078068980179
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.9091877137071208,
+      "minimum_voltage_bus": "n65",
+      "reference_loss_kw": 224.99169415186415,
+      "opendss_loss_kw": 224.992,
+      "bus_count": 69,
+      "branch_count": 68
+    },
+    {
+      "case": "case69",
+      "load_factor": 1.25,
+      "errors": {
+        "voltage_pu_abs": 0.00004796085523584015,
+        "loss_kw_abs": 0.00017070910359962,
+        "loss_kvar_abs": 0.0003703332565976325,
+        "branch_current_a_abs": 0.0004967961319266578,
+        "branch_power_kw_abs": 0.00048748754261396243,
+        "branch_power_kvar_abs": 0.0004982721977171423,
+        "voltage_drop_pct_abs": 0.0004876910155623797
+      },
+      "tolerances": {
+        "voltage_pu_abs": 0.0002,
+        "loss_kw_abs": 0.05,
+        "loss_kvar_abs": 0.05,
+        "branch_current_a_abs": 0.05,
+        "branch_power_kw_abs": 0.05,
+        "branch_power_kvar_abs": 0.05,
+        "voltage_drop_pct_abs": 0.03
+      },
+      "passed": true,
+      "minimum_voltage_pu": 0.8834386959315478,
+      "minimum_voltage_bus": "n65",
+      "reference_loss_kw": 369.0441707091036,
+      "opendss_loss_kw": 369.044,
+      "bus_count": 69,
+      "branch_count": 68
+    }
+  ],
+  "legacy_representation_diagnostics": [
+    {
+      "case": "case33bw",
+      "settings": "LEGACY_DEFAULT_SOURCE_AND_LOAD_VOLTAGE_RANGE",
+      "loss_kw": 185.667,
+      "reference_loss_kw": 202.67712645592675,
+      "loss_difference_kw": 17.010126455926752
+    },
+    {
+      "case": "case69",
+      "settings": "LEGACY_DEFAULT_SOURCE_AND_LOAD_VOLTAGE_RANGE",
+      "loss_kw": 197.806,
+      "reference_loss_kw": 224.99169415186415,
+      "loss_difference_kw": 27.18569415186414
+    }
+  ],
+  "outage_count": 100,
+  "scope_gaps": [
+    {
+      "case": "case33bw",
+      "iec60909": "BLOCKED_NO_UTILITY_FAULT_EQUIVALENT_OR_REVIEW",
+      "faultstudy": "BLOCKED_PF_ONLY_SOURCE",
+      "ampacity": "INSUFFICIENT_DATA",
+      "loading": "NOT_EVALUABLE_NO_RATINGS",
+      "other_packages": "NOT_PROVIDED",
+      "transformer_unbalance_validation": "NOT_COVERED_BY_THESE_CASES"
+    },
+    {
+      "case": "case69",
+      "iec60909": "BLOCKED_NO_UTILITY_FAULT_EQUIVALENT_OR_REVIEW",
+      "faultstudy": "BLOCKED_PF_ONLY_SOURCE",
+      "ampacity": "INSUFFICIENT_DATA",
+      "loading": "NOT_EVALUABLE_NO_RATINGS",
+      "other_packages": "NOT_PROVIDED",
+      "transformer_unbalance_validation": "NOT_COVERED_BY_THESE_CASES"
+    }
+  ],
+  "call_count": 152,
+  "source_sha256": {
+    "mcp_electrico/real_model_materializer.py": "aead02d00bb79fdd3973faca6707d7c7dcded484ffc460d494c7270462a8e234",
+    "mcp_electrico/power_flow_boundaries.py": "40b80a8c6f4c6591d284a75f28b9847f197b7c70e49a969f9086894566807b8b",
+    "mcp_electrico/runtime_safety.py": "527d8a6824703a47b9a5f56d94521a4780f915373ba5c27872591e092eefd496",
+    "scripts/published_feeder_reference.py": "5486465a066534befaad8b6a83facc529c393d3912b0d5ca0db89dd77b259358",
+    "scripts/verify_external_feeders_mcp.py": "d0e45fad113556bcf81ac233f73096e26e462089fb7517fc97456e57996ab5ac",
+    "server.py": "8ce03683400d284ff60df2b2d92bcf65da13d529d94f320c7274fa7d1f113298"
+  },
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/MATPOWER/matpower/1a828c7af590714499284e36ee9c81273388c594/data/case33bw.m",
+      "sha256": "b40831eeb444669ae876e2996f0dda9f05cd83e81b314b8dfca51e4890cca95d",
+      "all_numeric_tables_equal": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/MATPOWER/matpower/1a828c7af590714499284e36ee9c81273388c594/data/case69.m",
+      "sha256": "7bbdc8c39394eb6c924a64cad49d528bc8e99061823eb0f4a42b22da5c146a2c",
+      "all_numeric_tables_equal": true
+    }
+  ],
+  "workflow_job_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39064995668/job/117490655598"
+}
