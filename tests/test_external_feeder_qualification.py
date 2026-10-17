@@ -84,3 +84,10 @@ def test_topology_oracle_known_cuts():
     assert len(disconnected_loads(facts,0))==32
     assert disconnected_loads(facts,16)==["c18"]
     assert disconnected_loads(facts,32)==[]
+
+def test_empty_transformer_inventory_is_explicit_and_not_a_missing_field():
+    inputs=manifest(load_case("case33bw"))
+    assert inputs["topology"]["transformers"]==[]
+    assert builder.materializar_modelo(inputs)["materializer_status"]=="MODEL_BUILT_NOT_EXECUTED"
+    inputs["topology"].pop("transformers")
+    assert builder.materializar_modelo(inputs)["materializer_status"]=="BLOCKED_BY_P8B_INTAKE"

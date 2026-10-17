@@ -107,7 +107,12 @@ def _base_issues(manifest: dict[str, Any]) -> list[dict[str, str]]:
         "topology.loads": "Cargas del alcance.",
     }
     for index, (path, message) in enumerate(required.items(), start=1):
-        if not _present(_get(manifest, path)):
+        value = _get(manifest, path)
+        # An explicit empty transformer inventory is valid for a single-voltage
+        # feeder. Missing/None/wrong-type inventory is still incomplete.
+        if path == "topology.transformers" and isinstance(value, list):
+            continue
+        if not _present(value):
             issues.append(_issue(f"P8B_BASE_{index:02d}", path, message))
     if _present(_get(manifest, "source.kv_ll")) and not _positive(_get(manifest, "source.kv_ll")):
         issues.append(_issue("P8B_BASE_10", "source.kv_ll", "La tensión nominal LL debe ser numérica y mayor que cero."))
