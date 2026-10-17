@@ -98,6 +98,7 @@ async def verify(output,verify_upstream=False):
                             continue
                         item=await call("simular_perdida_alimentador",{"nombre_elemento":f"Line.b{i+1}","restaurar":True})
                         expected=disconnected_loads(case,i)
+                        assert item["convergio"], (name,i,"Contingency did not converge; service voltages cannot be qualified")
                         actual=sorted(item["cargas_criticas_sin_tension"])
                         assert actual==expected,(name,i,actual,expected)
                         assert item["estado_final_elemento"]=="cerrado" and item["convergio_estado_restaurado"]
@@ -126,7 +127,8 @@ async def verify(output,verify_upstream=False):
               "checked_at_utc":datetime.now(timezone.utc).isoformat(),
               "software":{key:metadata.version(key) for key in ("mcp","opendssdirect.py","dss-python","dss-python-backend","PYPOWER","numpy","scipy")},
               "sources":sources,"cases":results,"legacy_representation_diagnostics":legacy,"outage_count":len(outages),
-              "outages":outages,"scope_gaps":gaps,"call_count":len(calls),"calls":calls,
+              "outages":outages,"all_contingency_solves_converged":all(item["contingency_solver_converged"] for item in outages),
+              "scope_gaps":gaps,"call_count":len(calls),"calls":calls,
               "source_sha256":{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in paths},
               "approval":"BENCHMARK_INTEGRATION_ONLY_NOT_CUSTOMER_PROJECT_APPROVAL",
               "production_engine":"OpenDSS","reference_engine":"PYPOWER_VALIDATION_ONLY"}
@@ -134,7 +136,7 @@ async def verify(output,verify_upstream=False):
     inventory={p.relative_to(output).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
                for p in output.rglob("*") if p.is_file() and p.name!="MCP-stderr.log"}
     (output/"Integrity.json").write_text(json.dumps({"files_sha256":inventory},indent=2),encoding="utf8")
-    brief={key:evidence[key] for key in ("ok","software","cases","legacy_representation_diagnostics","outage_count","scope_gaps","call_count","source_sha256","sources")}
+    brief={key:evidence[key] for key in ("ok","software","cases","legacy_representation_diagnostics","outage_count","all_contingency_solves_converged","scope_gaps","call_count","source_sha256","sources")}
     print("QUALIFICATION_SUMMARY_JSON="+json.dumps(brief,allow_nan=False))
 
 
