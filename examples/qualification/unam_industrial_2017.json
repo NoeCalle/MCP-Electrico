@@ -1,0 +1,50 @@
+{
+  "schema": "MCP_EXTERNAL_INDUSTRIAL_FACTS_V1",
+  "title": "Aplicacion del analisis de flujos de carga y cortocircuito a la optimizacion del diseno de un sistema electrico industrial",
+  "author": "Henry Johany Garcia Arboleda",
+  "institution": "UNAM",
+  "year": 2017,
+  "source_url": "https://tesiunamdocumentos.dgb.unam.mx/ptd2017/mayo/0759661/0759661.pdf",
+  "source_pdf_sha256": "c0a2c846f924c908cdee7ba1eee5b2583f6c57d6d38d6c3559155e39d3d9e20e",
+  "source_pages": "Printed page numbers equal zero-based PDF page indexes in this 111-page file",
+  "notice": "Numerical facts transcribed for reproducibility, with attribution. Original PDF/images/prose are not redistributed or relicensed. The thesis reserves its rights.",
+  "reference_status": "NOT_ADMITTED_FULL_PROJECT",
+  "source": {"kv_ll": 23.0, "frequency_hz": 60, "pf_slack_pu": 1.0, "scc3_mva": 199.1, "xr3": 3.41, "scc1_mva": 48.94, "xr0": 2.88, "pages": [44,48,53,103]},
+  "closed_breaker_alias": {"BUS-09": "BUS-08"},
+  "lines": [
+    {"id":"CP00","from":"BUS-01","to":"BUS-02","kv_ll":23,"length_m":25,"r_ohm":0.00335,"x_ohm":0.00243,"r0_ohm":0.01110,"x0_ohm":0.00868},
+    {"id":"CP04","from":"BUS-02","to":"BUS-04","kv_ll":23,"length_m":280,"r_ohm":0.03752,"x_ohm":0.02716,"r0_ohm":0.12432,"x0_ohm":0.09716},
+    {"id":"CP06","from":"BUS-04","to":"BUS-E02","kv_ll":23,"length_m":220,"r_ohm":0.02948,"x_ohm":0.02134,"r0_ohm":0.09768,"x0_ohm":0.07634},
+    {"id":"CP07","from":"BUS-04","to":"BUS-E04","kv_ll":23,"length_m":320,"r_ohm":0.04288,"x_ohm":0.03104,"r0_ohm":0.14208,"x0_ohm":0.11104},
+    {"id":"CP08","diagram_id":"CP02","from":"BUS-02","to":"BUS-07","kv_ll":23,"length_m":280,"r_ohm":0.03752,"x_ohm":0.02716,"r0_ohm":0.12432,"x0_ohm":0.09716},
+    {"id":"CP09","from":"BUS-09","to":"BUS-10","kv_ll":0.46,"length_m":8,"diagram_length_m":15,"r_ohm":0.00023,"x_ohm":0.00038,"r0_ohm":0.00073,"x0_ohm":0.00094},
+    {"id":"CP10","from":"BUS-09","to":"BUS-13","kv_ll":0.46,"length_m":12,"diagram_length_m":8,"r_ohm":0.00035,"x_ohm":0.00058,"r0_ohm":0.00110,"x0_ohm":0.00142},
+    {"id":"CP11","from":"BUS-13","to":"BUS-14","kv_ll":0.46,"length_m":15,"diagram_length_m":20,"r_ohm":0.00044,"x_ohm":0.00072,"r0_ohm":0.00137,"x0_ohm":0.00177}
+  ],
+  "line_source_pages": [48,53,105],
+  "transformers": [
+    {"id":"SEPP","hv_bus":"BUS-02","lv_bus":"BUS-E01","kva":750,"kv_hv":23,"kv_lv":0.46,"uk_percent":6.75,"xr":3.96},
+    {"id":"SE02","hv_bus":"BUS-E02","lv_bus":"BUS-E03","kva":1000,"kv_hv":23,"kv_lv":0.46,"uk_percent":6.75,"xr":5.79},
+    {"id":"SE03","hv_bus":"BUS-E04","lv_bus":"BUS-E05","kva":1000,"kv_hv":23,"kv_lv":0.46,"uk_percent":6.75,"xr":5.79},
+    {"id":"SE01","hv_bus":"BUS-07","lv_bus":"BUS-08","kva":2500,"kv_hv":23,"kv_lv":0.46,"uk_percent":6,"xr":5.79,"table_r_pu_100mva":0.40846,"table_x_pu_100mva":2.36499,"figure_x_pu_100mva":2.23649}
+  ],
+  "transformer_source_pages": [48,54,65,105],
+  "loads": [
+    {"bus":"BUS-10","kw":1413.9,"kvar":713.9},
+    {"bus":"BUS-14","kw":446.0,"kvar":245.8},
+    {"bus":"BUS-E01","kw":662.8,"kvar":321.0},
+    {"bus":"BUS-E03","kw":885.1,"kvar":428.7},
+    {"bus":"BUS-E05","kw":885.1,"kvar":428.7}
+  ],
+  "load_source_page":103,
+  "etap_voltages_pct": {"BUS-01":100,"BUS-02":99.996,"BUS-04":99.979,"BUS-07":99.978,"BUS-08":97.379,"BUS-09":97.379,"BUS-10":97.231,"BUS-13":97.143,"BUS-14":96.847,"BUS-E01":95.387,"BUS-E02":99.972,"BUS-E03":95.775,"BUS-E04":99.969,"BUS-E05":95.771},
+  "etap_source_power": {"kw":4344.1,"kvar":2435.7,"page":103},
+  "etap_lv_line_terminals": [
+    {"id":"CP09","sending_kw":1415.315,"receiving_kw":1413.943,"current_a":2044.6},
+    {"id":"CP10","sending_kw":448.092,"receiving_kw":447.166,"current_a":660.0},
+    {"id":"CP11","sending_kw":447.166,"receiving_kw":446.009,"current_a":660.0}
+  ],
+  "zero_sequence_audit": {"bus":"BUS-02","z1_r_pu":0.13765,"z1_x_pu":0.46290,"development_z0_r_pu":0.34135,"development_z0_x_pu":0.98254,"table613_labeled_z0_r_pu":0.61665,"table613_labeled_z0_x_pu":1.90834,"pages":[55,58,59,60]},
+  "missing_for_full_reference": ["Transformer vector clocks and ETAP phase-shift option", "Transformer tap positions and excitation data", "Actual ETAP positive-sequence cable inputs and parallel sets", "Reconciliation of cable lengths and transformer reactance versions", "Unambiguous MAX/MIN source scenarios for IEC60909", "Motor data in the intended short-circuit standard", "Protection TCC, settings and clearing times"],
+  "diagnostic_assumptions": {"source":"Fixed-voltage PF slack; not a fault equivalent", "loads":"Balanced three-phase constant PQ from rounded ETAP load columns", "excitation":"Excluded explicitly (P0=I0=0); not nameplate values", "tap":"Nominal fixed ratio; no regulator or actual tap claim", "clock":"Dyn11 as explicit diagnostic convention; published absolute angles not qualified", "line_shunt":"Excluded explicitly; no capacitance data provided", "criticality":"Not assigned; no continuity criterion inferred", "emergency_generator":"Open branch excluded, as drawn; no generator data invented", "breaker":"BUS-08/BUS-09 merged as equipotential closed breaker"}
+}
