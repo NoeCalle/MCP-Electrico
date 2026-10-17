@@ -1,3 +1,7 @@
+> **Q9 — 17 de octubre de 2026:** informes de motores MSL, comparación de casos,
+> barra/terminal separados, criterios y exportaciones verificados.
+> Ver [alcance y evidencia](INFORMES_MOTORES_Q9.md).
+
 # Roadmap visual transversal — MCP Eléctrico
 
 **Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).
@@ -17,8 +21,8 @@ El banner P5 identifica su alcance verificado; los informes P7 conservan la
 calificación capturada en el snapshot, incluso si el servidor cambia después.
 
 DOL01–DOL03 están cerrados en Q2, SCR01–SCR03 en Q4 y la ampliación a dos SCR en Q5. Presentar los alcances verificados y sus exclusiones; las nuevas topologías requieren pruebas específicas.
-La siguiente mejora visual presentará el alcance, los datos pendientes y los motivos
-de resultados no evaluables junto al estudio. La verificación numérica de Q1
+Q9 presenta el alcance, los datos pendientes y los motivos de resultados no evaluables
+en informes de motores MSL; no constituye una regresión de todas las vistas del workspace. La verificación numérica de Q1
 no constituye una nueva regresión visual del navegador.
 
 ## Estado base ya conseguido

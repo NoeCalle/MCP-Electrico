@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "desktop_width": 1440,
+  "mobile_width": 430,
+  "chart_count": 56,
+  "desktop_page_overflow": false,
+  "mobile_page_overflow": false,
+  "mobile_plot_scroll": true,
+  "javascript_errors": [],
+  "files_sha256": {
+    "desktop.png": "3227649f07758575e036cda57f50c08b2507acc37ee0e633c0e8311072076011",
+    "mobile.png": "eb2f26e59c5c30e14b68ecaf75f905c5a887d65d9e32ec712ae34f3268407402",
+    "Print.pdf": "bd0b9f88fa4e7c4ab1be10b0685c9c5913e4c0d888d89545ae2e64f122cc1f8d"
+  },
+  "report_html_sha256": "e65f706d7424cd3dc8cdd7643c336ed8406151271b34b2b5d75e076164a4fffa",
+  "checked_at_utc": "2026-10-17T18:55:10.630Z",
+  "print_pages": 15,
+  "print_visual_review": "All 15 pages rendered and visually checked; one comparison page plus one page per motor",
+  "report_source_sha256": "7569263ffae3ec99a3e5f929f26cd6710d88a458576e3b9b80307e8921641ffd"
+}

@@ -1,8 +1,10 @@
 # MCP Eléctrico — OpenDSS, pandapower y OpenModelica/MSL
 
-**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q8, 16 de octubre de 2026.
+**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q9, 17 de octubre de 2026.
 
 **Q8:** [Actuación de relés OCRelay](docs/ACTUACION_RELES_PANDAPOWER.md), ajustes y corrientes primarias constantes; tiempo de relé separado del interruptor.
+
+**Q9:** [Informes de motores](docs/INFORMES_MOTORES_Q9.md): gráficos por motor, comparación, criterios y exportaciones de resultados MSL guardados.
 
 ## Confiabilidad técnica y responsabilidad del ingeniero — Q8
 
