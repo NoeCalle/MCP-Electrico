@@ -147,6 +147,9 @@ def ejecutar_2ph(
         })
 
     try:
+        thermal_projection = iec60909._thermal_backend_projection(duty, float(model["frequency_hz"]))
+        if thermal_projection:
+            calc_kwargs["tk_s"] = thermal_projection["backend_tk_s"]
         calc_sc(net, **calc_kwargs)
     except Exception as exc:
         return {
@@ -195,6 +198,7 @@ def ejecutar_2ph(
             "source": prep["source_projection"],
             "line_endtemp_degree_c": prep["line_endtemp_degree_c"],
             "duty": duty,
+            "thermal_backend_projection": thermal_projection,
             "negative_sequence_policy": prep["negative_sequence_policy"],
         },
         "engine": {

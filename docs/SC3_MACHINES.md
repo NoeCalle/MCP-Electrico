@@ -143,3 +143,10 @@ también contra el código instalado 3.5.4, no solamente una página `latest`):
 - [Cálculo y unidades generador–transformador](https://pandapower.readthedocs.io/en/stable/shortcircuit/run.html).
 - Código 3.5.4: `build_bus._add_motor_impedances_ppc` y
   `shortcircuit.ppc_conversion._add_gen_sc_z_kg_ks`.
+
+## Ruta transitoria separada — Q13A
+
+La [falla terminal EMT con MSL](MOTOR_FAULT_THERMAL_EMT.md) calcula el
+decaimiento de un motor estrella a velocidad impuesta y la integral térmica
+de sus corrientes instantáneas por fase. No elimina el bloqueo ip/Ith de
+esta ruta SC3 IEC ni representa automáticamente la red de una planta.

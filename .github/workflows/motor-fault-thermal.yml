@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -e ".[dev]"
-      - run: python -m pytest tests/test_motor_fault_thermal.py tests/test_sc_machines.py -q
+      - run: python -m pytest tests/test_motor_fault_thermal.py tests/test_thermal_frequency_mapping.py tests/test_sc_machines.py tests/test_iec60909_p4c05.py tests/test_iec60909_p4c06.py -q
   native-motor-fault:
     runs-on: windows-latest
     timeout-minutes: 35
