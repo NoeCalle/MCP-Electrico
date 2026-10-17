@@ -1,3 +1,6 @@
+> **Q8:** armónicos Q6, perfiles Q7 y OCRelay Q8 verificados en sus alcances.
+> Continúan informes/mejoras visuales; ver [estado actual](ESTADO_ACTUAL.md).
+
 # Migración a modelos abiertos y cobertura industrial
 
 
@@ -93,7 +96,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 | Compensación de reactiva y bancos | OpenDSS | Integración verificada en alcance estático: bancos ideales por etapas, demanda explícita, FP/tensión/pérdidas/cargabilidad y balances. [Alcance](COMPENSACION_REACTIVA_OPENDSS.md); armónicos, reactores y control automático pendientes. |
 | Armónicos, THD y resonancia | OpenDSS | Prioridad de integración: espectros, fuentes armónicas, barrido y benchmarks. No inferir espectros de un fp. |
 | Demanda, perfiles y operación temporal | OpenDSS | Prioridad de integración: perfiles explícitos y simulación temporal. No confundir con transitorios EMT. |
-| Ajustes y actuación de relés de sobrecorriente | pandapower `OCRelay` | Adaptador pendiente; complementar datos de interruptor y clearing time cuando corresponda. |
+| Ajustes y actuación de relés de sobrecorriente | pandapower `OCRelay` | Q8 verificado para DTOC/IDMT/IDTOC y corrientes constantes; retardo de interruptor explícito y separado. [Alcance](ACTUACION_RELES_PANDAPOWER.md). |
 | Variadores y estabilidad de respaldo | Primero los motores ya considerados | VFD/control específico pendientes. ANDES sólo si se demuestra falta para el alcance de estabilidad fasorial pedido. |
 | Malla de tierra: paso/contacto | Motor abierto por investigar | No cubierto por representar el neutro o calcular falla a tierra. |
 | Arc Flash | Diferido por el usuario | No habilitar por completar cortocircuito y TCC. |
@@ -102,7 +105,7 @@ Esta tabla separa una capacidad de una biblioteca de un estudio MCP disponible.
 
 1. DOL01–DOL03, SCR01–SCR03 y TWO_SCR01–TWO_SCR02 cerrados: mantener ambas regresiones y los alcances del [registro de cierre](ESTADO_CIERRE_MODULOS.md). Las fichas del equipo son datos del proyecto; no recuperar física propia.
 2. Bancos estáticos verificados en alcance. Ampliar armónicos y perfiles con OpenDSS, verificando cada estudio mediante MCP y referencias independientes. La ampliación no reabre el alcance estático cerrado.
-3. Integrar actuación de relés con pandapower y conservar datos de clearing.
+3. OCRelay Q8 cerrado en su alcance; conservar regresiones y datos de clearing explícitos.
 4. Completar datos/benchmarks de uso industrial, informes y mejoras visuales.
 5. Investigar las carencias restantes (p. ej. malla de tierra) antes de agregar
    motores. Arc Flash sigue pendiente.

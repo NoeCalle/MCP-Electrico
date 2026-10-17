@@ -109,6 +109,15 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "contract_tool": "obtener_contrato_armonicos", "readiness_tool": "validar_armonicos",
         "execution_tool": "ejecutar_armonicos",
     },
+    "relay_operation": {
+        "preferred": "pandapower", "alternatives": [], "module": "relay_operation",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q8: OCRelay DTOC/IDMT/IDTOC nativo con ajustes y corrientes primarias constantes explicitos.",
+        "requirements": ["ajustes, corrientes trazables, criterios y retardo de interruptor explicitos"],
+        "contract_tool": "obtener_contrato_actuacion_reles", "readiness_tool": "validar_actuacion_reles",
+        "execution_tool": "ejecutar_actuacion_reles",
+    },
     "time_series": {
         "preferred": "opendss", "alternatives": [], "module": "time_series",
         "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
@@ -164,6 +173,7 @@ ALIASES = {
     "arc_flash": "arc_flash_ieee1584", "arc_flash_ieee1584": "arc_flash_ieee1584", "ieee1584": "arc_flash_ieee1584",
     "lee": "arc_flash_lee", "arc_flash_lee": "arc_flash_lee",
     "armonicos": "harmonics", "harmonics": "harmonics",
+    "actuacion_reles": "relay_operation", "relay_operation": "relay_operation", "ocrelay": "relay_operation",
     "series_temporales": "time_series", "time_series": "time_series",
     "dinamica_arranque_directo": "motor_dynamics_dol",
     "arranque_directo_dinamico": "motor_dynamics_dol",
@@ -204,7 +214,7 @@ def obtener_capacidades_motores() -> dict[str, Any]:
               'ampacity':'ampacity','protection_coordination':'protection_coordination',
               'short_circuit_exploratory':'short_circuit','reactive_compensation':'reactive_compensation',
               'motor_dynamics_dol':'modelica_dol','motor_dynamics_simultaneous':'modelica_dol',
-              'motor_dynamics_soft_starter_scr':'modelica_scr','harmonics':'harmonics','time_series':'time_series',
+              'motor_dynamics_soft_starter_scr':'modelica_scr','harmonics':'harmonics','time_series':'time_series','relay_operation':'relay_operation',
               'arc_flash_ieee1584':'arc_flash_ieee1584','arc_flash_lee':'arc_flash_lee'}
     for study,name in bindings.items():studies[study]['qualification']=module_qualification.get(name)
     return {

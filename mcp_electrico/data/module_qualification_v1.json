@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q7_TIME_SERIES_2026_10_16",
+  "revision": "Q8_RELAY_OPERATION_2026_10_16",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -639,24 +639,45 @@
     },
     "relay_operation": {
       "engine": "pandapower OCRelay",
-      "verification_status": "NOT_IMPLEMENTED",
-      "scope": "Actuación de relés",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "DTOC/IDMT/IDTOC nativos, ajustes explicitos, puntos independientes de corriente RMS primaria constante; tiempo de rele separado del interruptor",
       "evidence": [
-        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+        "tests/test_relay_operation.py",
+        "scripts/relay_operation_reference.py",
+        "scripts/verify_relay_operation_mcp.py",
+        "docs/evidence/relay_operation_q8_mcp.json",
+        "docs/ACTUACION_RELES_PANDAPOWER.md"
       ],
-      "closure_gates": [
-        {
-          "id": "ADAPTER",
-          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
-          "status": "PENDING"
-        }
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Corrientes variables, saturacion CT y formas de onda secundarias",
+        "Recalculo de red tras apertura, secuencia de disparos, recierre y fallo de interruptor",
+        "Selectividad integral, ajustes automaticos y calificacion de fabricante",
+        "Vinculacion automatica de corrientes P4; protecciones direccionales y de tierra"
       ],
-      "excluded_extensions": [],
       "project_data_readiness": "EVALUATED_PER_REQUEST",
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "ENGINEER_RESPONSIBILITY"
+      "report_approval": "ENGINEER_RESPONSIBILITY",
+      "completed_closure_gates": [
+        {
+          "id": "RELAY01",
+          "status": "PASSED",
+          "acceptance": "Ajustes nativos sin autograding; curvas y umbrales contrastados contra referencia escalar independiente y serializacion nativa",
+          "evidence": [
+            "tests/test_relay_operation.py"
+          ]
+        },
+        {
+          "id": "RELAY02",
+          "status": "PASSED",
+          "acceptance": "Ejecucion MCP real, escenarios sc/pp, retardo de interruptor separado y circuito padre intacto",
+          "evidence": [
+            "docs/evidence/relay_operation_q8_mcp.json"
+          ]
+        }
+      ]
     },
     "arc_flash_ieee1584": {
       "engine": "Por integrar",

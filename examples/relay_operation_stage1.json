@@ -1,0 +1,258 @@
+{
+  "schema": "MCP_ELECTRICO_RELAY_OPERATION_V1",
+  "id": "RELAY-REF-IDTOC-standard_inverse",
+  "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA",
+  "current_time_model": "CONSTANT_RMS_OVER_OPERATING_TIME",
+  "relays": [
+    {
+      "id": "R1",
+      "protected_element_reference": "EXPLICIT_TEST_FEEDER_NO_AUTOMATIC_MODEL_BINDING",
+      "type": "IDTOC",
+      "settings": {
+        "pickup_primary_a": 500,
+        "curve_type": "standard_inverse",
+        "time_multiplier": 0.1,
+        "additive_delay_s": 0.05,
+        "inverse_pickup_primary_a": 100,
+        "high_set_primary_a": 1000,
+        "delay_s": 0.4,
+        "high_set_delay_s": 0.02
+      },
+      "breaker": {
+        "clearing_delay_s": 0.05,
+        "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    }
+  ],
+  "cases": [
+    {
+      "id": "point_0",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 0,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": false,
+          "maximum_relay_time_s": null,
+          "maximum_total_clearing_time_s": null,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_1",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 99,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": false,
+          "maximum_relay_time_s": null,
+          "maximum_total_clearing_time_s": null,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_2",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 100,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": false,
+          "maximum_relay_time_s": null,
+          "maximum_total_clearing_time_s": null,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_3",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 101,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 70.39242079714384,
+          "maximum_total_clearing_time_s": 70.44242079714384,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_4",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 499,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.4785146553485473,
+          "maximum_total_clearing_time_s": 0.5285146553485474,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_5",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 500,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.47797300709453744,
+          "maximum_total_clearing_time_s": 0.5279730070945375,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_6",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 501,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.400001,
+          "maximum_total_clearing_time_s": 0.450001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_7",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 999,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.400001,
+          "maximum_total_clearing_time_s": 0.450001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_8",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 1000,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.400001,
+          "maximum_total_clearing_time_s": 0.450001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_9",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 1001,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.020001,
+          "maximum_total_clearing_time_s": 0.07000100000000001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_10",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 2000,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.020001,
+          "maximum_total_clearing_time_s": 0.07000100000000001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    },
+    {
+      "id": "point_11",
+      "scenario": "sc",
+      "currents": {
+        "R1": {
+          "primary_rms_a": 10000,
+          "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+        }
+      },
+      "expectations": {
+        "R1": {
+          "trip": true,
+          "maximum_relay_time_s": 0.020001,
+          "maximum_total_clearing_time_s": 0.07000100000000001,
+          "source_reference": "INDEPENDENT_TEST_EXPECTATION_NOT_PROJECT_CRITERION"
+        }
+      },
+      "source_reference": "SYNTHETIC_CONSTANT_PRIMARY_CURRENT_REFERENCE_NOT_MANUFACTURER_DATA"
+    }
+  ]
+}

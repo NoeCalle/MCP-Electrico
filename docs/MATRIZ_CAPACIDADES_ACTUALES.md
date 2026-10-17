@@ -1,13 +1,6 @@
-> **Actualización Q7 — 16 de octubre de 2026:** perfiles Daily/Yearly nativos
-> verificados en alcance equilibrado; 16 referencias PQ/Z, prueba de 8.760 h
-> y 39 llamadas MCP. P/Q y periodo explícitos; sin extrapolación anual.
-> Ver [alcance y evidencia](SERIES_TEMPORALES_OPENDSS.md).
-
-> **Actualización Q6 — 16 de octubre de 2026:** `harmonics` tiene adaptador
-> OpenDSS verificado para espectros de carga no triplén y barrido positivo,
-> con amortiguamiento explícito, THDv truncada, informe y hashes. No cubre
-> secuencia cero, desbalance, filtros ni conformidad IEEE 519 automática.
-> Ver [alcance y evidencia](ARMONICOS_OPENDSS.md).
+> **Actualización Q8 — 16 de octubre de 2026:** actuación OCRelay verificada
+> dentro del [alcance publicado](ACTUACION_RELES_PANDAPOWER.md). Siguiente trabajo:
+> informes y mejoras visuales. Q6/Q7 conservan sus cierres y regresiones.
 
 # Matriz de capacidades actuales — MCP Eléctrico
 
@@ -31,7 +24,7 @@ Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
 **Fecha:** 16 de octubre de 2026. Actualización Q6: armónicos, DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
-El servidor actualizado registra **160 herramientas**. Bancos estáticos añaden
+El servidor actualizado registra **163 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
@@ -166,6 +159,7 @@ Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después de
 | EMT general, saturación y calentamiento dinámico | Sin adaptador general / extensiones excluidas | MSL sí simula señales instantáneas y conmutación SCR en su circuito de arranque. No habilita cualquier topología EMT ni un modelo térmico motor/semiconductor. |
 | Series temporales Daily/Yearly | Adaptador OpenDSS Q7 verificado en alcance | Perfiles regulares P/Q explícitos, demanda y energía del periodo, sin extrapolación automática; [evidencia](SERIES_TEMPORALES_OPENDSS.md). |
 | Estabilidad dinámica de generadores y transferencia | No implementada por P12 | El equivalente de fuente y escenarios estáticos no resuelven sincronismo, AVR, gobernador ni interrupción transitoria del suministro. |
+| Actuación OCRelay DTOC/IDMT/IDTOC | Q8 verificado en alcance | Corrientes RMS primarias constantes, ajustes explícitos y tiempo de interruptor separado; [evidencia](ACTUACION_RELES_PANDAPOWER.md). |
 | Relés, CT/VT, lógica y selectividad integral | Fuera de P5-v1 | No están implementados el estudio integral de relés ni la selectividad energética, backup/cascading o ajustes automáticos verificados. |
 | Ib de corte / Ik permanente IEC 60909 y deberes excluidos | No implementados/promovidos en P4-v1 | Aporte inicial Ik'' no cubre decaimiento near-generator ni ip/Ith con máquinas SC. |
 | Arc flash IEEE 1584 | Diferido por solicitud del usuario | Lee educativo sigue disponible; no aporta conformidad IEEE 1584. |

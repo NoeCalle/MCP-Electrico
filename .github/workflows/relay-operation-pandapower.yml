@@ -1,0 +1,27 @@
+name: relay-operation-pandapower
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  relay-operation:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest tests/test_relay_operation.py tests/test_module_qualification.py tests/test_engine_selection.py -q
+      - run: python scripts/verify_relay_operation_mcp.py --output relay_operation_evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relay-operation-${{ matrix.os }}
+          path: relay_operation_evidence

@@ -1,8 +1,10 @@
 # MCP Eléctrico — OpenDSS, pandapower y OpenModelica/MSL
 
-**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q7, 16 de octubre de 2026.
+**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q8, 16 de octubre de 2026.
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q7
+**Q8:** [Actuación de relés OCRelay](docs/ACTUACION_RELES_PANDAPOWER.md), ajustes y corrientes primarias constantes; tiempo de relé separado del interruptor.
+
+## Confiabilidad técnica y responsabilidad del ingeniero — Q8
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles

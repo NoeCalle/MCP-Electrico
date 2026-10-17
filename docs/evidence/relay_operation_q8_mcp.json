@@ -1,0 +1,665 @@
+{
+  "ok": true,
+  "transport": "MCP_STDIO",
+  "checked_at_utc": "2026-10-17T01:37:08.497403+00:00",
+  "case_count": 36,
+  "call_count": 79,
+  "registered_tools": 163,
+  "reference_depends_on_adapter": false,
+  "checks": [
+    {
+      "case": "DTOC-standard_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "DTOC-standard_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "DTOC-standard_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "DTOC-standard_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-standard_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-standard_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-standard_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-standard_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-very_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-very_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-very_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-very_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-extremely_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-extremely_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-extremely_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-extremely_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-long_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-long_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-long_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDMT-long_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-standard_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-standard_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-standard_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-standard_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 0.0,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-very_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-very_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-very_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-very_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-extremely_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-extremely_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-extremely_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-extremely_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 1.1102230246251565e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-long_inverse-sc-None",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-long_inverse-sc-0.05",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-long_inverse-pp-None",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    },
+    {
+      "case": "IDTOC-long_inverse-pp-0.05",
+      "points": 12,
+      "maximum_time_error_s": 8.881784197001252e-16,
+      "time_tolerance": "1e-9 * max(1, absolute_reference_seconds)",
+      "passed": true
+    }
+  ],
+  "calls": [
+    {
+      "tool": "obtener_contrato_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "seleccionar_motor_estudio",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "crear_circuito",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "BLOCKED_RELAY_OPERATION_INPUTS",
+      "results_valid": false
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_actuacion_reles",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "ejecutar_actuacion_reles",
+      "status": "RELAY_OPERATION_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    }
+  ],
+  "source_sha256": {
+    "mcp_electrico/relay_operation.py": "916690ac3f01f740fcd164759fba0bc0d7952749a9ab5d38755576729ab9100b",
+    "scripts/relay_operation_reference.py": "56dc4f22b41442a140f32894c0e816db594e249cd59ae033506ebb8cd0ec8955",
+    "scripts/verify_relay_operation_mcp.py": "6c87da8cc65998c0a69119eda88463e2a9d506e1d40f007ac549e0c831447c35"
+  }
+}
