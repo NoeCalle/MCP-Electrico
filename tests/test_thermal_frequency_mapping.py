@@ -2,6 +2,7 @@
 from math import exp, log, sqrt
 
 import pytest
+from opendssdirect import dss
 from scipy.integrate import quad
 
 from mcp_electrico import core, professional_data, iec60909, iec60909_two_phase
@@ -12,6 +13,7 @@ from mcp_electrico import core, professional_data, iec60909, iec60909_two_phase
 @pytest.mark.parametrize("fault", ["3ph", "2ph"])
 def test_thermal_current_uses_declared_frequency_and_duration(hz, duration, fault):
     core.crear_circuito("thermal_frequency", 22.9, hz)
+    assert dss.Solution.Frequency() == hz
     professional_data.definir_red_equivalente(22.9, 500., 10., 250., 5., fuente_referencia="Synthetic thermal-frequency benchmark")
     execute = iec60909.ejecutar_3ph if fault == "3ph" else iec60909_two_phase.ejecutar_2ph
     result = execute("max", "sourcebus", calcular_ip_ith=True, topology="radial", tk_s=duration)
@@ -43,3 +45,14 @@ def test_pinned_backend_frequency_and_ac_factor_assumptions_are_still_true():
                    if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)
                    and isinstance(node.value, ast.Constant)}
     assert assignments["f"] == 50 and assignments["n"] == 1
+
+
+@pytest.mark.parametrize("hz", [50, 60, 50, 60])
+def test_creation_sets_solution_and_new_element_impedance_reference_frequency(hz):
+    core.crear_circuito("frequency_base", 22.9, hz)
+    assert dss.Solution.Frequency() == hz
+    dss.Circuit.SetActiveElement("Vsource.source")
+    assert float(dss.Properties.Value("basefreq")) == hz
+    core.agregar_linea("frequency_line", "sourcebus", "receiving", 1., fases=3, r1_ohm_km=.1, x1_ohm_km=.2)
+    dss.Circuit.SetActiveElement("Line.frequency_line")
+    assert float(dss.Properties.Value("basefreq")) == hz

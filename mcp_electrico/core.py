@@ -118,6 +118,9 @@ def crear_circuito(
         raise ValueError("bus_fuente debe ser una barra explícita no vacía.")
 
     dss("Clear")
+    # Frequency on New Circuit sets Vsource.Frequency, not Solution.Frequency.
+    # New passive elements must also use the declared impedance reference base.
+    dss(f"Set DefaultBaseFrequency={frecuencia}")
     dss(
         f"New Circuit.{nombre} basekv={kv_base} Frequency={frecuencia}"
     )
@@ -125,6 +128,7 @@ def crear_circuito(
     # reubica de inmediato, antes de agregar cualquier otro elemento, para que
     # el modelo efectivo use la barra declarada por el usuario/proyecto.
     dss(f"Edit Vsource.source Bus1={source_bus}")
+    dss(f"Set Frequency={frecuencia}")
 
     global _voltage_bases, _bus_voltage_bases_ll
     _voltage_bases = {float(kv_base)}

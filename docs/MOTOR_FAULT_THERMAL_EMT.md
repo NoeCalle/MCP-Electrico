@@ -109,6 +109,12 @@ Se admite esta adaptación únicamente para la versión fijada y 50/60 Hz.
 Una versión distinta falla cerrada para evitar aplicar dos veces una corrección
 si el proveedor modifica su implementación.
 
+Las pruebas también detectaron que `Frequency` en `New Circuit` de OpenDSS
+solo fijaba la propiedad de la fuente, mientras la solución podía conservar
+60 Hz al solicitar 50 Hz. La creación ahora fija explícitamente la frecuencia
+base de los nuevos elementos y la frecuencia efectiva de solución. Se comprueba
+la alternancia 50/60 Hz y la base de una línea añadida después.
+
 Doce casos contrastan 3F/2F, 50/60 Hz y tres duraciones con cuadratura de la
 energía AC constante + DC exponencial. Una comprobación adicional verifica
 los supuestos del código del proveedor. **Esto no habilita decaimiento de
