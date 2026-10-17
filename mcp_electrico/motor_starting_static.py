@@ -332,6 +332,9 @@ def _build_isolated_base(
     engine = dss.NewContext()
     engine.Basic.AllowChangeDir(False)
     engine("Clear")
+    # Circuit.Frequency sets the source, not OpenDSS's circuit fundamental.
+    # Set this before creating the circuit, particularly for 50 Hz harmonics.
+    engine(f"Set DefaultBaseFrequency={float(source['frequency_hz'])}")
 
     circuit_name = _circuit_name((base_model.get("project") or {}).get("id"))
     engine(

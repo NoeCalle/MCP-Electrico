@@ -1,9 +1,15 @@
+> **Actualización Q6 — 16 de octubre de 2026:** `harmonics` tiene adaptador
+> OpenDSS verificado para espectros de carga no triplén y barrido positivo,
+> con amortiguamiento explícito, THDv truncada, informe y hashes. No cubre
+> secuencia cero, desbalance, filtros ni conformidad IEEE 519 automática.
+> Ver [alcance y evidencia](ARMONICOS_OPENDSS.md).
+
 # Matriz de capacidades actuales — MCP Eléctrico
 
 
 **Ampliación Q5 (4 de octubre):** dos motores SCR delta sobre red RL común verificados mediante siete estudios, 50/60 Hz, cargas distintas y bypass independientes. Ver [alcance y evidencia](MSL_SCR_DOS_MOTORES.md). Más de dos SCR, mezcla DOL/SCR y estrella siguen fuera del alcance.
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q5
+## Confiabilidad técnica y responsabilidad del ingeniero — Q6
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -19,8 +25,8 @@ sería una mejora documental opcional y no una condición para verificar un solv
 Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
-**Fecha:** 4 de octubre de 2026. Actualización Q5: DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
-El servidor actualizado registra **154 herramientas**. Bancos estáticos añaden
+**Fecha:** 16 de octubre de 2026. Actualización Q6: armónicos, DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
+El servidor actualizado registra **157 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
@@ -151,7 +157,7 @@ Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después de
 | Dinámica de varios motores acoplados del unifilar completo | Calificación integral pendiente | DOL MSL de equivalente RL común verificado en alcance, probado con dos motores; SCR con dos motores verificado; traducción completa, más de dos SCR y mezcla DOL/SCR excluidas. |
 | SCR trifásico cualificado para un dispositivo real | Datos y contraste del dispositivo real pendientes; controlador genérico verificado | SCR01–SCR03 cerrados para controlador genérico MSL. Las discrepancias del equivalente propio retirado son históricas; la ficha y el contraste de fabricante corresponden al dispositivo real. |
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
-| Armónicos y calidad de energía | No expuesto/validado como módulo de estudio | La capacidad del solver OpenDSS no equivale a una herramienta MCP disponible; el SCR actual no calcula distorsión de toda la red. |
+| Armónicos y barrido de impedancia | Adaptador OpenDSS Q6 verificado en alcance | Espectros no triplén, THDv truncada y barrido positivo con amortiguamiento explícito. No cubre secuencia cero, desbalance, IEEE 519 automático ni transitorios; [evidencia](ARMONICOS_OPENDSS.md). |
 | EMT general, saturación y calentamiento dinámico | Sin adaptador general / extensiones excluidas | MSL sí simula señales instantáneas y conmutación SCR en su circuito de arranque. No habilita cualquier topología EMT ni un modelo térmico motor/semiconductor. |
 | Series temporales de operación diaria/anual | No implementadas como módulo | Los perfiles estáticos de arranque P13C no son un estudio Daily/Yearly de la red. |
 | Estabilidad dinámica de generadores y transferencia | No implementada por P12 | El equivalente de fuente y escenarios estáticos no resuelven sincronismo, AVR, gobernador ni interrupción transitoria del suministro. |

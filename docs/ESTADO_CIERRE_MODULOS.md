@@ -1,10 +1,10 @@
 # Estado de cierre de módulos
 
-Revisión: **Q5_TWO_SCR_2026_10_04**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q6_HARMONICS_2026_10_16**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
-**Resumen:** 18 módulos verificados en alcance; 1 en verificación; 3 pendientes de integración. Ver [estado actual y prioridades](ESTADO_ACTUAL.md).
+**Resumen:** 19 módulos verificados en alcance; 1 en verificación; 2 pendientes de integración. Ver [estado actual y prioridades](ESTADO_ACTUAL.md).
 
 ## Qué se cierra
 
@@ -42,7 +42,7 @@ La revisión, aprobación y firma del estudio corresponden al ingeniero. El soft
 | `operating_scenarios` | OpenDSS | Verificado en alcance | P12: contingencias/transferencias/deslastre estáticos declarados |
 | `modelica_dol` | OpenModelica/MSL | Verificado en alcance | MSL DOL con equivalente RL equilibrado explícito, resistencias fijas y curva de carga declarada; contraste cuantitativo de una máquina estrella/delta y una/dos máquinas delta con carga |
 | `modelica_scr` | OpenModelica/MSL | Verificado en alcance | Una o dos máquinas delta, red RL equilibrada común y controladores genéricos MSL independientes; arranques simultáneos/escalonados en bancos Q4/Q5 |
-| `harmonics` | OpenDSS | Pendiente de integración | Armónicos y resonancia |
+| `harmonics` | OpenDSS | Verificado en alcance | Red trifasica equilibrada; espectros no triplen de carga y barrido de impedancia de secuencia positiva; R constante/X proporcional a frecuencia |
 | `time_series` | OpenDSS | Pendiente de integración | Daily/Yearly con perfiles explícitos |
 | `relay_operation` | pandapower OCRelay | Pendiente de integración | Actuación de relés |
 | `arc_flash_ieee1584` | Por integrar | Diferido por el usuario | Arc Flash formal |
@@ -58,10 +58,6 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 
 - **PPF01 — PENDING:** Contrastar transformación P2, taps, carga y pérdidas por terminal contra ejecución nativa pandapower con entradas independientes
 - **PPF02 — PENDING:** MCP público debe reproducir esos casos y rechazar equipos no traducibles
-
-### harmonics
-
-- **ADAPTER — PENDING:** Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites
 
 ### time_series
 
@@ -81,6 +77,7 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 - **modelica_scr / SCR03 — PASSED:** Verificar referencia de disparo y alcance admitido; mantener bloqueadas estrella y multimáquina hasta pruebas específicas
 - **modelica_scr / TWO_SCR01 — PASSED:** Dos ramas sobre una impedancia común: contraste original, equivalencia Z/2Z y KVL con suma de corrientes
 - **modelica_scr / TWO_SCR02 — PASSED:** Controladores y bypass independientes; arranques simultáneos, solapados y tras bypass; 50/60 Hz; bloqueos fuera de alcance
+- **harmonics / HARM01 — PASSED:** 24 combinaciones RL/C independientes a 50/60 Hz, wye/delta, banco ON/OFF y amortiguamiento 0/50/100%; contraste nativo y 54 llamadas MCP
 
 ## Evidencia y exclusiones por módulo
 
@@ -206,7 +203,9 @@ Fuera del cierre: Control real de fabricante; SCR estrella; más de dos máquina
 
 ### harmonics
 
-Evidencia: [MIGRACION_MODELOS_ABIERTOS.md](../docs/MIGRACION_MODELOS_ABIERTOS.md).
+Evidencia: [test_harmonics.py](../tests/test_harmonics.py), [harmonics_reference.py](../scripts/harmonics_reference.py), [verify_harmonics_mcp.py](../scripts/verify_harmonics_mcp.py), [harmonics_transformer_native.dss](../examples/harmonics_transformer_native.dss), [ARMONICOS_OPENDSS.md](../docs/ARMONICOS_OPENDSS.md).
+
+Fuera del cierre: Triplen/secuencia cero y desbalance; Armónicos de tensión de fondo e interarmónicos de emisión; Efecto pelicular, filtros desintonizados y transitorios; Conformidad IEEE 519 automática; pico exacto de resonancia sin refinamiento.
 
 ### time_series
 
@@ -240,7 +239,7 @@ Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_mot
 
 1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.
 2. Conservar la regresión SCR y el alcance de máquinas/controladores indicado en el registro; ampliar otras conexiones y configuraciones solo después de sus pruebas.
-3. Integrar armónicos, después perfiles temporales con OpenDSS y actuación de relés con pandapower; cerrar cada adaptador con datos, ejecución MCP y contraste reproducible.
+3. Armónicos Q6 cerrados en alcance; integrar perfiles temporales con OpenDSS y actuación de relés con pandapower, con datos, ejecución MCP y contraste reproducible.
 4. Mejorar gráficos/informes y realizar estudios con datos reales y criterios acordados. Arc Flash continúa diferido.
 5. El flujo alternativo pandapower permanece en verificación; ampliarlo solo si una necesidad concreta justifica su alcance, manteniendo OpenDSS como ruta principal ya comprobada.
 

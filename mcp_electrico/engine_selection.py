@@ -101,10 +101,13 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "requirements": ["voltaje", "corriente de falla", "tiempo de despeje", "distancia de trabajo"],
     },
     "harmonics": {
-        "preferred": "opendss", "alternatives": [], "module": None,
-        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "OpenDSS tiene capacidad de armónicos, pero MCP Eléctrico todavía no expone ni valida un estudio profesional de armónicos.",
-        "requirements": ["modelos/espectros armónicos", "módulo MCP específico", "benchmarks"],
+        "preferred": "opendss", "alternatives": [], "module": "harmonics",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q6: espectros no triplen y barrido positivo con OpenDSS aislado, verificados dentro del alcance publicado.",
+        "requirements": ["paquete explicito: red, espectros, amortiguamiento, barrido y criterio"],
+        "contract_tool": "obtener_contrato_armonicos", "readiness_tool": "validar_armonicos",
+        "execution_tool": "ejecutar_armonicos",
     },
     "time_series": {
         "preferred": "opendss", "alternatives": [], "module": None,

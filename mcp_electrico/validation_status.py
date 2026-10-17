@@ -218,6 +218,13 @@ _MODULES = {
             "professional_emission=false",
         ],
     },
+    "harmonics": {
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": "Q6: native OpenDSS harmonic adapter; independent RL/C and MCP evidence",
+        "limitations": ["Balanced non-triplen load spectra; positive-sequence impedance scans",
+                         "Constant R / linear X approximation; explicit load damping",
+                         "No automatic IEEE 519 compliance or exact resonance certification"],
+    },
     "arc_flash_ieee1584": {
         "status": "NOT_IMPLEMENTED",
         "basis": None,

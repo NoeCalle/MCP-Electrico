@@ -1,0 +1,482 @@
+{
+  "ok": true,
+  "transport": "MCP_STDIO",
+  "checked_at_utc": "2026-10-17T00:29:12.857903+00:00",
+  "case_count": 24,
+  "call_count": 54,
+  "registered_tools": 157,
+  "reference_depends_on_adapter": false,
+  "checks": [
+    {
+      "case": "50-wye-0-0",
+      "maximum_voltage_error_v": 7.3523800381281035e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.0426814966990605e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-wye-0-50",
+      "maximum_voltage_error_v": 7.483151875931071e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.8557022585241612e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-wye-0-100",
+      "maximum_voltage_error_v": 5.149860093922598e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.4988033036900106e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-wye-1-0",
+      "maximum_voltage_error_v": 9.075915130551948e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 9.85387882401767e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-wye-1-50",
+      "maximum_voltage_error_v": 9.307580484119171e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.245042402509e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-wye-1-100",
+      "maximum_voltage_error_v": 9.00749341781193e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.755563749927802e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-0-0",
+      "maximum_voltage_error_v": 7.170548599333415e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 4.845790435581421e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-0-50",
+      "maximum_voltage_error_v": 7.130465107252348e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 9.992495719757244e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-0-100",
+      "maximum_voltage_error_v": 7.03979985416936e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.212470207041406e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-1-0",
+      "maximum_voltage_error_v": 1.8159802550599125e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 3.0299285302959333e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-1-50",
+      "maximum_voltage_error_v": 2.1736248356774013e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.911549334960739e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "50-delta-1-100",
+      "maximum_voltage_error_v": 2.602877913204793e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.8140112462438083e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-0-0",
+      "maximum_voltage_error_v": 7.351991015980275e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.0426925989293068e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-0-50",
+      "maximum_voltage_error_v": 7.482745978393268e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.8556867154018164e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-0-100",
+      "maximum_voltage_error_v": 5.149568771400936e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.498807744582109e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-1-0",
+      "maximum_voltage_error_v": 9.075353801790698e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 9.853884375132793e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-1-50",
+      "maximum_voltage_error_v": 9.307040471639993e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.245045733178074e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-wye-1-100",
+      "maximum_voltage_error_v": 9.006992485183218e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 1.7555679132641444e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-0-0",
+      "maximum_voltage_error_v": 7.16952719415076e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 4.845723822199943e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-0-50",
+      "maximum_voltage_error_v": 7.129479229206481e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 9.992628946520199e-11,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-0-100",
+      "maximum_voltage_error_v": 7.038858385044477e-10,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.212470207041406e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-1-0",
+      "maximum_voltage_error_v": 1.8159145298568546e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 3.0299554532042805e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-1-50",
+      "maximum_voltage_error_v": 2.173592861254292e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.911565433194596e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    },
+    {
+      "case": "60-delta-1-100",
+      "maximum_voltage_error_v": 2.602948967478369e-09,
+      "voltage_tolerance_v": 2e-06,
+      "maximum_impedance_error_ohm": 2.8141000640857783e-10,
+      "impedance_tolerance_ohm": 2e-07,
+      "passed": true
+    }
+  ],
+  "calls": [
+    {
+      "tool": "obtener_contrato_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "crear_circuito",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "BLOCKED_HARMONICS_INPUTS",
+      "results_valid": false
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_armonicos",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "ejecutar_armonicos",
+      "status": "HARMONICS_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    }
+  ],
+  "source_sha256": {
+    "mcp_electrico/harmonics.py": "0c5fb67dc0022a45ddfbda7ac6b88314b22165e05b07a471598d659155df6e53",
+    "mcp_electrico/motor_starting_static.py": "25b40b94ca7e46ef7a0aad400ed235c139b23c75e35f095f182b4e0e0987c507",
+    "mcp_electrico/reactive_compensation.py": "cc1207ac771d8fce692dc41f3454fdcf8281bedb8f7720577d3108c9ef33177a",
+    "scripts/harmonics_reference.py": "eb2d4fe4bf09160985986ede982a1174fef8726721021afb5d7dbeff1f23c250",
+    "scripts/verify_harmonics_mcp.py": "05bf091ac133e670170282adb2fa006ac2217d7ff72dc150edc0ec91fce47372"
+  }
+}
