@@ -43,7 +43,7 @@ def reference(package):
 
 def compare_trace(package, path):
     expected = reference(package)
-    max_error, max_current, count = 0., 0., 0
+    max_error, max_current, count = [0., 0.], [0., 0.], 0
     start = package["fault_time_s"]
     with open(path, encoding="utf8") as stream:
         for index, row in enumerate(csv.DictReader(stream)):
@@ -53,10 +53,14 @@ def compare_trace(package, path):
             if abs(t-start) < 1e-8: continue
             actual = np.array([float(row[key]) for key in ("ia", "ib", "ic")])
             target = expected["currents"](t)
-            max_error = max(max_error, float(np.max(np.abs(actual-target))))
-            max_current = max(max_current, float(np.max(np.abs(target))))
+            segment = 0 if t < start else 1
+            max_error[segment] = max(max_error[segment], float(np.max(np.abs(actual-target))))
+            max_current[segment] = max(max_current[segment], float(np.max(np.abs(target))))
             count += 1
-    return {"waveform_relative_error": max_error/max(max_current, 1e-12),
+    errors = [e/max(i, 1e-12) for e,i in zip(max_error, max_current)]
+    return {"waveform_relative_error": max(errors),
+            "prefault_waveform_relative_error": errors[0],
+            "postfault_waveform_relative_error": errors[1],
             "waveform_sample_count": count,
             "reference_joule_integral_a2s_by_phase": expected["joule_integral_a2s_by_phase"],
             "reference_equivalent_rms_a_by_phase": expected["equivalent_rms_a_by_phase"]}

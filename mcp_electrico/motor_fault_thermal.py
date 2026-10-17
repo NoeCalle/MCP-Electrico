@@ -120,7 +120,7 @@ model MCPMotorTerminalFault
   Modelica.Electrical.Polyphase.Sensors.CurrentSensor sensor(m=3);
   Modelica.Electrical.Analog.Ideal.IdealClosingSwitch feed[3](each Ron={n(p['switch_resistance_ohm'])},each Goff=0);
   Modelica.Electrical.Analog.Ideal.IdealClosingSwitch fault[3](each Ron={n(p['switch_resistance_ohm'])},each Goff=0);
-  Modelica.Mechanics.Rotational.Sources.Speed drive(exact=true,useSupport=false);
+  Modelica.Mechanics.Rotational.Sources.Speed drive(exact=true,useSupport=false,phi(fixed=false));
   Modelica.Blocks.Continuous.Integrator energy[3](each y_start=0,each initType=Modelica.Blocks.Types.Init.InitialState);
   output Real ia=sensor.i[1];
   output Real ib=sensor.i[2];
@@ -242,7 +242,9 @@ def execute(package, directory):
                                    "nominal": summaries[0], "refined": summaries[1]},
                   "runtime": rt}
     except (RuntimeError, OSError, ValueError, KeyError, TypeError) as exc:
-        result = {"status": "MOTOR_FAULT_EMT_EXECUTION_FAILED", "message": str(exc), "results": None}
+        tail = ((records[-1].get("stdout", "") + records[-1].get("stderr", ""))[-8192:] if records else "")
+        result = {"status": "MOTOR_FAULT_EMT_EXECUTION_FAILED", "message": str(exc),
+                  "engine_diagnostic_tail": tail, "results": None}
     (output/"Execution.json").write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf8")
     result.update(contract=contract(), input_sha256=hashlib.sha256(inputs.encode()).hexdigest(),
                   output_directory=str(output), results_are_iec60909_ith=False,
