@@ -1,6 +1,6 @@
 {
   "schema": "MCP_ELECTRICO_MODULE_QUALIFICATION_V1",
-  "revision": "Q6_HARMONICS_2026_10_16",
+  "revision": "Q7_TIME_SERIES_2026_10_16",
   "policy": "VERIFY_INTEGRATION_IN_DECLARED_SCOPE_REUSE_NATIVE_ENGINE",
   "axes": [
     "integration_verification",
@@ -605,24 +605,37 @@
     },
     "time_series": {
       "engine": "OpenDSS",
-      "verification_status": "NOT_IMPLEMENTED",
-      "scope": "Daily/Yearly con perfiles explícitos",
+      "verification_status": "VERIFIED_IN_SCOPE",
+      "scope": "Daily/Yearly nativos en red trifasica equilibrada a 50/60 Hz; perfiles regulares P/Q, repeticion diaria explicita y energia del periodo declarado",
       "evidence": [
-        "docs/MIGRACION_MODELOS_ABIERTOS.md"
+        "tests/test_time_series.py",
+        "scripts/time_series_reference.py",
+        "scripts/verify_time_series_mcp.py",
+        "docs/SERIES_TEMPORALES_OPENDSS.md"
       ],
-      "closure_gates": [
-        {
-          "id": "ADAPTER",
-          "acceptance": "Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites",
-          "status": "PENDING"
-        }
+      "closure_gates": [],
+      "excluded_extensions": [
+        "Desbalance, generacion y almacenamiento",
+        "Control automatico, bancos y topologia variable",
+        "Perfiles irregulares/incompletos y extrapolacion anual automatica",
+        "EMT y aceleracion de motores"
       ],
-      "excluded_extensions": [],
       "project_data_readiness": "EVALUATED_PER_REQUEST",
       "normative_conformance": "NOT_IMPLIED_BY_INTEGRATION_VERIFICATION",
       "professional_emission": false,
       "design_criteria": "EVALUATED_PER_STUDY_WITH_EXPLICIT_AGREED_CRITERIA",
-      "report_approval": "ENGINEER_RESPONSIBILITY"
+      "report_approval": "ENGINEER_RESPONSIBILITY",
+      "completed_closure_gates": [
+        {
+          "id": "TS01",
+          "status": "PASSED",
+          "acceptance": "16 contrastes PQ/Z independientes y nativos a 50/60 Hz, Daily/Yearly y pasos 15/60 min; energia, 8760 h y 39 llamadas MCP",
+          "evidence": [
+            "tests/test_time_series.py",
+            "scripts/verify_time_series_mcp.py"
+          ]
+        }
+      ]
     },
     "relay_operation": {
       "engine": "pandapower OCRelay",

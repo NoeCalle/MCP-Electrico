@@ -1,8 +1,8 @@
 # MCP Eléctrico — OpenDSS, pandapower y OpenModelica/MSL
 
-**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q6, 16 de octubre de 2026.
+**Documentación vigente:** [estado y próximos pasos](docs/ESTADO_ACTUAL.md), [matriz de capacidades](docs/MATRIZ_CAPACIDADES_ACTUALES.md) y [roadmap maestro](docs/ROADMAP_PROFESIONAL.md). Actualización: Q7, 16 de octubre de 2026.
 
-## Confiabilidad técnica y responsabilidad del ingeniero — Q6
+## Confiabilidad técnica y responsabilidad del ingeniero — Q7
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar
 que las entradas se traducen correctamente, que los resultados son reproducibles
@@ -492,7 +492,8 @@ MCP-Electrico/
   detallado propio;
 - los bancos de capacitores estáticos tienen [integración OpenDSS verificada en alcance estático](docs/COMPENSACION_REACTIVA_OPENDSS.md)
   por etapas explícitas en contexto aislado; no hay `LoadShape`, PV, Storage,
-  control automático de bancos ni simulación anual. Armónicos y barrido positivo
+  control automático de bancos. Daily/Yearly está disponible en un
+  [adaptador explícito separado](docs/SERIES_TEMPORALES_OPENDSS.md). Armónicos y barrido positivo
   tienen un [adaptador explícito separado](docs/ARMONICOS_OPENDSS.md);
 - el modelo activo en memoria no se conserva al reiniciar; snapshots y dossiers
   proporcionan persistencia y reconstrucción explícitas;
@@ -508,6 +509,13 @@ MCP-Electrico/
 
 La capacidad y sus gates vigentes se detallan en `docs/ROADMAP_PROFESIONAL.md`.
 
+
+## Perfiles Daily/Yearly
+
+Las herramientas `obtener_contrato_series_temporales`, `validar_series_temporales`
+y `ejecutar_series_temporales` usan LoadShape nativos con P/Q independientes,
+periodo explícito, balances por intervalo y energía del horizonte declarado.
+Ver [alcance, referencia anual y ejemplo](docs/SERIES_TEMPORALES_OPENDSS.md).
 
 ## Armónicos y barrido de impedancia
 

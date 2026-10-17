@@ -225,6 +225,13 @@ _MODULES = {
                          "Constant R / linear X approximation; explicit load damping",
                          "No automatic IEEE 519 compliance or exact resonance certification"],
     },
+    "time_series": {
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": "Q7: native Daily/Yearly profiles and independent PQ/Z energy benchmarks",
+        "limitations": ["Balanced passive network; explicit regular P/Q multiplier arrays",
+                         "ControlMode Off; energy only over the declared elapsed-hour horizon",
+                         "No implicit profile filling, yearly wrap or annual extrapolation"],
+    },
     "arc_flash_ieee1584": {
         "status": "NOT_IMPLEMENTED",
         "basis": None,

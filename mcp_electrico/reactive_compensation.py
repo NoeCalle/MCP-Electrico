@@ -224,8 +224,10 @@ def _terminal_power(engine):
     return sum(values[::2]),sum(values[1::2])
 
 
-def _measure(engine,package):
-    engine.Solution.Solve()
+def _measure(engine,package,*,solve=True):
+    # Time-series callers have already solved exactly one native time step.
+    if solve:
+        engine.Solution.Solve()
     if not engine.Solution.Converged():
         return {'converged':False,'results_valid':False,'overload_evaluation':'NOT_EVALUABLE','iterations':engine.Solution.Iterations()}
     p,q=[-float(v) for v in engine.Circuit.TotalPower()]
