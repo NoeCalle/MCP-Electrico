@@ -42,6 +42,14 @@ Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_
 Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
 y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
+## Caso industrial — Q12A
+
+Auditado el caso UNAM: cuatro variantes diagnósticas de la topología publicada,
+con conflictos de datos y diferencias con ETAP conservados. No se acepta la
+referencia como una instalación completa calificada; SC/protecciones siguen
+bloqueados sin sus entradas y método correspondientes.
+Ver [hallazgos y pruebas](DIAGNOSTICO_INDUSTRIAL_UNAM_Q12A.md).
+
 ## Calificación externa — Q10
 
 Dos redes publicadas (33/69 barras), seis niveles/casos de carga contrastados

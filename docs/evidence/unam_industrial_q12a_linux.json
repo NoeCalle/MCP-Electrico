@@ -1,0 +1,466 @@
+{
+  "record": "First successful Linux Q12A execution; immutable historical source hashes. Later audit/documentation additions are tested again by CI.",
+  "commit": "05aa86bd3944c2a8dfaee2d5e28b12d47a89820d",
+  "ci_job": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39072559629/job/117513005089",
+  "targeted_pytest": "89 passed",
+  "summary": {
+    "schema": "MCP_Q12A_INDUSTRIAL_DIAGNOSTIC_V1",
+    "status": "DIAGNOSTIC_TRANSLATION_VERIFIED_REFERENCE_INCOMPLETE",
+    "ok": true,
+    "complete_real_project_qualified": false,
+    "etap_parity_qualified": false,
+    "checked_at_utc": "2026-10-17T21:50:21.274046+00:00",
+    "transport": "MCP_STDIO",
+    "case_count": 4,
+    "cases": [
+      {
+        "variant": "tables",
+        "translation_passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004509822316134393,
+          "loss_kw_abs": 0.00036393957245905995,
+          "loss_kvar_abs": 0.004472965158072384,
+          "branch_current_a_abs": 0.000502259778066616,
+          "branch_kw_abs": 0.0003935502073773023,
+          "branch_kvar_abs": 0.004472965158129227
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05,
+          "branch_current_a_abs": 0.05,
+          "branch_kw_abs": 0.05,
+          "branch_kvar_abs": 0.05
+        },
+        "complete_real_project_qualified": false,
+        "etap_parity_qualified": false,
+        "status": "DIAGNOSTIC_NOT_ACCEPTANCE",
+        "voltage_difference_percentage_points": {
+          "BUS-01": 0,
+          "BUS-02": 0.0040000000000048885,
+          "BUS-04": 0.0010000000000047748,
+          "BUS-07": 0.0020000000000095497,
+          "BUS-08": -0.6389999999999958,
+          "BUS-09": -0.6389999999999958,
+          "BUS-10": -0.7809999999999917,
+          "BUS-13": -0.5430000000000206,
+          "BUS-14": -0.4370000000000118,
+          "BUS-E01": 0.0030000000000001137,
+          "BUS-E02": -0.001999999999981128,
+          "BUS-E03": -0.005000000000009663,
+          "BUS-E04": 0.0010000000000189857,
+          "BUS-E05": -0.0010000000000047748
+        },
+        "max_abs_voltage_difference_pp": 0.7809999999999917,
+        "etap_printed_losses_kw": 51.20000000000073,
+        "diagnostic_opendss_losses_kw": 61.507,
+        "can_claim_etap_parity": false
+      },
+      {
+        "variant": "diagram_lengths",
+        "translation_passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.0000388643303175229,
+          "loss_kw_abs": 0.00022340067728521262,
+          "loss_kvar_abs": 0.004734991326643012,
+          "branch_current_a_abs": 0.00038636020424576145,
+          "branch_kw_abs": 0.00037363101114351593,
+          "branch_kvar_abs": 0.004734991326586169
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05,
+          "branch_current_a_abs": 0.05,
+          "branch_kw_abs": 0.05,
+          "branch_kvar_abs": 0.05
+        },
+        "complete_real_project_qualified": false,
+        "etap_parity_qualified": false,
+        "status": "DIAGNOSTIC_NOT_ACCEPTANCE",
+        "voltage_difference_percentage_points": {
+          "BUS-01": 0,
+          "BUS-02": 0.0040000000000048885,
+          "BUS-04": 0.0010000000000047748,
+          "BUS-07": 0.0020000000000095497,
+          "BUS-08": -0.6489999999999867,
+          "BUS-09": -0.6489999999999867,
+          "BUS-10": -1.051000000000002,
+          "BUS-13": -0.512999999999991,
+          "BUS-14": -0.45699999999999363,
+          "BUS-E01": 0.0030000000000001137,
+          "BUS-E02": -0.001999999999981128,
+          "BUS-E03": -0.005000000000009663,
+          "BUS-E04": 0.0010000000000189857,
+          "BUS-E05": -0.0010000000000047748
+        },
+        "max_abs_voltage_difference_pp": 1.051000000000002,
+        "etap_printed_losses_kw": 51.20000000000073,
+        "diagnostic_opendss_losses_kw": 64.23,
+        "can_claim_etap_parity": false
+      },
+      {
+        "variant": "figure_reactance",
+        "translation_passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.000048938869530834594,
+          "loss_kw_abs": 0.00020952005438346077,
+          "loss_kvar_abs": 0.004256238618950192,
+          "branch_current_a_abs": 0.00046106730187744915,
+          "branch_kw_abs": 0.0004890232352181556,
+          "branch_kvar_abs": 0.004256238618836505
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05,
+          "branch_current_a_abs": 0.05,
+          "branch_kw_abs": 0.05,
+          "branch_kvar_abs": 0.05
+        },
+        "complete_real_project_qualified": false,
+        "etap_parity_qualified": false,
+        "status": "DIAGNOSTIC_NOT_ACCEPTANCE",
+        "voltage_difference_percentage_points": {
+          "BUS-01": 0,
+          "BUS-02": 0.0040000000000048885,
+          "BUS-04": 0.0010000000000047748,
+          "BUS-07": 0.0020000000000095497,
+          "BUS-08": -0.48900000000001853,
+          "BUS-09": -0.48900000000001853,
+          "BUS-10": -0.6410000000000053,
+          "BUS-13": -0.4029999999999916,
+          "BUS-14": -0.28699999999999193,
+          "BUS-E01": 0.0030000000000001137,
+          "BUS-E02": -0.001999999999981128,
+          "BUS-E03": -0.005000000000009663,
+          "BUS-E04": 0.0010000000000189857,
+          "BUS-E05": -0.0010000000000047748
+        },
+        "max_abs_voltage_difference_pp": 0.6410000000000053,
+        "etap_printed_losses_kw": 51.20000000000073,
+        "diagnostic_opendss_losses_kw": 61.437,
+        "can_claim_etap_parity": false
+      },
+      {
+        "variant": "diagram_and_figure",
+        "translation_passed": true,
+        "errors": {
+          "voltage_pu_abs": 0.00004188158156093191,
+          "loss_kw_abs": 0.00018709492725577093,
+          "loss_kvar_abs": 0.0046528708018627185,
+          "branch_current_a_abs": 0.0003880570061696176,
+          "branch_kw_abs": 0.0004837385968698982,
+          "branch_kvar_abs": 0.004652870801692188
+        },
+        "tolerances": {
+          "voltage_pu_abs": 0.0002,
+          "loss_kw_abs": 0.05,
+          "loss_kvar_abs": 0.05,
+          "branch_current_a_abs": 0.05,
+          "branch_kw_abs": 0.05,
+          "branch_kvar_abs": 0.05
+        },
+        "complete_real_project_qualified": false,
+        "etap_parity_qualified": false,
+        "status": "DIAGNOSTIC_NOT_ACCEPTANCE",
+        "voltage_difference_percentage_points": {
+          "BUS-01": 0,
+          "BUS-02": 0.0040000000000048885,
+          "BUS-04": 0.0010000000000047748,
+          "BUS-07": 0.0020000000000095497,
+          "BUS-08": -0.5090000000000003,
+          "BUS-09": -0.5090000000000003,
+          "BUS-10": -0.9110000000000014,
+          "BUS-13": -0.36300000000001376,
+          "BUS-14": -0.31699999999997885,
+          "BUS-E01": 0.0030000000000001137,
+          "BUS-E02": -0.001999999999981128,
+          "BUS-E03": -0.005000000000009663,
+          "BUS-E04": 0.0010000000000189857,
+          "BUS-E05": -0.0010000000000047748
+        },
+        "max_abs_voltage_difference_pp": 0.9110000000000014,
+        "etap_printed_losses_kw": 51.20000000000073,
+        "diagnostic_opendss_losses_kw": 64.151,
+        "can_claim_etap_parity": false
+      }
+    ],
+    "native_bus_count": 13,
+    "published_bus_labels": 14,
+    "transformer_count": 4,
+    "line_count": 8,
+    "load_count": 5,
+    "source_url": "https://tesiunamdocumentos.dgb.unam.mx/ptd2017/mayo/0759661/0759661.pdf",
+    "source_pdf_sha256": "c0a2c846f924c908cdee7ba1eee5b2583f6c57d6d38d6c3559155e39d3d9e20e",
+    "source_verified_upstream": true,
+    "fact_file_sha256": "d1b26e1462288373f0678444b12c44701e941636dcddc5ff889adfae5937b07e",
+    "source_audit": {
+      "status": "BLOCKED_FULL_REFERENCE_QUALIFICATION",
+      "can_claim_complete_reference": false,
+      "can_claim_etap_parity": false,
+      "findings": [
+        {
+          "id": "NEW_FEEDER_IDENTIFIER",
+          "severity": "INPUT_RECONCILIATION_REQUIRED",
+          "table_id": "CP08",
+          "diagram_id": "CP02",
+          "pages": [
+            48,
+            105
+          ],
+          "diagnostic_choice": "Use the table's new-load application and its CP08 identifier; retain the discrepancy"
+        },
+        {
+          "id": "LENGTH_CP09",
+          "severity": "REFERENCE_CONFLICT",
+          "table_m": 8,
+          "diagram_m": 15,
+          "pages": [
+            48,
+            53,
+            105
+          ]
+        },
+        {
+          "id": "LENGTH_CP10",
+          "severity": "REFERENCE_CONFLICT",
+          "table_m": 12,
+          "diagram_m": 8,
+          "pages": [
+            48,
+            53,
+            105
+          ]
+        },
+        {
+          "id": "LENGTH_CP11",
+          "severity": "REFERENCE_CONFLICT",
+          "table_m": 15,
+          "diagram_m": 20,
+          "pages": [
+            48,
+            53,
+            105
+          ]
+        },
+        {
+          "id": "SE01_REACTANCE",
+          "severity": "REFERENCE_CONFLICT",
+          "table_x_pu_100mva": 2.36499,
+          "figure_x_pu_100mva": 2.23649,
+          "pages": [
+            54,
+            65,
+            70,
+            105
+          ]
+        },
+        {
+          "id": "TABLE613_ZERO_SEQUENCE_LABEL",
+          "severity": "REFERENCE_CONFLICT",
+          "development_z0": [
+            0.34135,
+            0.98254
+          ],
+          "table_labeled_z0": [
+            0.61665,
+            1.90834
+          ],
+          "recomputed_z0_plus_2z1": [
+            0.6166499999999999,
+            1.90834
+          ],
+          "resolution": "Table values equal Z0+Z1+Z2, not Z0 alone; no automatic source projection",
+          "pages": [
+            55,
+            58,
+            59,
+            60
+          ]
+        },
+        {
+          "id": "LV_IMPEDANCE_BASE",
+          "severity": "UNIT_RECONCILIATION_REQUIRED",
+          "sbase_mva": 100,
+          "mv_zbase_ohm": 5.29,
+          "lv_zbase_ohm": 0.0021160000000000003,
+          "voltage_base_ratio_squared": 2500,
+          "cp09_correct_local_r_pu": 0.10869565217391303,
+          "cp09_using_23kv_base_r_pu": 0.00004347826086956522,
+          "pages": [
+            52,
+            65,
+            105
+          ]
+        },
+        {
+          "id": "PF_SC_INPUT_COMPARISON_CP09",
+          "severity": "INPUT_RECONCILIATION_REQUIRED",
+          "sc_table_r_ohm": 0.00023,
+          "pf_loss_implied_r_ohm": 0.00010939970319255086,
+          "ratio": 0.4756508834458733,
+          "pages": [
+            103,
+            105
+          ],
+          "note": "Loss-derived diagnostic is NOT adopted as cable input"
+        },
+        {
+          "id": "PF_SC_INPUT_COMPARISON_CP10",
+          "severity": "INPUT_RECONCILIATION_REQUIRED",
+          "sc_table_r_ohm": 0.00035,
+          "pf_loss_implied_r_ohm": 0.0007086011631466083,
+          "ratio": 2.024574751847452,
+          "pages": [
+            103,
+            105
+          ],
+          "note": "Loss-derived diagnostic is NOT adopted as cable input"
+        },
+        {
+          "id": "PF_SC_INPUT_COMPARISON_CP11",
+          "severity": "INPUT_RECONCILIATION_REQUIRED",
+          "sc_table_r_ohm": 0.00044,
+          "pf_loss_implied_r_ohm": 0.0008853688399142809,
+          "ratio": 2.0122019088960927,
+          "pages": [
+            103,
+            105
+          ],
+          "note": "Loss-derived diagnostic is NOT adopted as cable input"
+        }
+      ],
+      "missing": [
+        "Transformer vector clocks and ETAP phase-shift option",
+        "Transformer tap positions and excitation data",
+        "Actual ETAP positive-sequence cable inputs and parallel sets",
+        "Reconciliation of cable lengths and transformer reactance versions",
+        "Unambiguous MAX/MIN source scenarios for IEC60909",
+        "Motor data in the intended short-circuit standard",
+        "Protection TCC, settings and clearing times"
+      ],
+      "short_circuit_comparison": "IEEE_ANSI_REFERENCE_NOT_IEC60909_PARITY",
+      "professional_emission": false
+    },
+    "restored_base_matches": true,
+    "call_count": 24,
+    "calls": [
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "BLOCKED_BY_P8B_INTAKE"
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "MODEL_BUILT_NOT_EXECUTED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "MODEL_BUILT_NOT_EXECUTED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "MODEL_BUILT_NOT_EXECUTED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "MODEL_BUILT_NOT_EXECUTED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "BLOCKED_STANDARD"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "BLOCKED_PARAMETERS"
+      },
+      {
+        "tool": "construir_modelo_rev0",
+        "status": "MODEL_BUILT_NOT_EXECUTED"
+      },
+      {
+        "tool": "ejecutar_estudio",
+        "status": "EXECUTOR_RETURNED"
+      },
+      {
+        "tool": "analizar_flujo_operacion",
+        "status": null
+      },
+      {
+        "tool": "obtener_netlist",
+        "status": null
+      }
+    ],
+    "blocked_studies": {
+      "IEEE_ANSI": "BLOCKED_STANDARD",
+      "IEC60909": "NO_CALCULATION_INSUFFICIENT_INPUTS",
+      "protection": "BLOCKED_PARAMETERS"
+    },
+    "software": {
+      "mcp": "1.30.0",
+      "opendssdirect.py": "0.9.4",
+      "dss-python-backend": "0.14.5",
+      "PYPOWER": "5.1.21",
+      "numpy": "2.4.6"
+    },
+    "source_sha256": {
+      "scripts/unam_industrial_reference.py": "a8dccb7711fdc596253ebbac7483acb58a4375a73f6c99f62b9f0cc5eb6d11c5",
+      "scripts/verify_unam_industrial_mcp.py": "243b03ff25d84923507ab2d650c05b44c2b9b7e0f88d25e62f219d66c6496deb",
+      "mcp_electrico/real_model_materializer.py": "31e2dc64fd2b9fbacb779b069bb3c8aefffcbacace1d6270d4d266065683ca73",
+      "mcp_electrico/professional_data.py": "4b94d4ca424a980ba49a8b1e41b4b840b35417e51f26ad4ee5e65cab5ea4823f",
+      "mcp_electrico/core.py": "2e67daaae34e2a7d734e74248af9c620b606e3a4373de55e153a5b8c8355f893"
+    }
+  }
+}

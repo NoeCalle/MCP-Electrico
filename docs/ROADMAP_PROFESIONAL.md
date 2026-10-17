@@ -758,6 +758,7 @@ reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega
 | Cerrado | Tabla → ejecución de estudios | Orquestación MCP | Una ruta por petición, gates y ejecutores públicos conservados; [contrato y evidencia](EJECUCION_ESTUDIOS.md) |
 | Cerrado Q10 | Contraste externo de alimentadores | OpenDSS; referencia PYPOWER solo para validación | case33bw/case69, seis escenarios, 100 aperturas y expediente MCP; [alcance](CALIFICACION_ALIMENTADORES_EXTERNOS.md) |
 | Cerrado Q11 | Transformadores y tensiones por fase | OpenDSS; referencias publicadas/AC Newton para validación | Ocho casos IEEE4 y 48 variantes de grupos, taps y pérdidas mediante MCP Linux/Windows; [alcance](CALIFICACION_TRANSFORMADORES_Q11.md) |
+| Q12A | Auditoría de caso industrial publicado | OpenDSS/MCP; referencia AC Newton de diagnóstico | Cuatro variantes, conflictos conservados y calificación del proyecto completo bloqueada; [alcance](DIAGNOSTICO_INDUSTRIAL_UNAM_Q12A.md) |
 | Siguiente | Instalación industrial reproducible y SC/protecciones sobre el mismo caso | Motores ya integrados | Reconciliar fuentes, unidades y método; entradas completas y resultados trazables; [casos investigados](INVESTIGACION_CASOS_SUBESTACIONES.md) |
 | Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
