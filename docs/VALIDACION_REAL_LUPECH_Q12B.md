@@ -84,6 +84,20 @@ conductor; `complete_real_project_qualified`, `field_validation`,
 `short_circuit_model_validated`, `protection_clearing_times_validated` y
 `full_standard_compliance_claim` siguen en false.
 
+## Evidencia conservada
+
+Primer banco Linux: commit `567dfd0c46e35203b47588c3d537c17d658d99fc`,
+[trabajo CI](https://github.com/NoeCalle/MCP-Electrico/actions/runs/39073897540/job/117516972310).
+Aprobo 28 pruebas dirigidas y 24 llamadas MCP; el PDF upstream coincide con
+el SHA revisado. Los siete minimos publicados coinciden a su precision impresa;
+los cinco resultados numericos de P5C coinciden con Decimal dentro de la
+tolerancia declarada.
+
+La [evidencia compacta](evidence/lupech_q12b_linux.json) identifica esa revision,
+entradas, respuestas, controles, software y hashes. Los registros completos
+quedan en el artefacto CI. La incorporacion de esta evidencia y cualquier
+revision posterior se vuelven a comprobar antes de integrar.
+
 ## Pendiente integral
 
 Se avanza en el contraste externo numerico de P5C con datos de un proyecto

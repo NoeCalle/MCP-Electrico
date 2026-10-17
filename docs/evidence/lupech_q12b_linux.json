@@ -1,0 +1,1184 @@
+{
+  "schema": "MCP_Q12B_REAL_DESIGN_WITHSTAND_V1",
+  "ok": true,
+  "status": "VERIFIED_PUBLISHED_ADIABATIC_SCOPE_WITH_ONE_DESIGN_DISCREPANCY",
+  "checked_at_utc": "2026-10-17T22:12:12.759662+00:00",
+  "transport": "MCP_STDIO",
+  "published_cases": 7,
+  "published_pass": 6,
+  "published_fail": 1,
+  "synthetic_boundary_controls": 14,
+  "missing_provenance_rejected": [
+    {
+      "missing": "fuente_k",
+      "error_code": "P5C206",
+      "isError": true
+    },
+    {
+      "missing": "fuente_tiempo",
+      "error_code": "P5C207",
+      "isError": true
+    },
+    {
+      "missing": "fuente_seccion",
+      "error_code": "P5C209",
+      "isError": true
+    }
+  ],
+  "call_count": 24,
+  "source_url": "https://repositorio.comillas.edu/bitstreams/3348c81d-e8b1-4826-9869-b30c3c166177/download",
+  "source_pdf_sha256": "9b913704951cd8d3f876a7e7dc71565e221d75fecf3b4a26ff0b35fed7213dd4",
+  "source_verified_upstream": true,
+  "fact_file_sha256": "2a28abbb365a309725c131d4e1dc17e8946b00a30d3aa291c2405ee0c4c96e9c",
+  "cases": [
+    {
+      "source_row": {
+        "id": "33kv_incoming",
+        "page": 159,
+        "table": 105,
+        "column": "Incoming Cable",
+        "kv": 33,
+        "fault_ka": 40,
+        "duration_s": 1,
+        "section_mm2": 630,
+        "parallel_runs": 3,
+        "published_minimum_mm2": 425.53,
+        "expected_status": "PASS",
+        "selected_size_text": "3Cx(3Cx(1x630mm2))"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_33kv_incoming",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 1,
+        "seccion_mm2": 630,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_33kv_incoming",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 630,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 1,
+          "section_mm2": 630,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 1600000000,
+          "limit_k2s2_a2s": 3507008400,
+          "utilization_ratio": 0.45622930358535785,
+          "max_permissible_clearing_time_s_at_input_current": 2.19188025,
+          "max_permissible_current_ka_at_input_time": 59.22
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 425.531914893617,
+        "published_minimum_difference_mm2": 0.0019148936170212765,
+        "status": "PASS",
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 3507008400,
+        "utilization_ratio": 0.45622930358535785,
+        "max_permissible_clearing_time_s_at_input_current": 2.19188025,
+        "max_permissible_current_ka_at_input_time": 59.22
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "33kv_outgoing",
+        "page": 159,
+        "table": 105,
+        "column": "Outgoing Cables",
+        "kv": 33,
+        "fault_ka": 40,
+        "duration_s": 1,
+        "section_mm2": 300,
+        "parallel_runs": 3,
+        "published_minimum_mm2": 425.53,
+        "expected_status": "FAIL",
+        "selected_size_text": "3Cx(3X300mm2)",
+        "finding": "300 mm2 is below the published 425.53 mm2 minimum under the individual-cable rule; preserve as unresolved design-document discrepancy"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_33kv_outgoing",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 1,
+        "seccion_mm2": 300,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "FAIL",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_33kv_outgoing",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 300,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 1,
+          "section_mm2": 300,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 1600000000,
+          "limit_k2s2_a2s": 795240000,
+          "utilization_ratio": 2.011971228811428,
+          "max_permissible_clearing_time_s_at_input_current": 0.497025,
+          "max_permissible_current_ka_at_input_time": 28.2
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 425.531914893617,
+        "published_minimum_difference_mm2": 0.0019148936170212765,
+        "status": "FAIL",
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 795240000,
+        "utilization_ratio": 2.011971228811428,
+        "max_permissible_clearing_time_s_at_input_current": 0.497025,
+        "max_permissible_current_ka_at_input_time": 28.2
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "11kv_incoming",
+        "page": 160,
+        "table": 106,
+        "column": "Incoming Cable",
+        "kv": 11,
+        "fault_ka": 40,
+        "duration_s": 1,
+        "section_mm2": 500,
+        "parallel_runs": 1,
+        "published_minimum_mm2": 425.53,
+        "expected_status": "PASS",
+        "selected_size_text": "1Cx(3Cx(1x500mm2))"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_11kv_incoming",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 1,
+        "seccion_mm2": 500,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_11kv_incoming",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 500,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 1,
+          "section_mm2": 500,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 1600000000,
+          "limit_k2s2_a2s": 2209000000,
+          "utilization_ratio": 0.724309642372114,
+          "max_permissible_clearing_time_s_at_input_current": 1.380625,
+          "max_permissible_current_ka_at_input_time": 47
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 425.531914893617,
+        "published_minimum_difference_mm2": 0.0019148936170212765,
+        "status": "PASS",
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 2209000000,
+        "utilization_ratio": 0.724309642372114,
+        "max_permissible_clearing_time_s_at_input_current": 1.380625,
+        "max_permissible_current_ka_at_input_time": 47
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "11kv_outgoing",
+        "page": 160,
+        "table": 106,
+        "column": "Outgoing Cables",
+        "kv": 11,
+        "fault_ka": 40,
+        "duration_s": 1,
+        "section_mm2": 500,
+        "parallel_runs": 1,
+        "published_minimum_mm2": 425.53,
+        "expected_status": "PASS",
+        "selected_size_text": "1Cx(3Cx(1X500mm2))"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_11kv_outgoing",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 1,
+        "seccion_mm2": 500,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_11kv_outgoing",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 500,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 1,
+          "section_mm2": 500,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 1600000000,
+          "limit_k2s2_a2s": 2209000000,
+          "utilization_ratio": 0.724309642372114,
+          "max_permissible_clearing_time_s_at_input_current": 1.380625,
+          "max_permissible_current_ka_at_input_time": 47
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 425.531914893617,
+        "published_minimum_difference_mm2": 0.0019148936170212765,
+        "status": "PASS",
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 2209000000,
+        "utilization_ratio": 0.724309642372114,
+        "max_permissible_clearing_time_s_at_input_current": 1.380625,
+        "max_permissible_current_ka_at_input_time": 47
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "6kv_low_motor",
+        "page": 161,
+        "table": 107,
+        "column": "Lowest Rating Motor",
+        "kv": 6.6,
+        "fault_ka": 40,
+        "duration_s": 0.25,
+        "section_mm2": 240,
+        "parallel_runs": 1,
+        "published_minimum_mm2": 212.77,
+        "expected_status": "PASS",
+        "selected_size_text": "1Cx(3x240mm2)"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_6kv_low_motor",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 0.25,
+        "seccion_mm2": 240,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_6kv_low_motor",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 240,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 0.25,
+          "section_mm2": 240,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 400000000,
+          "limit_k2s2_a2s": 508953600,
+          "utilization_ratio": 0.7859262612544641,
+          "max_permissible_clearing_time_s_at_input_current": 0.318096,
+          "max_permissible_current_ka_at_input_time": 45.12
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 212.7659574468085,
+        "published_minimum_difference_mm2": -0.004042553191489362,
+        "status": "PASS",
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 508953600,
+        "utilization_ratio": 0.7859262612544641,
+        "max_permissible_clearing_time_s_at_input_current": 0.318096,
+        "max_permissible_current_ka_at_input_time": 45.12
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "6kv_high_motor",
+        "page": 161,
+        "table": 107,
+        "column": "Highest Rating Motor",
+        "kv": 6.6,
+        "fault_ka": 40,
+        "duration_s": 0.25,
+        "section_mm2": 240,
+        "parallel_runs": 1,
+        "published_minimum_mm2": 212.77,
+        "expected_status": "PASS",
+        "selected_size_text": "1Cx(3x240mm2)"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_6kv_high_motor",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 0.25,
+        "seccion_mm2": 240,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_6kv_high_motor",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 240,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 0.25,
+          "section_mm2": 240,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 400000000,
+          "limit_k2s2_a2s": 508953600,
+          "utilization_ratio": 0.7859262612544641,
+          "max_permissible_clearing_time_s_at_input_current": 0.318096,
+          "max_permissible_current_ka_at_input_time": 45.12
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 212.7659574468085,
+        "published_minimum_difference_mm2": -0.004042553191489362,
+        "status": "PASS",
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 508953600,
+        "utilization_ratio": 0.7859262612544641,
+        "max_permissible_clearing_time_s_at_input_current": 0.318096,
+        "max_permissible_current_ka_at_input_time": 45.12
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    },
+    {
+      "source_row": {
+        "id": "6kv_transformer",
+        "page": 161,
+        "table": 107,
+        "column": "Highest Transformer",
+        "kv": 6.6,
+        "fault_ka": 40,
+        "duration_s": 1,
+        "section_mm2": 500,
+        "parallel_runs": 1,
+        "published_minimum_mm2": 425.53,
+        "expected_status": "PASS",
+        "selected_size_text": "1Cx(3Cx(1X500mm2))"
+      },
+      "Inputs": {
+        "elemento": "Line.lupech_6kv_transformer",
+        "corriente_falla_ka": 40,
+        "tiempo_despeje_s": 1,
+        "seccion_mm2": 500,
+        "k_a_sqrt_s_per_mm2": 94,
+        "fuente_k": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "fuente_tiempo": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; published withstand criterion, not measured/curve-derived clearing time",
+        "fuente_seccion": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; individual cable, parallel runs not summed"
+      },
+      "MCP": {
+        "schema": "MCP_ELECTRICO_P5C_CONDUCTOR_THERMAL_CHECK_V1",
+        "status": "PASS",
+        "check": "ADIABATIC_CONDUCTOR_SHORT_CIRCUIT_WITHSTAND",
+        "scope": "EXPLICIT_K_S_TIME_ADIABATIC_CHECK",
+        "element": "Line.lupech_6kv_transformer",
+        "reference_target": {
+          "id": "IEC_60364_4_43_2023",
+          "designation": "IEC 60364-4-43:2023",
+          "edition": "4.0",
+          "publication_date": "2023-07-19",
+          "scope_role": "reference_target_for_overcurrent_protection",
+          "full_conformance_claim": false
+        },
+        "section_binding": {
+          "status": "EXPLICIT_WITHOUT_LIBRARY_ASSIGNMENT",
+          "input_section_mm2": 500,
+          "assigned_section_mm2": null,
+          "conductor_code": null,
+          "explicit_section_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; individual cable, parallel runs not summed",
+          "automatic_section_substitution": false
+        },
+        "inputs": {
+          "fault_current_ka": 40,
+          "clearing_time_s": 1,
+          "section_mm2": 500,
+          "k_a_sqrt_s_per_mm2": 94,
+          "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+          "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; published withstand criterion, not measured/curve-derived clearing time"
+        },
+        "results": {
+          "actual_i2t_a2s": 1600000000,
+          "limit_k2s2_a2s": 2209000000,
+          "utilization_ratio": 0.724309642372114,
+          "max_permissible_clearing_time_s_at_input_current": 1.380625,
+          "max_permissible_current_ka_at_input_time": 47
+        },
+        "policies": {
+          "k_derived_automatically": false,
+          "section_derived_automatically": false,
+          "p4_tk_s_consumed": false,
+          "clearing_time_must_be_explicit_or_future_p5d": true
+        },
+        "full_standard_compliance_claim": false,
+        "professional_emission": false
+      },
+      "IndependentDecimalReference": {
+        "minimum_section_mm2": 425.531914893617,
+        "published_minimum_difference_mm2": 0.0019148936170212765,
+        "status": "PASS",
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 2209000000,
+        "utilization_ratio": 0.724309642372114,
+        "max_permissible_clearing_time_s_at_input_current": 1.380625,
+        "max_permissible_current_ka_at_input_time": 47
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      },
+      "fault_current_origin": "40 kA is the published cable design criterion; it is not a fault current recalculated by this bank or identified as a specific ETAP bus result"
+    }
+  ],
+  "boundary_controls": [
+    {
+      "source_case": "33kv_incoming",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.1063829787234,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1596801600,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.998001,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "33kv_incoming",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.95744680851055,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1603201599.9999995,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 1.0020009999999997,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 2.384185791015625e-7,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 2.220446049250313e-16,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "33kv_outgoing",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.1063829787234,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1596801600,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.998001,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "33kv_outgoing",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.95744680851055,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Table 105, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1603201599.9999995,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 1.0020009999999997,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 2.384185791015625e-7,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 2.220446049250313e-16,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "11kv_incoming",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.1063829787234,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1596801600,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.998001,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "11kv_incoming",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.95744680851055,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Incoming Cable; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1603201599.9999995,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 1.0020009999999997,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 2.384185791015625e-7,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 2.220446049250313e-16,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "11kv_outgoing",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.1063829787234,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1596801600,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.998001,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "11kv_outgoing",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.95744680851055,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.160, Table 106, Outgoing Cables; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1603201599.9999995,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 1.0020009999999997,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 2.384185791015625e-7,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 2.220446049250313e-16,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_low_motor",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 0.25,
+        "section_mm2": 212.5531914893617,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 399200400,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.24950025,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_low_motor",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 0.25,
+        "section_mm2": 212.97872340425528,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Lowest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 400800399.9999999,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 0.2505002499999999,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_high_motor",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 0.25,
+        "section_mm2": 212.5531914893617,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 399200400,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.24950025,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_high_motor",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 0.25,
+        "section_mm2": 212.97872340425528,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Rating Motor; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 400000000,
+        "limit_k2s2_a2s": 400800399.9999999,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 0.2505002499999999,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_transformer",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 0.999,
+      "status": "FAIL",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.1063829787234,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1596801600,
+        "utilization_ratio": 1.002003004005006,
+        "max_permissible_clearing_time_s_at_input_current": 0.998001,
+        "max_permissible_current_ka_at_input_time": 39.96
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 0,
+          "utilization_ratio": 0,
+          "max_permissible_clearing_time_s_at_input_current": 0,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    },
+    {
+      "source_case": "6kv_transformer",
+      "kind": "SYNTHETIC_BOUNDARY_NOT_PUBLISHED",
+      "minimum_multiplier": 1.001,
+      "status": "PASS",
+      "inputs": {
+        "fault_current_ka": 40,
+        "clearing_time_s": 1,
+        "section_mm2": 425.95744680851055,
+        "k_a_sqrt_s_per_mm2": 94,
+        "k_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.159, Al/XLPE 90 to 250 C, k=94 (explicit published coefficient)",
+        "clearing_time_source_reference": "https://repositorio.comillas.edu/items/0e385354-9a7f-4378-887c-bf0758f09e9e; PDF p.161, Table 107, Highest Transformer; published withstand criterion, not measured/curve-derived clearing time"
+      },
+      "results": {
+        "actual_i2t_a2s": 1600000000,
+        "limit_k2s2_a2s": 1603201599.9999995,
+        "utilization_ratio": 0.9980029960049943,
+        "max_permissible_clearing_time_s_at_input_current": 1.0020009999999997,
+        "max_permissible_current_ka_at_input_time": 40.03999999999999
+      },
+      "Comparison": {
+        "comparison_passed": true,
+        "absolute_errors": {
+          "actual_i2t_a2s": 0,
+          "limit_k2s2_a2s": 2.384185791015625e-7,
+          "utilization_ratio": 1.1102230246251565e-16,
+          "max_permissible_clearing_time_s_at_input_current": 2.220446049250313e-16,
+          "max_permissible_current_ka_at_input_time": 0
+        },
+        "relative_tolerance": 1e-12,
+        "absolute_floor": 1e-10
+      }
+    }
+  ],
+  "complete_real_project_qualified": false,
+  "field_validation": false,
+  "short_circuit_model_validated": false,
+  "protection_clearing_times_validated": false,
+  "full_standard_compliance_claim": false,
+  "professional_emission": false,
+  "software": {
+    "mcp": "1.30.0",
+    "opendssdirect.py": "0.9.4"
+  },
+  "source_sha256": {
+    "scripts/lupech_cable_reference.py": "036bce16c7deee2a9cb2f8ad8eb05a69c56c8d56b8af93cb4636032cbbda0dc3",
+    "scripts/verify_lupech_cables_mcp.py": "654f49a951a5ca4e8d531ed1be754277178671783068e09bd48ab83f8e901318",
+    "mcp_electrico/protection_checks.py": "5ebbdbd24e751b423e08598abc9fb94dc6a72f2ba387e87b41aaa6388c5c01b9",
+    "mcp_electrico/protection_check_tools.py": "731fbebfda112845cef69046c90b9c1a9449ad67885793ad33a2851aa015a5dc"
+  },
+  "evidence_revision": "567dfd0c46e35203b47588c3d537c17d658d99fc",
+  "ci_job_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39073897540/job/117516972310",
+  "evidence_kind": "COMPACT_HISTORICAL_LINUX_EVIDENCE_FULL_RESPONSES_IN_CI_ARTIFACT"
+}
