@@ -8,7 +8,6 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import re
 import subprocess
 from math import isfinite, pi, sqrt
 from pathlib import Path
@@ -35,7 +34,7 @@ _configuration = None
 
 
 def supported_compiler_version(text):
-    return bool(re.fullmatch(r"OpenModelica v?1\.27\.1(?: \\(64-bit\\))?", text.strip()))
+    return text.strip() in {"OpenModelica 1.27.1", "OpenModelica v1.27.1", "OpenModelica v1.27.1 (64-bit)"}
 
 
 def configure(executable, library):
