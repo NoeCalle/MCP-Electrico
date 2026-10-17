@@ -1,10 +1,10 @@
 # Estado de cierre de módulos
 
-Revisión: **Q7_TIME_SERIES_2026_10_16**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
+Revisión: **Q8_RELAY_OPERATION_2026_10_16**. Fuente: `mcp_electrico/data/module_qualification_v1.json`.
 
 Documento generado con `scripts/render_module_qualification.py`; la prueba de sincronización impide publicar estados divergentes.
 
-**Resumen:** 20 módulos verificados en alcance; 1 en verificación; 1 pendientes de integración. Ver [estado actual y prioridades](ESTADO_ACTUAL.md).
+**Resumen:** 21 módulos verificados en alcance; 1 en verificación; 0 pendientes de integración. Ver [estado actual y prioridades](ESTADO_ACTUAL.md).
 
 ## Qué se cierra
 
@@ -44,7 +44,7 @@ La revisión, aprobación y firma del estudio corresponden al ingeniero. El soft
 | `modelica_scr` | OpenModelica/MSL | Verificado en alcance | Una o dos máquinas delta, red RL equilibrada común y controladores genéricos MSL independientes; arranques simultáneos/escalonados en bancos Q4/Q5 |
 | `harmonics` | OpenDSS | Verificado en alcance | Red trifasica equilibrada; espectros no triplen de carga y barrido de impedancia de secuencia positiva; R constante/X proporcional a frecuencia |
 | `time_series` | OpenDSS | Verificado en alcance | Daily/Yearly nativos en red trifasica equilibrada a 50/60 Hz; perfiles regulares P/Q, repeticion diaria explicita y energia del periodo declarado |
-| `relay_operation` | pandapower OCRelay | Pendiente de integración | Actuación de relés |
+| `relay_operation` | pandapower OCRelay | Verificado en alcance | DTOC/IDMT/IDTOC nativos, ajustes explicitos, puntos independientes de corriente RMS primaria constante; tiempo de rele separado del interruptor |
 | `arc_flash_ieee1584` | Por integrar | Diferido por el usuario | Arc Flash formal |
 | `arc_flash_lee` | MCP histórico | Educativo | Estimación educativa Lee |
 | `professional_report` | Ingeniero responsable | A cargo del ingeniero (fuera del software) | Revisión, aprobación y firma del estudio por el ingeniero; fuera de la calificación técnica del software |
@@ -59,10 +59,6 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 - **PPF01 — PENDING:** Contrastar transformación P2, taps, carga y pérdidas por terminal contra ejecución nativa pandapower con entradas independientes
 - **PPF02 — PENDING:** MCP público debe reproducir esos casos y rechazar equipos no traducibles
 
-### relay_operation
-
-- **ADAPTER — PENDING:** Integrar datos y ejecución nativa del motor, contrastar referencia reproducible por MCP y publicar límites
-
 ## Condiciones cerradas con evidencia
 
 - **modelica_dol / DOL01 — PASSED:** Reproducir un ejemplo original MSL directamente y por MCP con parámetros/conexiones equivalentes y tolerancias fijadas antes del contraste
@@ -75,6 +71,8 @@ DOL y SCR están verificados dentro de sus alcances documentados. La instalació
 - **modelica_scr / TWO_SCR02 — PASSED:** Controladores y bypass independientes; arranques simultáneos, solapados y tras bypass; 50/60 Hz; bloqueos fuera de alcance
 - **harmonics / HARM01 — PASSED:** 24 combinaciones RL/C independientes a 50/60 Hz, wye/delta, banco ON/OFF y amortiguamiento 0/50/100%; contraste nativo y 54 llamadas MCP
 - **time_series / TS01 — PASSED:** 16 contrastes PQ/Z independientes y nativos a 50/60 Hz, Daily/Yearly y pasos 15/60 min; energia, 8760 h y 39 llamadas MCP
+- **relay_operation / RELAY01 — PASSED:** Ajustes nativos sin autograding; curvas y umbrales contrastados contra referencia escalar independiente y serializacion nativa
+- **relay_operation / RELAY02 — PASSED:** Ejecucion MCP real, escenarios sc/pp, retardo de interruptor separado y circuito padre intacto
 
 ## Evidencia y exclusiones por módulo
 
@@ -212,7 +210,9 @@ Fuera del cierre: Desbalance, generacion y almacenamiento; Control automatico, b
 
 ### relay_operation
 
-Evidencia: [MIGRACION_MODELOS_ABIERTOS.md](../docs/MIGRACION_MODELOS_ABIERTOS.md).
+Evidencia: [test_relay_operation.py](../tests/test_relay_operation.py), [relay_operation_reference.py](../scripts/relay_operation_reference.py), [verify_relay_operation_mcp.py](../scripts/verify_relay_operation_mcp.py), [relay_operation_q8_mcp.json](../docs/evidence/relay_operation_q8_mcp.json), [ACTUACION_RELES_PANDAPOWER.md](../docs/ACTUACION_RELES_PANDAPOWER.md).
+
+Fuera del cierre: Corrientes variables, saturacion CT y formas de onda secundarias; Recalculo de red tras apertura, secuencia de disparos, recierre y fallo de interruptor; Selectividad integral, ajustes automaticos y calificacion de fabricante; Vinculacion automatica de corrientes P4; protecciones direccionales y de tierra.
 
 ### arc_flash_ieee1584
 
@@ -238,7 +238,7 @@ Evidencia: [verify_modelica_motor_adapter_mcp.py](../scripts/verify_modelica_mot
 
 1. DOL cerrado en alcance: conservar su regresión contra el ejemplo original MSL y sus convenciones.
 2. Conservar la regresión SCR y el alcance de máquinas/controladores indicado en el registro; ampliar otras conexiones y configuraciones solo después de sus pruebas.
-3. Armónicos Q6 y perfiles temporales Q7 cerrados en alcance; integrar actuación de relés con pandapower, con datos, ejecución MCP y contraste reproducible.
+3. Armónicos Q6, perfiles Q7 y actuación OCRelay Q8 cerrados en sus alcances; conservar las regresiones publicadas.
 4. Mejorar gráficos/informes y realizar estudios con datos reales y criterios acordados. Arc Flash continúa diferido.
 5. El flujo alternativo pandapower permanece en verificación; ampliarlo solo si una necesidad concreta justifica su alcance, manteniendo OpenDSS como ruta principal ya comprobada.
 

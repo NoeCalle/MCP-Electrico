@@ -13,6 +13,7 @@ from . import (
     reactive_compensation,
     harmonics,
     time_series,
+    relay_operation,
     module_qualification,
     p2_completion,
     p5_completion_tools,
@@ -41,6 +42,7 @@ def register(mcp, on_model_change=None, on_study_result=None) -> None:
     module_qualification.register(mcp)
     harmonics.register(mcp)
     time_series.register(mcp)
+    relay_operation.register(mcp)
     sc_machines.register(mcp, on_model_change=on_model_change)
 
     def changed(action: str) -> None:

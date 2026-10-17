@@ -1,3 +1,6 @@
+> Q8: `actuacion_reles` / `relay_operation` / `ocrelay` seleccionan pandapower;
+> exige paquete explícito y validador `validar_actuacion_reles`.
+
 # Eje E — selección determinista de motor
 
 **Estado vigente: Q5, 4 de octubre de 2026.** Consultar el [resumen actual](ESTADO_ACTUAL.md) y el [registro de módulos](ESTADO_CIERRE_MODULOS.md).

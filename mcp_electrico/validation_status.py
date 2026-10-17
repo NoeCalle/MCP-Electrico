@@ -225,6 +225,13 @@ _MODULES = {
                          "Constant R / linear X approximation; explicit load damping",
                          "No automatic IEEE 519 compliance or exact resonance certification"],
     },
+    "relay_operation": {
+        "status": "VALIDATED_WITH_LIMITATIONS",
+        "basis": "Q8: native OCRelay explicit settings; independent timing and MCP benchmarks",
+        "limitations": ["Constant primary RMS current points; DTOC/IDMT/IDTOC only",
+                         "Relay time separated from explicit breaker clearing delay",
+                         "No network trip sequence, automatic selectivity or manufacturer qualification"],
+    },
     "time_series": {
         "status": "VALIDATED_WITH_LIMITATIONS",
         "basis": "Q7: native Daily/Yearly profiles and independent PQ/Z energy benchmarks",
