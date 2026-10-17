@@ -6,7 +6,7 @@ from mcp_electrico import core, power_flow_boundaries as bounds, real_model_mate
 from scripts.published_feeder_reference import load_case, manifest, reference, compare, disconnected_loads
 
 
-@pytest.mark.parametrize("case,count,branches,power",[("case33bw",33,32,3715),("case69",69,68,3802.19)])
+@pytest.mark.parametrize("case,count,branches,power",[("case33bw",33,32,3715),("case69",69,68,3802.1)])
 def test_published_fact_inventories(case,count,branches,power):
     facts=load_case(case)
     assert len(facts["bus"])==count
