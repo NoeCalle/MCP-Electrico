@@ -60,6 +60,8 @@ def create_line(name, line):
         fields.append(f"{native}=[{triangle}]")
     dss(f"New Line.{name} Bus1={line['bus1']} Bus2={line['bus2']} Phases=3 "
         f"Length={line['length_km']} Units=km " + " ".join(fields))
+    from . import core
+    core._inherit_line_voltage_base(line["bus1"], line["bus2"])
 
 
 def load_bus(load):

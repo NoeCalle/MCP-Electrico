@@ -28,6 +28,7 @@ Es un benchmark, no un proyecto construido ni una prueba de aceptación en campo
 | Tena Ortega e Iza Guananga, UPS, 2025; subestación interior de 300 kVA para edificio público | Ficha, PDF completo de 106 páginas, figuras de flujo de la página PDF 71 y descripción de entradas en páginas PDF 70–71 | Candidato real documentado. No admitido todavía como comparación ETAP completa: las entradas aparecen en capturas pequeñas; no se obtuvo un inventario numérico completo y legible de impedancias de cables, fuente y transformador, y cargas por barra. |
 | Mendez Huaman y Tapia Ccoyso, UNSAAC, 2019; transferencia Pisac 05–Urubamba 04 | Ficha del repositorio y descripción de alcance | Candidato. La ficha declara acceso cerrado y el adjunto es pequeño; no se dispone del paquete completo para repetir las simulaciones DIgSILENT. |
 | UCSM; interconexión de centrales Ángel I, II y III al SEIN | Metadatos y resumen de búsqueda: transformación 33/138 kV, 105 MVA | Preselección; documento completo y parámetros aún no auditados. No ejecutado ni validado. |
+| Henry Johany García Arboleda, UNAM, 2017; optimización de un sistema industrial | Índice y apartados de cortocircuito del PDF de 111 páginas; anexos C/D de flujo y parámetros | Candidato prioritario para la siguiente etapa industrial. Publica parámetros y equivalentes, pero el apartado revisado compara IEEE/ANSI C37: no se debe etiquetar como concordancia IEC 60909. La tabla 6.13 rotula como Z0 una suma de secuencias utilizada antes; requiere reconciliar tabla y desarrollo antes de automatizarla. No ejecutado todavía. |
 
 Fuentes de los candidatos:
 
@@ -35,6 +36,7 @@ Fuentes de los candidatos:
 - PDF UPS: https://dspace.ups.edu.ec/bitstream/123456789/29791/1/UPS-GT006047.pdf
 - UNSAAC: https://repositorio.unsaac.edu.pe/items/e79fa933-d3b0-4ca4-9f32-07d19de4d73a
 - UCSM: https://repositorio.ucsm.edu.pe/items/779fcff3-4e58-49ef-a5fd-0355c9baf1d3
+- UNAM: https://tesiunamdocumentos.dgb.unam.mx/ptd2017/mayo/0759661/0759661.pdf
 
 La tesis UPS describe diseño, ampliación y simulación; eso no demuestra que
 la instalación propuesta se haya construido o ensayado. Sus valores de

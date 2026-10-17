@@ -82,9 +82,14 @@ def _recalculate_voltage_bases() -> None:
             if value > 0:
                 levels.add(value)
     if levels:
-        text = ",".join(str(v) for v in sorted(levels, reverse=True))
-        dss(f"Set VoltageBases=[{text}]")
-        dss("CalcVoltageBases")
+        # Keep the core's explicit nominal map in sync. Otherwise a later
+        # line/load insertion can discard the transformer voltage levels.
+        from . import core
+        core._voltage_bases.update(levels)
+        for record in _transformers.values():
+            for side in ("hv", "lv"):
+                core._record_bus_voltage_base(record["buses"][side], record["rating"]["kv_"+side], overwrite=True)
+        core._recalcular_bases_de_tension()
 
 
 def _provenance(reference: str | None, url: str | None, fields: list[str]) -> dict[str, Any]:

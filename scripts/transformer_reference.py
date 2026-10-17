@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "examples/qualification/ieee4"
 PIN = "4cb5f85c7e361bd68243036ca255d2100ed0a937"
 UPSTREAM = f"https://github.com/PowerGridModel/power-grid-model-io/blob/{PIN}/_network_data_generation/ieee_4_node/"
-TOLERANCES = {"voltage_v_abs": 5., "voltage_angle_deg_abs": 1., "current_a_abs": 5., "current_angle_deg_abs": 1.5}
+TOLERANCES = {"voltage_v_abs": 5., "voltage_angle_deg_abs": 1., "current_a_abs": 5., "current_angle_deg_abs": 1.5,
+              "nominal_base_kv_abs":.0006,"pu_consistency_abs":.0001}
 
 
 def ieee_manifest(direction="down", connection="ynyn", loading="balanced"):
@@ -73,6 +74,10 @@ def compare_ieee(flow, detail, direction, connection, loading):
     for node in (2,3,4):
         row = flow["voltajes_por_bus"][f"n{node}"]
         assert row["nodes"] == [1,2,3]
+        kvll = 12.47 if node==2 else (4.16 if direction=="down" else 24.9)
+        errors["nominal_base_kv_abs"] = max(errors["nominal_base_kv_abs"],abs(row["kv_base"]-kvll/sqrt(3)))
+        errors["pu_consistency_abs"] = max(errors["pu_consistency_abs"],*(abs(pu-v/(kvll*1000/sqrt(3)))
+            for pu,v in zip(row["voltajes_pu"],row["voltajes_ln_v"])))
         v = [cmath.rect(m, a*3.141592653589793/180) for m,a in zip(row["voltajes_ln_v"],row["angulos_ln_deg"])]
         if node == 2 and connection == "dyn":
             v = [v[0]-v[1], v[1]-v[2], v[2]-v[0]]
@@ -103,6 +108,14 @@ def tap_manifest(group="Dyn11", side="hv", position=0, excitation=False):
     for load in data["topology"]["loads"]:
         load["kw"] *= .5
         load["kvar"] *= .5
+    if group.lower().startswith("yd") or group.lower().startswith("dd"):
+        # A delta secondary does not provide a neutral for grounded phase
+        # loads. Use a physical balanced delta load, equal in positive sequence.
+        loads = data["topology"]["loads"]
+        data["topology"]["loads"] = [{"id":"Load.balanced_delta", "bus":"n4", "phases":3,
+            "kv":4.16,"kw":sum(v["kw"] for v in loads),"kvar":sum(v["kvar"] for v in loads),
+            "model":1,"connection":"delta","vminpu":.5,"vmaxpu":1.5,
+            "source_reference":"Controlled balanced delta load; no fictitious secondary neutral"}]
     data["qualification_conventions"] = {"case":"Controlled balanced variant; not original IEEE4",
         "shunt":"Transformer excitation is represented at winding 2 with an explicit P0/I0",
         "neutral":"Balanced operation only", "tap":"Fixed tap positions, no automatic controller"}
