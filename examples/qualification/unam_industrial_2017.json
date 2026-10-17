@@ -39,6 +39,7 @@
   "load_source_page":103,
   "etap_voltages_pct": {"BUS-01":100,"BUS-02":99.996,"BUS-04":99.979,"BUS-07":99.978,"BUS-08":97.379,"BUS-09":97.379,"BUS-10":97.231,"BUS-13":97.143,"BUS-14":96.847,"BUS-E01":95.387,"BUS-E02":99.972,"BUS-E03":95.775,"BUS-E04":99.969,"BUS-E05":95.771},
   "etap_source_power": {"kw":4344.1,"kvar":2435.7,"page":103},
+  "etap_new_transformer_terminals": {"sending_kw":1872.790,"receiving_kw":1863.407,"sending_kvar":1064.402,"receiving_kvar":964.288,"lv_current_a":2704.3,"page":103},
   "etap_lv_line_terminals": [
     {"id":"CP09","sending_kw":1415.315,"receiving_kw":1413.943,"current_a":2044.6},
     {"id":"CP10","sending_kw":448.092,"receiving_kw":447.166,"current_a":660.0},

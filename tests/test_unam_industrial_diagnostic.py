@@ -20,7 +20,7 @@ def test_audit_preserves_all_source_conflicts_and_does_not_promote_case():
     assert result["status"] == "BLOCKED_FULL_REFERENCE_QUALIFICATION"
     assert not result["can_claim_complete_reference"] and not result["can_claim_etap_parity"]
     ids = {row["id"] for row in result["findings"]}
-    assert {"LENGTH_CP09","LENGTH_CP10","LENGTH_CP11","SE01_REACTANCE","TABLE613_ZERO_SEQUENCE_LABEL","LV_IMPEDANCE_BASE"} <= ids
+    assert {"LENGTH_CP09","LENGTH_CP10","LENGTH_CP11","SE01_REACTANCE","NEW_TRANSFORMER_LOSS_INPUTS","TABLE613_ZERO_SEQUENCE_LABEL","LV_IMPEDANCE_BASE"} <= ids
     assert result["missing"] and "NOT_IEC60909" in result["short_circuit_comparison"]
 
 

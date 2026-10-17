@@ -39,6 +39,14 @@ def audit(facts):
     findings.append({"id":"SE01_REACTANCE","severity":"REFERENCE_CONFLICT",
         "table_x_pu_100mva":t["table_x_pu_100mva"],"figure_x_pu_100mva":t["figure_x_pu_100mva"],
         "pages":[54,65,70,105]})
+    loss_row = facts["etap_new_transformer_terminals"]
+    r_own_pu = t["uk_percent"]/100/sqrt(1+t["xr"]**2)
+    r_lv_ohm = r_own_pu*t["kv_lv"]**2/(t["kva"]/1000)
+    findings.append({"id":"NEW_TRANSFORMER_LOSS_INPUTS","severity":"INPUT_RECONCILIATION_REQUIRED",
+        "published_terminal_loss_kw":loss_row["sending_kw"]-loss_row["receiving_kw"],
+        "table_series_copper_loss_at_published_current_kw":3*loss_row["lv_current_a"]**2*r_lv_ohm/1000,
+        "conditions":"Balanced nominal ratio; excitation excluded. Actual tap and ETAP inputs still required.",
+        "resolution":"Do not infer replacement R from the desired ETAP result", "pages":[54,103,105]})
     z = facts["zero_sequence_audit"]
     findings.append({"id":"TABLE613_ZERO_SEQUENCE_LABEL","severity":"REFERENCE_CONFLICT",
         "development_z0":[z["development_z0_r_pu"],z["development_z0_x_pu"]],

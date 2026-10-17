@@ -31,6 +31,7 @@ autor; no se afirma haber inspeccionado o ensayado la instalacion en campo.
 | La tabla 6.13 rotula una suma de secuencias como Z0 | Se contrasta algebraicamente con Z0+Z1+Z2 del desarrollo; no se proyecta automaticamente a una fuente de falla. |
 | El cambio de base de cables LV requiere distinguir 23 kV de 0.46 kV | Para potencia base igual, sus impedancias base difieren por 2500. El diagnostico parte de ohmios locales y tensiones nominales, no reutiliza indiscriminadamente una columna pu. |
 | Las perdidas/corrientes del flujo implican resistencias diferentes a las de SC | Se calcula 3 I^2 R como comprobacion diagnostica; no se ajustan ni sustituyen entradas con esos resultados. |
+| Las perdidas de TR-SE-01 del informe no corresponden a la R de su tabla bajo las condiciones nominales del diagnostico | Se conserva la comparacion de terminales y cobre calculado; no se sustituye la R para forzar concordancia. |
 | Faltan clocks, taps, excitacion y entradas exactas de ETAP | Se explicitan las convenciones del diagnostico y se bloquea la calificacion del proyecto original. |
 
 Una discrepancia documental no demuestra por si sola que ETAP o la instalacion
@@ -84,6 +85,31 @@ Los trabajos `industrial-diagnostic` de Linux y Windows conservan entradas,
 resultados MCP, oraculo, diferencias, admision del original, auditoria, versiones,
 hashes y netlist reconstruido. La verificacion upstream comprueba el PDF entero
 contra el SHA revisado; si cambia, exige revisar la transcripcion.
+
+## Evidencia y diferencias observadas
+
+Primer banco Linux: commit `05aa86bd3944c2a8dfaee2d5e28b12d47a89820d`,
+[ejecucion CI](https://github.com/NoeCalle/MCP-Electrico/actions/runs/39072559629/job/117513005089),
+89 pruebas dirigidas y 24 llamadas MCP. El PDF upstream coincide con el SHA
+revisado. La [evidencia conservada](evidence/unam_industrial_q12a_linux.json)
+corresponde a esa revision; la auditoria adicional de perdidas del transformador
+y las revisiones posteriores se vuelven a ejecutar en CI.
+
+| Variante | Maxima diferencia de tension frente a ETAP (puntos porcentuales) | Perdidas OpenDSS (kW) |
+|---|---:|---:|
+| Tablas | 0.781 | 61.507 |
+| Longitudes del unifilar | 1.051 | 64.230 |
+| Reactancia de la figura | 0.641 | 61.437 |
+| Unifilar y figura | 0.911 | 64.151 |
+
+El informe ETAP implica aproximadamente 51.2 kW de perdidas usando su
+generacion y sus cargas impresas. Las diferencias de esta tabla quedan
+abiertas; no son una prueba de error del motor ni un diseno aprobado.
+
+En los cuatro modelos diagnosticos, el maximo error de traduccion frente al
+oraculo independiente fue menor de 0.000049 pu, 0.000364 kW, 0.00474 kvar
+y 0.000503 A. Es evidencia sobre la traduccion de las variantes declaradas,
+no sobre la fidelidad de entradas que la tesis no publica.
 
 ## Cortocircuito y protecciones
 
