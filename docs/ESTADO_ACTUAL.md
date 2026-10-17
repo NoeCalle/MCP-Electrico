@@ -1,13 +1,13 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **16 de octubre de 2026**, registro `Q6_HARMONICS_2026_10_16`.
+Actualizado: **16 de octubre de 2026**, registro `Q7_TIME_SERIES_2026_10_16`.
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
 
 ## Qué está cerrado
 
-**19 módulos verificados dentro de sus alcances publicados.** La aprobación
+**20 módulos verificados dentro de sus alcances publicados.** La aprobación
 del diseño depende de los datos y criterios de cada estudio y corresponde
 al ingeniero. El MCP debe traducir correctamente esos datos, llamar al motor,
 conservar evidencia y explicar errores, faltantes y resultados.
@@ -22,13 +22,21 @@ conservar evidencia y explicar errores, faltantes y resultados.
 | Dinámica DOL | OpenModelica/MSL | Equivalente RL equilibrado y curva mecánica; bancos de una/dos máquinas; [DOL01–DOL03](MSL_DOL_VERIFICACION.md) |
 | Dinámica SCR | OpenModelica/MSL | Una/dos máquinas delta, controles y bypass independientes; [Q4](MSL_SCR_REFERENCIA_ORIGINAL.md) y [Q5](MSL_SCR_DOS_MOTORES.md) |
 | Armónicos y barrido de impedancia | OpenDSS | Q6: espectros no triplén y barrido positivo con amortiguamiento explícito; [evidencia y límites](ARMONICOS_OPENDSS.md) |
+| Perfiles Daily/Yearly | OpenDSS | Q7: perfiles P/Q explícitos, energía del periodo y criterios por intervalo; [evidencia y límites](SERIES_TEMPORALES_OPENDSS.md) |
 | Expedientes e informes | MCP | P7 dentro del alcance de reconstrucción/reporte; no aprobación ni firma automática |
 
 El MCP configura componentes existentes y procesa resultados. **La física
 propia DOL/RK4 y SCR/RL está retirada**, sin fallback. No se agrega otro motor
 para duplicar una ruta suficiente. Ver [arquitectura](ARQUITECTURA_INTEGRACION.md).
 
-## Último cierre de cálculo — Q6
+## Último cierre de cálculo — Q7
+
+Perfiles Daily/Yearly verificados con 16 combinaciones PQ/Z independientes,
+referencia nativa, prueba de 8.760 h y 39 llamadas MCP. Cada carga declara P y Q;
+no se extrapolan datos a un año ni se publica energía de una serie parcial.
+El circuito padre permanece intacto. Ver [alcance Q7](SERIES_TEMPORALES_OPENDSS.md).
+
+## Cierre anterior — Q6
 
 Armónicos y barrido de impedancia están verificados en el alcance equilibrado
 publicado: 24 combinaciones RL/C independientes, contraste nativo, ejemplo con
@@ -66,9 +74,8 @@ fabricante y traducción automática del unifilar completo no están calificados
 
 | Orden | Integración | Qué debe demostrarse para cerrarla |
 |---|---|---|
-| 1 | Perfiles Daily/Yearly con OpenDSS | Perfiles y pasos declarados, balances, referencia nativa y resultados temporales; no es EMT |
-| 2 | Actuación OCRelay con pandapower | Ajustes y actuación contrastados; tiempo de interruptor/clearing separado cuando corresponda |
-| 3 | Informes y mejoras visuales | Gráficos por motor, barra/terminal separados, comparación entre casos, criterios/faltantes visibles y exportación legible |
+| 1 | Actuación OCRelay con pandapower | Ajustes y actuación contrastados; tiempo de interruptor/clearing separado cuando corresponda |
+| 2 | Informes y mejoras visuales | Gráficos por motor, barra/terminal separados, comparación entre casos, criterios/faltantes visibles y exportación legible |
 | Continuo | Uso con datos revisados del proyecto | Modelo completo para el estudio, supuestos autorizados y expediente reproducible |
 
 El flujo alternativo pandapower sigue **en verificación** (PPF01–PPF02).

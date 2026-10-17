@@ -1,3 +1,8 @@
+> **Actualización Q7 — 16 de octubre de 2026:** perfiles Daily/Yearly nativos
+> verificados en alcance equilibrado; 16 referencias PQ/Z, prueba de 8.760 h
+> y 39 llamadas MCP. P/Q y periodo explícitos; sin extrapolación anual.
+> Ver [alcance y evidencia](SERIES_TEMPORALES_OPENDSS.md).
+
 > **Actualización Q6 — 16 de octubre de 2026:** `harmonics` tiene adaptador
 > OpenDSS verificado para espectros de carga no triplén y barrido positivo,
 > con amortiguamiento explícito, THDv truncada, informe y hashes. No cubre
@@ -26,7 +31,7 @@ Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
 **Fecha:** 16 de octubre de 2026. Actualización Q6: armónicos, DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
-El servidor actualizado registra **157 herramientas**. Bancos estáticos añaden
+El servidor actualizado registra **160 herramientas**. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
@@ -159,7 +164,7 @@ Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después de
 | Dinámica de VFD, estrella-triángulo y autotransformador | No implementada | Las etiquetas admitidas por el cálculo estático no modelan control, conmutación ni aceleración de esos sistemas. |
 | Armónicos y barrido de impedancia | Adaptador OpenDSS Q6 verificado en alcance | Espectros no triplén, THDv truncada y barrido positivo con amortiguamiento explícito. No cubre secuencia cero, desbalance, IEEE 519 automático ni transitorios; [evidencia](ARMONICOS_OPENDSS.md). |
 | EMT general, saturación y calentamiento dinámico | Sin adaptador general / extensiones excluidas | MSL sí simula señales instantáneas y conmutación SCR en su circuito de arranque. No habilita cualquier topología EMT ni un modelo térmico motor/semiconductor. |
-| Series temporales de operación diaria/anual | No implementadas como módulo | Los perfiles estáticos de arranque P13C no son un estudio Daily/Yearly de la red. |
+| Series temporales Daily/Yearly | Adaptador OpenDSS Q7 verificado en alcance | Perfiles regulares P/Q explícitos, demanda y energía del periodo, sin extrapolación automática; [evidencia](SERIES_TEMPORALES_OPENDSS.md). |
 | Estabilidad dinámica de generadores y transferencia | No implementada por P12 | El equivalente de fuente y escenarios estáticos no resuelven sincronismo, AVR, gobernador ni interrupción transitoria del suministro. |
 | Relés, CT/VT, lógica y selectividad integral | Fuera de P5-v1 | No están implementados el estudio integral de relés ni la selectividad energética, backup/cascading o ajustes automáticos verificados. |
 | Ib de corte / Ik permanente IEC 60909 y deberes excluidos | No implementados/promovidos en P4-v1 | Aporte inicial Ik'' no cubre decaimiento near-generator ni ip/Ith con máquinas SC. |

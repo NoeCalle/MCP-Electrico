@@ -110,10 +110,13 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
         "execution_tool": "ejecutar_armonicos",
     },
     "time_series": {
-        "preferred": "opendss", "alternatives": [], "module": None,
-        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
-        "reason": "OpenDSS es el candidato preferente para series temporales/distribución, pero el módulo MCP aún no está implementado.",
-        "requirements": ["perfiles temporales", "módulo MCP específico", "benchmarks"],
+        "preferred": "opendss", "alternatives": [], "module": "time_series",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q7: Daily/Yearly nativos con perfiles P/Q explicitos y energia del horizonte declarado.",
+        "requirements": ["paquete explicito: red, perfiles, periodo, repeticion y criterios"],
+        "contract_tool": "obtener_contrato_series_temporales", "readiness_tool": "validar_series_temporales",
+        "execution_tool": "ejecutar_series_temporales",
     },
 }
 

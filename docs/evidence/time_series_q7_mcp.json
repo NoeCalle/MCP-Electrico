@@ -1,0 +1,391 @@
+{
+  "ok": true,
+  "transport": "MCP_STDIO",
+  "checked_at_utc": "2026-10-17T00:53:50.328534+00:00",
+  "case_count": 16,
+  "call_count": 39,
+  "registered_tools": 160,
+  "reference_depends_on_adapter": false,
+  "checks": [
+    {
+      "case": "daily-50-1-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 5.872379915672354e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1954770506861223e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.764765541651286e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-50-1-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 5.872379915672354e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1954770506861223e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.970811566337943e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-50-2-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 1.383533287935279e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.0732304761850173e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.513349161541555e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-50-2-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 1.383533287935279e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.0732304761850173e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.513349161541555e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-60-1-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 5.840568917392375e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1955436640675998e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.595508577651344e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-60-1-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 5.840568917392375e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1955436640675998e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.808830559952185e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-60-2-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 1.3731693115914823e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.073352600717726e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.4884790289215744e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "daily-60-2-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 1.3731693115914823e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.073352600717726e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.4884790289215744e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-50-1-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 5.872379915672354e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1954770506861223e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.764765541651286e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-50-1-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 5.872379915672354e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1954770506861223e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.970811566337943e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-50-2-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 1.383533287935279e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.0732304761850173e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.513349161541555e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-50-2-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 1.383533287935279e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.0732304761850173e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.513349161541555e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-60-1-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 5.840568917392375e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1955436640675998e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.595508577651344e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-60-1-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 5.840568917392375e-09,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 1.1955436640675998e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 7.808830559952185e-08,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-60-2-0.25",
+      "steps": 192,
+      "maximum_source_power_error_kw": 1.3731693115914823e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.073352600717726e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.4884790289215744e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    },
+    {
+      "case": "yearly-60-2-1",
+      "steps": 48,
+      "maximum_source_power_error_kw": 1.3731693115914823e-08,
+      "source_power_tolerance_kw": 2e-06,
+      "maximum_voltage_error_pu": 2.073352600717726e-11,
+      "voltage_tolerance_pu": 2e-07,
+      "energy_error_kwh": 1.4884790289215744e-07,
+      "energy_tolerance_kwh": 2e-05,
+      "passed": true
+    }
+  ],
+  "calls": [
+    {
+      "tool": "obtener_contrato_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "seleccionar_motor_estudio",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "crear_circuito",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "BLOCKED_TIME_SERIES_INPUTS",
+      "results_valid": false
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "validar_series_temporales",
+      "status": null,
+      "results_valid": null
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "ejecutar_series_temporales",
+      "status": "TIME_SERIES_COMPLETED",
+      "results_valid": true
+    },
+    {
+      "tool": "obtener_estado_workspace",
+      "status": null,
+      "results_valid": null
+    }
+  ],
+  "source_sha256": {
+    "mcp_electrico/time_series.py": "533ec6d4ac94162d044e395332af5ec5416ff5fc271252a2e42f2ad4762f8b36",
+    "mcp_electrico/reactive_compensation.py": "2a11db69e268ac7d9f7c5676cd121c136747181f3f2e9ed305f135d186f9bcba",
+    "mcp_electrico/motor_starting_static.py": "25b40b94ca7e46ef7a0aad400ed235c139b23c75e35f095f182b4e0e0987c507",
+    "scripts/time_series_reference.py": "02e672a4629f4198c545352d4b1bb024b84dd1842b4ee75477bceaad5bdda057",
+    "scripts/verify_time_series_mcp.py": "a721d5a8973b509d4f26fc8dfd78e5ed2821cfe89b88d5de31096a6dbd4f0f0e"
+  }
+}
