@@ -133,3 +133,23 @@ Fuentes primarias:
 La validación de una instalación real completa sigue abierta. Este avance
 construye una ruta reproducible para un fenómeno antes excluido; aún faltan
 red y máquinas completas, velocidades libres, curvas/ajustes y revisión común.
+
+## Ejecución nativa confirmada
+
+La [evidencia conservada](evidence/motor_fault_thermal_emt_linux.json) identifica
+el commit, workflow, imagen por digest, revisión MSL, hashes del runtime y ocho
+llamadas MCP de la primera ejecución nativa aprobada en Linux. Incluye tres
+casos, cada uno con 120002 muestras refinadas y 3244 muestras contrastadas con
+la referencia independiente. El paquete incompleto quedó bloqueado.
+
+| Caso sintético | Máximo RMS equivalente de fase (A) | Mayor error relativo de energía | Mayor error relativo de forma de onda |
+| --- | ---: | ---: | ---: |
+| 50 Hz, 0° | 180.280015 | 9.167e-7 | 4.434e-11 |
+| 50 Hz, 37° | 166.368528 | 1.482e-6 | 4.079e-11 |
+| 60 Hz, 0° | 151.135232 | 1.312e-6 | 7.061e-11 |
+
+Los errores son fracciones, no porcentajes. El mayor error de energía fue
+0.0001483%, frente al límite fijado de 0.1%. El mayor cambio por refinamiento
+fue 4.447e-6 relativo. Estos números verifican exclusivamente las fronteras
+lineales y la velocidad impuesta de los casos; no miden exactitud frente a
+ensayos de un motor real ni justifican ampliar el alcance.

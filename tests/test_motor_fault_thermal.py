@@ -127,6 +127,6 @@ def test_official_release_version_spellings(version):
     assert fault.supported_compiler_version(version)
 
 
-@pytest.mark.parametrize("version", ["OpenModelica 1.27.10", "OpenModelica 1.27.1-dev", "OpenModelica 1.26.0", "unverified runtime"])
+@pytest.mark.parametrize("version", ["OpenModelica 1.27.10", "OpenModelica 1.27.1-dev", "OpenModelica 1.26.0", "unverified runtime", None, True, 127, {}, []])
 def test_other_compiler_versions_do_not_pass(version):
     assert not fault.supported_compiler_version(version)

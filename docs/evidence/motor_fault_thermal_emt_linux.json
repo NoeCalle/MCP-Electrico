@@ -1,0 +1,206 @@
+{
+  "schema": "MCP_ELECTRICO_MOTOR_FAULT_EMT_NATIVE_EVIDENCE_V1",
+  "verified_commit": "985374a2a248b3b41ec17784f7fd8d8e1f9c8be2",
+  "workflow_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39080539062",
+  "job_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39080539062/job/117536396390",
+  "container_image": "openmodelica/openmodelica@sha256:ac9a0223e69b8055d444b42f58ccb9680342b56848c68b81385bf83d7c0ba824",
+  "msl_commit": "6626538a236a34a390655b55d5e8c906bfe31772",
+  "source": "GitHub Actions job log MOTOR_FAULT_SUMMARY; values copied without recalculation",
+  "scope": "Synthetic terminal-fault boundaries; one wye motor with imposed speed. Not an industrial installation or IEC60909 Ith qualification.",
+  "summary": {
+    "cases": [
+      {
+        "id": "MSL-FAULT-50HZ-0DEG",
+        "comparison": {
+          "waveform_relative_error": 4.4336967173010615e-11,
+          "prefault_waveform_relative_error": 3.204168653914196e-11,
+          "postfault_waveform_relative_error": 4.4336967173010615e-11,
+          "waveform_sample_count": 3244,
+          "reference_joule_integral_a2s_by_phase": [
+            6500.179169923234,
+            3680.7054726048295,
+            2414.2608370789035
+          ],
+          "reference_equivalent_rms_a_by_phase": [
+            180.28004839586708,
+            135.65960107203674,
+            109.86948705347868
+          ]
+        },
+        "energy_relative_errors": [
+          3.7481342447581344e-7,
+          8.67573488811429e-7,
+          9.166687607341372e-7
+        ],
+        "actual": {
+          "joule_integral_a2s_by_phase": [
+            6500.17673356882,
+            3680.7022793223414,
+            2414.258624001414
+          ],
+          "equivalent_rms_a_by_phase": [
+            180.28001461017277,
+            135.65954222468727,
+            109.86943669650388
+          ],
+          "maximum_phase_equivalent_rms_a": 180.28001461017277,
+          "native_msl_integral_a2s_by_phase": [
+            6500.179170142991,
+            3680.705472352712,
+            2414.260837362339
+          ],
+          "integral_crosscheck_relative_errors": [
+            3.748472322477526e-7,
+            8.675049918421759e-7,
+            9.167861611075373e-7
+          ],
+          "imposed_speed_maximum_error_rad_s": 5.684341886080802e-14,
+          "sample_count": 120002,
+          "trace_complete": true
+        },
+        "refinement": [
+          0.0000011245801724573074,
+          0.0000026035088884830423,
+          0.000002749510051385605
+        ],
+        "input_sha256": "a0cae6d31868ca57b1d15c73f9900a5085dc1326acdf6c138430c6c86778dec1"
+      },
+      {
+        "id": "MSL-FAULT-50HZ-37DEG",
+        "comparison": {
+          "waveform_relative_error": 4.078387893392999e-11,
+          "prefault_waveform_relative_error": 1.8217271405707202e-11,
+          "postfault_waveform_relative_error": 4.078387893392999e-11,
+          "waveform_sample_count": 3244,
+          "reference_joule_integral_a2s_by_phase": [
+            5535.700554628886,
+            1788.0687294387467,
+            5271.376195538541
+          ],
+          "reference_equivalent_rms_a_by_phase": [
+            166.3685750769791,
+            94.55339045847978,
+            162.34802424942754
+          ]
+        },
+        "energy_relative_errors": [
+          5.616618721646359e-7,
+          0.0000014820058764152315,
+          3.9526660588457613e-7
+        ],
+        "actual": {
+          "joule_integral_a2s_by_phase": [
+            5535.697445436948,
+            1788.0660795103822,
+            5271.374111939564
+          ],
+          "equivalent_rms_a_by_phase": [
+            166.3685283555299,
+            94.55332039411368,
+            162.3479921640481
+          ],
+          "maximum_phase_equivalent_rms_a": 166.3685283555299,
+          "native_msl_integral_a2s_by_phase": [
+            5535.7005544648,
+            1788.068729464058,
+            5271.376195919997
+          ],
+          "integral_crosscheck_relative_errors": [
+            5.616322308422141e-7,
+            0.000001482020032023247,
+            3.953389696212711e-7
+          ],
+          "imposed_speed_maximum_error_rad_s": 5.684341886080802e-14,
+          "sample_count": 120002,
+          "trace_complete": true
+        },
+        "refinement": [
+          0.0000016853748801889484,
+          0.000004446196934376226,
+          0.0000011855953103625784
+        ],
+        "input_sha256": "347270c2a0a793fb1e139d706a26803e6a76e2866820941559258879a944df75"
+      },
+      {
+        "id": "MSL-FAULT-60HZ-0DEG",
+        "comparison": {
+          "waveform_relative_error": 7.060271854670133e-11,
+          "prefault_waveform_relative_error": 3.1716538813914296e-11,
+          "postfault_waveform_relative_error": 7.060271854670133e-11,
+          "waveform_sample_count": 3244,
+          "reference_joule_integral_a2s_by_phase": [
+            4568.374130959749,
+            2472.152927263662,
+            1714.5362479822984
+          ],
+          "reference_equivalent_rms_a_by_phase": [
+            151.13527270230054,
+            111.17897569378086,
+            92.5887749131151
+          ]
+        },
+        "energy_relative_errors": [
+          5.420754329936532e-7,
+          0.0000012515513114246529,
+          0.0000013118034369088313
+        ],
+        "actual": {
+          "joule_integral_a2s_by_phase": [
+            4568.371654556364,
+            2472.149833237424,
+            1714.5339988477556
+          ],
+          "equivalent_rms_a_by_phase": [
+            151.1352317389358,
+            111.17890612066267,
+            92.58871418395861
+          ],
+          "maximum_phase_equivalent_rms_a": 151.1352317389358,
+          "native_msl_integral_a2s_by_phase": [
+            4568.374131163757,
+            2472.152927037306,
+            1714.53624829327
+          ],
+          "integral_crosscheck_relative_errors": [
+            5.421200895236603e-7,
+            0.0000012514597492623367,
+            0.0000013119848103223838
+          ],
+          "imposed_speed_maximum_error_rad_s": 2.842170943040401e-14,
+          "sample_count": 120002,
+          "trace_complete": true
+        },
+        "refinement": [
+          0.0000016276411746369086,
+          0.000003755789491738391,
+          0.000003936416369529731
+        ],
+        "input_sha256": "e3e0bfefc9097e8538596ad593b5305dec15bc939c09ea748c50a27a84280003"
+      }
+    ],
+    "mcp_calls": 8,
+    "calls": [
+      "configurar_falla_terminal_motor_modelica",
+      "ejecutar_falla_terminal_motor_modelica",
+      "validar_falla_terminal_motor_modelica",
+      "ejecutar_falla_terminal_motor_modelica",
+      "validar_falla_terminal_motor_modelica",
+      "ejecutar_falla_terminal_motor_modelica",
+      "validar_falla_terminal_motor_modelica",
+      "ejecutar_falla_terminal_motor_modelica"
+    ],
+    "runtime": {
+      "executable": "/usr/bin/omc",
+      "library": "/__w/_temp/MSL4-fault",
+      "compiler_version": "OpenModelica 1.27.1",
+      "compiler_sha256": "ee873485152e4c5144b75a0c8620325dc082b687ac1edce1edc8377a2cd9bee1",
+      "library_tree_sha256": "dd0e6b3b0b18501d36efa3f3a2faea583f56dd30e3dce21d7f1e75439b44c74c"
+    },
+    "waveform_and_energy_relative_tolerance": 0.001,
+    "independent_reference": "TEST_ONLY_COMPLEX_WINDING_MATRIX_EXPONENTIAL_AND_SCIPY_QUADRATURE",
+    "installation_validation_closed": false,
+    "iec60909_ith_promoted": false
+  },
+  "artifact_url": "https://github.com/NoeCalle/MCP-Electrico/actions/runs/39080539062/artifacts/12119271137",
+  "artifact_zip_sha256": "4985c5b9c86806f050941dda3d1077070ff0dcfb60fd86012fe8b1256c695190"
+}

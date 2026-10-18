@@ -34,7 +34,7 @@ _configuration = None
 
 
 def supported_compiler_version(text):
-    return text.strip() in {"OpenModelica 1.27.1", "OpenModelica v1.27.1", "OpenModelica v1.27.1 (64-bit)"}
+    return isinstance(text, str) and text.strip() in {"OpenModelica 1.27.1", "OpenModelica v1.27.1", "OpenModelica v1.27.1 (64-bit)"}
 
 
 def configure(executable, library):
