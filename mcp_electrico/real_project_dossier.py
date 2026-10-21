@@ -21,6 +21,7 @@ from opendssdirect import dss
 
 from . import (
     dossier_integrity,
+    execution_quality,
     project_reconstruction,
     project_report,
     project_snapshot,
@@ -130,6 +131,7 @@ def generar_dossier(
     paths = {
         "manifest": target / "manifest.json",
         "execution": target / "execution_p8d2.json",
+        "assessment": target / "design_checks.json",
         "workspace": target / "workspace_v5.html",
         "snapshot": target / "project_snapshot_p7a.json",
         "report": target / "project_report_p7c.html",
@@ -142,6 +144,8 @@ def generar_dossier(
     try:
         _write_json(paths["manifest"], manifest_copy)
         _write_json(paths["execution"], execution)
+        assessment = execution_quality.project_assessment(execution)
+        _write_json(paths["assessment"], assessment)
 
         project_name = str((manifest_copy.get("project") or {}).get("name") or circuit_before or "Proyecto real")
         workspace.configure(
@@ -191,6 +195,7 @@ def generar_dossier(
             "model_revision": revision_after,
             "p8d2_schema": execution.get("schema"),
             "p8d2_execution_status": execution.get("execution_status"),
+            "declared_design_check_status": assessment["status"],
             "p7a_payload_sha256": (snapshot.get("hash") or {}).get("value"),
             "p7c_report_sha256": (report.get("report_hash") or {}).get("value"),
             "p7c_source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
@@ -215,6 +220,8 @@ def generar_dossier(
             "model_revision": revision_after,
             "active_circuit_preserved": True,
             "p8d2_execution_status": execution.get("execution_status"),
+            "design_assessment": assessment,
+            "design_checks_path": str(paths["assessment"]),
             "workspace": {
                 "status": "WORKSPACE_V5_READY",
                 "path": str(paths["workspace"]),

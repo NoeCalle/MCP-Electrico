@@ -22,6 +22,7 @@ from math import isfinite
 from typing import Any
 
 from . import (
+    execution_quality,
     protection_checks,
     protection_clearing_time,
     protection_data,
@@ -395,6 +396,8 @@ def _evaluate_device(binding: dict[str, Any], fault: dict[str, Any]) -> dict[str
             time_source,
             thermal_request["section_source_reference"],
         )
+        thermal["current_basis"] = "DECLARED_IKSS_CONSTANT_RMS_NOT_IEC60909_ITH"
+        thermal["dc_and_machine_decay_included"] = False
 
     return {
         "device_id": device["id"],
@@ -495,12 +498,23 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
     if revision_before != execution.get("model_revision"):
         raise RuntimeError("P8D2EXEC001: model_revision cambió entre P8D1 y P8D2.")
 
-    device_results = [_evaluate_device(binding, fault) for binding, fault in resolved]
+    device_results = []
+    for binding, fault in resolved:
+        try:
+            device_results.append(_evaluate_device(binding, fault))
+        except Exception as exc:
+            device_results.append({"device_id": binding["device_id"], "binding": deepcopy(binding),
+                                   "status": "DEVICE_EVALUATION_FAILED",
+                                   "error": f"{type(exc).__name__}: {exc}"})
+    assessment = execution_quality.protection_assessment(device_results)
     clearing_ready = all(
         (item.get("clearing_time") or {}).get("status") == "CLEARING_TIME_READY"
         for item in device_results
     )
-    execution_status = STATUS_COMPLETED if clearing_ready else STATUS_PARTIAL
+    checks_ready = assessment["all_requested_checks_evaluated"]
+    if not checks_ready:
+        device_results = execution_quality.diagnostic_payload(device_results)
+    execution_status = STATUS_COMPLETED if checks_ready else STATUS_PARTIAL
 
     aggregate = {
         "schema": "MCP_ELECTRICO_P8D2_PROTECTION_RESULTS_V1",
@@ -509,6 +523,8 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         "devices": deepcopy(device_results),
         "device_count": len(device_results),
         "all_clearing_times_ready": clearing_ready,
+        "resultados_validos": checks_ready,
+        "design_assessment": assessment,
         "p4_results_reused": True,
         "p4_recalculation_inside_p5": False,
         "automatic_fault_binding": False,
@@ -516,7 +532,7 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
     }
 
     workspace_recorded = False
-    if clearing_ready:
+    if checks_ready:
         workspace_state.record_study("protection_tcc", aggregate, action="p8d2_protection_tcc")
         workspace_recorded = True
 
@@ -527,10 +543,15 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema": SCHEMA,
         "execution_status": execution_status,
-        "issues": [],
+        "issues": [{"code": "P8D2P002", "device_id": c["device_id"], "check": c["check"],
+                    "message": "Comprobación solicitada incompleta o inválida.", "status": c["status"]}
+                   for c in assessment["incomplete_checks"]],
         "bindings": bindings,
         "p8d1_execution": execution,
         "device_results": device_results,
+        "resultados_validos": checks_ready,
+        "design_assessment": assessment,
+        "manifest_sha256": execution.get("manifest_sha256"),
         "model_revision": revision_after,
         "workspace_study_recorded": workspace_recorded,
         "workspace_study": "protection_tcc" if workspace_recorded else None,
@@ -543,5 +564,6 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         "automatic_fault_binding": False,
         "crosscheck": False,
         "professional_emission": False,
-        "next_gate": "P8E_WORKSPACE_AND_DOSSIER" if clearing_ready else "P8D2_TCC_REPAIR",
+        "next_gate": ("P8E_WORKSPACE_AND_DOSSIER" if checks_ready
+                      else "P8D2_CHECKS_REPAIR" if clearing_ready else "P8D2_TCC_REPAIR"),
     }

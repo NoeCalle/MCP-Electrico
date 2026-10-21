@@ -6,6 +6,8 @@
 
 **Q9:** [Informes de motores](docs/INFORMES_MOTORES_Q9.md): gráficos por motor, comparación, criterios y exportaciones de resultados MSL guardados.
 
+**Uso profesional controlado:** [secuencia de aceptación, resultados inválidos, criterios fallidos e integridad](docs/USO_PROFESIONAL_CONTROLADO.md).
+
 ## Confiabilidad técnica y responsabilidad del ingeniero — Q8
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar

@@ -5,6 +5,21 @@ Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
 
+## Aceptación integral de cálculos — 21 de octubre de 2026
+
+P8D1 detiene la cadena ante resultados inválidos, no convergencia, excepciones,
+NaN/Infinity, barras/casos MAX/MIN incompletos o revisión alterada. P5 no
+consume esa ejecución y no se genera un dossier listo. Los incumplimientos de
+diseño se conservan como resultados válidos con criterios fallidos.
+
+Los dossiers incorporan `design_checks.json`, ligado al manifiesto y revisión,
+y protegido por el índice de integridad. P5 exige todas las comprobaciones
+solicitadas, además del tiempo de despeje. La ruta común incorpora la falla
+terminal de motor Q13A, conservando su único ejecutor y su validador.
+
+Ver [uso profesional controlado y pruebas de aceptación](USO_PROFESIONAL_CONTROLADO.md).
+No amplía la calificación física ni cierra el caso industrial Brno.
+
 ## Qué está cerrado
 
 **21 módulos verificados dentro de sus alcances publicados.** La aprobación

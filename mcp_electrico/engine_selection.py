@@ -131,6 +131,17 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
 }
 
 CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+CAPABILITY_MATRIX["motor_terminal_fault_emt"] = {
+    "preferred": "openmodelica+msl", "alternatives": [], "module": None,
+    "implemented": True, "professional_emission_candidate": False,
+    "requires_active_model": False, "requires_study_package": True,
+    "integration_status": "VERIFIED_SCOPED_ADAPTER_ONLY",
+    "reason": "Q13A: falla terminal trifásica de un motor estrella a velocidad impuesta; integral térmica EMT, sin promoción a Ith IEC ni traducción del unifilar.",
+    "requirements": ["paquete SI explícito, runtime 1.27.1/MSL 4.0.0, fronteras de velocidad impuesta y refinamiento"],
+    "readiness_tool": "validar_falla_terminal_motor_modelica",
+    "execution_tool": "ejecutar_falla_terminal_motor_modelica",
+    "contract_reference": "docs/MOTOR_FAULT_THERMAL_EMT.md",
+}
 CAPABILITY_MATRIX['operating_scenarios'] = {
     'preferred': 'opendss', 'alternatives': [], 'module': None,
     'implemented': True, 'professional_emission_candidate': False,
@@ -173,6 +184,8 @@ CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física prop
 
 
 ALIASES = {
+    "falla_terminal_motor": "motor_terminal_fault_emt",
+    "falla_termica_motor": "motor_terminal_fault_emt",
     'escenarios_operativos': 'operating_scenarios', 'contingencias': 'operating_scenarios',
     'n_1': 'operating_scenarios',
     'compensacion_reactiva':'reactive_compensation', 'reactive_compensation':'reactive_compensation',
