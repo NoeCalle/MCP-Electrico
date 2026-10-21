@@ -414,6 +414,11 @@ Solo `TOTAL_CLEARING_TIME` se promueve automáticamente a `CLEARING_TIME_READY`.
 
 ### P5E — coordinación temporal
 
+Ampliación implementada: [intervalo continuo de TCC declaradas](P5E_COORDINACION_INTERVALO.md),
+peor margen por extremos y puntos estacionarios, cobertura completa y factor
+de corrientes explícito. No amplía el claim a selectividad integral y todavía
+no se agrega automáticamente al criterio P8.
+
 Compara downstream/upstream explícitos y usa:
 
 ```text

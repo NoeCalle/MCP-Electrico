@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from . import protection_coordination
+from . import protection_coordination, protection_coordination_range
 
 
 def register(mcp, on_result=None) -> None:
@@ -13,7 +13,9 @@ def register(mcp, on_result=None) -> None:
 
     @mcp.tool()
     def obtener_contrato_coordinacion_p5e() -> dict:
-        return protection_coordination.obtener_contrato_p5e()
+        result = protection_coordination.obtener_contrato_p5e()
+        result["range_extension"] = protection_coordination_range.contract()
+        return result
 
     @mcp.tool()
     def evaluar_coordinacion_temporal_p5e(
@@ -39,4 +41,26 @@ def register(mcp, on_result=None) -> None:
             "protection_coordination",
             result,
             f"evaluar_coordinacion_temporal_p5e:{dispositivo_downstream}->{dispositivo_upstream}",
+        )
+
+    @mcp.tool()
+    def evaluar_coordinacion_intervalo_p5e(
+        dispositivo_downstream: str,
+        dispositivo_upstream: str,
+        corriente_minima_downstream_a: float,
+        corriente_maxima_downstream_a: float,
+        factor_corriente_upstream: float,
+        margen_minimo_s: float,
+        fuente_relacion: str,
+        fuente_corrientes: str,
+    ) -> dict:
+        """Peor margen continuo entre TCC explícitas; no acredita selectividad."""
+        result = protection_coordination_range.evaluar_coordinacion_intervalo(
+            dispositivo_downstream, dispositivo_upstream,
+            corriente_minima_downstream_a, corriente_maxima_downstream_a,
+            factor_corriente_upstream, margen_minimo_s, fuente_relacion, fuente_corrientes,
+        )
+        return recorded(
+            "protection_coordination_range", result,
+            f"evaluar_coordinacion_intervalo_p5e:{dispositivo_downstream}->{dispositivo_upstream}",
         )

@@ -61,6 +61,12 @@ solicitadas no se transforman en PASS.
 
 ## Un motor por estudio
 
+La ruta `coordinacion_intervalo` evalúa el peor margen continuo de dos TCC
+declaradas, con rango y factor de corrientes explícitos. Bloquea huecos y no
+convierte una comparación de tiempos en selectividad integral. Es una llamada
+adicional explícita; no está incorporada al criterio agregado P8.
+Ver [método y evidencia](P5E_COORDINACION_INTERVALO.md).
+
 `ejecutar_estudio` conserva las rutas públicas y sus validadores. Incluye
 `falla_terminal_motor` / `motor_terminal_fault_emt`, que invoca exclusivamente
 `ejecutar_falla_terminal_motor_modelica` con el paquete explícito Q13A. No
