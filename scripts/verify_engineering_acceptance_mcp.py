@@ -46,6 +46,7 @@ async def verify(output):
                     if failed_design:
                         package["protection"]["devices"][0]["icu_ka"] = .001
                         package["protection"]["devices"][0]["ics_ka"] = .001
+                        package["protection"]["devices"][0]["breaking_capacity_ka"] = .001
                     delivered = await call("generar_dossier_piloto_real", {
                         "manifest": package, "directorio_salida": str(output/name)})
                     assert delivered["status"] == "DOSSIER_READY_ENGINEERING_PREVIEW", delivered

@@ -85,6 +85,7 @@ def test_real_breaking_capacity_fail_is_valid_calculation_with_failed_design(tmp
     m = manifest()
     m["protection"]["devices"][0]["icu_ka"] = .001
     m["protection"]["devices"][0]["ics_ka"] = .001
+    m["protection"]["devices"][0]["breaking_capacity_ka"] = .001
     result = dossier.generar_dossier(m, str(tmp_path/"failed-design"))
     assert result["status"] == dossier.STATUS_READY, result
     assessment = result["design_assessment"]
