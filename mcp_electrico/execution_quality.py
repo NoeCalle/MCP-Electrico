@@ -115,6 +115,10 @@ def protection_assessment(devices):
             usable = status == "CLEARING_TIME_READY" if kind == "clearing_time" else status in {"PASS", "FAIL"}
             if kind == "clearing_time" and usable:
                 usable = positive((result.get("clearing_time") or {}).get("conservative_time_s"))
+            try:
+                json.dumps(result, allow_nan=False)
+            except (TypeError, ValueError):
+                usable = False
             check = {"device_id": device.get("device_id"), "check": kind,
                      "status": status, "result_usable": usable}
             checks.append(check)

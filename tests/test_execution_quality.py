@@ -99,7 +99,8 @@ def test_real_breaking_capacity_fail_is_valid_calculation_with_failed_design(tmp
 
 
 @pytest.mark.parametrize("component,status", [("breaking_capacity", "NOT_APPLICABLE_VOLTAGE"),
-                                               ("thermal_check", "SECTION_MISMATCH")])
+                                               ("thermal_check", "SECTION_MISMATCH"),
+                                               ("breaking_capacity", "PASS")])
 def test_incomplete_requested_check_cannot_be_completed(monkeypatch, component, status):
     native = protection._evaluate_device
     def incomplete(binding, fault):
@@ -107,6 +108,8 @@ def test_incomplete_requested_check_cannot_be_completed(monkeypatch, component, 
         if component == "thermal_check":
             result["binding"]["thermal_check"] = {"explicit_request": True}
         result[component] = {"status": status}
+        if status == "PASS":
+            result[component]["invalid_value"] = float("nan")
         return result
     monkeypatch.setattr(protection, "_evaluate_device", incomplete)
     result = protection.ejecutar_protecciones(manifest())
@@ -114,6 +117,8 @@ def test_incomplete_requested_check_cannot_be_completed(monkeypatch, component, 
     assert result["design_assessment"]["status"] == "NOT_EVALUABLE"
     assert not result["workspace_study_recorded"]
     assert not result["resultados_validos"]
+    assert result["issues"]
+    json.dumps(result, allow_nan=False)
 
 
 def test_valid_calculation_may_fail_voltage_drop_and_ampacity_criteria():
@@ -136,6 +141,7 @@ def test_workspace_does_not_promote_failed_or_unconfirmed_solution():
     assert workspace_state.status()["studies"]["failed_design"]["valid"]
     workspace_state.record_solution({"results": {}})
     assert not workspace_state.status()["results_current"]
+    assert not workspace_state.status()["studies"]["powerflow"]["valid"]
 
 
 def test_fault_motor_route_uses_one_executor_and_preserves_data_gate(tmp_path, monkeypatch):

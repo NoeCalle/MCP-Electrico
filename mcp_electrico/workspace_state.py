@@ -101,10 +101,13 @@ def record_solution(result: dict[str, Any], study: str = "powerflow", action: st
     converged = (result.get("convergio") is True
                  and result.get("resultados_validos") is not False
                  and result.get("ok") is not False)
+    stored_result = deepcopy(result)
+    if not converged:
+        stored_result["resultados_validos"] = False
     _runtime["studies"][study] = {
         "model_revision": _runtime["model_revision"],
         "recorded_at": _now(),
-        "result": deepcopy(result),
+        "result": stored_result,
     }
     _runtime["solved_revision"] = _runtime["model_revision"] if converged else None
     _runtime["state"] = STATE_SOLVED if converged else STATE_ERROR

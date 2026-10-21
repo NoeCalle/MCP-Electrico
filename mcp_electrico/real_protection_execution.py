@@ -512,6 +512,8 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         for item in device_results
     )
     checks_ready = assessment["all_requested_checks_evaluated"]
+    if not checks_ready:
+        device_results = execution_quality.diagnostic_payload(device_results)
     execution_status = STATUS_COMPLETED if checks_ready else STATUS_PARTIAL
 
     aggregate = {
@@ -541,7 +543,9 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema": SCHEMA,
         "execution_status": execution_status,
-        "issues": [],
+        "issues": [{"code": "P8D2P002", "device_id": c["device_id"], "check": c["check"],
+                    "message": "Comprobación solicitada incompleta o inválida.", "status": c["status"]}
+                   for c in assessment["incomplete_checks"]],
         "bindings": bindings,
         "p8d1_execution": execution,
         "device_results": device_results,
@@ -560,5 +564,6 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         "automatic_fault_binding": False,
         "crosscheck": False,
         "professional_emission": False,
-        "next_gate": "P8E_WORKSPACE_AND_DOSSIER" if checks_ready else "P8D2_TCC_REPAIR",
+        "next_gate": ("P8E_WORKSPACE_AND_DOSSIER" if checks_ready
+                      else "P8D2_CHECKS_REPAIR" if clearing_ready else "P8D2_TCC_REPAIR"),
     }
