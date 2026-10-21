@@ -17,129 +17,405 @@ import unicodedata
 from opendssdirect import dss
 
 from . import model_qa, pandapower_engine, study_readiness, validation_status, module_qualification
-from .external_engine_catalogue import EXTERNAL_ENGINES, PLANNED_STUDI…11082 tokens truncated…"], snapshot)
+from .external_engine_catalogue import EXTERNAL_ENGINES, PLANNED_STUDIES, RESEARCH_DATE
 
-        report = project_report.construir_reporte(snapshot)
-        if not report.get("ok"):
-            raise RuntimeError(f"P8E2R001: P7C bloqueado: {report}")
-        paths["report"].write_text(str(report["html"]), encoding="utf-8")
 
-        reconstruction = _p7b_isolated(
-            paths["snapshot"],
-            paths["reconstructed"],
-            paths["reconstruction"],
-        )
-        if reconstruction.get("status") != P7B_OK:
-            raise RuntimeError(f"P8E2B001: P7B aislado no verificó round-trip: {reconstruction}")
-        if reconstruction.get("isolation_mode") != P7B_ISOLATION_MODE:
-            raise RuntimeError(f"P8E2ISO002: P7B no usó el contexto DSS aislado esperado: {reconstruction}")
-        if reconstruction.get("parent_dss_context_mutated") is not False:
-            raise RuntimeError(f"P8E2ISO003: P7B no confirmó preservación del contexto DSS padre: {reconstruction}")
+CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
+    "power_flow": {
+        "preferred": "opendss", "alternatives": ["pandapower"], "module": "power_flow",
+        "implemented": True, "professional_emission_candidate": True, "requires_active_model": True,
+        "reason": "OpenDSS es el backend principal validado con limitaciones para flujo de potencia.",
+        "requirements": ["circuito activo"],
+    },
+    "voltage_drop": {
+        "preferred": "opendss+mcp", "alternatives": [], "module": "voltage_drop",
+        "implemented": True, "professional_emission_candidate": True, "requires_active_model": True,
+        "reason": "OpenDSS resuelve tensiones y MCP deriva la caída sin redondeo intermedio.",
+        "requirements": ["circuito activo", "flujo convergente", "líneas con buses origen/destino"],
+    },
+    "short_circuit_exploratory": {
+        "preferred": "opendss", "alternatives": [], "module": "short_circuit",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": "OpenDSS FaultStudy existe como estudio exploratorio y conserva madurez UNDER_VALIDATION; no hereda la madurez IEC 60909.",
+        "requirements": ["circuito activo", "barra de falla válida", "tipo de falla explícito para readiness profesional"],
+    },
+    "iec60909": {
+        "preferred": "pandapower", "alternatives": [], "module": "iec60909",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": (
+            "P4-v1 está VALIDATED_WITH_LIMITATIONS para fallas 3F, 2F y 1F-T max/min con pandapower 3.5.4: "
+            "las tres tienen benchmark independiente y representación V4. 2F-T está excluida formalmente por P4C08; "
+            "P4C10 revisó IEC 60909-0:2026 como REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION, sin claim integral. "
+            "Esta madurez es específica de IEC 60909 y no promociona OpenDSS FaultStudy."
+        ),
+        "requirements": [
+            "3F Ik'' admite inducción directa y generador síncrono con fichas SC explícitas; MIN excluye inducción",
+            "con máquinas SC declaradas: clasificar todas las cargas; variadores e ip/Ith de máquinas fuera de alcance",
+            "P2 suficiente para fuente/líneas/transformadores del tipo de falla solicitado",
+            "tipo de falla 3F, 2F o 1F-T explícito para ejecución P4-v1",
+            "para 2F y 1F-T: política Z2=Z1 explícita limitada a red simétrica pasiva",
+            "para 1F-T: R0/X0 de fuente, R0/X0/C0 por línea y ficha Z0/neutro de transformador explícitos",
+            "escenario max/min explícito",
+            "endtemp_degree explícita por línea en cálculo mínimo",
+            "topology y tk_s explícitos cuando se solicitan ip/Ith en 3F/2F",
+            "P4C10=REVIEWED_WITH_LIMITATIONS_AGAINST_TARGET_EDITION; full_conformance_claim=false",
+            "2F-T = OUT_OF_SCOPE_P4_V1; reingreso futuro requiere soporte directo o solver MCP dedicado validado",
+        ],
+    },
+    "ampacity": {
+        "preferred": "mcp", "alternatives": [], "module": "ampacity",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": "P3-v1 evalúa Ib/In/Iz en la capa MCP con trazabilidad explícita y madurez VALIDATED_WITH_LIMITATIONS.",
+        "requirements": [
+            "conductor P2 trazable",
+            "ampacidad base y condición de instalación",
+            "In y su referencia",
+            "Ib explícita o uso del flujo aceptado expresamente",
+            "factores referenciados o confirmación de condiciones base",
+            "norma versionada",
+        ],
+    },
+    "protection_coordination": {
+        "preferred": "mcp+pandapower", "alternatives": [], "module": "protection_coordination",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": (
+            "P5-v1 implementa protección y coordinación temporal puntual en la capa MCP, consumiendo "
+            "corrientes de falla trazables cuando corresponda. No declara selectividad integral, backup ni cascading."
+        ),
+        "requirements": [
+            "P4 IEC 60909 o corriente de falla explícita y trazable",
+            "dispositivos y curvas/ajustes P5 explícitos",
+            "TOTAL_CLEARING_TIME para promoción automática a clearing time",
+            "relación downstream/upstream declarada para coordinación temporal puntual",
+        ],
+    },
+    "arc_flash_ieee1584": {
+        "preferred": "mcp", "alternatives": [], "module": "arc_flash_ieee1584",
+        "implemented": False, "professional_emission_candidate": False, "requires_active_model": True,
+        "reason": "IEEE 1584 pertenece a P6 y depende de corriente de arco y tiempo de despeje trazable.",
+        "requirements": ["P4 cortocircuito", "P5 tiempo de despeje", "parámetros IEEE 1584"],
+    },
+    "arc_flash_lee": {
+        "preferred": "mcp", "alternatives": [], "module": "arc_flash_lee",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "reason": "Lee permanece solo como método simplificado/educativo.",
+        "requirements": ["voltaje", "corriente de falla", "tiempo de despeje", "distancia de trabajo"],
+    },
+    "harmonics": {
+        "preferred": "opendss", "alternatives": [], "module": "harmonics",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q6: espectros no triplen y barrido positivo con OpenDSS aislado, verificados dentro del alcance publicado.",
+        "requirements": ["paquete explicito: red, espectros, amortiguamiento, barrido y criterio"],
+        "contract_tool": "obtener_contrato_armonicos", "readiness_tool": "validar_armonicos",
+        "execution_tool": "ejecutar_armonicos",
+    },
+    "relay_operation": {
+        "preferred": "pandapower", "alternatives": [], "module": "relay_operation",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q8: OCRelay DTOC/IDMT/IDTOC nativo con ajustes y corrientes primarias constantes explicitos.",
+        "requirements": ["ajustes, corrientes trazables, criterios y retardo de interruptor explicitos"],
+        "contract_tool": "obtener_contrato_actuacion_reles", "readiness_tool": "validar_actuacion_reles",
+        "execution_tool": "ejecutar_actuacion_reles",
+    },
+    "time_series": {
+        "preferred": "opendss", "alternatives": [], "module": "time_series",
+        "implemented": True, "professional_emission_candidate": False, "requires_active_model": False,
+        "requires_study_package": True,
+        "reason": "Q7: Daily/Yearly nativos con perfiles P/Q explicitos y energia del horizonte declarado.",
+        "requirements": ["paquete explicito: red, perfiles, periodo, repeticion y criterios"],
+        "contract_tool": "obtener_contrato_series_temporales", "readiness_tool": "validar_series_temporales",
+        "execution_tool": "ejecutar_series_temporales",
+    },
+}
 
-        circuit_after = _active_circuit()
-        revision_after = workspace_state.status().get("model_revision")
-        if circuit_after != circuit_before or revision_after != revision_before:
-            raise RuntimeError(
-                "P8E2ISO001: la verificación P7B aislada alteró el circuito/revisión del proceso principal."
-            )
+CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+CAPABILITY_MATRIX["motor_terminal_fault_emt"] = {
+    "preferred": "openmodelica+msl", "alternatives": [], "module": None,
+    "implemented": True, "professional_emission_candidate": False,
+    "requires_active_model": False, "requires_study_package": True,
+    "integration_status": "VERIFIED_SCOPED_ADAPTER_ONLY",
+    "reason": "Q13A: falla terminal trifásica de un motor estrella a velocidad impuesta; integral térmica EMT, sin promoción a Ith IEC ni traducción del unifilar.",
+    "requirements": ["paquete SI explícito, runtime 1.27.1/MSL 4.0.0, fronteras de velocidad impuesta y refinamiento"],
+    "readiness_tool": "validar_falla_terminal_motor_modelica",
+    "execution_tool": "ejecutar_falla_terminal_motor_modelica",
+    "contract_reference": "docs/MOTOR_FAULT_THERMAL_EMT.md",
+}
+CAPABILITY_MATRIX['operating_scenarios'] = {
+    'preferred': 'opendss', 'alternatives': [], 'module': None,
+    'implemented': True, 'professional_emission_candidate': False,
+    'requires_active_model': False, 'requires_study_package': True,
+    'reason': 'P12: escenarios estáticos explícitos en contextos aislados; no elige maniobras ni cargas.',
+    'requirements': ['manifest y paquete_escenarios explícitos con acciones y criterios'],
+    'contract_tool': 'obtener_contrato_p12_escenarios_operativos',
+    'readiness_tool': 'validar_escenarios_operativos',
+    'execution_tool': 'ejecutar_escenarios_operativos',
+}
+CAPABILITY_MATRIX['reactive_compensation'] = {
+    'preferred':'opendss', 'alternatives':[], 'module':'reactive_compensation',
+    'implemented':True, 'requires_active_model':False, 'requires_study_package':True,
+    'professional_emission_candidate':False, 'integration_status':'VERIFIED_SCOPED_ADAPTER',
+    'reason':'Integración OpenDSS verificada en alcance estático declarado. Exige paquete explícito; no evalúa armónicos, resonancia ni control automático.',
+    'requirements':['validar_compensacion_reactiva: red, bancos, etapas, demanda y criterios explícitos'],
+    'contract_tool':'obtener_contrato_compensacion_reactiva',
+    'readiness_tool':'validar_compensacion_reactiva', 'execution_tool':'ejecutar_compensacion_reactiva',
+}
+# A scoped adapter does not promote the full-unifilar study route. Its own
+# package validator is the execution gate; the generic selector has no package.
+for _study in ("motor_dynamics_dol", "motor_dynamics_simultaneous"):
+    CAPABILITY_MATRIX[_study]["scoped_adapter"] = {
+        "backend": "openmodelica+msl", "status": "VALIDATED_WITH_LIMITATIONS",
+        "scope": "DECLARED_BALANCED_COMMON_BUS_RL_EQUIVALENT_DOL",
+        "contract_tool": "obtener_contrato_dinamica_modelica",
+        "readiness_tool": "validar_dinamica_modelica",
+        "execution_tool": "ejecutar_dinamica_modelica",
+        "automatic_unifilar_translation": False, "professional_emission": False,
+    }
+    CAPABILITY_MATRIX[_study]["integration_status"] = "VERIFIED_SCOPED_ADAPTER_ONLY"
+    CAPABILITY_MATRIX[_study]["reason"] += " Existe un adaptador MCP DOL verificado en alcance de equivalente RL de barra común; exige su propio paquete explícito y no habilita traducción automática del unifilar."
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["integration_status"] = "VERIFIED_SCOPED_ADAPTER_ONLY"
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["scoped_adapter"] = {
+    **deepcopy(CAPABILITY_MATRIX['motor_dynamics_dol']['scoped_adapter']),
+    "status": "VALIDATED_WITH_LIMITATIONS",
+    "scope": "ONE_OR_TWO_DELTA_MACHINES_BALANCED_COMMON_BUS_RL_MSL_REFERENCE_SCR",
+}
+CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física propia retirada. El adaptador SCR verificado en alcance ejecuta una o dos máquinas delta, red RL común y controladores MSL independientes; exige paquete explícito. No habilita automáticamente el estudio del unifilar completo ni valida un fabricante."
 
-        integrity_context = {
-            "manifest_sha256": manifest_sha,
-            "model_revision": revision_after,
-            "p8d2_schema": execution.get("schema"),
-            "p8d2_execution_status": execution.get("execution_status"),
-            "declared_design_check_status": assessment["status"],
-            "p7a_payload_sha256": (snapshot.get("hash") or {}).get("value"),
-            "p7c_report_sha256": (report.get("report_hash") or {}).get("value"),
-            "p7c_source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
-            "workspace_version": 5,
-            "p7b_isolation_mode": P7B_ISOLATION_MODE,
-            "professional_emission": False,
-        }
-        integrity = dossier_integrity.construir_indice(target, context=integrity_context)
-        integrity_verification = integrity.get("verification") or {}
-        if integrity_verification.get("status") != dossier_integrity.STATUS_VERIFIED:
-            raise RuntimeError(
-                f"P8F2I001: índice de integridad del dossier no verificó: {integrity_verification}"
-            )
 
+ALIASES = {
+    "falla_terminal_motor": "motor_terminal_fault_emt",
+    "falla_termica_motor": "motor_terminal_fault_emt",
+    'escenarios_operativos': 'operating_scenarios', 'contingencias': 'operating_scenarios',
+    'n_1': 'operating_scenarios',
+    'compensacion_reactiva':'reactive_compensation', 'reactive_compensation':'reactive_compensation',
+    'bancos_capacitores':'reactive_compensation', 'banco_capacitores':'reactive_compensation',
+    "flujo": "power_flow", "flujo_potencia": "power_flow", "powerflow": "power_flow", "power_flow": "power_flow",
+    "caida_tension": "voltage_drop", "voltage_drop": "voltage_drop",
+    "cortocircuito": "short_circuit_exploratory", "short_circuit": "short_circuit_exploratory", "faultstudy": "short_circuit_exploratory",
+    "iec_60909": "iec60909", "iec60909": "iec60909",
+    "ampacidad": "ampacity", "ampacity": "ampacity",
+    "proteccion": "protection_coordination", "coordinacion_protecciones": "protection_coordination", "protection_coordination": "protection_coordination",
+    "arc_flash": "arc_flash_ieee1584", "arc_flash_ieee1584": "arc_flash_ieee1584", "ieee1584": "arc_flash_ieee1584",
+    "lee": "arc_flash_lee", "arc_flash_lee": "arc_flash_lee",
+    "armonicos": "harmonics", "harmonics": "harmonics",
+    "actuacion_reles": "relay_operation", "relay_operation": "relay_operation", "ocrelay": "relay_operation",
+    "series_temporales": "time_series", "time_series": "time_series",
+    "dinamica_arranque_directo": "motor_dynamics_dol",
+    "arranque_directo_dinamico": "motor_dynamics_dol",
+    "dinamica_arranque_suave": "motor_dynamics_soft_starter_scr",
+    "dinamica_scr": "motor_dynamics_soft_starter_scr",
+    "dinamica_simultanea": "motor_dynamics_simultaneous",
+    "dinamica_multimotor": "motor_dynamics_simultaneous",
+    "dinamica_variador": "motor_dynamics_vfd",
+    "estabilidad_transitoria": "transient_stability",
+    "estabilidad_pequena_senal": "small_signal_stability",
+    "estabilidad_tension_cpf": "voltage_stability_cpf", "flujo_continuado": "voltage_stability_cpf",
+    "transitorios_electromagneticos": "electromagnetic_transients", "emt": "electromagnetic_transients",
+}
+
+
+def _normalize_study(study: str, standard: str | None = None) -> str:
+    plain = "".join(c for c in unicodedata.normalize("NFKD", str(study or "")) if not unicodedata.combining(c))
+    key = plain.strip().lower().replace("-", "_").replace(" ", "_")
+    standard_key = str(standard or "").strip().lower().replace(" ", "")
+    if "60909" in standard_key:
+        return "iec60909"
+    normalized = ALIASES.get(key, key)
+    if normalized == "short_circuit_exploratory" and "60909" in key:
+        return "iec60909"
+    return normalized
+
+
+def _has_active_model() -> bool:
+    try:
+        return bool(str(dss.Circuit.Name() or ""))
+    except Exception:
+        return False
+
+
+def obtener_capacidades_motores() -> dict[str, Any]:
+    from .study_dispatch import routes
+    studies=deepcopy(CAPABILITY_MATRIX)
+    bindings={'operating_scenarios':'operating_scenarios','power_flow':'power_flow','voltage_drop':'voltage_drop','iec60909':'iec60909',
+              'ampacity':'ampacity','protection_coordination':'protection_coordination',
+              'short_circuit_exploratory':'short_circuit','reactive_compensation':'reactive_compensation',
+              'motor_dynamics_dol':'modelica_dol','motor_dynamics_simultaneous':'modelica_dol',
+              'motor_dynamics_soft_starter_scr':'modelica_scr','harmonics':'harmonics','time_series':'time_series','relay_operation':'relay_operation',
+              'arc_flash_ieee1584':'arc_flash_ieee1584','arc_flash_lee':'arc_flash_lee'}
+    for study,name in bindings.items():studies[study]['qualification']=module_qualification.get(name)
+    return {
+        "schema_version": 2,
+        "automatic_dispatch": False,
+        "crosscheck": False,
+        "execution_dispatch": routes(),
+        "default_engine": "opendss",
+        "studies": studies,
+        "matrix_revision": module_qualification.catalogue()['revision'],
+        "research_date": RESEARCH_DATE,
+        "external_engine_catalogue": deepcopy(EXTERNAL_ENGINES),
+        "integration_policy": "USE_EXISTING_OPEN_SOURCE_MODELS_FIRST",
+        "readiness_states": {
+            "data": ["READY_DATA", "MISSING_DATA"],
+            "engine": ["READY_ENGINE", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
+            "overall": ["READY_TO_EXECUTE", "MISSING_DATA", "ENGINE_NOT_READY", "MODULE_NOT_READY"],
+        },
+        "note": "El selector es read-only. ejecutar_estudio invoca una ruta admitida con parámetros explícitos; las tools específicas siguen disponibles. No hay fallback ni comparación automática.",
+    }
+
+
+def evaluar_preparacion_estudio(
+    estudio: str,
+    norma: str | None = None,
+    tipo_falla: str | None = None,
+    permitir_experimental: bool = False,
+) -> dict[str, Any]:
+    """Devuelve completitud de datos, aptitud del backend y estado global sin ejecutar."""
+    normalized = _normalize_study(estudio, norma)
+    capability = CAPABILITY_MATRIX.get(normalized)
+    if capability is None:
         return {
-            "schema": SCHEMA,
-            "status": STATUS_READY,
-            "manifest_sha256": manifest_sha,
-            "requested_output_directory": str(requested_output),
-            "output_directory": str(target),
-            "output_directory_collision_avoided": collision_avoided,
-            "model_revision": revision_after,
-            "active_circuit_preserved": True,
-            "p8d2_execution_status": execution.get("execution_status"),
-            "design_assessment": assessment,
-            "design_checks_path": str(paths["assessment"]),
-            "workspace": {
-                "status": "WORKSPACE_V5_READY",
-                "path": str(paths["workspace"]),
-                "p8d2_integrated_view": True,
-                "browser_engineering_calculation": False,
-            },
-            "p7a": {
-                "status": verification.get("status"),
-                "snapshot_path": str(paths["snapshot"]),
-                "sha256": (snapshot.get("hash") or {}).get("value"),
-            },
-            "p7b": {
-                "status": reconstruction.get("status"),
-                "result_path": str(paths["reconstruction"]),
-                "isolated_process": False,
-                "isolated_context": True,
-                "isolation_mode": P7B_ISOLATION_MODE,
-                "parent_dss_context_mutated": False,
-                "parent_structured_state_mutated": False,
-                "stored_results_promoted_to_current": False,
-            },
-            "p7c": {
-                "status": report.get("status"),
-                "report_path": str(paths["report"]),
-                "report_sha256": (report.get("report_hash") or {}).get("value"),
-                "source_snapshot_sha256": (report.get("data") or {}).get("source_snapshot", {}).get("sha256"),
-                "browser_engineering_calculation": False,
-            },
-            "integrity": {
-                "status": integrity_verification.get("status"),
-                "ok": integrity_verification.get("ok"),
-                "index_path": str(paths["integrity"]),
-                "payload_sha256": integrity_verification.get("payload_sha256"),
-                "index_file_sha256": integrity.get("index_file_sha256"),
-                "verified_file_count": integrity_verification.get("verified_file_count"),
-                "portable_relative_paths": True,
-                "self_hash_included": False,
-            },
-            "trace_files": {
-                "manifest": str(paths["manifest"]),
-                "execution_p8d2": str(paths["execution"]),
-                "integrity_index": str(paths["integrity"]),
-            },
-            "automatic_dispatch": False,
-            "automatic_fault_binding": False,
-            "p4_recalculation_inside_p5": False,
-            "crosscheck": False,
-            "professional_report": False,
-            "professional_emission": False,
+            "schema_version": 1,
+            "study_requested": estudio,
+            "study": normalized,
+            "overall_status": "UNKNOWN_STUDY",
+            "data_status": "MISSING_DATA",
+            "engine_status": "ENGINE_NOT_READY",
+            "selected_engine": None,
+            "missing_data": [{"code": "P2READY000", "message": "Estudio no registrado en la matriz E.", "element": None}],
         }
-    except Exception as exc:
+    result = study_readiness.evaluar(
+        study=normalized,
+        capability=capability,
+        fault_type=tipo_falla,
+        allow_experimental=permitir_experimental,
+    )
+    result["study_requested"] = estudio
+    result["standard"] = norma
+    return result
+
+
+def seleccionar_motor_estudio(
+    estudio: str,
+    norma: str | None = None,
+    permitir_experimental: bool = False,
+    tipo_falla: str | None = None,
+) -> dict[str, Any]:
+    normalized = _normalize_study(estudio, norma)
+    capability = CAPABILITY_MATRIX.get(normalized)
+    if capability is None:
         return {
-            "schema": SCHEMA,
-            "status": STATUS_FAILED_ARTIFACT,
-            "manifest_sha256": manifest_sha,
-            "requested_output_directory": str(requested_output),
-            "output_directory": str(target),
-            "output_directory_collision_avoided": collision_avoided,
-            "error": str(exc),
-            "active_circuit_preserved": _active_circuit() == circuit_before,
-            "model_revision_preserved": workspace_state.status().get("model_revision") == revision_before,
-            "integrity_index_generated": paths["integrity"].is_file(),
-            "p7b_isolated": True,
-            "p7b_isolation_mode": P7B_ISOLATION_MODE,
-            "automatic_dispatch": False,
-            "crosscheck": False,
-            "professional_emission": False,
+            "study_requested": estudio, "study": normalized, "decision": "UNKNOWN_STUDY",
+            "executable": False, "technical_executable": False, "professional_execution_ready": False,
+            "professional_emission": False, "selected_engine": None,
+            "reason": "El estudio no existe en la matriz determinista de capacidades.",
+            "automatic_dispatch": False, "crosscheck": False,
         }
+
+    module_name = capability.get("module")
+    module = None
+    if module_name:
+        try:
+            module = validation_status.get_module_status(module_name)
+        except KeyError:
+            module = None
+
+    active_model = _has_active_model()
+    model_requirement_ok = active_model or not capability.get("requires_active_model", False)
+    technical_executable = bool(capability["implemented"] and model_requirement_ok)
+    if capability.get('requires_study_package'):
+        # This API receives no package, so it cannot authorize a concrete run.
+        technical_executable = False
+
+    readiness = study_readiness.evaluar(
+        study=normalized,
+        capability=capability,
+        fault_type=tipo_falla,
+        allow_experimental=permitir_experimental,
+    )
+    professional_execution_ready = readiness.get("overall_status") == study_readiness.READY_TO_EXECUTE
+
+    qa = None
+    if technical_executable and capability["professional_emission_candidate"] and module_name:
+        qa = model_qa.auditar_modelo([module_name])
+
+    professional = bool(
+        technical_executable
+        and professional_execution_ready
+        and capability["professional_emission_candidate"]
+        and module
+        and module.get("status") in {"VALIDATED_WITH_LIMITATIONS", "VALIDATED"}
+        and qa
+        and qa.get("summary", {}).get("apto_para_emision")
+    )
+
+    alternatives: list[dict[str, Any]] = []
+    for engine in capability.get("alternatives", []):
+        item: dict[str, Any] = {"engine": engine, "eligible": False, "reason": None}
+        if capability.get("planning_only"):
+            item.update(
+                integration_status="ADAPTER_NOT_IMPLEMENTED",
+                maturity="UNQUALIFIED_FOR_THIS_MCP_STUDY",
+                reason="Candidato investigado; falta adaptador y prueba del alcance. El permiso experimental no habilita ejecución.",
+                limitations=deepcopy(EXTERNAL_ENGINES[engine]["limits"]),
+            )
+        elif engine == "pandapower":
+            if not active_model:
+                item.update(
+                    compatible_model=False,
+                    issues=[{"code": "PP001", "message": "No existe un circuito activo."}],
+                    maturity="EXPERIMENTAL",
+                    reason="No se evalúa el backend alternativo sin modelo activo.",
+                )
+            else:
+                compatibility = pandapower_engine.evaluar_compatibilidad()
+                item.update(
+                    compatible_model=compatibility["compatible"],
+                    issues=compatibility["issues"],
+                    maturity=compatibility["maturity"],
+                )
+                item["eligible"] = bool(compatibility["compatible"] and permitir_experimental)
+                if not permitir_experimental:
+                    item["reason"] = "Pandapower sigue EXPERIMENTAL; habilítalo explícitamente para considerarlo alternativa."
+                elif not compatibility["compatible"]:
+                    item["reason"] = "El modelo activo no entra en el alcance pandapower vigente."
+        alternatives.append(item)
+
+    if not technical_executable:
+        decision = "NO_APTO_PARA_EJECUCION"
+    elif readiness["overall_status"] == study_readiness.MISSING_DATA:
+        decision = "EJECUTABLE_CON_DATOS_PROFESIONALES_INCOMPLETOS"
+    elif readiness["overall_status"] in {study_readiness.ENGINE_NOT_READY, study_readiness.MODULE_NOT_READY}:
+        decision = "NO_APTO_PARA_EJECUCION_PROFESIONAL"
+    elif professional:
+        decision = "APTO_DENTRO_DE_LIMITACIONES"
+    else:
+        decision = "EJECUTABLE_NO_APTO_PARA_EMISION"
+
+    reason = capability["reason"]
+    if capability.get("requires_active_model") and not active_model:
+        reason += " No existe un circuito activo."
+
+    return {
+        "study_requested": estudio,
+        "study": normalized,
+        "standard": norma,
+        "fault_type": readiness.get("fault_type"),
+        "decision": decision,
+        "executable": technical_executable,
+        "technical_executable": technical_executable,
+        "professional_execution_ready": professional_execution_ready,
+        "professional_emission": professional,
+        "selected_engine": capability["preferred"],
+        "planning_only": bool(capability.get("planning_only", False)),
+        "integration_status": capability.get("integration_status", "EXISTING_ROUTE"),
+        "reason": reason,
+        "requirements": deepcopy(capability["requirements"]),
+        "readiness": readiness,
+        "module_status": deepcopy(module),
+        "model_active": active_model,
+        "qa_summary": deepcopy((qa or {}).get("summary")),
+        "alternatives": alternatives,
+        "automatic_dispatch": False,
+        "crosscheck": False,
+    }
