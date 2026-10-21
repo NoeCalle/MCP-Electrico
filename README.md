@@ -8,6 +8,8 @@
 
 **Uso profesional controlado:** [secuencia de aceptación, resultados inválidos, criterios fallidos e integridad](docs/USO_PROFESIONAL_CONTROLADO.md).
 
+**Protecciones:** [peor margen temporal en un intervalo continuo de curvas TCC declaradas](docs/P5E_COORDINACION_INTERVALO.md), con bandas, factor de corrientes explícito y bloqueo de huecos. No acredita selectividad integral.
+
 ## Confiabilidad técnica y responsabilidad del ingeniero — Q8
 
 El MCP es una herramienta de cálculo para el ingeniero. Su desarrollo debe demostrar

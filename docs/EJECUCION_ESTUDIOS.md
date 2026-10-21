@@ -18,6 +18,7 @@ el servidor no interpreta texto libre como una secuencia de maniobras.
 | `iec60909` | pandapower | Herramienta 3F, 2F o 1F-T según `tipo_falla` |
 | `ampacity` / `ampacidad` | MCP, tablas trazables | `evaluar_ampacidad` |
 | `protection_coordination` | MCP, curvas y corrientes declaradas | `evaluar_coordinacion_temporal_p5e` |
+| `protection_coordination_range` / `coordinacion_intervalo` | MCP, curvas y factor de corrientes declarados | `evaluar_coordinacion_intervalo_p5e` |
 | `reactive_compensation` | OpenDSS | `ejecutar_compensacion_reactiva` |
 | `harmonics` / `armonicos` | OpenDSS | `ejecutar_armonicos` |
 | `time_series` / `series_temporales` | OpenDSS | `ejecutar_series_temporales` |
@@ -29,6 +30,11 @@ La coordinación P5E evalúa margen temporal **puntual** a corrientes explícita
 no vuelve a calcular cortocircuitos ni declara selectividad integral. La matriz
 histórica identifica la cadena MCP+pandapower; esta llamada usa las corrientes
 ya declaradas. La ampacidad conserva los faltantes de Ib/In/Iz y sus fuentes.
+
+La nueva ruta de intervalo evalúa el peor margen continuo de curvas log-log
+declaradas con factor de corrientes constante, sin huecos ni extrapolación.
+Su alcance y sus comprobaciones son independientes de la ruta puntual y no
+acreditan selectividad integral. Ver [contrato y banco](P5E_COORDINACION_INTERVALO.md).
 
 ## Uso
 

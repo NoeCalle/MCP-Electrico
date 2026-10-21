@@ -131,6 +131,18 @@ CAPABILITY_MATRIX: dict[str, dict[str, Any]] = {
 }
 
 CAPABILITY_MATRIX.update(PLANNED_STUDIES)
+CAPABILITY_MATRIX["protection_coordination_range"] = {
+    "preferred": "mcp", "alternatives": [], "module": None,
+    "implemented": True, "professional_emission_candidate": False,
+    "requires_active_model": True,
+    "requires_explicit_parameters": True,
+    "reason": "Envolvente temporal continua de curvas P5B explícitas; no calcula fallas ni declara selectividad.",
+    "requirements": ["dos dispositivos con TCC TOTAL_CLEARING_TIME y rango completo sin huecos",
+                     "intervalo downstream, factor upstream constante y margen explícitos",
+                     "procedencia de relación y corrientes"],
+    "execution_tool": "evaluar_coordinacion_intervalo_p5e",
+    "contract_reference": "docs/P5E_COORDINACION_INTERVALO.md",
+}
 CAPABILITY_MATRIX["motor_terminal_fault_emt"] = {
     "preferred": "openmodelica+msl", "alternatives": [], "module": None,
     "implemented": True, "professional_emission_candidate": False,
@@ -184,6 +196,8 @@ CAPABILITY_MATRIX["motor_dynamics_soft_starter_scr"]["reason"] += " Física prop
 
 
 ALIASES = {
+    "coordinacion_intervalo": "protection_coordination_range",
+    "coordinacion_temporal_intervalo": "protection_coordination_range",
     "falla_terminal_motor": "motor_terminal_fault_emt",
     "falla_termica_motor": "motor_terminal_fault_emt",
     'escenarios_operativos': 'operating_scenarios', 'contingencias': 'operating_scenarios',
@@ -323,7 +337,7 @@ def seleccionar_motor_estudio(
     active_model = _has_active_model()
     model_requirement_ok = active_model or not capability.get("requires_active_model", False)
     technical_executable = bool(capability["implemented"] and model_requirement_ok)
-    if capability.get('requires_study_package'):
+    if capability.get('requires_study_package') or capability.get('requires_explicit_parameters'):
         # This API receives no package, so it cannot authorize a concrete run.
         technical_executable = False
 

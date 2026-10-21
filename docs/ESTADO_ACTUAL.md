@@ -22,6 +22,11 @@ No amplía la calificación física ni cierra el caso industrial Brno.
 
 ## Qué está cerrado
 
+Ampliación de protecciones: [coordinación temporal por intervalo](P5E_COORDINACION_INTERVALO.md)
+con extremo global de las curvas log-log declaradas, bandas, factor de
+corrientes explícito y cobertura completa o bloqueo. No acredita selectividad
+integral ni completa una instalación real.
+
 **21 módulos verificados dentro de sus alcances publicados.** La aprobación
 del diseño depende de los datos y criterios de cada estudio y corresponde
 al ingeniero. El MCP debe traducir correctamente esos datos, llamar al motor,
@@ -122,7 +127,7 @@ Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
 escenarios P12, IEC 3F/2F/1F-T, ampacidad, coordinación temporal puntual,
 compensación, armónicos, series y paquetes Modelica. Conserva sus gates,
 resultados, efectos de modelo y reportes; no ejecuta dos motores ni hace fallback.
-El selector sigue siendo read-only. Hay **172 herramientas MCP** registradas.
+El selector sigue siendo read-only. Hay **173 herramientas MCP** registradas.
 Ver [contrato, parámetros y evidencia](EJECUCION_ESTUDIOS.md).
 
 ## Último cierre de cálculo — Q8

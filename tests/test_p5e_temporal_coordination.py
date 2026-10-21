@@ -239,4 +239,5 @@ def test_p5e_contract_maturity_and_public_tools_are_narrow():
     assert fake.names == [
         "obtener_contrato_coordinacion_p5e",
         "evaluar_coordinacion_temporal_p5e",
+        "evaluar_coordinacion_intervalo_p5e",
     ]

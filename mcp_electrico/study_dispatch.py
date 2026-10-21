@@ -16,6 +16,7 @@ from . import engine_selection
 
 
 ROUTES = {
+    "protection_coordination_range": "evaluar_coordinacion_intervalo_p5e",
     "motor_terminal_fault_emt": "ejecutar_falla_terminal_motor_modelica",
     "power_flow": "ejecutar_flujo_potencia",
     "voltage_drop": "analizar_caida_tension",
@@ -50,6 +51,7 @@ def routes() -> dict:
         "modelica_scope": "EXPLICIT_STUDY_PACKAGE_ONLY_NO_UNIFILAR_TRANSLATION",
         "operating_scenarios_model_effect": "REBUILDS_AND_RESTORES_DECLARED_MANIFEST_BASE_NOT_PREVIOUS_ACTIVE_CIRCUIT",
         "protection_coordination_scope": "POINTWISE_TEMPORAL_MARGIN_FROM_DECLARED_CURRENTS_NO_NEW_FAULT_SOLUTION",
+        "protection_coordination_range_scope": "CONTINUOUS_DECLARED_LOG_LOG_CURVES_AND_CONSTANT_CURRENT_RATIO_NOT_SELECTIVITY",
     }
 
 

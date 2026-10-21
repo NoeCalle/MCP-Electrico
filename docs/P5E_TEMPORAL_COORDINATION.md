@@ -119,6 +119,11 @@ El valor optimista nunca sustituye al margen conservador para decidir el estado.
 
 ## Dominio
 
+La nueva ruta explícita `evaluar_coordinacion_intervalo_p5e` permite evaluar
+un intervalo continuo de las curvas declaradas con factor de corrientes
+constante y peor margen analítico. Su resultado es independiente del puntual;
+no acredita selectividad integral. Ver [alcance y uso](P5E_COORDINACION_INTERVALO.md).
+
 P5E no hace barrido automático del dominio completo de las curvas:
 
 ```text
