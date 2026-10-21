@@ -20,6 +20,15 @@ terminal de motor Q13A, conservando su único ejecutor y su validador.
 Ver [uso profesional controlado y pruebas de aceptación](USO_PROFESIONAL_CONTROLADO.md).
 No amplía la calificación física ni cierra el caso industrial Brno.
 
+## Coordinación temporal integrada en la entrega
+
+La solicitud opcional `protection.coordination_ranges` enlaza MIN/MAX P4 de
+la misma ejecución con P5E, agrega el criterio al diseño y guarda
+`coordination_ranges.json` con integridad y tabla en visor/informe.
+Un fallo temporal se entrega visible; un cálculo incompleto bloquea READY.
+Ver [formato y banco](P8_COORDINACION_EXPEDIENTE.md). No acredita selectividad
+integral ni cierra una instalación real.
+
 ## Qué está cerrado
 
 Ampliación de protecciones: [coordinación temporal por intervalo](P5E_COORDINACION_INTERVALO.md)

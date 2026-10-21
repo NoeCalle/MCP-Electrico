@@ -27,6 +27,7 @@ from . import (
     protection_clearing_time,
     protection_data,
     real_controlled_execution,
+    real_coordination_execution,
     workspace_state,
 )
 
@@ -419,7 +420,11 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(manifest, dict):
         raise TypeError("manifest debe ser dict.")
 
-    bindings, binding_issues = _binding_preflight(deepcopy(manifest))
+    range_requests, range_issues = real_coordination_execution.preflight(manifest)
+    if range_issues:
+        bindings, binding_issues = [], range_issues
+    else:
+        bindings, binding_issues = _binding_preflight(deepcopy(manifest))
     if binding_issues:
         blocked_workspace = workspace_state.reset_for_circuit("p8d2_binding_preflight_blocked")
         return {
@@ -507,6 +512,18 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
                                    "status": "DEVICE_EVALUATION_FAILED",
                                    "error": f"{type(exc).__name__}: {exc}"})
     assessment = execution_quality.protection_assessment(device_results)
+    coordination = real_coordination_execution.evaluate(
+        range_requests, execution, _resolve_fault_result,
+        device_checks_ready=assessment["all_requested_checks_evaluated"])
+    range_checks = real_coordination_execution.assessment_checks(coordination)
+    assessment["checks"].extend(range_checks)
+    assessment["incomplete_checks"].extend(c for c in range_checks if not c["result_usable"])
+    assessment["all_requested_checks_evaluated"] = (
+        assessment["all_requested_checks_evaluated"] and coordination["all_requested_ranges_evaluated"])
+    if not assessment["all_requested_checks_evaluated"]:
+        assessment["status"] = "NOT_EVALUABLE"
+    elif coordination["status"] == "FAIL":
+        assessment["status"] = "FAIL"
     clearing_ready = all(
         (item.get("clearing_time") or {}).get("status") == "CLEARING_TIME_READY"
         for item in device_results
@@ -521,6 +538,8 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         "execution_status": execution_status,
         "model_revision": revision_before,
         "devices": deepcopy(device_results),
+        "coordination_ranges": deepcopy(coordination),
+        "manifest_sha256": execution.get("manifest_sha256"),
         "device_count": len(device_results),
         "all_clearing_times_ready": clearing_ready,
         "resultados_validos": checks_ready,
@@ -549,6 +568,7 @@ def ejecutar_protecciones(manifest: dict[str, Any]) -> dict[str, Any]:
         "bindings": bindings,
         "p8d1_execution": execution,
         "device_results": device_results,
+        "coordination_ranges": coordination,
         "resultados_validos": checks_ready,
         "design_assessment": assessment,
         "manifest_sha256": execution.get("manifest_sha256"),

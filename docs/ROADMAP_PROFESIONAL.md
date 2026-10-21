@@ -416,8 +416,9 @@ Solo `TOTAL_CLEARING_TIME` se promueve automáticamente a `CLEARING_TIME_READY`.
 
 Ampliación implementada: [intervalo continuo de TCC declaradas](P5E_COORDINACION_INTERVALO.md),
 peor margen por extremos y puntos estacionarios, cobertura completa y factor
-de corrientes explícito. No amplía el claim a selectividad integral y todavía
-no se agrega automáticamente al criterio P8.
+de corrientes explícito. La [solicitud P8 por manifiesto](P8_COORDINACION_EXPEDIENTE.md)
+reutiliza límites P4, incorpora criterios y guarda trazas y tablas en la entrega.
+No amplía el claim a selectividad integral.
 
 Compara downstream/upstream explícitos y usa:
 

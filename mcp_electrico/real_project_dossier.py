@@ -132,6 +132,7 @@ def generar_dossier(
         "manifest": target / "manifest.json",
         "execution": target / "execution_p8d2.json",
         "assessment": target / "design_checks.json",
+        "coordination": target / "coordination_ranges.json",
         "workspace": target / "workspace_v5.html",
         "snapshot": target / "project_snapshot_p7a.json",
         "report": target / "project_report_p7c.html",
@@ -144,6 +145,7 @@ def generar_dossier(
     try:
         _write_json(paths["manifest"], manifest_copy)
         _write_json(paths["execution"], execution)
+        _write_json(paths["coordination"], execution["coordination_ranges"])
         assessment = execution_quality.project_assessment(execution)
         _write_json(paths["assessment"], assessment)
 
@@ -222,6 +224,8 @@ def generar_dossier(
             "p8d2_execution_status": execution.get("execution_status"),
             "design_assessment": assessment,
             "design_checks_path": str(paths["assessment"]),
+            "coordination_ranges_path": str(paths["coordination"]),
+            "coordination_ranges": execution["coordination_ranges"],
             "workspace": {
                 "status": "WORKSPACE_V5_READY",
                 "path": str(paths["workspace"]),
@@ -263,6 +267,7 @@ def generar_dossier(
             "trace_files": {
                 "manifest": str(paths["manifest"]),
                 "execution_p8d2": str(paths["execution"]),
+                "coordination_ranges": str(paths["coordination"]),
                 "integrity_index": str(paths["integrity"]),
             },
             "automatic_dispatch": False,
