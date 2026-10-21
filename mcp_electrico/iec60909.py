@@ -44,6 +44,24 @@ SUPPORTED_DUTY_TOPOLOGIES = {"radial", "meshed"}
 SUPPORTED_KAPPA_METHODS = {"C"}
 
 
+def _thermal_backend_projection(duty: dict, frequency_hz: float) -> dict | None:
+    """Adapt f*T only: pinned PP 3.5.4 uses f=50 in its thermal factor m.
+
+    tk_s is used only by _calc_ith in this backend. Keeping the product f*T
+    restores the declared frequency without replacing any backend equations.
+    This applies only to the existing n=1 scope, never machine decay.
+    """
+    if not duty["requested"]:
+        return None
+    if pp.__version__ != "3.5.4" or frequency_hz not in (50., 60.):
+        raise ValueError("P4SC304: thermal frequency mapping qualified only for pandapower 3.5.4 and 50/60 Hz")
+    return {"declared_duration_s": duty["tk_s"], "frequency_hz": frequency_hz,
+            "backend_formula_frequency_hz": 50.,
+            "backend_tk_s": duty["tk_s"]*frequency_hz/50.,
+            "mapping": "backend_f_times_t_equals_declared_f_times_t",
+            "ac_factor_n": 1., "machine_decay_supported": False}
+
+
 def _issue(code: str, message: str, element: str | None = None) -> dict[str, Any]:
     return {"code": code, "message": message, "element": element}
 
@@ -331,6 +349,9 @@ def ejecutar_3ph(
         })
 
     try:
+        thermal_projection = _thermal_backend_projection(duty, float(model["frequency_hz"]))
+        if thermal_projection:
+            calc_kwargs["tk_s"] = thermal_projection["backend_tk_s"]
         calc_sc(net, **calc_kwargs)
     except Exception as exc:
         return {
@@ -386,6 +407,7 @@ def ejecutar_3ph(
             "source": prep["source_projection"],
             "line_endtemp_degree_c": prep["line_endtemp_degree_c"],
             "duty": duty,
+            "thermal_backend_projection": thermal_projection,
             "machines": machine_projection,
         },
         "branch_results": _branch_results(net, line_meta, trafo_meta),

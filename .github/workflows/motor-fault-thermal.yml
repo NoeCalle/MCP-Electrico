@@ -1,0 +1,47 @@
+name: motor-fault-thermal
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  thermal-contract:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest tests/test_motor_fault_thermal.py tests/test_thermal_frequency_mapping.py tests/test_sc_machines.py tests/test_iec60909_p4c05.py tests/test_iec60909_p4c06.py -q
+  native-motor-fault:
+    runs-on: ubuntu-latest
+    container:
+      image: openmodelica/openmodelica@sha256:ac9a0223e69b8055d444b42f58ccb9680342b56848c68b81385bf83d7c0ba824
+      options: --user 0
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare Python in official pinned compiler image
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-venv python3-pip git
+          python3 -m venv /tmp/mcp-fault-venv
+          /tmp/mcp-fault-venv/bin/python -m pip install -e ".[dev]"
+      - uses: actions/checkout@v4
+        with:
+          repository: modelica/ModelicaStandardLibrary
+          ref: v4.0.0
+          path: msl-source
+      - name: Prepare unmodified official MSL and run actual MCP fault benchmarks
+        run: |
+          mkdir "$RUNNER_TEMP/MSL4-fault"
+          cp -R msl-source/Modelica msl-source/ModelicaServices msl-source/Complex.mo "$RUNNER_TEMP/MSL4-fault/"
+          /tmp/mcp-fault-venv/bin/python scripts/verify_motor_fault_thermal_mcp.py --omc /usr/bin/omc --msl "$RUNNER_TEMP/MSL4-fault" --output outputs/motor-fault-emt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: motor-fault-emt-native
+          path: outputs/motor-fault-emt

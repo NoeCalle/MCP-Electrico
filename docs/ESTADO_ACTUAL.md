@@ -42,6 +42,14 @@ Las tesis investigadas quedan [clasificadas por reproducibilidad](INVESTIGACION_
 Todavía falta reproducir y revisar una instalación real completa, con cortocircuito
 y protecciones sobre el mismo modelo. No se afirma una cobertura general del 90%.
 
+## Falla terminal de motor e integral térmica — Q13A
+
+Nueva ruta EMT MSL para un motor estrella a velocidad impuesta: corrientes
+transitorias e integral i²t por fase con refinamiento y referencia independiente.
+No equivale a Ith IEC ni cierra una planta completa. También se corrige el
+producto frecuencia-tiempo del factor térmico del backend IEC fijado a 3.5.4.
+Ver [alcance, método y pruebas](MOTOR_FAULT_THERMAL_EMT.md).
+
 ## Expediente de instalación real — Brno
 
 Recuperados el proyecto ETAP original y tres informes SQLite de una fábrica
@@ -99,7 +107,7 @@ Ver [uso y evidencia Q9](INFORMES_MOTORES_Q9.md).
 escenarios P12, IEC 3F/2F/1F-T, ampacidad, coordinación temporal puntual,
 compensación, armónicos, series y paquetes Modelica. Conserva sus gates,
 resultados, efectos de modelo y reportes; no ejecuta dos motores ni hace fallback.
-El selector sigue siendo read-only. Hay **169 herramientas MCP** registradas.
+El selector sigue siendo read-only. Hay **172 herramientas MCP** registradas.
 Ver [contrato, parámetros y evidencia](EJECUCION_ESTUDIOS.md).
 
 ## Último cierre de cálculo — Q8

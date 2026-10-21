@@ -18,10 +18,26 @@ from . import (
     motor_external_reference,
     modelica_motor_adapter,
     motor_study_report,
+    motor_fault_thermal,
 )
 
 
 def register(mcp) -> None:
+    @mcp.tool()
+    def configurar_falla_terminal_motor_modelica(ruta_omc: str, directorio_msl: str) -> dict:
+        """Registra el runtime de falla EMT 1.27.1/MSL 4.0.0 sin alterar el de DOL/SCR."""
+        return motor_fault_thermal.configure(ruta_omc, directorio_msl)
+
+    @mcp.tool()
+    def validar_falla_terminal_motor_modelica(paquete_estudio: dict) -> dict:
+        """Admite un motor estrella a velocidad impuesta y falla 3F terminal EMT."""
+        return motor_fault_thermal.validate(paquete_estudio)
+
+    @mcp.tool()
+    def ejecutar_falla_terminal_motor_modelica(paquete_estudio: dict, directorio_salida: str) -> dict:
+        """Calcula corrientes transitorias MSL e integral i²t por fase; no Ith IEC ni despeje de relé."""
+        return motor_fault_thermal.execute(paquete_estudio, directorio_salida)
+
     @mcp.tool()
     def obtener_contrato_dinamica_modelica() -> dict:
         """Alcance experimental MSL DOL/SCR; equivalente RL y datos explícitos."""

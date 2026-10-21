@@ -761,6 +761,7 @@ reconexión o reinicio del cliente. Alojamiento remoto queda fuera de la entrega
 | Q12A | Auditoría de caso industrial publicado | OpenDSS/MCP; referencia AC Newton de diagnóstico | Cuatro variantes, conflictos conservados y calificación del proyecto completo bloqueada; [alcance](DIAGNOSTICO_INDUSTRIAL_UNAM_Q12A.md) |
 | Q12B | Soportabilidad de cables de proyecto real | P5C/MCP; referencia publicada y Decimal | Siete selecciones LuPech, seis PASS y un FAIL esperado; [alcance](VALIDACION_REAL_LUPECH_Q12B.md). No cierra la validación integral |
 | Q12C | Energía pasante total y conductor | P5C, punto publicado del fabricante | Ejemplo ABB de 30 kA/400 V, Icu e I²t explícitos; [alcance](ENERGIA_PASANTE_Q12C.md). Sin derivar tiempo TCC |
+| Q13A | Falla terminal de motor e integral térmica EMT | OpenModelica/MSL | Un motor estrella a velocidad impuesta; contraste de ondas e i²t, refinamiento y corrección de frecuencia IEC; [alcance](MOTOR_FAULT_THERMAL_EMT.md). No cierra la instalación integral |
 | En curso; cierre bloqueado | Instalación industrial reproducible y SC/protecciones sobre el mismo caso | Contratos vigentes; ampliar los que el caso requiera | Proyecto original Brno recuperado y auditado; reconciliar revisión, tierra y ajustes; [expediente](EXPEDIENTE_INSTALACION_REAL_BRNO.md) y [datos para cierre](PAQUETE_PARA_CERRAR_INSTALACION_REAL.md). Sin simulación ni cierre integral |
 | Continuo | Uso con un proyecto revisado | Motores ya integrados | Datos y supuestos autorizados, criterios del ingeniero y expediente reproducible |
 
