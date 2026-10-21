@@ -11,6 +11,7 @@ el servidor no interpreta texto libre como una secuencia de maniobras.
 
 | Identificador / alias | Motor o capa | Ejecutor público |
 |---|---|---|
+| `motor_terminal_fault_emt` / `falla_terminal_motor` | OpenModelica/MSL | `ejecutar_falla_terminal_motor_modelica`, un motor estrella a velocidad impuesta |
 | `power_flow` / `flujo` | OpenDSS | `ejecutar_flujo_potencia` |
 | `voltage_drop` / `caida_tension` | OpenDSS + postproceso | `analizar_caida_tension` |
 | `operating_scenarios` / `N-1` / `contingencias` | OpenDSS | `ejecutar_escenarios_operativos` |

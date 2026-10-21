@@ -12,10 +12,13 @@ No existe despacho automático de motores, cross-check ni emisión profesional.
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
+import json
 from typing import Any
 
 from . import (
     ampacity,
+    execution_quality,
     iec60909_single_phase_ground,
     iec60909_suite,
     real_integrated_readiness,
@@ -25,6 +28,7 @@ from . import (
 
 SCHEMA = "MCP_ELECTRICO_P8D1_CONTROLLED_EXECUTION_V1"
 STATUS_BLOCKED = "BLOCKED_BY_READINESS"
+STATUS_FAILED_RESULT = "CONTROLLED_EXECUTION_FAILED_INVALID_RESULT"
 STATUS_COMPLETED = "CONTROLLED_EXECUTION_COMPLETED"
 STATUS_COMPLETED_P5_PENDING = "CONTROLLED_EXECUTION_COMPLETED_WITH_P5_PENDING"
 
@@ -64,6 +68,22 @@ def _fault_buses(manifest: dict[str, Any]) -> list[str]:
         for value in (manifest.get("study_inputs") or {}).get("short_circuit_buses") or []
         if str(value).strip()
     ]
+
+
+def _record_failed_scope(scope, result):
+    names = {
+        POWER_FLOW: ["powerflow", "flow"], VOLTAGE_DROP: ["powerflow", "flow", "voltage_drop"],
+        AMPACITY: ["ampacity"], SC_3PH: ["iec60909_3ph", "iec60909_3ph_targets"],
+        SC_1PH: ["iec60909_1ph_ground", "iec60909_1ph_ground_targets"],
+    }
+    existing = workspace_state.status().get("studies", {})
+    for name in names[scope]:
+        if name in existing:
+            failed = execution_quality.diagnostic_payload(existing[name]["result"])
+            failed["resultados_validos"] = False
+            workspace_state.record_study(name, failed, action="p8d1_invalid_result")
+    workspace_state.record_study("controlled_execution_failure", result, action="p8d1_invalid_result")
+    workspace_state.record_electrical_error("P8D1: cálculo inválido; cadena integral detenida.")
 
 
 def _record_flow(flow: dict[str, Any], action: str) -> None:
@@ -201,25 +221,47 @@ def ejecutar_controlado(manifest: dict[str, Any]) -> dict[str, Any]:
     results: dict[str, Any] = {}
     executed: list[str] = []
 
-    if POWER_FLOW in requested:
-        results[POWER_FLOW] = _execute_power_flow()
-        executed.append(POWER_FLOW)
-
-    if VOLTAGE_DROP in requested:
-        results[VOLTAGE_DROP] = _execute_voltage_drop(manifest)
-        executed.append(VOLTAGE_DROP)
-
-    if AMPACITY in requested:
-        results[AMPACITY] = _execute_ampacity()
-        executed.append(AMPACITY)
-
-    if SC_3PH in requested:
-        results[SC_3PH] = _execute_3ph(manifest)
-        executed.append(SC_3PH)
-
-    if SC_1PH in requested:
-        results[SC_1PH] = _execute_1ph_ground(manifest)
-        executed.append(SC_1PH)
+    manifest_sha = sha256(json.dumps(manifest, sort_keys=True, ensure_ascii=False,
+                                    separators=(",", ":"), allow_nan=False).encode("utf8")).hexdigest()
+    runners = ((POWER_FLOW, _execute_power_flow),
+               (VOLTAGE_DROP, lambda: _execute_voltage_drop(manifest)),
+               (AMPACITY, _execute_ampacity),
+               (SC_3PH, lambda: _execute_3ph(manifest)),
+               (SC_1PH, lambda: _execute_1ph_ground(manifest)))
+    for scope, runner in runners:
+        if scope not in requested:
+            continue
+        try:
+            raw = runner()
+            issues = execution_quality.scope_issues(scope, raw, manifest)
+            if workspace_state.status().get("model_revision") != revision_before:
+                issues.append({"code": "EXECUTION_REVISION_CHANGED", "scope": scope,
+                               "message": "La revisión cambió durante el cálculo."})
+        except Exception as exc:
+            raw = {"status": "EXECUTOR_EXCEPTION", "error": f"{type(exc).__name__}: {exc}"}
+            issues = [{"code": "EXECUTION_EXCEPTION", "scope": scope, "message": raw["error"]}]
+        if issues:
+            failure = {"scope": scope, "resultados_validos": False, "issues": issues}
+            _record_failed_scope(scope, failure)
+            return {
+                "schema": SCHEMA, "execution_status": STATUS_FAILED_RESULT,
+                "resultados_validos": False, "failed_scope": scope,
+                "requested_scopes": requested, "executed_scopes": executed,
+                "attempted_scopes": executed + [scope],
+                "pending_scopes": [s for s in requested if s not in executed],
+                "results": results, "failed_result": execution_quality.diagnostic_payload(raw), "issues": issues,
+                "readiness": readiness, "manifest_sha256": manifest_sha,
+                "model_revision": workspace_state.status().get("model_revision"),
+                "workspace_studies": sorted(workspace_state.status().get("studies", {})),
+                "electrical_calculation_performed": True,
+                "ampacity_calculation_performed": scope == AMPACITY or AMPACITY in executed,
+                "short_circuit_calculation_performed": scope in {SC_3PH, SC_1PH} or bool({SC_3PH, SC_1PH} & set(executed)),
+                "protection_calculation_performed": False, "automatic_dispatch": False,
+                "automatic_fault_binding": False, "crosscheck": False,
+                "professional_emission": False, "next_gate": "P8D1_REPAIR_INVALID_RESULT",
+            }
+        results[scope] = raw
+        executed.append(scope)
 
     pending: list[str] = []
     if PROTECTION in requested:
@@ -249,6 +291,8 @@ def ejecutar_controlado(manifest: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema": SCHEMA,
         "execution_status": execution_status,
+        "resultados_validos": True,
+        "manifest_sha256": manifest_sha,
         "requested_scopes": requested,
         "executed_scopes": executed,
         "pending_scopes": pending,

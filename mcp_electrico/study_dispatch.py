@@ -16,6 +16,7 @@ from . import engine_selection
 
 
 ROUTES = {
+    "motor_terminal_fault_emt": "ejecutar_falla_terminal_motor_modelica",
     "power_flow": "ejecutar_flujo_potencia",
     "voltage_drop": "analizar_caida_tension",
     "ampacity": "evaluar_ampacidad",

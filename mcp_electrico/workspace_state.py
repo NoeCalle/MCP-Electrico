@@ -98,7 +98,9 @@ def mark_visual_changed(action: str) -> dict[str, Any]:
 def record_solution(result: dict[str, Any], study: str = "powerflow", action: str = "resolver_modelo") -> dict[str, Any]:
     """Registra una solución asociada exactamente a la revisión actual."""
     _ensure_circuit_sync()
-    converged = bool(result.get("convergio", True))
+    converged = (result.get("convergio") is True
+                 and result.get("resultados_validos") is not False
+                 and result.get("ok") is not False)
     _runtime["studies"][study] = {
         "model_revision": _runtime["model_revision"],
         "recorded_at": _now(),
@@ -155,6 +157,7 @@ def status() -> dict[str, Any]:
                 item["model_revision"] == _runtime["model_revision"]
                 and result.get("convergio") is not False
                 and result.get("resultados_validos") is not False
+                and result.get("ok") is not False
             ),
         }
     return {
