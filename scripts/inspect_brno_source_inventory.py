@@ -50,6 +50,15 @@ def inspect_database(path):
                 ]
                 print("BRNO_TABLE=" + json.dumps(item, ensure_ascii=False, allow_nan=False))
             result.append(item)
+        if path.name == "Untitled.LF1S":
+            buses = [dict(r) for r in connection.execute('SELECT * FROM "IBus"')]
+            numeric = ("SourceMW", "SourceMvar", "MtrMW", "MtrMvar", "StatMW", "StatMvar", "ConstIMW", "ConstIMvar")
+            print("BRNO_LF_BUS_INPUT_TOTALS=" + json.dumps({k: sum(float(r[k] or 0) for r in buses) for k in numeric}))
+            print("BRNO_LF_SOURCE_BUSES=" + json.dumps([r for r in buses if r["Type"].strip() != "Load"]))
+            source_loads = [dict(r) for r in connection.execute('SELECT * FROM "LFSourceLoad"')]
+            print("BRNO_LF_SOURCELOAD_TYPES=" + json.dumps(sorted({r["Type"] for r in source_loads})))
+            for typ in sorted({r["Type"] for r in source_loads}):
+                print("BRNO_LF_SOURCELOAD_TYPE_SAMPLE=" + json.dumps({"type":typ,"rows":[r for r in source_loads if r["Type"] == typ][:1]}))
         return result
     finally:
         connection.close()
