@@ -2,6 +2,13 @@ name: brno-source-recovery
 on:
   push:
     branches: [research/brno-source-recovery]
+  pull_request:
+    paths:
+      - 'mcp_electrico/professional_data.py'
+      - 'tests/test_transformer_fixed_nominal.py'
+      - 'scripts/*brno*'
+      - 'examples/qualification/brno_industrial_2026.json'
+      - '.github/workflows/brno-source-recovery.yml'
 permissions:
   contents: read
 jobs:

@@ -115,6 +115,8 @@ def audit(path: Path, facts: dict, thesis_verified: bool) -> dict:
     return {
         "schema": facts["schema"], "case_id": facts["case_id"],
         "audit_reproduced": True, "archive_sha256": facts["archive"]["sha256"],
+        "electrical_calculation_performed": False,
+        "source_audit_does_not_recompute_pf_replay": True,
         "member_sha256": facts["archive"]["members"],
         "thesis_source_verified": thesis_verified,
         "observations": observed,
