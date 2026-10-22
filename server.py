@@ -343,6 +343,8 @@ def evaluar_preparacion_cortocircuito_3ph(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict:
     """Control previo read-only: expone entradas, faltantes y alcance parcial.
 
@@ -352,7 +354,7 @@ def evaluar_preparacion_cortocircuito_3ph(
     """
     return short_circuit_precheck.evaluar(
         bus_falla, line_endtemp_degree_c, calcular_ip_ith,
-        topology, tk_s, kappa_method,
+        topology, tk_s, kappa_method, caso=caso, lv_tol_percent=lv_tol_percent,
     )
 
 
@@ -365,6 +367,8 @@ def ejecutar_cortocircuito_iec60909_3ph(
     tk_s: float | None = None,
     kappa_method: str = "C",
     revision_modelo: dict | None = None,
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict:
     """Ejecuta 3F MAX/MIN y corrientes por rama tras revisión previa explícita.
 
@@ -385,6 +389,8 @@ def ejecutar_cortocircuito_iec60909_3ph(
         tk_s=tk_s,
         kappa_method=kappa_method,
         revision_modelo=revision_modelo,
+        caso=caso,
+        lv_tol_percent=lv_tol_percent,
     )
     workspace_state.record_study(
         "iec60909_3ph", result, action="ejecutar_cortocircuito_iec60909_3ph"

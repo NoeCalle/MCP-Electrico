@@ -102,6 +102,30 @@ def definir_motor(elemento_carga: str, pn_mecanica_mw: float, vn_kv: float,
     return deepcopy(record)
 
 
+def definir_grupo_equivalente(elemento_carga: str, sn_mva: float, vn_kv: float,
+                              r_percent: float, x_percent: float, referencia: str) -> dict:
+    """Explicit equivalent motor-group Sn and locked-rotor Z; never a shaft rating."""
+    full, bus = _element(elemento_carga, {"load"})
+    sn = _number("sn_mva", sn_mva)
+    vn = _number("vn_kv", vn_kv)
+    resistance = _number("r_percent", r_percent, zero=True)
+    reactance = _number("x_percent", x_percent)
+    z_pu = complex(resistance, reactance) / 100
+    lrc = 1 / abs(z_pu)
+    if lrc < 1:
+        raise ValueError("SCM007: impedancia de grupo implica corriente bloqueada <1 pu.")
+    record = {"element": full, "bus": bus, "kind": "GRUPO_INDUCCION_EQUIVALENTE",
+              "rated_sn_mva": sn, "vn_kv": vn, "r_percent": resistance, "x_percent": reactance,
+              "lrc_pu": lrc, "rx": resistance/reactance,
+              "z_locked_rotor_ohm": vn*vn/sn*abs(z_pu),
+              "reference": _reference(referencia),
+              "individual_motor_nameplate": False,
+              "operating_kw_used_as_shaft_rating": False,
+              "backend_parameterization": "pn=Sn, eta=1, cosphi=1 preserves supplied Sn/Z; not mechanical data"}
+    _loads[full.lower()] = record
+    return deepcopy(record)
+
+
 def definir_generador(elemento: str, sn_mva: float, vn_kv: float, xdss_pu: float,
                       rdss_ohm: float, fp_nominal: float, pg_percent: float, referencia: str,
                       transformador_unidad: str | None = None, oltc: bool | None = None,
@@ -190,7 +214,7 @@ def readiness(model: dict, duty: bool = False) -> tuple[dict, list[dict]]:
     if inv["extension_enabled"]:
         for r in inv["unclassified_loads"]:
             add("SCM105", "Carga sin clasificar: declarar estática, inducción directa con ficha o variador. No inferirlo desde MW/fp.", r["id"])
-    if duty and (inv["generators"] or any(r["kind"] == "INDUCCION_DIRECTA" for r in inv["loads"])):
+    if duty and (inv["generators"] or any(r["kind"] in {"INDUCCION_DIRECTA", "GRUPO_INDUCCION_EQUIVALENTE"} for r in inv["loads"])):
         add("SCM106", "Esta extensión valida Ik'' inicial; ip/Ith con máquinas requieren validación de decaimiento y no se ejecutan en este alcance.")
     # K_G/K_S data structures only hold one generator per bus in this backend.
     occupied = set()
@@ -262,6 +286,11 @@ def project(net, model: dict, trafo_meta: dict) -> dict:
                             cos_phi_n=r["cos_phi_n"], efficiency_n_percent=r["efficiency_n_percent"],
                             vn_kv=r["vn_kv"], lrc_pu=r["lrc_pu"], rx=r["rx"], name=r["element"],
                             in_service=r["enabled"] and not r["open"])
+        elif r["kind"] == "GRUPO_INDUCCION_EQUIVALENTE":
+            pp.create_motor(net, buses[r["bus"]], r["rated_sn_mva"], cos_phi=1.,
+                            efficiency_percent=100., cos_phi_n=1., efficiency_n_percent=100.,
+                            vn_kv=r["vn_kv"], lrc_pu=r["lrc_pu"], rx=r["rx"], name=r["element"],
+                            in_service=r["enabled"] and not r["open"])
     return inv
 
 
@@ -278,6 +307,14 @@ def register(mcp, on_model_change=None) -> None:
         result = definir_motor(elemento_carga, pn_mecanica_mw, vn_kv, eficiencia_nominal_pct,
                                fp_nominal, corriente_rotor_bloqueado_pu, relacion_r_x, referencia)
         changed("definir_motor_cortocircuito_3ph")
+        return result
+
+    @mcp.tool()
+    def definir_grupo_motores_equivalente_3ph(elemento_carga: str, sn_mva: float, vn_kv: float,
+                                            r_percent: float, x_percent: float, referencia: str) -> dict:
+        """Grupo equivalente de inducción: Sn nominal y Z bloqueada explícitas; solo Ik'' 3F."""
+        result = definir_grupo_equivalente(elemento_carga, sn_mva, vn_kv, r_percent, x_percent, referencia)
+        changed("definir_grupo_motores_equivalente_3ph")
         return result
 
     @mcp.tool()
