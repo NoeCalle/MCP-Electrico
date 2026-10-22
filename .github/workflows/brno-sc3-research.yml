@@ -1,7 +1,7 @@
 name: brno-sc3-research
 on:
   push:
-    branches: [research/brno-sc3]
+    branches: [research/brno-sc3, validation/brno-sensitivity]
   pull_request:
     paths:
       - 'mcp_electrico/sc_machines.py'
