@@ -63,9 +63,11 @@ solicitadas no se transforman en PASS.
 
 La ruta `coordinacion_intervalo` evalúa el peor margen continuo de dos TCC
 declaradas, con rango y factor de corrientes explícitos. Bloquea huecos y no
-convierte una comparación de tiempos en selectividad integral. Es una llamada
-adicional explícita; no está incorporada al criterio agregado P8.
-Ver [método y evidencia](P5E_COORDINACION_INTERVALO.md).
+convierte una comparación de tiempos en selectividad integral. Puede llamarse
+independientemente o solicitarse en `protection.coordination_ranges`: P8 reutiliza
+sus límites P4 explícitos y agrega los criterios, trazas y tabla a la entrega.
+Ver [integración en el expediente](P8_COORDINACION_EXPEDIENTE.md) y
+[método y evidencia](P5E_COORDINACION_INTERVALO.md).
 
 `ejecutar_estudio` conserva las rutas públicas y sus validadores. Incluye
 `falla_terminal_motor` / `motor_terminal_fault_emt`, que invoca exclusivamente

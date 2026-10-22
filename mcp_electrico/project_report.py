@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from . import project_snapshot
+from . import project_snapshot, workspace_p8d2_view
 
 SCHEMA = "MCP_ELECTRICO_P7C_TECHNICAL_REPORT_V1"
 REPORT_KIND = "TECHNICAL_ENGINEERING_PREVIEW"
@@ -228,6 +228,8 @@ def renderizar_html(report: dict[str, Any]) -> str:
     project = data["project"]
     studies = data["studies"]
     engineering = data["engineering_data"]
+    protection = ((studies.get("current") or {}).get("protection_tcc") or {}).get("result") or {}
+    coordination = workspace_p8d2_view.coordination_section(protection.get("coordination_ranges"))
     governance = data["governance"]
     source_hash = data["source_snapshot"]["sha256"]
     report_hash = report["report_hash"]["value"]
@@ -250,6 +252,7 @@ th,td{{border:1px solid #d7dee5;padding:8px;vertical-align:top;text-align:left}}
 <section class="grid"><div class="card"><b>Proyecto</b><br>{_esc(project.get("circuit"))}</div><div class="card"><b>Revisión</b><br>{_esc(project.get("model_revision"))}</div>
 <div class="card"><b>SHA-256 P7A</b><br>{_esc(source_hash)}</div><div class="card"><b>SHA-256 P7C</b><br>{_esc(report_hash)}</div></section>
 <h2>Estado del expediente</h2><p>Integridad: <b>HASH_MATCH</b> · P6 IEEE 1584: <b>DEFERRED</b> · PDF: <b>BROWSER_PRINT</b></p>
+{coordination}
 <h2>Estudios vigentes</h2>{_studies_html(studies.get("current") or {}, "No hay estudios vigentes registrados.")}
 <h2>Resultados históricos / no vigentes</h2>{_studies_html(studies.get("historical") or {}, "No hay resultados históricos registrados.")}
 <h2>Datos de ingeniería congelados</h2><h3>P2 — Datos profesionales</h3>{_pre(engineering.get("professional_p2") or {})}

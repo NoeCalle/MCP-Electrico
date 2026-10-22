@@ -146,7 +146,8 @@ def project_assessment(execution):
                            "status": row.get(field), "passed": row.get(field) == passing})
     for check in (execution.get("design_assessment") or {}).get("checks", []):
         if check["check"] != "clearing_time":
-            checks.append({"scope": "PROTECTION_TCC", "element": check["device_id"],
+            checks.append({"scope": ("TEMPORAL_COORDINATION_RANGE" if check["check"] == "temporal_coordination_range" else "PROTECTION_TCC"),
+                           "element": check.get("range_id") or check["device_id"],
                            "status": check["status"], "passed": check["status"] == "PASS"})
     return {"schema": "MCP_ELECTRICO_DECLARED_DESIGN_CHECKS_V1",
             "status": ("NOT_EVALUABLE" if execution.get("resultados_validos") is not True or not checks

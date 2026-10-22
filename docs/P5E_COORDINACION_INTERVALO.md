@@ -50,9 +50,11 @@ por cada entrada. El resultado se registra en el workspace como
 revisión por el registro existente. Un bloqueo queda `resultados_validos=false`;
 un incumplimiento calculado conserva `resultados_validos=true`.
 
-La herramienta aún no se agrega automáticamente al manifiesto P8 ni al criterio
-agregado de `design_checks.json`. Se invoca explícitamente y su JSON debe
-revisarse como evidencia adicional. No se cambia el cierre histórico de P5E.
+El manifiesto P8 admite ahora `protection.coordination_ranges` como solicitud
+explícita: enlaza límites P4 MIN/MAX de la misma ejecución, incorpora el criterio
+a `design_checks.json` y guarda una traza íntegra con tabla en visor e informe.
+Ver [formato y límites de integración](P8_COORDINACION_EXPEDIENTE.md).
+La llamada P5E independiente sigue disponible; no cambia su alcance físico.
 
 ## Método y cobertura
 

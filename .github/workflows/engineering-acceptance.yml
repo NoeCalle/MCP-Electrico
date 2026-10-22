@@ -20,6 +20,8 @@ jobs:
       - run: python scripts/verify_engineering_acceptance_mcp.py --output outputs/engineering-acceptance
       - run: python -m pytest tests/test_p5e_coordination_range.py tests/test_p5e_temporal_coordination.py tests/test_study_dispatch.py tests/test_engine_selection.py -q
       - run: python scripts/verify_protection_coordination_range_mcp.py --output outputs/coordination-range
+      - run: python -m pytest tests/test_p8_coordination_ranges.py -q
+      - run: python scripts/verify_coordination_dossier_mcp.py --output outputs/coordination-dossier
       - uses: actions/upload-artifact@v4
         if: always()
         with:

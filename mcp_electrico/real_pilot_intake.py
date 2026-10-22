@@ -10,6 +10,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from . import real_coordination_execution
+
 SCHEMA = "MCP_ELECTRICO_P8B_REAL_PILOT_INTAKE_V1"
 STATUS_READY = "READY_TO_BUILD_MODEL"
 STATUS_BLOCKED = "BLOCKED_MISSING_INPUTS"
@@ -552,7 +554,8 @@ def evaluar_admision(manifest: dict[str, Any]) -> dict[str, Any]:
 
     requested = manifest.get("requested_scope") or []
     normalized = list(dict.fromkeys(str(item).strip().upper() for item in requested if str(item).strip()))
-    common_issues = _base_issues(manifest) + _topology_issues(manifest)
+    _, range_issues = real_coordination_execution.preflight(manifest)
+    common_issues = _base_issues(manifest) + _topology_issues(manifest) + range_issues
     issues = deepcopy(common_issues)
 
     if not normalized:

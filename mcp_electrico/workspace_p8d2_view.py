@@ -113,6 +113,39 @@ def _device_row(device: dict[str, Any]) -> str:
     )
 
 
+def coordination_section(summary: dict[str, Any] | None) -> str:
+    """Render frozen range results for both Workspace V5 and the P7C report."""
+    if not isinstance(summary, dict) or not summary.get("requested_count"):
+        return ""
+    rows = []
+    for row in summary.get("ranges") or []:
+        result = row.get("result") or {}
+        request = row.get("request") or {}
+        worst = result.get("worst_case") or {}
+        currents = result.get("currents") or {}
+        labels = (
+            row.get("range_id"),
+            f"{request.get('downstream_device_id')} → {request.get('upstream_device_id')}",
+            result.get("status") if row.get("result_usable") else "NOT_EVALUABLE",
+            f"{_fmt(currents.get('downstream_min_a'), 2)} – {_fmt(currents.get('downstream_max_a'), 2)} A",
+            _fmt(request.get("upstream_to_downstream_ratio"), 6),
+            _fmt(request.get("required_margin_s"), 6, " s"),
+            _fmt(worst.get("conservative_margin_s"), 6, " s"),
+            _fmt(worst.get("downstream_current_a"), 2, " A"),
+        )
+        rows.append("<tr>" + "".join(f"<td>{escape(str(value or '—'))}</td>" for value in labels) + "</tr>")
+    return (
+        '<section data-module="mcp-coordination-ranges"><h3>Coordinación temporal por intervalo</h3>'
+        '<p>Rangos declarados ligados a P4 MIN/MAX de la misma ejecución. '
+        'Margen conservador: mínimo upstream menos máximo downstream. '
+        'No acredita selectividad integral ni no actuación upstream.</p>'
+        '<table><thead><tr><th>Rango</th><th>Par downstream → upstream</th><th>Estado</th>'
+        '<th>Intervalo downstream</th><th>Factor upstream</th><th>Margen exigido</th>'
+        '<th>Peor margen</th><th>Corriente crítica downstream</th></tr></thead><tbody>'
+        + "".join(rows) + '</tbody></table></section>'
+    )
+
+
 def _section(aggregate: dict[str, Any]) -> str:
     devices = aggregate.get("devices") or []
     rows = "".join(_device_row(item) for item in devices if isinstance(item, dict))
@@ -131,6 +164,7 @@ def _section(aggregate: dict[str, Any]) -> str:
   <div class="table-wrap"><table class="study-table p8d2-results"><thead><tr>
     <th>Dispositivo</th><th>Elemento</th><th>Falla ligada</th><th>Capacidad de corte</th><th>Clearing time</th><th>Térmico</th><th>Procedencia P4</th>
   </tr></thead><tbody>{rows}</tbody></table></div>
+  {coordination_section(aggregate.get("coordination_ranges"))}
 </div>'''
 
 
