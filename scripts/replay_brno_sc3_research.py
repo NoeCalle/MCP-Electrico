@@ -144,6 +144,41 @@ def main():
         "electrical_calculation_performed":True,"mcp_p4_execution_performed":False,
         "minimum_case_reproduced":False,"ith_reproduced":False,"ground_fault_reproduced":False,
         "installation_validation_closed":False,"field_validation_performed":False}
+    aliases={b:"b"+str(i) for i,b in enumerate(sorted(reachable))}
+    def alias(b):return aliases[root(b)]
+    ref="Brno 176344 SI1S "+facts["archive"]["members"]["Untitled.SI1S"]
+    calls=[
+        {"tool":"crear_circuito","arguments":{"nombre":"brno_initial_sc3","kv_base":float(utility["KV"]),"frecuencia":float(case["Freq"]),"bus_fuente":alias(utility["ConnectedBus"])}},
+        {"tool":"configurar_workspace","arguments":{"auto_regenerar":False}},
+        {"tool":"definir_red_equivalente","arguments":{"kv_ll":float(utility["KV"]),"scc_max_mva":float(utility["MVA3ph"]),"x_r_max":float(utility["X/R3ph"]),"fuente_referencia":ref+" IUtility"}}]
+    for i,r in enumerate(tables["IXFMR2"]):
+        if root(r["FromBus"]) not in reachable:continue
+        audit.require(all(float(r[k])==0 for k in ("Prim%Tap","Sec%Tap","Min%Tap","Max%Tap","Step%Tap")),"Unsupported tap for construction")
+        calls.append({"tool":"agregar_transformador_profesional","arguments":{
+            "nombre":"t"+str(i),"bus_hv":alias(r["FromBus"]),"bus_lv":alias(r["ToBus"]),
+            "kva":float(r["MVA"])*1000,"kv_hv":float(r["PrimkV"]),"kv_lv":float(r["SeckV"]),
+            "uk_percent":float(r["PosZ"]),"grupo_vectorial":"Dyn1","x_r":float(r["PosX/R"]),
+            "no_load_loss_kw":float(r["NoLoadkW"]),"i0_percent":float(r["NoLoadIPos"]),
+            "tap_side":"hv","tap_min":0,"tap_max":0,"tap_neutral":0,"tap_pos":0,"tap_step_percent":0.,
+            "fuente_referencia":ref+" IXFMR2 "+r["ID"]}})
+    for i,r in enumerate(tables["Icable"]):
+        if root(r["FromBus"]) not in reachable:continue
+        calls.append({"tool":"agregar_linea","arguments":{"nombre":"c"+str(i),
+            "bus1":alias(r["FromBus"]),"bus2":alias(r["ToBus"]),"longitud_km":float(r["Length"])/1000,
+            "fases":3,"r1_ohm_km":float(r["RPos"])/float(r["No/Ph"]),"x1_ohm_km":float(r["XPos"])/float(r["No/Ph"])}})
+    for i,r in enumerate(tables["ILump"]):
+        if root(r["ConnectedBus"]) not in reachable or float(r["MTR%"])==0:continue
+        calls.append({"tool":"agregar_carga","arguments":{"nombre":"g"+str(i),"bus":alias(r["ConnectedBus"]),
+            "kw":0.,"kvar":0.,"kv":float(r["KV"]),"fases":3}})
+        calls.append({"tool":"definir_grupo_motores_equivalente_3ph","arguments":{
+            "elemento_carga":"Load.g"+str(i),"sn_mva":float(r["kVA"])/1000*float(r["MTR%"])/100,
+            "vn_kv":float(r["KV"]),"r_percent":float(r["R"]),"x_percent":float(r["XppIEC"]),
+            "referencia":ref+" ILump "+r["ID"]+"; nominal equivalent group, not individual shaft rating"}})
+    construction={"schema":"BRNO_SC3_EXPLICIT_MCP_INPUTS_V1","calls":calls,
+        "faults":[{"source_bus":b,"mcp_bus":alias(b),"reference_ka":r["current_ka"]} for b,r in initial.items()],
+        "load_ports_are_operating_demands":False,"power_flow_execution_requested":False,
+        "minimum_source_data_provided":False,"reference_outputs_used_for_construction":False}
+    (output/"mcp-inputs.json").write_text(json.dumps(construction,indent=2,allow_nan=False),encoding="utf8")
     (output/"comparison.json").write_text(json.dumps(summary,indent=2,allow_nan=False),encoding="utf8")
     (output/"motor-groups.json").write_text(json.dumps(groups,indent=2,allow_nan=False),encoding="utf8")
     print("BRNO_SC3_REPLAY="+json.dumps(summary,allow_nan=False))
