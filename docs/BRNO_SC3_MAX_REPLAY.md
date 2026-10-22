@@ -104,7 +104,7 @@ las fichas SC: **no reconstruye la demanda de flujo ni ejecuta power flow**.
 La demanda estática no aporta corriente en este método de fuente equivalente.
 
 Por sistema se conservan entradas derivadas, comparación por barra,
-424 llamadas MCP y resultados por rama. Se comprueban la revisión obligatoria,
+el registro completo de llamadas MCP y resultados por rama. Se comprueban la revisión obligatoria,
 el rechazo de MAX/MIN sin fuente MIN, los equivalentes y el enrutamiento.
 No se modifica ni redistribuye el ZIP original.
 
