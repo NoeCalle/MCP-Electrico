@@ -370,7 +370,7 @@ def ejecutar_cortocircuito_iec60909_3ph(
     caso: str = "max_min",
     lv_tol_percent: int = 10,
 ) -> dict:
-    """Ejecuta 3F MAX/MIN y corrientes por rama tras revisión previa explícita.
+    """Ejecuta 3F y corrientes por rama tras revisión previa explícita.
 
     Primero llamar evaluar_preparacion_cortocircuito_3ph y presentar datos,
     faltantes y exclusiones. Sin revision_modelo válida no se ejecuta el motor.
@@ -379,6 +379,8 @@ def ejecutar_cortocircuito_iec60909_3ph(
     directa y generador síncrono requieren fichas SC explícitas; MW/fp no bastan.
     MAX incluye inducción conectada y MIN excluye su aporte. Con máquinas se
     calcula Ik'' inicial: ip/Ith/variadores se bloquean en este alcance.
+    caso=max_min conserva la pareja; max/min solicitan solo ese escenario,
+    sin completar el otro. lv_tol_percent=6/10 selecciona cmax BT=1.05/1.10.
     MIN exige temperatura explícita. El resultado no valida protecciones.
     """
     result = short_circuit_precheck.ejecutar_revisado(

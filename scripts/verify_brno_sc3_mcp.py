@@ -21,6 +21,7 @@ async def main():
         async with stdio_client(params,errlog=log) as (read,write):
             async with ClientSession(read,write,read_timeout_seconds=timedelta(seconds=240)) as client:
                 await client.initialize()
+                catalog=await client.list_tools()
                 async def call(name,args):
                     r=await client.call_tool(name,args)
                     if r.isError:raise AssertionError((name,r))
@@ -53,7 +54,11 @@ async def main():
                             "Nominal equivalent motor Sn and locked-rotor Z are explicit; zero-PQ Load objects are mapping ports, not actual operating demands.",
                             "Only connected normal-configuration component, initial balanced 3ph MAX; no MIN, Ith, earth fault, protection or field validation."],
                         "exclusiones_revisadas":[i["id"] for i in pre["items_to_review"]]}
-                    result=await call("ejecutar_cortocircuito_iec60909_3ph",{**request,"revision_modelo":review})
+                    dispatched=await call("ejecutar_estudio",{"estudio":"iec60909","tipo_falla":"three_phase",
+                        "parametros":{**request,"revision_modelo":review}})
+                    assert dispatched["executor_invoked"] and dispatched["selected_engine"]=="pandapower",dispatched
+                    assert not dispatched["fallback"] and not dispatched["crosscheck"]
+                    result=dispatched["result"]
                     assert result["ok"],result
                     assert set(result["scenarios"])=={"max"}
                     assert result["omitted_cases"]==["min"] and not result["max_min_pair_complete"]
@@ -63,7 +68,8 @@ async def main():
                     assert math.isfinite(current) and current>0 and error<=1e-4,(fault,current,error)
                     comparisons.append({**fault,"calculated_ka":current,"relative_error":error})
     summary={"schema":"BRNO_SC3_PUBLIC_MCP_REPLAY_V1","status":"INITIAL_MAX_REFERENCE_REPRODUCED_WITH_EXPLICIT_MODEL_SCOPE",
-        "call_count":len(calls),"motor_groups":73,"compared_fault_buses":len(comparisons),
+        "call_count":len(calls),"public_tool_count":len(catalog.tools),"motor_groups":73,"compared_fault_buses":len(comparisons),
+        "distinct_electrical_fault_nodes":len({r["mcp_bus"] for r in inputs["faults"]}),
         "comparison_tolerance_relative":1e-4,"max_relative_error":max(r["relative_error"] for r in comparisons),
         "comparison":comparisons,"backend":"pandapower","lv_tol_percent":6,
         "minimum_reproduced":False,"ith_reproduced":False,"protection_validation_performed":False,

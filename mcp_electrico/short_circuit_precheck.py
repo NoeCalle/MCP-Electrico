@@ -91,7 +91,7 @@ def evaluar(
             "El MCP no puede descubrir equipos omitidos de un plano que no fue incorporado al modelo."
         ),
         "items_to_review": [{"id": key, "message": (
-            "Fichas de inducción directa explícitas; MAX incluye impedancia de rotor bloqueado, MIN excluye su aporte. No se infiere motor desde MW/fp; variadores no modelados bloquean."
+            "Fichas de inducción directa o grupos Sn/Z explícitos; MAX incluye impedancia de rotor bloqueado, MIN excluye su aporte. No se infiere motor desde MW/fp; variadores no modelados bloquean."
             if machines["extension_enabled"] and key == "APORTE_MOTORES" else
             "Fichas síncronas con Xd'', R y corrección K_G/K_S declarada. La fuente síncrona sustituye al equivalente; decaimiento e Ib/Ik no implementados."
             if machines["extension_enabled"] and key == "GENERADOR_SINCRONO" else value
@@ -126,7 +126,7 @@ def validar_revision(precheck: dict[str, Any], revision_modelo: dict | None) -> 
     def add(code, message):
         issues.append({"code": code, "message": message})
     if not precheck["numerical_ready"]:
-        add("SCREV001", "Hay datos numéricos faltantes o fuera de alcance; revisar numeric_readiness MAX/MIN.")
+        add("SCREV001", "Hay datos numéricos faltantes o fuera de alcance; revisar numeric_readiness de los escenarios solicitados.")
     if not isinstance(revision_modelo, dict):
         add("SCREV002", "Falta revisión previa. Presentar faltantes, supuestos y exclusiones antes de ejecutar.")
         return issues

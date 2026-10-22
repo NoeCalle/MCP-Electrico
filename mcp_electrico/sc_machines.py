@@ -111,13 +111,17 @@ def definir_grupo_equivalente(elemento_carga: str, sn_mva: float, vn_kv: float,
     resistance = _number("r_percent", r_percent, zero=True)
     reactance = _number("x_percent", x_percent)
     z_pu = complex(resistance, reactance) / 100
-    lrc = 1 / abs(z_pu)
+    z_magnitude = _number("Z bloqueada pu", abs(z_pu))
+    lrc = 1 / z_magnitude
+    lrc = _number("lrc_pu derivado", lrc)
+    rx = _number("R/X derivado", resistance/reactance, zero=True)
+    z_ohm = _number("Z bloqueada ohm derivada", vn*vn/sn*abs(z_pu))
     if lrc < 1:
         raise ValueError("SCM007: impedancia de grupo implica corriente bloqueada <1 pu.")
     record = {"element": full, "bus": bus, "kind": "GRUPO_INDUCCION_EQUIVALENTE",
               "rated_sn_mva": sn, "vn_kv": vn, "r_percent": resistance, "x_percent": reactance,
-              "lrc_pu": lrc, "rx": resistance/reactance,
-              "z_locked_rotor_ohm": vn*vn/sn*abs(z_pu),
+              "lrc_pu": lrc, "rx": rx,
+              "z_locked_rotor_ohm": z_ohm,
               "reference": _reference(referencia),
               "individual_motor_nameplate": False,
               "operating_kw_used_as_shaft_rating": False,

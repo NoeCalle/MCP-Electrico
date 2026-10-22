@@ -87,9 +87,28 @@ def test_minimum_excludes_declared_group_and_keeps_explicit_temperature_requirem
     static=iec60909.ejecutar_3ph("min","target",line_endtemp_degree_c={"Line.feeder":80.},lv_tol_percent=6)
     assert static["results"]["ikss_ka"]==pytest.approx(with_group["results"]["ikss_ka"],rel=1e-12)
 
-@pytest.mark.parametrize("fields",[{"sn_mva":0},{"vn_kv":0},{"r_percent":-1},{"x_percent":0},{"x_percent":101},{"sn_mva":True}])
+@pytest.mark.parametrize("fields",[{"sn_mva":0},{"vn_kv":0},{"r_percent":-1},{"x_percent":0},{"x_percent":101},{"sn_mva":True},{"vn_kv":1e308},{"x_percent":1e-308},{"sn_mva":1e-308,"vn_kv":22.9}])
 def test_invalid_group_data_are_rejected(fields):
     build()
     args={"elemento_carga":"Load.group","sn_mva":.5,"vn_kv":.4,"r_percent":5.,"x_percent":15.,
         "referencia":"Explicit synthetic equivalent",**fields}
     with pytest.raises(ValueError):machines.definir_grupo_equivalente(**args)
+
+def test_minimum_only_keeps_single_case_scope():
+    build(with_min=True)
+    args={"line_endtemp_degree_c":{"Line.feeder":80.},"caso":"min","lv_tol_percent":6}
+    pre=review.evaluar("target",**args)
+    assert pre["numerical_ready"],pre
+    result=review.ejecutar_revisado("target",revision_modelo=acceptance(pre),**args)
+    assert result["ok"]
+    assert set(result["scenarios"])=={"min"} and result["omitted_cases"]==["max"]
+
+def test_max_only_cannot_satisfy_p8_max_min_pair_gate():
+    from mcp_electrico import execution_quality
+    build()
+    pre=review.evaluar("target",caso="max",lv_tol_percent=6)
+    result=review.ejecutar_revisado("target",caso="max",lv_tol_percent=6,revision_modelo=acceptance(pre))
+    aggregate={"fault":"3ph","target_count":1,"targets":[{"bus":"target","result":result}]}
+    issues=execution_quality.scope_issues("IEC60909_3PH_MAX_MIN",aggregate,
+        {"study_inputs":{"short_circuit_buses":["target"]}})
+    assert issues,"A missing MIN must never pass an integral MAX/MIN requirement"

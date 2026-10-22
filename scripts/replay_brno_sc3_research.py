@@ -105,7 +105,7 @@ def main():
         if str(r["ToBus"]).strip()=="Total" and r["FromBus"]==r["FaultedBus"]:
             audit.require(r["FaultedBus"] not in initial,"Duplicate initial-current reference")
             initial[r["FaultedBus"]]={"current_ka":float(r["kAMag"]),"c":float(r["CFactor"])}
-    audit.require(initial,"No initial-current references")
+    audit.require(len(initial)==11,"Incomplete frozen initial-current reference coverage")
     for b,ref in initial.items():
         audit.require(root(b) in reachable,"Reference outside utility-connected component")
         matches=[r for r in tables["SCIEC3phSum"] if r["FaultedBus"]==b and r["DeviceID"]==b]
@@ -135,7 +135,7 @@ def main():
         "input_bus_count":len(buses),"utility_component_bus_count":sum(root(b) in reachable for b in buses),
         "compared_fault_buses":len(comparison),"motor_groups":len(groups),"excluded_generator_islands":excluded_gens,
         "merged_zero_impedance_connections":merged,"source_voltage_factor":source_c,
-        "lv_voltage_factor":1.05,"source_physical_scc_mva":physical_scc,"pp_source_scc_mva":source_mva,
+        "lv_voltage_factor":1.05,"exported_raw_z_nominal_scc_mva":physical_scc,"pp_source_scc_mva":source_mva,
         "reference_outputs_used_as_inputs":False,"operating_kw_used_as_nameplate_power":False,
         "equivalent_parameters_are_individual_motor_nameplates":False,
         "machine_mapping":"Sn=kVA*MTR_fraction; Zlr=(R+jXppIEC)% on group Sn; PP pn=Sn/eta=1/cosphi=1 numerical equivalent only",
