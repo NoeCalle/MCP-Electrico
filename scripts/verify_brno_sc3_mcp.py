@@ -100,7 +100,7 @@ async def main():
                     assert math.isfinite(restored_current)
                     repeat_error=abs(restored_current/current-1)
                     assert repeat_error<=1e-10,(fault,repeat_error)
-                    sensitivity.append({"published_bus":fault["published_bus"] if "published_bus" in fault else fault["mcp_bus"],
+                    sensitivity.append({"source_bus":fault["source_bus"],
                         "mcp_bus":fault["mcp_bus"],"baseline_ka":current,
                         "lv10_ka":variant_current,"restored_ka":restored_current,
                         "relative_change":variant_current/current-1,"repeat_relative_error":repeat_error,
