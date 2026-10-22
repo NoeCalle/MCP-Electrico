@@ -43,7 +43,7 @@ def inspect_database(path):
             count = connection.execute("SELECT COUNT(*) FROM " + quote(name)).fetchone()[0]
             columns = [dict(row) for row in connection.execute("PRAGMA table_info(" + quote(name) + ")")]
             item = {"table": name, "row_count": count, "columns": columns}
-            if count and INTEREST.search(name):
+            if count:
                 item["samples"] = [
                     {key: printable(row[key], key) for key in row.keys()}
                     for row in connection.execute("SELECT * FROM " + quote(name) + " LIMIT 2")
@@ -55,7 +55,7 @@ def inspect_database(path):
         connection.close()
 
 
-def main(output):
+def main(output, mdf_copy=None):
     output.mkdir(parents=True, exist_ok=False)
     facts = json.loads(source.FACTS.read_text(encoding="utf8"))
     data = source.download(facts["archive"])
@@ -76,6 +76,12 @@ def main(output):
                     record["header_first_16_hex"] = header[:16].hex()
                     record["first_page_sha256"] = hashlib.sha256(header).hexdigest()
                 inventory.append(record)
+                if mdf_copy is not None and name in ("BKLRSKPRCAMDLZ.MDF", "BKLRSKPRCAMDLZ_log.LDF"):
+                    source.require(info.file_size <= 64 * 1024 * 1024, "Excessive database size")
+                    mdf_copy.mkdir(parents=True, exist_ok=True)
+                    blob = archive.read(info)
+                    (mdf_copy / name).write_bytes(blob)
+                    print("BRNO_DATABASE_COPY=" + json.dumps({"name": name, "bytes": len(blob), "sha256": source.sha256(blob)}))
             print("BRNO_ARCHIVE_MEMBERS=" + json.dumps(inventory, ensure_ascii=False))
             for name, digest in facts["archive"]["members"].items():
                 matches = [i for i in archive.infolist() if PurePosixPath(i.filename).name == name]
@@ -97,4 +103,6 @@ def main(output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
-    main(parser.parse_args().output)
+    parser.add_argument("--mdf-copy", type=Path)
+    args = parser.parse_args()
+    main(args.output, args.mdf_copy)

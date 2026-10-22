@@ -21,3 +21,17 @@ jobs:
         with:
           name: brno-source-recovery
           path: outputs/brno-recovery
+  mdf-metadata:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - shell: pwsh
+        run: python scripts/inspect_brno_source_inventory.py --output outputs/brno-recovery --mdf-copy "$env:RUNNER_TEMP/brno-public-source"
+      - shell: pwsh
+        run: ./scripts/inspect_brno_mdf_metadata.ps1
