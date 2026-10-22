@@ -22,6 +22,7 @@ def ejecutar_3ph_max_min(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    lv_tol_percent: int = 10,
 ) -> dict[str, Any]:
     """Ejecuta 3F MAX y MIN sin introducir defaults técnicos ocultos."""
     common = {
@@ -29,6 +30,7 @@ def ejecutar_3ph_max_min(
         "topology": topology,
         "tk_s": tk_s,
         "kappa_method": kappa_method,
+        "lv_tol_percent": lv_tol_percent,
     }
     maximum = iec60909.ejecutar_3ph("max", bus, **common)
     minimum = iec60909.ejecutar_3ph(

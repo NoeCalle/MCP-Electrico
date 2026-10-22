@@ -1,0 +1,41 @@
+name: brno-sc3-research
+on:
+  push:
+    branches: [research/brno-sc3]
+  pull_request:
+    paths:
+      - 'mcp_electrico/sc_machines.py'
+      - 'mcp_electrico/iec60909*.py'
+      - 'mcp_electrico/short_circuit_precheck.py'
+      - 'mcp_electrico/workspace_p4_view.py'
+      - 'server.py'
+      - 'tests/test_sc3_group_scenarios.py'
+      - 'scripts/*brno_sc3*'
+      - 'examples/qualification/brno_industrial_2026.json'
+      - '.github/workflows/brno-sc3-research.yml'
+permissions:
+  contents: read
+jobs:
+  replay:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt pytest
+      - run: python -m pytest tests/test_sc3_group_scenarios.py tests/test_sc_machines.py -q
+      - run: python scripts/replay_brno_sc3_research.py
+      - run: python scripts/verify_brno_sc3_mcp.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brno-sc3-research-${{ matrix.os }}
+          path: outputs/brno-sc3-research

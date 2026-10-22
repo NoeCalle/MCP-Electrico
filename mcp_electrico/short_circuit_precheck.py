@@ -35,13 +35,18 @@ def evaluar(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict[str, Any]:
     """Expose numerical readiness and a separate physical-model checklist."""
     kwargs = dict(line_endtemp_degree_c=line_endtemp_degree_c,
                   calcular_ip_ith=calcular_ip_ith, topology=topology,
-                  tk_s=tk_s, kappa_method=kappa_method)
+                  tk_s=tk_s, kappa_method=kappa_method, lv_tol_percent=lv_tol_percent)
+    selected_cases = {"max_min": ("max", "min"), "max": ("max",), "min": ("min",)}.get(caso, ())
     readiness = {case: iec60909.evaluar_preparacion_3ph(case, bus_falla, **kwargs)
-                 for case in ("max", "min")}
+                 for case in selected_cases}
+    if not selected_cases:
+        readiness = {"invalid": {"ready": False, "issues": [{"code": "SCREV009", "message": "caso debe ser max_min, max o min."}]}}
     model = pandapower_engine._collect_active_model()
     machines = sc_machines.inventory(model)
     model["sc3_machine_sheets_and_states"] = machines
@@ -58,7 +63,9 @@ def evaluar(
     dss.Circuit.SetActiveElement("Vsource.source") if model["circuit"] else None
     model["primary_source_state"] = {"enabled": bool(dss.CktElement.Enabled()), "open": pandapower_engine._active_element_is_open("Vsource.source")} if model["circuit"] else None
     model["untranslated_fault_sources"] = unsupported
-    request = {"bus_falla": bus_falla, **kwargs}
+    request = {"bus_falla": bus_falla, "caso": caso, **kwargs}
+    if type(lv_tol_percent) not in (int, float) or lv_tol_percent not in (6, 10):
+        request["lv_tol_percent"] = repr(lv_tol_percent)
     encoded = json.dumps({"model": model, "request": request},
                          sort_keys=True, ensure_ascii=False, allow_nan=False,
                          separators=(",", ":")).encode("utf-8")
@@ -71,6 +78,8 @@ def evaluar(
         "execution_status": "REQUIERE_REVISION_PREVIA",
         "numerical_ready": not unsupported and all(item["ready"] for item in readiness.values()),
         "numeric_readiness": readiness,
+        "requested_cases": list(selected_cases),
+        "lv_tol_percent": lv_tol_percent if lv_tol_percent in (6, 10) else None,
         "model_sha256": fingerprint,
         "supported_scope": scope,
         "protection_validation_supported": False,
@@ -82,7 +91,7 @@ def evaluar(
             "El MCP no puede descubrir equipos omitidos de un plano que no fue incorporado al modelo."
         ),
         "items_to_review": [{"id": key, "message": (
-            "Fichas de inducción directa explícitas; MAX incluye impedancia de rotor bloqueado, MIN excluye su aporte. No se infiere motor desde MW/fp; variadores no modelados bloquean."
+            "Fichas de inducción directa o grupos Sn/Z explícitos; MAX incluye impedancia de rotor bloqueado, MIN excluye su aporte. No se infiere motor desde MW/fp; variadores no modelados bloquean."
             if machines["extension_enabled"] and key == "APORTE_MOTORES" else
             "Fichas síncronas con Xd'', R y corrección K_G/K_S declarada. La fuente síncrona sustituye al equivalente; decaimiento e Ib/Ik no implementados."
             if machines["extension_enabled"] and key == "GENERADOR_SINCRONO" else value
@@ -117,7 +126,7 @@ def validar_revision(precheck: dict[str, Any], revision_modelo: dict | None) -> 
     def add(code, message):
         issues.append({"code": code, "message": message})
     if not precheck["numerical_ready"]:
-        add("SCREV001", "Hay datos numéricos faltantes o fuera de alcance; revisar numeric_readiness MAX/MIN.")
+        add("SCREV001", "Hay datos numéricos faltantes o fuera de alcance; revisar numeric_readiness de los escenarios solicitados.")
     if not isinstance(revision_modelo, dict):
         add("SCREV002", "Falta revisión previa. Presentar faltantes, supuestos y exclusiones antes de ejecutar.")
         return issues
@@ -152,12 +161,14 @@ def ejecutar_revisado(
     tk_s: float | None = None,
     kappa_method: str = "C",
     revision_modelo: dict | None = None,
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict[str, Any]:
     """Public execution gate; results remain source-equivalent and partial."""
     from . import iec60909_suite
 
     precheck = evaluar(bus_falla, line_endtemp_degree_c, calcular_ip_ith,
-                       topology, tk_s, kappa_method)
+                       topology, tk_s, kappa_method, caso=caso, lv_tol_percent=lv_tol_percent)
     issues = validar_revision(precheck, revision_modelo)
     if issues:
         return {
@@ -170,10 +181,23 @@ def ejecutar_revisado(
             "protection_validation_supported": False,
             "professional_emission": False,
         }
-    result = iec60909_suite.ejecutar_3ph_max_min(
-        bus_falla, line_endtemp_degree_c, calcular_ip_ith,
-        topology, tk_s, kappa_method,
-    )
+    if caso == "max_min":
+        # Preserve the established MAX/MIN suite and default behavior.
+        result = iec60909_suite.ejecutar_3ph_max_min(
+            bus_falla, line_endtemp_degree_c, calcular_ip_ith,
+            topology, tk_s, kappa_method, lv_tol_percent=lv_tol_percent,
+        )
+    else:
+        atomic = iec60909.ejecutar_3ph(
+            caso, bus_falla, line_endtemp_degree_c, calcular_ip_ith,
+            topology, tk_s, kappa_method, lv_tol_percent=lv_tol_percent)
+        result = {"schema": "MCP_ELECTRICO_IEC60909_3PH_SELECTED_CASE_V1",
+                  "ok": atomic.get("ok", False), "study": "iec60909", "fault": "3ph",
+                  "bus": atomic.get("bus", bus_falla), "scenarios": {caso: atomic},
+                  "requested_cases": [caso], "omitted_cases": ["min" if caso == "max" else "max"],
+                  "max_min_pair_complete": False, "engine": atomic.get("engine"),
+                  "maturity": atomic.get("maturity"), "limitations": atomic.get("limitations", []),
+                  "target_standard": atomic.get("target_standard"), "professional_emission": False}
     return {
         **result,
         "execution_status": "CALCULADO_APORTE_PARCIAL" if result["ok"] else "ERROR_NUMERICO",

@@ -201,14 +201,18 @@ def evaluar_preparacion_3ph(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    lv_tol_percent: int = 10,
 ) -> dict[str, Any]:
     try:
         normalized_case = _normalize_case(case)
     except ValueError as exc:
         return {"ready": False, "issues": [_issue("P4SC001", str(exc))]}
 
+    lv_issues = []
+    if type(lv_tol_percent) not in (int, float) or lv_tol_percent not in (6, 10):
+        lv_issues.append(_issue("P4SC305", "lv_tol_percent debe ser 6 o 10 explícito (cmax BT=1.05/1.10)."))
     compatibility = pandapower_engine.evaluar_compatibilidad(allow_sc_machines=True)
-    issues: list[dict[str, Any]] = []
+    issues: list[dict[str, Any]] = list(lv_issues)
     if not compatibility.get("compatible"):
         issues.extend(compatibility.get("issues") or [])
 
@@ -252,6 +256,7 @@ def evaluar_preparacion_3ph(
         "source_projection": source_projection,
         "line_endtemp_degree_c": temperatures,
         "duty": duty,
+        "lv_tol_percent": int(lv_tol_percent) if not lv_issues else None,
         "pandapower_compatibility": compatibility,
         "machine_projection": machine_inventory,
     }
@@ -287,6 +292,7 @@ def ejecutar_3ph(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    lv_tol_percent: int = 10,
 ) -> dict[str, Any]:
     prep = evaluar_preparacion_3ph(
         case,
@@ -296,6 +302,7 @@ def ejecutar_3ph(
         topology=topology,
         tk_s=tk_s,
         kappa_method=kappa_method,
+        lv_tol_percent=lv_tol_percent,
     )
     contract = iec60909_contract.obtener_contrato_p4()
     if not prep["ready"]:
@@ -335,6 +342,7 @@ def ejecutar_3ph(
         "bus": bus_idx,
         "fault": "3ph",
         "case": prep["case"],
+        "lv_tol_percent": prep["lv_tol_percent"],
         "ip": bool(duty["requested"]),
         "ith": bool(duty["requested"]),
         "branch_results": True,
@@ -405,6 +413,7 @@ def ejecutar_3ph(
         },
         "input_projection": {
             "source": prep["source_projection"],
+            "lv_tol_percent": prep["lv_tol_percent"],
             "line_endtemp_degree_c": prep["line_endtemp_degree_c"],
             "duty": duty,
             "thermal_backend_projection": thermal_projection,

@@ -343,6 +343,8 @@ def evaluar_preparacion_cortocircuito_3ph(
     topology: str | None = None,
     tk_s: float | None = None,
     kappa_method: str = "C",
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict:
     """Control previo read-only: expone entradas, faltantes y alcance parcial.
 
@@ -352,7 +354,7 @@ def evaluar_preparacion_cortocircuito_3ph(
     """
     return short_circuit_precheck.evaluar(
         bus_falla, line_endtemp_degree_c, calcular_ip_ith,
-        topology, tk_s, kappa_method,
+        topology, tk_s, kappa_method, caso=caso, lv_tol_percent=lv_tol_percent,
     )
 
 
@@ -365,8 +367,10 @@ def ejecutar_cortocircuito_iec60909_3ph(
     tk_s: float | None = None,
     kappa_method: str = "C",
     revision_modelo: dict | None = None,
+    caso: str = "max_min",
+    lv_tol_percent: int = 10,
 ) -> dict:
-    """Ejecuta 3F MAX/MIN y corrientes por rama tras revisión previa explícita.
+    """Ejecuta 3F y corrientes por rama tras revisión previa explícita.
 
     Primero llamar evaluar_preparacion_cortocircuito_3ph y presentar datos,
     faltantes y exclusiones. Sin revision_modelo válida no se ejecuta el motor.
@@ -375,6 +379,8 @@ def ejecutar_cortocircuito_iec60909_3ph(
     directa y generador síncrono requieren fichas SC explícitas; MW/fp no bastan.
     MAX incluye inducción conectada y MIN excluye su aporte. Con máquinas se
     calcula Ik'' inicial: ip/Ith/variadores se bloquean en este alcance.
+    caso=max_min conserva la pareja; max/min solicitan solo ese escenario,
+    sin completar el otro. lv_tol_percent=6/10 selecciona cmax BT=1.05/1.10.
     MIN exige temperatura explícita. El resultado no valida protecciones.
     """
     result = short_circuit_precheck.ejecutar_revisado(
@@ -385,6 +391,8 @@ def ejecutar_cortocircuito_iec60909_3ph(
         tk_s=tk_s,
         kappa_method=kappa_method,
         revision_modelo=revision_modelo,
+        caso=caso,
+        lv_tol_percent=lv_tol_percent,
     )
     workspace_state.record_study(
         "iec60909_3ph", result, action="ejecutar_cortocircuito_iec60909_3ph"
