@@ -3,7 +3,8 @@
 **Estado: bloqueado para validación integral.** Se recuperó un proyecto ETAP
 original de una instalación industrial existente y se auditaron sus exportaciones.
 Se ejecutó y comparó una proyección de flujo de esta fábrica mediante P8/OpenDSS.
-Cortocircuito y protección de la instalación aún no están reproducidos.
+Se reprodujo además la corriente inicial 3F MAX en 11 barras; véase
+[alcance SC3](BRNO_SC3_MAX_REPLAY.md). MIN y protecciones permanecen abiertos.
 El auditor original sigue acreditando únicamente la lectura reproducible de la
 fuente. El replay eléctrico y su evidencia se ejecutan por separado. Ninguno
 cierra la validación integral ni acredita mediciones de campo.
@@ -226,6 +227,6 @@ no se incluyen en esos artefactos.
 **Pendiente para cerrar la instalación completa:** una revisión común y sus
 escenarios MAX/MIN, resolver el modelo de neutro, autenticar las curvas y
 unidades/capacidades de todos los dispositivos participantes y completar la
-comparación de SC/protecciones. Ith con máquinas y neutro compensado
+comparación MIN, otros deberes SC y protecciones. Ith con máquinas y neutro compensado
 continúan fuera de los contratos calificados. La validación de campo requiere
 evidencia de campo; la recuperación de archivos no la sustituye.

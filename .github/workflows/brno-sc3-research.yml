@@ -2,6 +2,17 @@ name: brno-sc3-research
 on:
   push:
     branches: [research/brno-sc3]
+  pull_request:
+    paths:
+      - 'mcp_electrico/sc_machines.py'
+      - 'mcp_electrico/iec60909*.py'
+      - 'mcp_electrico/short_circuit_precheck.py'
+      - 'mcp_electrico/workspace_p4_view.py'
+      - 'server.py'
+      - 'tests/test_sc3_group_scenarios.py'
+      - 'scripts/*brno_sc3*'
+      - 'examples/qualification/brno_industrial_2026.json'
+      - '.github/workflows/brno-sc3-research.yml'
 permissions:
   contents: read
 jobs:

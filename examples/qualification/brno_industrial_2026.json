@@ -109,7 +109,7 @@
       "Provide explicit source MAX/MIN cases and a documented projection from the frozen model for every requested study.",
       "Qualify or exclude by an explicit scope decision the machine-decay/Ith and compensated-grounding behavior outside current supported contracts."
     ],
-    "electrical_simulation_scope": "PF_REPORT_PROJECTION_ONLY_RESEARCH_SEMANTICS_UNCONFIRMED"
+    "electrical_simulation_scope": "PF_REPORT_PROJECTION_AND_INITIAL_3PH_MAX_ONLY"
   },
   "source_recovery": {
     "mdf_sha256": "8cf1a40d4a0635ddf131d23e91c47559fafc5adfe1646d21f51261a18c11e04a",
@@ -141,5 +141,23 @@
     "aggregate_relative_power_error_limit": 0.001,
     "installation_validation_closed": false,
     "field_validation_performed": false
+  },
+  "sc3_max_replay": {
+    "status": "INITIAL_MAX_REFERENCE_REPRODUCED_WITH_EXPLICIT_MODEL_SCOPE",
+    "engine": "pandapower",
+    "version": "3.5.4",
+    "member": "Untitled.SI1S",
+    "input_buses": 267,
+    "utility_connected_buses": 265,
+    "published_fault_buses": 11,
+    "distinct_fault_nodes": 8,
+    "equivalent_motor_groups": 73,
+    "lv_tol_percent": 6,
+    "source_mva_passed_unchanged": true,
+    "comparison_relative_error_limit": 0.0001,
+    "minimum_reproduced": false,
+    "ith_reproduced": false,
+    "protection_validation_performed": false,
+    "installation_validation_closed": false
   }
 }

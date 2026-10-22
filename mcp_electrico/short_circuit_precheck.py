@@ -196,6 +196,7 @@ def ejecutar_revisado(
                   "bus": atomic.get("bus", bus_falla), "scenarios": {caso: atomic},
                   "requested_cases": [caso], "omitted_cases": ["min" if caso == "max" else "max"],
                   "max_min_pair_complete": False, "engine": atomic.get("engine"),
+                  "maturity": atomic.get("maturity"), "limitations": atomic.get("limitations", []),
                   "target_standard": atomic.get("target_standard"), "professional_emission": False}
     return {
         **result,

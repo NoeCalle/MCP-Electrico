@@ -62,8 +62,9 @@ def _scenario_row(name: str, payload: dict[str, Any]) -> str:
     ok = bool(payload.get("ok"))
     values = payload.get("results") or {}
     duty = _duty(payload)
-    css = "p4-ok" if ok else "p4-fail"
-    state = "CALCULADO" if ok else "NO CALCULADO"
+    requested = payload.get("requested", True)
+    css = "p4-na" if not requested else "p4-ok" if ok else "p4-fail"
+    state = "NO SOLICITADO" if not requested else "CALCULADO" if ok else "NO CALCULADO"
     return (
         f'<tr class="{css}">'
         f'<td><strong>{escape(name.upper())}</strong></td>'
@@ -170,6 +171,11 @@ def _study_block(key: str, study: dict[str, Any]) -> str:
     scenarios = study.get("scenarios") or {}
     maximum = scenarios.get("max") or {}
     minimum = scenarios.get("min") or {}
+    omitted = study.get("omitted_cases") or []
+    if "max" in omitted:
+        maximum = {"requested": False}
+    if "min" in omitted:
+        minimum = {"requested": False}
     max_values = maximum.get("results") or {}
     min_values = minimum.get("results") or {}
     engine = study.get("engine") or {}

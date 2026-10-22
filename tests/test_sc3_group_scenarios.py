@@ -112,3 +112,13 @@ def test_max_only_cannot_satisfy_p8_max_min_pair_gate():
     issues=execution_quality.scope_issues("IEC60909_3PH_MAX_MIN",aggregate,
         {"study_inputs":{"short_circuit_buses":["target"]}})
     assert issues,"A missing MIN must never pass an integral MAX/MIN requirement"
+
+def test_single_case_workspace_labels_omitted_case_without_invented_results():
+    from mcp_electrico import workspace_p4_view
+    build()
+    pre=review.evaluar("target",caso="max",lv_tol_percent=6)
+    result=review.ejecutar_revisado("target",caso="max",lv_tol_percent=6,revision_modelo=acceptance(pre))
+    html=workspace_p4_view._study_block("iec60909_3ph",result)
+    assert "NO SOLICITADO" in html
+    assert "MAX/MIN CALCULADOS" not in html
+    assert "APORTE PARCIAL" in html
