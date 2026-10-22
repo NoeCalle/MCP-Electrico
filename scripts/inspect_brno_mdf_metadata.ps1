@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-$localDbCommand = Get-Command SqlLocalDB.exe -ErrorAction SilentlyContinue
+$localDbCommand = Get-Item -LiteralPath 'C:\Program Files\Microsoft SQL Server\150\Tools\Binn\SqlLocalDB.exe' -ErrorAction SilentlyContinue
 if (-not $localDbCommand) {
   $candidates = Get-ChildItem -LiteralPath 'C:\Program Files\Microsoft SQL Server' -Filter SqlLocalDB.exe -Recurse -ErrorAction SilentlyContinue
   $localDbCommand = $candidates | Sort-Object FullName -Descending | Select-Object -First 1
@@ -7,7 +7,7 @@ if (-not $localDbCommand) {
 if (-not $localDbCommand) { throw 'Installed LocalDB runtime unavailable; no database attached.' }
 $localDbPath = if ($localDbCommand.Source) { $localDbCommand.Source } else { $localDbCommand.FullName }
 & $localDbPath versions
-& $localDbPath create BrnoPublicAudit -s
+& $localDbPath create BrnoPublicAudit 15.0 -s
 if ($LASTEXITCODE -ne 0) { throw 'LocalDB instance creation failed' }
 $connection = [System.Data.SqlClient.SqlConnection]::new('Data Source=(localdb)\BrnoPublicAudit;Integrated Security=true;Initial Catalog=master;Connect Timeout=30;Encrypt=false')
 try {
