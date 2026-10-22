@@ -164,7 +164,8 @@ def _tap_data(tap_side: str | None, tap_neutral: int, tap_min: int, tap_max: int
         raise ValueError("P2TR020: tap_side debe ser 'hv', 'lv' o None.")
     # An explicit zero step with only the neutral position describes a fixed
     # nominal ratio, not a missing tap schedule. Never infer this from omission.
-    if tap_step_percent == 0 and tap_min == tap_max == tap_neutral == tap_pos == 0:
+    if (type(tap_step_percent) in (int, float) and tap_step_percent == 0
+            and all(type(v) is int and v == 0 for v in (tap_min, tap_max, tap_neutral, tap_pos))):
         return {"enabled": True, "fixed_nominal": True, "side": side,
                 "neutral": 0, "min": 0, "max": 0, "step_percent": 0.0,
                 "position": 0, "tap_pu": 1.0}

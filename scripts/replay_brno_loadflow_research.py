@@ -124,6 +124,29 @@ def main():
         compared[b]={"source_pu":ref,"calculated_pu":v,"abs_error_pu":abs(v-ref)}
     audit.require(len(compared)==269,"Incomplete frozen bus comparison")
     worst=max(compared,key=lambda b:compared[b]["abs_error_pu"])
+    audit.require(all(math.isfinite(r["calculated_pu"]) for r in compared.values()),"Nonfinite voltage")
+    voltage_tolerance_pu=1e-4
+    audit.require(compared[worst]["abs_error_pu"] <= voltage_tolerance_pu,"Voltage comparison outside declared research tolerance")
+    # Aggregate losses come from the SAME pinned LF database, not April PDFs.
+    con = None
+    with tempfile.TemporaryDirectory() as tmp:
+        ap=Path(tmp)/"source.zip";ap.write_bytes(blob)
+        with zipfile.ZipFile(ap) as archive:
+            info=next(x for x in archive.infolist() if x.filename.endswith("/Untitled.LF1S"))
+            rp=Path(tmp)/"report.sqlite";rp.write_bytes(archive.read(info))
+        con=sqlite3.connect(rp.resolve().as_uri()+"?mode=ro&immutable=1",uri=True)
+        con.row_factory=sqlite3.Row
+        con.execute("PRAGMA trusted_schema=OFF")
+        total=dict(con.execute('SELECT * FROM "LFSumTotal"').fetchone())
+        con.close()
+    measured_power=[-x for x in dss.Circuit.TotalPower()]
+    measured_losses=[x/1000 for x in dss.Circuit.Losses()]
+    reference_power=[total["SwingMW"]*1000,total["SwingMvar"]*1000]
+    reference_losses=[total["AppLossMW"]*1000,total["AppLossMvar"]*1000]
+    power_tolerance_relative=1e-3
+    for kind,actual,expected in (("source",measured_power,reference_power),("losses",measured_losses,reference_losses)):
+        audit.require(all(math.isfinite(v) for v in actual),"Nonfinite "+kind)
+        audit.require(all(abs(a-e) <= power_tolerance_relative*max(abs(e),1e-9) for a,e in zip(actual,expected)),"Aggregate "+kind+" outside declared tolerance")
     report={"schema":"BRNO_LF_EXPLORATORY_REPLAY_V1",
         "status":"RESEARCH_ONLY_LOAD_MODEL_SEMANTICS_UNCONFIRMED",
         "archive_sha256":facts["archive"]["sha256"],"report_sha256":facts["archive"]["members"]["Untitled.LF1S"],
@@ -136,6 +159,9 @@ def main():
         "hypotheses":["IBus.MtrMW/Mvar treated as constant PQ", "IBus.StatMW/Mvar treated as constant impedance (including compensation)",
           "Exported IConnect zero-impedance branches merged as ideal closed contacts","Utility fixed-terminal swing source; not source Thevenin impedance"],
         "not_compared":["HV/LV phase angles","ampacity","short circuit","protection","machine decay","ground faults"],
+        "research_comparison_passed":True,
+        "comparison_criteria":{"voltage_abs_error_pu":voltage_tolerance_pu,"aggregate_power_relative_error":power_tolerance_relative},
+        "reference_power_kw_kvar":reference_power,"reference_losses_kw_kvar":reference_losses,
         "input_buses":len(buses),"compared_buses":len(compared),"excluded_unloaded_buses":[r["IDBus"] for r in outside],
         "ideal_ties":tie_rows,"maximum_voltage_error_pu":compared[worst]["abs_error_pu"],
         "worst_bus":worst,"voltages":compared,"total_power_kw_kvar":[-x for x in dss.Circuit.TotalPower()],

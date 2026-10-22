@@ -43,7 +43,11 @@ jobs:
           name: brno-mdf-derived-schema
           path: outputs/brno-mdf
   lf-replay:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -55,8 +59,9 @@ jobs:
       - run: python -m pip install -r requirements.txt pytest
       - run: python -m pytest tests/test_transformer_fixed_nominal.py -q
       - run: python scripts/replay_brno_loadflow_research.py
+      - run: python scripts/verify_brno_loadflow_mcp.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: brno-lf-research-comparison
+          name: brno-lf-research-comparison-${{ matrix.os }}
           path: outputs/brno-lf-replay
