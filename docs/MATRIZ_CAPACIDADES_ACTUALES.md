@@ -1,3 +1,5 @@
+> **22 de octubre de 2026:** [guía práctica por estudio y entradas exigidas](GUIA_USO_VERIFICADO.md). La validación del MCP comprueba sus adaptadores, ejecución y resultados; los datos faltantes de un proyecto no detienen otros alcances.
+
 > **Q9 — 17 de octubre de 2026:** informes de motores MSL, comparación de casos,
 > barra/terminal separados, criterios y exportaciones verificados.
 > Ver [alcance y evidencia](INFORMES_MOTORES_Q9.md).
@@ -27,7 +29,7 @@ Los estados experimentales se conservan exclusivamente cuando falta evidencia
 técnica de la integración o del alcance. Arc Flash permanece diferido.
 
 **Fecha:** 16 de octubre de 2026. Actualización Q6: armónicos, DOL y SCR verificados dentro de sus alcances publicados. Ver [registro de cierre](ESTADO_CIERRE_MODULOS.md).
-El servidor actualizado registra **166 herramientas**. Bancos estáticos añaden
+La referencia actual registra **174 herramientas**; comprobar aparte el proceso instalado y conectado. Bancos estáticos añaden
 22 llamadas MCP y 24 comparaciones independientes; ver
 [compensación reactiva](COMPENSACION_REACTIVA_OPENDSS.md). La evidencia stdio de
 migración incluye 12 llamadas y tres simulaciones sintéticas MSL, con
@@ -95,7 +97,7 @@ Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después de
 
 | Función | OpenDSS | pandapower | Módulo propio MCP | Estado actual | Límite principal |
 |---|---|---|---|---|---|
-| Flujo de potencia principal | Resuelve tensiones, corrientes y potencias | — | Postproceso y presentación | Validado con limitaciones | La validación independiente P1 cubre redes radiales balanceadas de dos barras PQ; no toda la capacidad de OpenDSS. |
+| Flujo de potencia principal | Resuelve tensiones, corrientes y potencias | — | Postproceso y presentación | Validado con limitaciones | P1, case33bw/case69 y Q11 IEEE4/variantes verifican distintos alcances; Brno compara 269 barras con semántica de carga aún bajo investigación. No toda la capacidad de OpenDSS. |
 | Flujo con motor alternativo | Origen del modelo activo | Resuelve flujo balanceado | Puente de datos | Experimental | Líneas/cargas trifásicas y transformadores P2; no traduce todavía motores, generadores ni redes desbalanceadas. Fuente de flujo ideal a 1 pu. |
 | Caída de tensión | Resuelve tensiones | — | Calcula caída y compara criterio | Validado con limitaciones | Validación P1 por Line en red radial balanceada; caída acumulada/desbalanceada pendiente de benchmark. Umbral declarado. |
 | Flujo detallado y cargabilidad | Resultados por alimentador/equipo | — | Indicadores y revisión del workspace | Disponible dentro del alcance del flujo | Para afirmar sobrecarga necesita resultado convergente, rating aplicable y configuración. No convergencia sola no demuestra sobrecarga. |
@@ -125,7 +127,7 @@ Q5 también comprobó dos SCR con órdenes simultáneas, solapadas y después de
 | Capacidad de corte de la protección | — | Puede aportar corriente de falla | Compara capacidad declarada con corriente | Verificado en alcance declarado | Icu explícito para interruptor, capacidad de corte para fusible; Ics/Icw no sustituyen Icu. |
 | Soportabilidad térmica adiabática del conductor | — | Puede aportar corriente de falla | Verifica I²t ≤ k²S² | Verificado en alcance declarado | Corriente, despeje, k, sección y procedencia explícitos; no evolución térmica detallada. |
 | Tiempo final de despeje | — | — | Evalúa/promueve TOTAL_CLEARING_TIME | Verificado en alcance declarado | Tiempo de disparo, fusión u operación no se convierten solos en despeje total; conserva banda min/max. |
-| Coordinación temporal entre dos protecciones | — | Puede aportar corrientes por dispositivo | Compara tiempos aguas abajo/arriba | Verificado en alcance declarado | Evaluación puntual con relación declarada y margen conservador. Sin barrido de todo el dominio ni demostración de selectividad integral. |
+| Coordinación temporal entre dos protecciones | — | Puede aportar corrientes por dispositivo | Compara tiempos aguas abajo/arriba | Verificado en alcance declarado | Evaluación puntual y mínimo continuo del margen en intervalos log-log declarados, con bandas, relación de corrientes y cobertura completa. No demuestra selectividad integral. |
 
 ### 5. Motores y arranque
 

@@ -14,7 +14,7 @@ async def main():
     output=ROOT/"outputs/brno-sc3-research"
     inputs=json.loads((output/"mcp-inputs.json").read_text(encoding="utf8"))
     target=(output/"mcp").resolve();target.mkdir(exist_ok=False)
-    calls=[];comparisons=[]
+    calls=[];comparisons=[];sensitivity=[]
     params=StdioServerParameters(command=sys.executable,args=[str(ROOT/"server.py")],
         cwd=str(target),env=dict(os.environ,PYTHONUTF8="1"))
     with (target/"stderr.log").open("w",encoding="utf8") as log:
@@ -67,12 +67,53 @@ async def main():
                     error=abs(current/fault["reference_ka"]-1)
                     assert math.isfinite(current) and current>0 and error<=1e-4,(fault,current,error)
                     comparisons.append({**fault,"calculated_ka":current,"relative_error":error})
+                    variant_request={**request,"lv_tol_percent":10}
+                    stale=await call("ejecutar_cortocircuito_iec60909_3ph",
+                        {**variant_request,"revision_modelo":review})
+                    assert stale["electrical_calculation_executed"] is False,stale
+                    variant_pre=await call("evaluar_preparacion_cortocircuito_3ph",variant_request)
+                    assert variant_pre["numerical_ready"],variant_pre
+                    assert variant_pre["model_sha256"]!=pre["model_sha256"]
+                    variant_review={**review,"model_sha256":variant_pre["model_sha256"],
+                        "exclusiones_revisadas":[i["id"] for i in variant_pre["items_to_review"]],
+                        "supuestos_aprobados":review["supuestos_aprobados"]+[
+                            "LV tolerance 10 is an explicit sensitivity variant, not the published reference or a plant condition."]}
+                    variant=await call("ejecutar_estudio",{"estudio":"iec60909","tipo_falla":"three_phase",
+                        "parametros":{**variant_request,"revision_modelo":variant_review}})
+                    assert variant["executor_invoked"] and variant["selected_engine"]=="pandapower",variant
+                    assert not variant["fallback"] and not variant["crosscheck"]
+                    variant_result=variant["result"]
+                    assert variant_result["ok"] and set(variant_result["scenarios"])=={"max"},variant_result
+                    variant_current=variant_result["scenarios"]["max"]["results"]["ikss_ka"]
+                    assert math.isfinite(variant_current) and variant_current>0
+                    # Tolerance 10 changes the declared voltage factor; no external reference
+                    # or assumed minimum is attached to this sensitivity result.
+                    restored_pre=await call("evaluar_preparacion_cortocircuito_3ph",request)
+                    assert restored_pre["model_sha256"]==pre["model_sha256"],restored_pre
+                    restored=await call("ejecutar_estudio",{"estudio":"iec60909","tipo_falla":"three_phase",
+                        "parametros":{**request,"revision_modelo":review}})
+                    assert restored["executor_invoked"] and restored["selected_engine"]=="pandapower",restored
+                    assert not restored["fallback"] and not restored["crosscheck"]
+                    restored_result=restored["result"]
+                    assert restored_result["ok"] and set(restored_result["scenarios"])=={"max"},restored_result
+                    restored_current=restored_result["scenarios"]["max"]["results"]["ikss_ka"]
+                    assert math.isfinite(restored_current)
+                    repeat_error=abs(restored_current/current-1)
+                    assert repeat_error<=1e-10,(fault,repeat_error)
+                    sensitivity.append({"source_bus":fault["source_bus"],
+                        "mcp_bus":fault["mcp_bus"],"baseline_ka":current,
+                        "lv10_ka":variant_current,"restored_ka":restored_current,
+                        "relative_change":variant_current/current-1,"repeat_relative_error":repeat_error,
+                        "stale_review_blocked":True,"model_hash_restored":True,
+                        "external_reference_for_variant":False,"plant_condition_claim":False})
+
     summary={"schema":"BRNO_SC3_PUBLIC_MCP_REPLAY_V1","status":"INITIAL_MAX_REFERENCE_REPRODUCED_WITH_EXPLICIT_MODEL_SCOPE",
         "call_count":len(calls),"public_tool_count":len(catalog.tools),"motor_groups":73,"compared_fault_buses":len(comparisons),
         "distinct_electrical_fault_nodes":len({r["mcp_bus"] for r in inputs["faults"]}),
         "comparison_tolerance_relative":1e-4,"max_relative_error":max(r["relative_error"] for r in comparisons),
         "comparison":comparisons,"backend":"pandapower","lv_tol_percent":6,
-        "minimum_reproduced":False,"ith_reproduced":False,"protection_validation_performed":False,
+        "sensitivity_cases":sensitivity,"sensitivity_case_count":len(sensitivity),
+        "sensitivity_is_minimum_scenario":False,"minimum_reproduced":False,"ith_reproduced":False,"protection_validation_performed":False,
         "installation_validation_closed":False,"field_validation_performed":False}
     (target/"calls.json").write_text(json.dumps(calls,indent=2,ensure_ascii=False,allow_nan=False),encoding="utf8")
     (target/"summary.json").write_text(json.dumps(summary,indent=2,allow_nan=False),encoding="utf8")

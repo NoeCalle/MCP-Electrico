@@ -1,6 +1,6 @@
 # Estado actual y próximos pasos — MCP Eléctrico
 
-Actualizado: **17 de octubre de 2026**, calificación de transformadores Q11; registro de calificación `Q11_TRANSFORMERS_2026_10_17`.
+Actualizado: **22 de octubre de 2026**. Consultar la [guía práctica de estudios, datos requeridos y comprobación local](GUIA_USO_VERIFICADO.md).
 Este documento orienta la lectura; la fuente de estados por módulo es el
 [registro generado](ESTADO_CIERRE_MODULOS.md) desde
 [`module_qualification_v1.json`](../mcp_electrico/data/module_qualification_v1.json).
@@ -81,10 +81,16 @@ Ver [alcance, método y pruebas](MOTOR_FAULT_THERMAL_EMT.md).
 
 ## Expediente de instalación real — Brno
 
-Recuperados el proyecto ETAP original y tres informes SQLite de una fábrica
-alimentaria existente. La auditoría encuentra ángulos de transformador distintos,
-una sola ubicación de falla guardada y ajustes reales todavía no confirmados.
-No se ejecutó esta fábrica mediante MCP ni se cierra la validación integral.
+Recuperados el MDF original y tres informes SQLite de una fábrica alimentaria.
+El flujo se comparó en 269 barras, con semántica de carga todavía por confirmar.
+Por MCP se reprodujo Ik'' 3F MAX en 11 barras publicadas / 8 nodos con 73 grupos
+ equivalentes y error relativo máximo aproximado 7.45e-8. Se añaden sensibilidad
+BT y repetibilidad con revisión vinculada a la solicitud; ver
+[alcance y evidencia](BRNO_SC3_MAX_REPLAY.md).
+Faltan datos MIN autenticados, reconciliación de revisión LF/SC, tierra y
+curvas/ajustes confirmados. Esos pendientes limitan ese expediente y no detienen
+la validación de la integración MCP por otros casos y alcances.
+No se cierra la validación integral ni se afirma medición de planta.
 Ver [hallazgos y auditoría reproducible](EXPEDIENTE_INSTALACION_REAL_BRNO.md) y
 [paquete concreto para cerrar el caso](PAQUETE_PARA_CERRAR_INSTALACION_REAL.md).
 También quedan fuera de contrato el Ith con máquinas y la puesta a tierra

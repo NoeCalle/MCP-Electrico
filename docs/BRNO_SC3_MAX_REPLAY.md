@@ -104,7 +104,7 @@ las fichas SC: **no reconstruye la demanda de flujo ni ejecuta power flow**.
 La demanda estática no aporta corriente en este método de fuente equivalente.
 
 Por sistema se conservan entradas derivadas, comparación por barra,
-424 llamadas MCP y resultados por rama. Se comprueban la revisión obligatoria,
+el registro completo de llamadas MCP y resultados por rama. Se comprueban la revisión obligatoria,
 el rechazo de MAX/MIN sin fuente MIN, los equivalentes y el enrutamiento.
 No se modifica ni redistribuye el ZIP original.
 
@@ -113,3 +113,28 @@ reconciliación LF/SC de una revisión común, tierra, curvas/unidades y capacid
 de todos los dispositivos participantes; decaimiento/Ith con máquinas cuando
 se amplíe y califique ese alcance. `installation_validation_closed=false`
 y `field_validation_performed=false` permanecen explícitos.
+
+## Validación que continúa con los datos disponibles
+
+La ausencia de una fuente MIN autenticada no detiene la validación del MCP.
+El replay público amplía cada una de las 11 barras con una variante explícita
+`lv_tol_percent=10` y un retorno al ajuste publicado `6`:
+
+- la revisión del ajuste 6 debe rechazarse al solicitar 10;
+- cada variante se revisa con su propia huella y usa solo pandapower;
+- volver a 6 debe recuperar la misma huella y corriente, con diferencia
+  relativa <= 1e-10;
+- las corrientes de sensibilidad deben ser positivas y finitas;
+- los artefactos conservan entradas, revisiones, corrientes y variación relativa.
+
+La variante 10 es una prueba de sensibilidad del software. No tiene una
+referencia externa propia, no representa una condición confirmada de la planta
+y no se denomina escenario mínimo. El contraste externo sigue correspondiendo
+exclusivamente al ajuste publicado 6. No se exige una variación prefijada de
+corriente: los factores también intervienen en correcciones nativas de equipos.
+
+El trabajo continúa por alcance: contraste externo MAX, repetibilidad y controles
+de revisión sobre Brno; MIN mediante bancos con entradas explícitas; protección
+mediante curvas y ejemplos con semántica documentada. Los datos faltantes de
+Brno afectan al cierre de ese proyecto, no bloquean esas validaciones. No se
+completan por inferencia la fuente MIN, temperaturas ni tiempos de disparo.
