@@ -64,8 +64,9 @@ def main():
     z100=complex(utility["RPos100MVA"],utility["XPos100MVA"])/100
     physical_scc=100/abs(z100)
     audit.require(abs(physical_scc/float(utility["MVA3ph"])-1)<1e-5,"Utility MVA/impedance inconsistent")
-    # PP s_sc includes cHV; preserve the exported physical positive-sequence Z.
-    source_mva=source_c*physical_scc
+    # Primary mapping passes the published MVA3ph field unchanged. PP applies
+    # its native IEC source correction; exported R/X values are consistency checks.
+    source_mva=float(utility["MVA3ph"])
     pp.create_ext_grid(net,index(utility["ConnectedBus"]),s_sc_max_mva=source_mva,
         rx_max=z100.real/z100.imag,name=utility["ID"])
     for r in tables["Icable"]:
@@ -119,6 +120,14 @@ def main():
         audit.require(math.isfinite(actual) and actual>0,"Invalid calculated current")
         comparison.append({"bus":b,"reference_ka":ref["current_ka"],"calculated_ka":actual,
             "relative_error":abs(actual/ref["current_ka"]-1)})
+    # Retain the alternate raw-Z interpretation explicitly as a sensitivity
+    # study, never as a calibrated replacement of a source input.
+    net.ext_grid.loc[:,"s_sc_max_mva"]=source_c*physical_scc
+    calc_sc(net,bus=sorted({index(b) for b in initial}),case="max",fault="3ph",
+        ip=False,ith=False,lv_tol_percent=6,check_connectivity=True,use_pre_fault_voltage=False)
+    raw_z_variant=[{"bus":b,"calculated_ka":float(net.res_bus_sc.at[index(b),"ikss_ka"]),
+                    "relative_error":abs(float(net.res_bus_sc.at[index(b),"ikss_ka"])/ref["current_ka"]-1)}
+                   for b,ref in initial.items()]
     output=Path("outputs/brno-sc3-research");output.mkdir(parents=True,exist_ok=False)
     summary={"schema":"BRNO_SC3_RESEARCH_REPLAY_V1","status":"RESEARCH_ONLY_AGGREGATE_MACHINE_AND_SOURCE_SEMANTICS_UNCONFIRMED",
         "backend":"pandapower","backend_version":pp.__version__,"archive_sha256":facts["archive"]["sha256"],
@@ -131,6 +140,7 @@ def main():
         "equivalent_parameters_are_individual_motor_nameplates":False,
         "machine_mapping":"Sn=kVA*MTR_fraction; Zlr=(R+jXppIEC)% on group Sn; PP pn=Sn/eta=1/cosphi=1 numerical equivalent only",
         "comparison":comparison,"max_relative_error":max(r["relative_error"] for r in comparison),
+        "alternate_uncorrected_raw_z_interpretation":raw_z_variant,
         "electrical_calculation_performed":True,"mcp_p4_execution_performed":False,
         "minimum_case_reproduced":False,"ith_reproduced":False,"ground_fault_reproduced":False,
         "installation_validation_closed":False,"field_validation_performed":False}
