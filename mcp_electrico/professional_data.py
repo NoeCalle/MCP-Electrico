@@ -162,8 +162,15 @@ def _tap_data(tap_side: str | None, tap_neutral: int, tap_min: int, tap_max: int
     side = str(tap_side).lower()
     if side not in {"hv", "lv"}:
         raise ValueError("P2TR020: tap_side debe ser 'hv', 'lv' o None.")
+    # An explicit zero step with only the neutral position describes a fixed
+    # nominal ratio, not a missing tap schedule. Never infer this from omission.
+    if (type(tap_step_percent) in (int, float) and tap_step_percent == 0
+            and all(type(v) is int and v == 0 for v in (tap_min, tap_max, tap_neutral, tap_pos))):
+        return {"enabled": True, "fixed_nominal": True, "side": side,
+                "neutral": 0, "min": 0, "max": 0, "step_percent": 0.0,
+                "position": 0, "tap_pu": 1.0}
     if tap_step_percent <= 0:
-        raise ValueError("P2TR021: tap_step_percent debe ser positivo.")
+        raise ValueError("P2TR021: tap_step_percent debe ser positivo, o cero con tap nominal fijo explícito.")
     if not (tap_min <= tap_neutral <= tap_max and tap_min <= tap_pos <= tap_max):
         raise ValueError("P2TR022: posiciones de tap fuera del rango declarado.")
     tap_pu = 1.0 + (tap_pos - tap_neutral) * tap_step_percent / 100.0
@@ -251,7 +258,7 @@ def agregar_transformador_profesional(
         parts.append(f"LeadLag={vg['lead_lag_opendss']}")
     dss(" ".join(parts))
 
-    if tap["enabled"]:
+    if tap["enabled"] and not tap.get("fixed_nominal"):
         wdg = 1 if tap["side"] == "hv" else 2
         min_pu = 1.0 + (tap["min"] - tap["neutral"]) * tap["step_percent"] / 100.0
         max_pu = 1.0 + (tap["max"] - tap["neutral"]) * tap["step_percent"] / 100.0

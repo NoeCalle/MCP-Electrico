@@ -9,7 +9,18 @@
     "sha256": "f956e6754bf4c48795bff15cd6760c093c119703ad48a8d6e0a5c9cf03c46b66",
     "bytes": 7066894,
     "pages": 102,
-    "reviewed_pdf_pages_one_based": [31, 32, 33, 34, 35, 43, 44, 45, 59, 60]
+    "reviewed_pdf_pages_one_based": [
+      31,
+      32,
+      33,
+      34,
+      35,
+      43,
+      44,
+      45,
+      59,
+      60
+    ]
   },
   "archive": {
     "url": "https://www.vut.cz/www_base/zav_prace_soubor_verejne.php?file_id=299911",
@@ -23,32 +34,112 @@
   },
   "expected_observations": {
     "counts": {
-      "LF1S": {"IBus": 273, "Icable": 244, "IXFMR2": 12, "IConnect": 270},
-      "SI1S": {"IBus": 267, "Icable": 238, "IXFMR2": 12, "IConnect": 264},
-      "SQ2S": {"IBus": 267, "Icable": 238, "IXFMR2": 12, "IConnect": 264}
+      "LF1S": {
+        "IBus": 273,
+        "Icable": 244,
+        "IXFMR2": 12,
+        "IConnect": 270
+      },
+      "SI1S": {
+        "IBus": 267,
+        "Icable": 238,
+        "IXFMR2": 12,
+        "IConnect": 264
+      },
+      "SQ2S": {
+        "IBus": 267,
+        "Icable": 238,
+        "IXFMR2": 12,
+        "IConnect": 264
+      }
     },
-    "phase_angles_raw_degrees": {"LF1S": [0.0], "SI1S": [0.0], "SQ2S": [30.0]},
-    "cable_temperatures_raw_c": {"LF1S": [75], "SI1S": [20], "SQ2S": [75]},
-    "lf_only_cables_vs_sc": ["LV.22-WL0.2", "LV.32-WL0.1", "LV.42-WL0.1", "N°1", "N°217", "N°59"],
-    "fault_locations_in_sequence_export": ["Bus194"],
+    "phase_angles_raw_degrees": {
+      "LF1S": [
+        0
+      ],
+      "SI1S": [
+        0
+      ],
+      "SQ2S": [
+        30
+      ]
+    },
+    "cable_temperatures_raw_c": {
+      "LF1S": [
+        75
+      ],
+      "SI1S": [
+        20
+      ],
+      "SQ2S": [
+        75
+      ]
+    },
+    "lf_only_cables_vs_sc": [
+      "LV.22-WL0.2",
+      "LV.32-WL0.1",
+      "LV.42-WL0.1",
+      "N°1",
+      "N°217",
+      "N°59"
+    ],
+    "fault_locations_in_sequence_export": [
+      "Bus194"
+    ],
     "sequence_rows": 11,
     "did_not_trip_rows": 9,
-    "transformers_with_secondary_petersen_coil": {"LF1S": 12, "SI1S": 12, "SQ2S": 12},
+    "transformers_with_secondary_petersen_coil": {
+      "LF1S": 12,
+      "SI1S": 12,
+      "SQ2S": 12
+    },
     "sc_sq_cable_geometry_equal": true
   },
   "admission": {
     "installation_validation_closed": false,
-    "electrical_simulation_performed": false,
+    "electrical_simulation_performed": true,
     "field_validation_performed": false,
     "professional_emission": false,
     "status": "BLOCKED_FOR_COMPLETE_INSTALLATION_VALIDATION",
     "blocking_items": [
       "Reconcile exported transformer phase angles with the documented Dyn1 connection on one frozen revision.",
       "Reconcile LV secondary Petersen-coil entries with the documented LV TN-C and MV compensated grounding.",
-      "Export all device identities, settings, TCC tolerances, breaking ratings and total-clearing semantics; the single saved fault sequence is insufficient.",
+      "Reconcile recovered raw identities, ratings and settings with participating devices, authentic TCC bands, manufacturer unit semantics, revisions and total clearing times; one saved fault sequence is insufficient.",
       "Identify measured/nameplate inputs versus estimates and substituted breakers; authorize the intended comparison scope.",
       "Provide explicit source MAX/MIN cases and a documented projection from the frozen model for every requested study.",
       "Qualify or exclude by an explicit scope decision the machine-decay/Ith and compensated-grounding behavior outside current supported contracts."
-    ]
+    ],
+    "electrical_simulation_scope": "PF_REPORT_PROJECTION_ONLY_RESEARCH_SEMANTICS_UNCONFIRMED"
+  },
+  "source_recovery": {
+    "mdf_sha256": "8cf1a40d4a0635ddf131d23e91c47559fafc5adfe1646d21f51261a18c11e04a",
+    "ldf_sha256": "a880bf4fbc8799fd3f09d1a0af340439113f9124643f4b4b0e062a64ed719794",
+    "database_version": 904,
+    "reader": "SQL_SERVER_2019_LOCALDB_ISOLATED_COPY",
+    "nonempty_physical_tables": 504,
+    "table_counts_are_not_equipment_counts": true,
+    "raw_bt_breaker_rows_iid_above_255": 280,
+    "raw_bt_breaker_rows_with_model": 275,
+    "raw_bt_breaker_rows_with_positive_iec_breaking_capacity": 274,
+    "manufacturer_tcc_units_authenticated": false
+  },
+  "pf_replay": {
+    "status": "RESEARCH_ONLY_LOAD_MODEL_SEMANTICS_UNCONFIRMED",
+    "engine": "OpenDSS",
+    "input_member": "Untitled.LF1S",
+    "reference_member": "Untitled.LF1S",
+    "april_pdf_used": false,
+    "input_buses": 273,
+    "compared_buses": 269,
+    "excluded_unloaded_buses": [
+      "Bus43",
+      "Bus49",
+      "N°59~",
+      "N°1~"
+    ],
+    "absolute_voltage_error_limit_pu": 0.0001,
+    "aggregate_relative_power_error_limit": 0.001,
+    "installation_validation_closed": false,
+    "field_validation_performed": false
   }
 }
