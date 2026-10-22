@@ -110,3 +110,27 @@ La suite Q5 tuvo 968 pruebas aprobadas y una omitida; la integración #163 aprob
 77 comprobaciones CI. El banco físico de dos SCR contiene siete estudios y
 dieciocho llamadas MCP. El [estado actual](ESTADO_ACTUAL.md) distingue esa
 evidencia de la planificación de modelos aún no integrados.
+
+## Referencias aportadas por el usuario — 22 de octubre de 2026
+
+Se conserva este catálogo para consultar al evaluar nuevas necesidades del
+MCP. La clasificación y la valoración general de madurez proceden del usuario;
+este registro no constituye una evaluación técnica nueva de cada producto.
+
+| Área indicada | Herramientas propuestas |
+|---|---|
+| Sistemas de potencia y flujos de carga | OpenDSS, pandapower, PyPSA, MATPOWER |
+| Circuitos y electrónica de potencia | Ngspice, KiCad |
+| Campos electromagnéticos (FEM) | FEMM, GetDP |
+| Esquemas e ingeniería de detalle | QElectroTech |
+
+OpenDSS y pandapower ya tienen rutas de integración en el MCP. El catálogo
+complementa OpenModelica/MSL y los candidatos investigados en este documento.
+Para los demás nombres, conservar la condición de candidato hasta revisar
+el uso concreto, interfaz de automatización, licencia, plataformas, datos de
+intercambio y evidencia de integración. Distinguir el papel de simulador,
+biblioteca y herramienta de diseño antes de asignar una tarea.
+
+Prioridad del proyecto: aprovechar primero una ruta existente suficiente y
+añadir otra herramienta cuando cubra una necesidad concreta. Mantener una
+ruta de ejecución por estudio y documentar sus entradas, salidas y límites.
