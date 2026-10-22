@@ -101,8 +101,8 @@ def main():
         b=r["IDFrom"]
         if b not in buses or root(b) not in reachable or float(r["VoltMag"])<=0:continue
         dss.Circuit.SetActiveBus(busname(b))
-        values=dss.Bus.puVmagAngle()[0::2]
-        v=sum(values)/len(values)
+        values=dss.Bus.VMagAngle()[0::2]
+        v=sum(values)/len(values)/(float(buses[b]["NomlkV"])*1000/math.sqrt(3))
         ref=float(r["VoltMag"])/100
         compared[b]={"source_pu":ref,"calculated_pu":v,"abs_error_pu":abs(v-ref)}
     audit.require(len(compared)>200,"Incomplete bus comparison")
