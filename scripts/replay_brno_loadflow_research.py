@@ -12,7 +12,7 @@ import tempfile
 import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from opendssdirect import dss
-from mcp_electrico import core
+from mcp_electrico import core, real_controlled_execution
 import audit_brno_industrial_archive as audit
 
 def main():
@@ -65,37 +65,54 @@ def main():
     load_keys = ("MtrMW","MtrMvar","StatMW","StatMvar","ConstIMW","ConstIMvar","GenericMW","GenericMvar")
     audit.require(all(abs(float(r[k])) < 1e-8 for r in outside for k in load_keys), "Excluded island carries load")
     def busname(raw): return names[root(raw)]
-    core.crear_circuito("brno_lf_research", 22.0, frecuencia=float(case["Freq"]), bus_fuente=busname("HV1"))
-    # The source report prescribes the utility swing-bus terminal at 1 pu.
-    dss("Edit Vsource.source pu=1 angle=0 R1=1e-10 X1=1e-10 R0=1e-10 X0=1e-10")
+    reference = "Brno 176344, pinned LF1S 6b175ddb2aabc8e2637c47ad82df51cd0c6830cd04950fbb303279995af0eab5; Normal/Base LF"
+    source_bus = buses["HV1"]
+    manifest = {
+        "project":{"id":"BRNO_LF_REPORT_PROJECTION","name":"Brno public factory — LF report projection","source_reference":reference},
+        "requested_scope":["POWER_FLOW"],
+        "source":{"bus":busname("HV1"),"kv_ll":float(source_bus["NomlkV"]),"frequency_hz":float(case["Freq"]),
+            "pu":float(source_bus["SourceIniVMag"])/100,"angle_deg":float(source_bus["SourceIniAng"]),
+            "source_reference":reference,
+            "power_flow_boundary":{"model":"QUASI_IDEAL_SLACK","base_mva":100.0,"r_pu":1e-6,"x_pu":1e-6,
+                "tolerance":1e-9,"max_iterations":99,"source_reference":reference+"; explicit fixed-terminal PF projection"}},
+        "topology":{"buses":sorted({busname(b) for b in buses if root(b) in reachable}),"transformers":[],"lines":[],"loads":[]}}
     for i,r in enumerate(db["Icable"]):
         if root(r["FromBus"]) not in reachable: continue
         n=float(r["No/Ph"]); length=float(r["Length"])/1000
         audit.require(n>0 and length>0,"Invalid cable geometry")
-        c=float(r["YPos"])/(2*math.pi*float(case["Freq"]))*1e9*n
-        r1=float(r["RPos"])/n; x1=float(r["XPos"])/n
-        dss(f'New Line.c{i} phases=3 bus1={busname(r["FromBus"])} bus2={busname(r["ToBus"])} length={length} units=km R1={r1} X1={x1} C1={c} R0={r1} X0={x1} C0={c}')
+        manifest["topology"]["lines"].append({
+            "id":f"Line.c{i}","bus1":busname(r["FromBus"]),"bus2":busname(r["ToBus"]),"phases":3,
+            "length_km":length,"r1_ohm_km":float(r["RPos"])/n,"x1_ohm_km":float(r["XPos"])/n,
+            "c1_nf_km":float(r["YPos"])/(2*math.pi*float(case["Freq"]))*1e9*n,
+            "source_reference":reference+"; Icable "+r["ID"]})
     for i,r in enumerate(db["IXFMR2"]):
         if root(r["FromBus"]) not in reachable: continue
         audit.require(r["Conn"].strip()=="D/Y", "Unexpected transformer connection")
-        z=float(r["PosZ"]); xr=float(r["PosX/R"]); rp=z/math.sqrt(1+xr*xr); xp=rp*xr
-        # Physical D/Y maintained. Only magnitudes compared; LF exports 0-degree
-        # phase shift, so no assertion about relative HV/LV phase displacement.
-        dss(f'New Transformer.t{i} phases=3 windings=2 buses=[{busname(r["FromBus"])} {busname(r["ToBus"])}] conns=[delta wye] kVs=[{r["PrimkV"]} {r["SeckV"]}] kVAs=[{r["MVA"]*1000} {r["MVA"]*1000}] xhl={xp} %Rs=[{rp/2} {rp/2}] %noloadloss={r["NoLoadkW"]/(r["MVA"]*1000)*100} %imag={r["NoLoadIPos"]} ppm_antifloat=0')
-        for w,key in ((1,"Prim%Tap"),(2,"Sec%Tap")):
-            dss(f'Edit Transformer.t{i} wdg={w} tap={1+float(r[key])/100}')
+        audit.require(all(float(r[k])==0 for k in ("Prim%Tap","Sec%Tap","Min%Tap","Max%Tap","Step%Tap","LTCTapPosition")), "Non-nominal or regulating tap requires another projection")
+        manifest["topology"]["transformers"].append({
+            "id":f"Transformer.t{i}","bus_hv":busname(r["FromBus"]),"bus_lv":busname(r["ToBus"]),
+            "kva":float(r["MVA"])*1000,"kv_hv":float(r["PrimkV"]),"kv_lv":float(r["SeckV"]),
+            "uk_percent":float(r["PosZ"]),"x_r":float(r["PosX/R"]),
+            "vector_group":"Dyn1","no_load_loss_kw":float(r["NoLoadkW"]),"i0_percent":float(r["NoLoadIPos"]),
+            "tap_side":"hv","tap_min":0,"tap_max":0,"tap_neutral":0,"tap_pos":0,"tap_step_percent":0.0,
+            "source_reference":reference+"; IXFMR2 "+r["ID"]+"; D/Y + thesis Dyn1, magnitudes-only projection"})
     for i,(b,r) in enumerate(buses.items()):
         if root(b) not in reachable: continue
         audit.require(abs(r["GenericMW"])+abs(r["GenericMvar"])+abs(r["ConstIMW"])+abs(r["ConstIMvar"])<1e-9,"Unsupported load category")
         for category,model in (("Mtr",1),("Stat",2)):
             p=float(r[category+"MW"])*1000;q=float(r[category+"Mvar"])*1000
             if abs(p)+abs(q)<1e-10:continue
-            dss(f'New Load.l{i}_{category} bus1={busname(b)} phases=3 conn=wye kV={r["NomlkV"]} kW={p} kvar={q} model={model} Vminpu=0.1 Vmaxpu=2')
-    dss("Set VoltageBases=[22 0.4]")
-    dss("CalcVoltageBases")
-    dss("Set maxiterations=99 tolerance=1e-9 controlmode=off")
-    solved=core.ejecutar_flujo_potencia()
-    audit.require(solved["convergio"],"OpenDSS did not converge")
+            manifest["topology"]["loads"].append({
+                "id":f"Load.l{i}_{category}","bus":busname(b),"phases":3,"kv":float(r["NomlkV"]),
+                "kw":p,"kvar":q,"connection":"wye","model":model,"vminpu":0.1,"vmaxpu":2.0,
+                "source_reference":reference+"; nominal IBus "+b+" "+category})
+    output=Path("outputs/brno-lf-replay");output.mkdir(parents=True,exist_ok=False)
+    (output/"manifest.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False,allow_nan=False),encoding="utf8")
+    execution=real_controlled_execution.ejecutar_controlado(manifest)
+    (output/"execution.json").write_text(json.dumps(execution,indent=2,ensure_ascii=False,allow_nan=False),encoding="utf8")
+    audit.require(execution["execution_status"]=="CONTROLLED_EXECUTION_COMPLETED",
+                  "P8 did not admit/execute PF: "+json.dumps(execution,default=str)[:12000])
+    solved=execution["results"]["POWER_FLOW"]["powerflow"]
     compared={}
     for r in references:
         b=r["IDFrom"]
@@ -105,14 +122,15 @@ def main():
         v=sum(values)/len(values)/(float(buses[b]["NomlkV"])*1000/math.sqrt(3))
         ref=float(r["VoltMag"])/100
         compared[b]={"source_pu":ref,"calculated_pu":v,"abs_error_pu":abs(v-ref)}
-    audit.require(len(compared)>200,"Incomplete bus comparison")
+    audit.require(len(compared)==269,"Incomplete frozen bus comparison")
     worst=max(compared,key=lambda b:compared[b]["abs_error_pu"])
     report={"schema":"BRNO_LF_EXPLORATORY_REPLAY_V1",
         "status":"RESEARCH_ONLY_LOAD_MODEL_SEMANTICS_UNCONFIRMED",
         "archive_sha256":facts["archive"]["sha256"],"report_sha256":facts["archive"]["members"]["Untitled.LF1S"],
         "case":{k:case[k] for k in ("ID","Config","Revision","Freq","LoadCat")},
         "engine":"OpenDSS","engine_version":dss.Basic.Version(),
-        "converged":True,"electrical_calculation_performed":True,
+        "converged":True,"electrical_calculation_performed":True,"p8_execution_status":execution["execution_status"],
+        "model_revision":execution["model_revision"],"manifest_sha256":execution["manifest_sha256"],
         "installation_validation_closed":False,"field_validation_performed":False,
         "reference_outputs_used_as_inputs":False,
         "hypotheses":["IBus.MtrMW/Mvar treated as constant PQ", "IBus.StatMW/Mvar treated as constant impedance (including compensation)",
@@ -122,7 +140,6 @@ def main():
         "ideal_ties":tie_rows,"maximum_voltage_error_pu":compared[worst]["abs_error_pu"],
         "worst_bus":worst,"voltages":compared,"total_power_kw_kvar":[-x for x in dss.Circuit.TotalPower()],
         "losses_kw_kvar":[x/1000 for x in dss.Circuit.Losses()]}
-    output=Path("outputs/brno-lf-replay");output.mkdir(parents=True,exist_ok=False)
     (output/"comparison.json").write_text(json.dumps(report,indent=2,ensure_ascii=False,allow_nan=False),encoding="utf8")
     print("BRNO_LF_REPLAY="+json.dumps({k:v for k,v in report.items() if k not in ("voltages","engine_version")},allow_nan=False))
 if __name__=="__main__":main()

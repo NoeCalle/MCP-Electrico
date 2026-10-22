@@ -1,4 +1,5 @@
 $ErrorActionPreference = 'Stop'
+if (Test-Path -LiteralPath 'C:\Program Files\Microsoft SQL Server\150\Tools\Binn\SqlLocalDB.exe') { return }
 $media = Join-Path $env:RUNNER_TEMP 'sql2019-public-audit'
 New-Item -ItemType Directory -Path $media -Force | Out-Null
 $bootstrap = Join-Path $media 'SQL2019-SSEI-Expr.exe'
