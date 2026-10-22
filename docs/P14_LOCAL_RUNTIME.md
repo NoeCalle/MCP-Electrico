@@ -1,6 +1,8 @@
 # P14B — Runtime MCP local
 
-Estado: IMPLEMENTADO Y VERIFICADO LOCALMENTE — 2026-09-30.
+Estado histórico P14B: IMPLEMENTADO Y VERIFICADO LOCALMENTE — 2026-09-30.
+La instalación de las ampliaciones actuales debe comprobarse aparte; ver
+[procedimiento y evidencia pendiente](GUIA_USO_VERIFICADO.md#comprobar-que-la-instalación-local-corresponde-a-esta-capacidad).
 
 La instalación Windows incluye entorno Python aislado, acceso stdio y servidor
 Streamable HTTP en `http://127.0.0.1:8765/mcp`. P14A conserva la construcción
@@ -59,14 +61,15 @@ expedientes HTML/JSON/SVG. Se prueban ambos transportes, exclusión de otra sesi
 liberación de la sesión y rechazo de Host/Origin externos.
 
 La ampliación P13F1 verifica también las tres herramientas de preparación
-dinámica y la admisión física. La ampliación RMS verifica ejecución acoplada,
-replay e integridad del dossier dinámico, conservando el Workspace padre.
+dinámica y la admisión física. El verificador confirma que el backend dinámico propio retirado permanece
+bloqueado y conserva el Workspace padre. La ejecución dinámica vigente usa
+OpenModelica/MSL y sus bancos específicos; este smoke local no los ejecuta.
 
 ## Alcance de cierre
 
 Engineering Preview operativa local; `professional_emission=false`. P12 queda
 cerrada como foundation de escenarios estáticos explícitos. P13A–P13E quedan
-cerradas con acceso MCP público. P13F1 prepara entradas y validación para
-dinámica electromecánica; P13F2–F5 ejecutan el alcance RMS con calibración,
-convergencia, balance de energía y dossier. IEEE 1584
+cerradas con acceso MCP público. P13F1 conserva la preparación de entradas. La física propia P13F2–F5 está
+retirada; la dinámica vigente se verifica en los bancos OpenModelica/MSL DOL/SCR,
+con sus límites publicados. IEEE 1584
 continúa diferido. El cierre no añade datos normativos ni defaults implícitos.
